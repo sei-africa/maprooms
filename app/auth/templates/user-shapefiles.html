@@ -1,0 +1,17 @@
+<div class="col-md-7 user-list-modal">
+    {{ umacros.user_files_table(pageText.tab_content.shp, pageText.tab_content.delete, "shapefiles") }}
+</div>
+<hr>
+<div class="user-inputs-info">
+    {% call umacros.user_files_input(pageText.tab_content.shp, "shapefiles", True) %}
+    <div>
+        {{ pageText.tab_content.shp.instruction|safe }}
+        <pre class="pre-user-account">
+            Rwanda_watershed_lev02.shp
+            Rwanda_watershed_lev02.shx
+            Rwanda_watershed_lev02.dbf
+            Rwanda_watershed_lev02.prj
+        </pre>
+    </div>
+    {% endcall %}
+</div>

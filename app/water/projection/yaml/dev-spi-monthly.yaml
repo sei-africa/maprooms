@@ -1,0 +1,11 @@
+description:
+    en: test
+    fr: test
+
+dataset:
+    rawdata:
+        dataset: CLM
+    climatology:
+        dataset: CLM
+    anomaly:
+        dataset: CLM

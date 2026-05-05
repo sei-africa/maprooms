@@ -1,0 +1,20 @@
+<div class="col-md-7 user-list-modal">
+    {{ umacros.user_files_table(pageText.tab_content.points, pageText.tab_content.delete, "multipoints") }}
+</div>
+<hr>
+<div class="user-inputs-info">
+    {% call umacros.user_files_input(pageText.tab_content.points, "multipoints", False) %}
+    <div>
+        {{ pageText.tab_content.points.instruction|safe }}
+        <pre class="pre-user-account">
+            name,longitude,latitude
+            location 1,29.822541,-2.545458
+            location 2,29.228385,-2.348324
+            location 3,30.539145,-1.840012
+            location 4,29.671826,-1.559724
+            location 5,29.319681,-1.70965
+            location 6,30.643484,-2.20497
+        </pre>
+    </div>
+    {% endcall %}
+</div>

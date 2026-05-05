@@ -1,0 +1,150 @@
+#tab-container {
+    margin: 10px 5px;
+}
+
+.user-management-container {
+    width: 80%;
+    margin: 5px auto;
+    padding: 5px;
+}
+
+.user-management-container hr {
+    border: 2px solid #adadad;
+    margin-bottom: 2px;
+}
+
+.userLink:hover {
+    cursor: pointer;
+}
+
+.table-register-input {
+    width: 100%;
+}
+
+.table-register-input td:first-child {
+    width: 20%;
+    padding-right: 10px;
+    text-align: right;
+}
+
+.table-register-input .fullname,
+.table-register-input .institution,
+.table-register-input .email {
+    width: 80%;
+}
+
+.table-register-input .username,
+.table-register-input .password,
+.table-register-input .confirm {
+    width: 40%;
+}
+
+.table-register-input td>input {
+    padding: 5px;
+    margin: 5px 0 5px 0;
+    display: inline-block;
+}
+
+[data-bs-theme=dark] .table-register-input td>input:hover {
+    background-color: var(--maproom-dark-hover);
+}
+
+[data-bs-theme=light] .table-register-input td>input:hover {
+    background-color: var(--maproom-light-hover);
+}
+
+[data-bs-theme=dark] .table-register-select td>select:hover {
+    background-color: var(--maproom-dark-hover);
+}
+
+[data-bs-theme=light] .table-register-select td>select:hover {
+    background-color: var(--maproom-light-hover);
+}
+
+[data-bs-theme=dark] .table-register-select td>input:hover {
+    background-color: var(--maproom-dark-hover);
+}
+
+[data-bs-theme=light] .table-register-select td>input:hover {
+    background-color: var(--maproom-light-hover);
+}
+
+.register-user-select {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.table-register-select {
+    width: 90%;
+}
+
+.table-register-select .role {
+    width: 150px;
+    text-align: center;
+    margin: 5px 0 5px 0;
+}
+
+.table-register-select .access {
+    width: 250px;
+    text-align: center;
+    margin: 5px 0 5px 0;
+}
+
+.table-register-select .expiry {
+    width: 120px;
+    text-align: center;
+    margin: 5px 0 5px 0;
+}
+
+.table-register-select td:first-child {
+    width: 8%;
+}
+
+.table-register-select td:nth-child(3) {
+    width: 11%;
+}
+
+.table-register-select td:nth-child(5) {
+    width: 15%;
+}
+
+.table-register-select td:nth-child(odd) {
+    padding-right: 3px;
+    text-align: right;
+}
+
+.register-user-chekbox {
+    width: 80%;
+    margin: 1px 50px 5px;
+}
+
+.register-user-chekbox-div {
+    max-width: 50%;
+    max-height: 40vh;
+    margin: 10px;
+}
+
+.register-user-chekbox-label {
+    font-weight: bold;
+    margin: 10px;
+}
+
+.register-user-chekbox-checks {
+    margin: 10px;
+}
+
+.div-submit-btn {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-submit-user {
+    width: 30%;
+    min-height: 38px;
+    border-radius: 2px;
+    text-align: center;
+}
+
+.errors {
+    color: red;
+}

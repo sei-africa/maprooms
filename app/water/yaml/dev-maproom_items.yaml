@@ -1,0 +1,14 @@
+title: 
+    en: Climate and Water
+    fr: Climat et Eau
+description: 
+    en: Historical, current and forecast water conditions around the country.
+    fr: Conditions hydrologiques historiques, actuelles et prévisionnelles dans tout le pays.
+type: navigation-card
+icon_image: emi_climate_water.gif
+
+components:
+    - analysis
+    - monitoring
+    - forecast
+    - projection

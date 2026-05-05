@@ -1,0 +1,153 @@
+subdivision:
+    woreda:
+        file: gadm41_ETH_3.json
+        type: geojson
+        field: NAME_3
+        region: NAME_1
+        order: 0
+        group: administrative
+        name:
+            en: Woreda
+            fr: Woreda
+    zone:
+        file: gadm41_ETH_2.shp
+        type: shapefile
+        field: NAME_2
+        region: NAME_1
+        order: 1
+        group: administrative
+        name:
+            en: Zone
+            fr: Zone
+    region:
+        file: gadm41_ETH_1.shp
+        type: shapefile
+        field: NAME_1
+        order: 2
+        group: administrative
+        name:
+            en: Region
+            fr: Région
+    sub_basins:
+        file: ethiopa_river_sub_basins.shp
+        type: shapefile
+        field: sub_basin_
+        order: 3
+        group: whatershed
+        name:
+            en: Sub basin
+            fr: Sous bassin
+    basins:
+        file: ethiopa_river_basins.shp
+        type: shapefile
+        field: basinname
+        order: 4
+        group: whatershed
+        name:
+            en: Basin
+            fr: Bassin
+subdivision_sel: region
+subdivision_group:
+    administrative:
+        en: Administrative boundaries
+        fr: Limites administratives
+    whatershed:
+        en: Watershed boundaries
+        fr: Limites bassins versants
+region_to_use: region
+region_subdivision: [zone, woreda]
+region_choice:
+    country:
+        en: Country wide data
+        fr: Données à l'échelle nationale
+    region:
+        en: Administrative Region
+        fr: Région administrative
+region_label:
+    en: Display on map
+    fr: Afficher sur la carte
+region_select:
+    en: Select Region
+    fr: Sélectionner région
+extract_gridpoint:
+    gridpoint:
+        en: Grid Point
+        fr: Point de Grille
+subdivision_label:
+    en: Display subdivisions
+    fr: Afficher subdivisions
+subdivision_styles_label:
+    en: Subdivisions styles
+    fr: Subdivisions styles
+subdivision_styles_table:
+    subdivision:
+        en: Subdivision
+        fr: Subdivision
+    color:
+        en: Color
+        fr: Couleur
+    width:
+        en: Width
+        fr: Largeur
+    opacity:
+        en: Opacity
+        fr: Opacité
+raster_opacity_label:
+    en: Raster image opacity
+    fr: Opacité image raster
+basemap_style_label:
+    en: Background map style
+    fr: Sytle fond de carte
+basemap_style:
+    openstreetmap: OpenStreetMap
+    carto_light_all: CARTO Positron
+    carto_light_nolabels: CARTO Positron no labels
+    carto_dark_all: CARTO Dark Matter
+    carto_dark_nolabels: CARTO Dark Matter no labels
+    carto_rastertiles_voyager: CARTO Voyager
+    carto_rastertiles_voyager_nolabels: CARTO Voyager no labels
+    mapbox_light: Mapbox Light
+    mapbox_dark: Mapbox Dark
+    mapbox_streets: Mapbox Streets
+    mapbox_outdoors: Mapbox Outdoors
+    mapbox_satellite: Mapbox Satellite
+    mapbox_satellite_streets: Mapbox Satellite Streets
+    google_maps_nolabels: Google Maps no labels
+colorbar_col:
+    label:
+        en: Colorbar colors
+        fr: Colorbar couleurs
+    type:
+        preset:
+            en: Preset gradient colors
+            fr: Couleurs dégradées prédéfinies
+        user:
+            en: User customized colors
+            fr: Couleurs personnalisées
+    note:
+        en: Edit here the desired colors separated by comma.
+            You can mix color name and hexadecimal rgb color (#rrggbb).
+colorbar_lev:
+    label:
+        en: Colorbar breaks
+        fr: Colorbar intervalles
+    type:
+        default:
+            en: Default breaks
+            fr: Intervalles par défaut
+        user:
+            en: User customized breaks
+            fr: Intervalles personnalisées
+    note:
+        en: Edit here the desired levels separated by comma.
+colorbar_list: ['tim_colors', precipitation_1, 'rainbow',
+                'turbo', 'viridis', 'inferno', 
+                'jet', 'plasma', 'magma', 'plasma',
+                'hsv', 'hot', 'cool', 'spring', 'summer',
+                'winter', 'autumn', 'copper', 'bone']
+colorbar_preview:
+    en: Preview
+    fr: Aperçu
+colorbar_title:
+    en: Colorbar title
+    fr: Colorbar titre

@@ -1,0 +1,206 @@
+.ckeyh {
+    /*    table-layout: fixed;*/
+    height: 70px;
+    width: 400px;
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.ckeyh tr.ckeyh-title {
+    height: 25%;
+    font-size: 0.75rem;
+}
+
+.ckeyh tr.ckeyh-color {
+    /*height: 30%;*/
+    height: 12px !important;
+}
+
+.ckeyh tr.ckeyh-tick {
+    height: 20%;
+}
+
+.ckeyh tr.ckeyh-label {
+    height: 25%;
+}
+
+.ckeyh .ckeyh-color td {
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+}
+
+.ckeyh .ckeyh-color td:first-child {
+    border-left: 1px solid black;
+}
+
+.ckeyh .ckeyh-color td:last-child {
+    border-right: 1px solid black;
+}
+
+.ckeyh .ckeyh-tick td {
+    border: 1px solid black;
+    border-bottom-style: hidden;
+}
+
+.ckeyh .ckeyh-tick td:first-child {
+    border-left: 0;
+}
+
+.ckeyh .ckeyh-tick td:last-child {
+    border-right: 0;
+}
+
+.ckeyh .ckeyh-title,
+.ckeyh .ckeyh-label,
+.ckeyh .ckeyh-tick,
+.ckeyh .ckeyh-color td {
+    text-align: center;
+}
+
+/* ********** */
+
+.ckeyvE {
+    height: 400px;
+    width: 100%;
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.ckeyvE .ckeyvE-title {
+    width: 20%;
+    text-align: center;
+    vertical-align: middle;
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+}
+
+.ckeyvE td.ckeyvE-title {
+    padding: 0;
+    font-size: 0.75rem;
+}
+
+.ckeyvE td.ckeyvE-label {
+    max-width: 40%;
+    text-align: center;
+    padding: 0;
+}
+
+.ckeyvE td.ckeyvE-tick {
+    max-width: 15%;
+    padding: 0;
+}
+
+.ckeyvE td.ckeyvE-color {
+    width: 25%;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    padding: 0;
+}
+
+/* ********** */
+
+.ckeyv {
+    height: 400px;
+    /*    width: 50px;*/
+    width: 100%;
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.ckeyv .ckeyv-color {
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+}
+
+.ckeyv td.ckeyv-color {
+    width: 40%;
+}
+
+.ckeyv .cl-top {
+    border-top: 1px solid black;
+}
+
+.ckeyv .cl-bottom {
+    border-bottom: 1px solid black;
+}
+
+.ckeyv .ckeyv-label {
+    text-align: left;
+    padding-left: 2px;
+    border: none;
+    /*font-weight: bold;*/
+    /*font-size: small;*/
+}
+
+.ckeyv td.ckeyv-label {
+    width: 50%;
+}
+
+.ckeyv .ckeyv-tick {
+    border-bottom: 1px solid black;
+}
+
+.ckeyv .tk-bottom {
+    border-bottom: 0;
+}
+
+.ckeyv td.ckeyv-tick {
+    width: 10%;
+}
+
+/*--- raster colorkey  --*/
+
+.rckeyh {
+    table-layout: fixed;
+    height: 70px;
+    width: 400px;
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    text-align: center;
+}
+
+.rckeyh img {
+    height: 15px;
+    width: 100%;
+}
+
+.rckeyh tr.rckeyh-title {
+    height: 25%;
+}
+
+.rckeyh tr.rckeyh-color {
+    height: 25%;
+}
+
+.rckeyh tr.rckeyh-label {
+    height: 25%;
+}
+
+.rckeyh tr.rckeyh-tick {
+    height: 25%;
+}
+
+.rckeyh .rckeyh-tick td {
+    border: 1px solid black;
+    border-bottom-style: hidden;
+}
+
+.rckeyh .rckeyh-tick td:first-child {
+    border-top: 0;
+    border-left: 0;
+}
+
+.rckeyh .rckeyh-tick td:last-child {
+    border-top: 0;
+    border-right: 0;
+}

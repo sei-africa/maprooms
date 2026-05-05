@@ -1,0 +1,34 @@
+title: 
+    en: Disaster Risk Management
+    fr: Disaster Risk Management
+description: 
+    en: Analysis, monitoring and anticipation of climate-related risks
+    fr: Analysis, monitoring and anticipation of climate-related risks
+type: navigation-page
+icon_image: drm.gif
+maprooms:
+    - spi:
+        title:
+            en: SPI
+            fr: SPI
+        description:
+            en: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
+            fr: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
+        icon_image: spi.gif
+    - ext_rainfall:
+        title:
+            en: Extreme Rainfall Analysis
+            fr: Extreme Rainfall Analysis
+        description:
+            en: The Maproom facilitates the exploration of the history of extreme monthly and seasonal rainfall characteristics.
+            fr: The Maproom facilitates the exploration of the history of extreme monthly and seasonal rainfall characteristics.
+        icon_image: extrainfall.gif
+    - ext_temp:
+        title:
+            en: Extreme Temperature Analysis
+            fr: Extreme Temperature Analysis
+        description:
+            en: The Maproom facilitates the exploration of the history of extreme monthly and seasonal minimum and maximum temperatures.
+            fr: The Maproom facilitates the exploration of the history of extreme monthly and seasonal minimum and maximum temperatures.
+        icon_image: exttemp.gif
+

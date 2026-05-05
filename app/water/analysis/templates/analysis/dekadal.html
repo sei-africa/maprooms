@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %} {{metInfo.pageTitle}} {% endblock %}
+{% block head %}
+{{ super() }}
+<!-- block head -->
+<!-- <style> </style> -->
+{% endblock %}
+{% block content %}
+<div class="container-fluid"></div>
+{% endblock %}
+{% block javascript %}
+{% include "analysis/block-js.html" %}
+<!--  -->
+{% endblock %}

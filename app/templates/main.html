@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %} {{metInfo.metServiceLongname}} {% endblock %}
+{% block head %}
+{{ super() }}
+<style type="text/css">
+</style>
+{% endblock %}
+{% block content %}
+<div class="container item-container">
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6">
+            {% include "maproom-left.html" %}
+        </div>
+        <!--  -->
+        <div class="col-lg-8 col-md-6">
+            {% include "maproom-right.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+{% include "block-js.html" %}
+<!--  -->
+{% endblock %}

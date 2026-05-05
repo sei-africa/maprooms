@@ -1,0 +1,298 @@
+.col-map-container {
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.div-map-container {
+    width: 100%;
+    height: 60vh;
+    margin-right: 10px;
+}
+
+.div-map-control {
+    top: 0px;
+    right: 0px;
+    z-index: 500 !important;
+}
+
+.btns-map-control {
+    padding: 0px 1px 0px 0px;
+}
+
+.btns-map-control .btns-leaflet-control {
+    border-radius: 5px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    background-clip: padding-box;
+    box-shadow: none;
+}
+
+[data-bs-theme=dark] .btns-map-control .btns-leaflet-control {
+    background-color: var(--bs-body-bg);
+}
+
+[data-bs-theme=light] .btns-map-control .btns-leaflet-control {
+    background-color: var(--bs-body-bg);
+}
+
+.div-spatial-average {
+    border-radius: 5px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    background-clip: padding-box;
+    box-shadow: none;
+}
+
+[data-bs-theme=dark] .div-spatial-average {
+    background-color: var(--bs-body-bg);
+}
+
+[data-bs-theme=light] .div-spatial-average {
+    background-color: var(--bs-body-bg);
+}
+
+.map-control-offcanvas {
+    margin-top: 0px;
+    padding-top: 0px;
+    overflow-y: auto;
+    height: 80vh;
+    flex-wrap: nowrap;
+}
+
+.map-control-offcanvas fieldset,
+.map-control-offcanvas legend {
+    all: revert;
+}
+
+.map-control-offcanvas .legend-label {
+    font-weight: bold;
+}
+
+/*----*/
+
+.card-charts {
+    margin: 1px;
+    width: 100%;
+    height: 30vh;
+}
+
+.card-description {
+    margin: 5px;
+    width: 100%;
+    height: 60vh;
+}
+
+.card-description-tab {
+    width: 100%;
+    max-height: 50vh;
+    margin-top: 15px;
+}
+
+.div-card-charts {
+    height: 28vh;
+    width: 90%;
+    padding: 0px;
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+/*-----------*/
+
+.dialog-box-settings {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: fit-content;
+    max-height: 80vh;
+    z-index: 9999;
+    border-radius: var(--bs-modal-border-radius);
+    background-color: var(--bs-modal-bg);
+    border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
+}
+
+[data-bs-theme="light"] .dialog-box-settings input:hover {
+    color: var(--bs-light-text-emphasis);
+    background-color: var(--maproom-light-hover);
+}
+
+[data-bs-theme="dark"] .dialog-box-settings input:hover {
+    color: var(--bs-dark-text-emphasis);
+    background-color: var(--maproom-dark-hover);
+}
+
+/*-----------*/
+
+.modal-expand-charts {
+    border: 1px solid #d0d7de;
+}
+
+.modal-expand-charts fieldset,
+.modal-expand-charts legend {
+    all: revert;
+}
+
+.modal-expand-charts fieldset select,
+.modal-expand-charts fieldset input {
+    height: 1.8em;
+}
+
+.modal-expand-charts fieldset button {
+    --bs-btn-padding-y: .25rem;
+    --bs-btn-padding-x: .5rem;
+    --bs-btn-font-size: .75rem;
+}
+
+.modal-expand-charts .legend-label {
+    font-weight: bold;
+    font-size: 0.8em;
+}
+
+.modal-expand-charts .modal-content {
+    width: 80%;
+    max-height: 95vh;
+    margin: 0 auto;
+}
+
+.modal-expand-charts .modal-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+
+    /*background-color: blue !important;*/
+}
+
+.modal-expand-charts-plotly {
+    width: 100%;
+    height: 60vh;
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #d0d7de;
+    border-radius: 0px 0px 10px 10px;
+    /*background-color: yellow !important;*/
+}
+
+/**/
+.modal-expand-charts .modal-content .row {
+    /*background-color: red !important;*/
+}
+
+.modal-expand-charts-plotly .plotly {
+    /*background-color: green !important;*/
+}
+
+/*-----------*/
+
+.modebar-controls {
+    display: flex;
+    gap: 1px;
+    margin-bottom: 1px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.modebar-group {
+    background: var(--bs-body-bg);
+    border-radius: 8px;
+    padding: 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.modebar-btn {
+    background: transparent;
+    border: 1px solid #d0d7de;
+    padding: 0px 5px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+[data-bs-theme="dark"] .modebar-btn:hover {
+    color: var(--bs-dark-text-emphasis) !important;
+    background-color: var(--maproom-dark-hover) !important;
+    border-width: 2px;
+}
+
+[data-bs-theme="light"] .modebar-btn:hover {
+    color: var(--bs-light-text-emphasis) !important;
+    background-color: var(--maproom-light-hover) !important;
+    border-width: 2px;
+}
+
+/*----*/
+
+.rangeselector-controls {
+    display: flex;
+    gap: 1px;
+    margin-bottom: 1px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.rangeselector-group {
+    background: var(--bs-body-bg);
+    border-radius: 8px;
+    padding: 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    display: inline-flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.rangeselector-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid #d0d7de;
+    padding: 3px 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.8em;
+}
+
+[data-bs-theme="dark"] .rangeselector-btn:hover {
+    color: var(--bs-dark-text-emphasis) !important;
+    background-color: var(--maproom-dark-hover) !important;
+    border-width: 2px;
+}
+
+[data-bs-theme="light"] .rangeselector-btn:hover {
+    color: var(--bs-light-text-emphasis) !important;
+    background-color: var(--maproom-light-hover) !important;
+    border-width: 2px;
+}
+
+[data-bs-theme="dark"] .rangeselector-btn.active {
+    background: var(--maproom-dark-navbar);
+    border-width: 2px;
+}
+
+[data-bs-theme="light"] .rangeselector-btn.active {
+    background: var(--maproom-light-navbar);
+    border-width: 2px;
+}
+
+/*----*/
+
+.colorbar-selection textarea::placeholder {
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+.colorbar-selection {
+    margin-bottom: 5px;
+}
+
+.colorbar-selection img {
+    height: 15px;
+    width: 100%;
+}
+
+/*-----------*/
+
+#modal-map-matplotlib .modal-content {
+    width: 60%;
+    height: 80vh;
+    margin: 0 auto;
+}

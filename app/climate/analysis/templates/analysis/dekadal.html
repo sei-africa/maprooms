@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %} {{metInfo.pageTitle}} {% endblock %}
+{% block head %}
+{{ super() }}
+<!-- block head -->
+<!-- <style> </style> -->
+{% endblock %}
+{% block content %}
+<div class="container-fluid" id="container-page">
+</div>
+{% endblock %}
+{% block javascript %}
+{% include "analysis/block-js.html" %}
+<script type="text/javascript" src="{{ url_for('climate_analysis.static', filename='js/dekadal.js') }}"></script>
+{% endblock %}

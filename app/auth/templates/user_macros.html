@@ -1,0 +1,43 @@
+{% macro user_files_table(pageTextTab, del_col, suffixID) %}
+<div id="divModal-{{ suffixID }}"></div>
+<div>
+    <p style="font-weight:bold;"> {{ pageTextTab.title }}</p>
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th scope="col-sm-1">N°</th>
+                <th scope="col"> {{ pageTextTab.type }} </th>
+                <th scope="col-sm-1"> {{del_col}} </th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider" id="user-table-{{ suffixID }}"></tbody>
+    </table>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro user_files_input(pageTextTab, suffixID, multiple) %}
+<p style="font-weight:bold;"> {{ pageTextTab.add_file }} </p>
+<div class="container-fluid">
+    <form enctype="multipart/form-data">
+        <div class="row row-cols-auto">
+            <div class="col-md-5">
+                {% if multiple %}
+                <input id="uploadUserFile-{{ suffixID }}" type="file" class="form-control" multiple>
+                <div id="selectedUserFiles"></div>
+                {% else %}
+                <input id="uploadUserFile-{{ suffixID }}" type="file" class="form-control">
+                {% endif %}
+            </div>
+            <div class="col">
+                <input id="uploadUserBtn-{{ suffixID }}" type="button" class="btn btn-primary" value="Upload">
+                <progress id="uploadUserPb-{{ suffixID }}" style="display: none;"></progress>
+                <span id="uploadUserStatus-{{ suffixID }}"></span>
+            </div>
+        </div>
+    </form>
+</div>
+<hr class="upload-div-info">
+<div class="container-fluid">
+    {{ caller() }}
+</div>
+{% endmacro %}

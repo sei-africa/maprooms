@@ -1,0 +1,285 @@
+datasets:
+    ALL:
+        daily:
+            compute: False
+            netcdf:
+                precip: 
+                    dir: /home/enacts/ENACTS_DATA/DATA/NETCDF/ALL/precip_daily
+                    format: rr_mrg_%Y%m%d_ALL.nc
+                    name: Daily rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                tmax: 
+                    dir: /home/enacts/ENACTS_DATA/DATA/NETCDF/ALL/tmax_daily
+                    format: tmax_mrg_%Y%m%d_ALL.nc
+                    name: Daily maximum temperature
+                    varid: temp
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                tmin: 
+                    dir: /home/enacts/ENACTS_DATA/DATA/NETCDF/ALL/tmin_daily
+                    format: tmin_mrg_%Y%m%d_ALL.nc
+                    name: Daily minimum temperature
+                    varid: temp
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+            zarr_dir: /home/enacts/ENACTS_DATA/DATA/ZARR/ALL
+            chunks:
+                time: 1000
+                lat: 50
+                lon: 50
+        dekadal:
+            compute: False
+            netcdf:
+                precip: 
+                    dir: /home/enacts/ENACTS_DATA/DATA/NETCDF/ALL/precip_dekad
+                    format: rr_mrg_%Y%m%d_ALL.nc
+                    name: Dekadal rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                tmax: 
+                    dir: /home/enacts/ENACTS_DATA/DATA/NETCDF/ALL/tmax_dekad
+                    format: tmax_mrg_%Y%m%d_ALL.nc
+                    name: Dekadal maximum temperature
+                    varid: temp
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                tmin: 
+                    dir: /home/enacts/ENACTS_DATA/DATA/NETCDF/ALL/tmin_dekad
+                    format: tmin_mrg_%Y%m%d_ALL.nc
+                    name: Dekadal minimum temperature
+                    varid: temp
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+            zarr_dir: /home/enacts/ENACTS_DATA/DATA/ZARR/ALL
+            chunks:
+                time: 1000
+                lat: 50
+                lon: 50
+        monthly:
+            compute: True
+            netcdf:
+                precip: 
+                    name: Monthly rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    function: sum
+                    input: dekadal
+                    minfrac: 1
+                tmax: 
+                    name: Monthly maximum temperature
+                    varid: tmax
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+                tmin: 
+                    name: Monthly minimum temperature
+                    varid: tmin
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+        seasonal:
+            compute: True
+            netcdf:
+                precip: 
+                    name: Seasonal rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    function: sum
+                    input: dekadal
+                    minfrac: 1
+                tmax: 
+                    name: Seasonal maximum temperature
+                    varid: tmax
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+                tmin: 
+                    name: Seasonal minimum temperature
+                    varid: tmin
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+        annual:
+            compute: True
+            netcdf:
+                precip: 
+                    name: Annual rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    function: sum
+                    input: dekadal
+                    minfrac: 1
+                tmax: 
+                    name: Annual maximum temperature
+                    varid: tmax
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+                tmin: 
+                    name: Annual minimum temperature
+                    varid: tmin
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+    MON:
+        daily:
+            compute: False
+            netcdf:
+                precip: 
+                    dir: /home/enacts/ENACTS_DATA/DATA/NETCDF/ALL/precip_daily
+                    format: rr_mrg_%Y%m%d_MON.nc
+                    name: Daily rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+            zarr_dir: /home/enacts/ENACTS_DATA/DATA/ZARR/MON
+            chunks:
+                time: 1000
+                lat: 50
+                lon: 50
+        dekadal:
+            compute: False
+            netcdf:
+                precip: 
+                    dir: /home/enacts/ENACTS_DATA/DATA/NETCDF/MON/precip_dekad
+                    format: rr_mrg_%Y%m%d_MON.nc
+                    name: Dekadal rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+            zarr_dir: /home/enacts/ENACTS_DATA/DATA/ZARR/MON
+            chunks:
+                time: 1000
+                lat: 50
+                lon: 50
+        monthly:
+            compute: True
+            netcdf:
+                precip: 
+                    name: Monthly rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    function: sum
+                    input: dekadal
+                    minfrac: 1
+        seasonal:
+            compute: True
+            netcdf:
+                precip: 
+                    name: Seasonal rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    function: sum
+                    input: dekadal
+                    minfrac: 1
+        annual:
+            compute: True
+            netcdf:
+                precip: 
+                    name: Annual rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    function: sum
+                    input: dekadal
+                    minfrac: 1

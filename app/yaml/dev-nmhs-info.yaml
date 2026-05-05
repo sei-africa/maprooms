@@ -1,0 +1,25 @@
+## MetService Info
+metServiceName: EMI
+metServiceLongname: Ethiopian Meteorological Institute
+pageTitle: EMI ENACTS
+metServiceURL: https://www.ethiomet.gov.et/
+## put the images under app/static/images
+iconImage: emi_favicon.png
+metLogo: emi_logo.png
+
+## map lat/lon center
+mapCenterLON:  40.47985
+mapCenterLAT: 9.12215
+mapZoom: 6
+
+## timezone
+timeZone: Africa/Addis_Ababa
+
+## mapbox access token
+mapboxAccessToken: ''
+
+## google maps api key
+googleMapsAPIKey: ''
+
+## esri access token
+esriAccessToken: ''

@@ -1,0 +1,198 @@
+{% macro create_card_charts(divchartID, pageText) %}
+<div class="card card-charts" id="container-{{ divchartID }}">
+    <div class="position-relative">
+        <button id="btn-{{ divchartID }}" type="button" class="btn btn-md text-right position-absolute top-0 end-0 p-0 me-1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.expand_chart }}"><i class="bi bi-arrows-angle-expand"></i></button>
+    </div>
+    <div class="card-block d-flex justify-content-center">
+        <div id="{{ divchartID }}" class="div-card-charts"></div>
+    </div>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_modal_expand_charts(divchartID, pageText) %}
+<div class="modal fade modal-expand-charts" id="modal-expand-{{ divchartID }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog modal-dialog-centered vertical-align-center">
+            <div class="modal-content">
+                <div class="row m-2">
+                    <div class="col-md-11 d-flex justify-content-start">
+                        {{ caller() }}
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-end">
+                        <button type="button" class="btn btn-md position-absolute top-0 end-0 me-1 p-1" data-bs-dismiss="modal"><i class="bi bi-x-circle-fill"></i></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ toolbar_modal_expand_charts(divchartID, pageText) }}
+                    <div id="modal-chart-{{ divchartID }}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro toolbar_modal_expand_charts(divchartID, pageText) %}
+<div class="row">
+    <div class="col-md-6" id="rangeselector-{{ divchartID }}">
+        <div class="rangeselector-controls" role="toolbar">
+            <div class="rangeselector-group">
+                <button class="rangeselector-btn" data-range="1M">1M</button>
+                <button class="rangeselector-btn" data-range="3M">3M</button>
+                <button class="rangeselector-btn" data-range="6M">6M</button>
+                <button class="rangeselector-btn" data-range="YTD">YTD</button>
+                <button class="rangeselector-btn" data-range="1Y">1Y</button>
+                <button class="rangeselector-btn" data-range="5Y">5Y</button>
+                <button class="rangeselector-btn" data-range="10Y">10Y</button>
+                <button class="rangeselector-btn" data-range="15Y">15Y</button>
+                <button class="rangeselector-btn" data-range="20Y">20Y</button>
+                <button class="rangeselector-btn" data-range="25Y">25Y</button>
+                <button class="rangeselector-btn" data-range="30Y">30Y</button>
+                <button class="rangeselector-btn active" data-range="ALL">All</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end" id="modebar-{{ divchartID }}">
+        <div class="modebar-controls" role="toolbar">
+            <div class="modebar-group">
+                <button id="plotly-replot-{{ divchartID }}" class="modebar-btn btn btn-md" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.plotly_replot }}"><i class="bi bi-arrow-counterclockwise"></i></button>
+                <button id="plotly-download-{{ divchartID }}" class="modebar-btn btn btn-md" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.plotly_download }}"><i class="bi bi-arrow-down-circle-fill"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_card_information(description, instruction) %}
+<div class="card card-description">
+    <div class="card-body">
+        <div>
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="nav-tab-description" data-bs-toggle="tab" href="#tab-description">Description</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="nav-tab-instruction" data-bs-toggle="tab" href="#tab-instruction">Instructions</a>
+                </li>
+            </ul>
+        </div>
+        <!--  -->
+        <div class="tab-content">
+            <div id="tab-description" class="container tab-pane active">
+                <div class="card-description-tab overflow-auto">{{ description|safe }}</div>
+            </div>
+            <div id="tab-instruction" class="container tab-pane fade">
+                <div class="card-description-tab overflow-auto">{{ instruction|safe }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_map_control(pageText) %}
+<div class="div-map-control d-ms-flex position-absolute justify-content-end">
+    <div class="row m-1">
+        <div class="col-auto btns-map-control">
+            {% include "map-navigation.html" %}
+        </div>
+        <!--  -->
+        <div class="col-auto btns-map-control">
+            <button id="map-control-save" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.save_leaflet_map }}"><i class="bi bi-save2"></i></button>
+        </div>
+        <!--  -->
+        <div class="col-auto btns-map-control">
+            <button id="map-control-matplotlib" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.map_matplotlib}}"><i class="bi bi-pencil-square"></i></button>
+        </div>
+        <!--  -->
+        <div class="col-auto btns-map-control">
+            <span data-bs-toggle="offcanvas" data-bs-target="#map-control-offcanvas-layers">
+                <button id="map-control-layers" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.layers_control }}"><i class="bi bi-stack"></i></button>
+            </span>
+            <!--  -->
+            <div id="map-control-offcanvas-layers" class="offcanvas offcanvas-end" tabindex="-1" data-bs-backdrop="static">
+                <div class="offcanvas-header d-flex p-0 m-1">
+                    <button type="button" class="btn btn-md top-0 end-0 m-0 p-0" data-bs-dismiss="offcanvas"><i class="bi bi-x-circle-fill"></i></button>
+                </div>
+                <div class="offcanvas-body map-control-offcanvas">
+                    {% include "layers.html" %}
+                </div>
+            </div>
+        </div>
+        <!--  -->
+        <div class="col-auto btns-map-control">
+            <span data-bs-toggle="offcanvas" data-bs-target="#map-control-offcanvas-dataselect">
+                <button id="map-control-dataselect" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.map_control }}"><i class="bi bi-layout-text-sidebar"></i></button>
+            </span>
+            <!--  -->
+            <div id="map-control-offcanvas-dataselect" class="offcanvas offcanvas-end" tabindex="-1" data-bs-backdrop="static">
+                <div class="offcanvas-header d-flex p-0 m-1">
+                    <button type="button" class="btn btn-md top-0 end-0 p-0 m-0" data-bs-dismiss="offcanvas"><i class="bi bi-x-circle-fill"></i></button>
+                </div>
+                <div class="offcanvas-body map-control-offcanvas">
+                    {{ caller() }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_modal_matplotlib(pageText) %}
+<div class="modal fade" id="modal-map-matplotlib" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog modal-dialog-centered vertical-align-center">
+            <div class="modal-content">
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-md top-0 end-0 p-0 me-2" data-bs-dismiss="modal"><i class="bi bi-x-circle-fill"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-body-div-map">
+                        <div>{{ pageText.instruction }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_settings_dialog(dialogID, pageText) %}
+<div id="{{ dialogID }}" class="container-fluid dialog-box-settings">
+    <button id="{{ dialogID }}-close-1" type="button" class="btn btn-md position-absolute top-0 end-0 me-1 p-1"><i class="bi bi-x-circle-fill"></i></button>
+    <div class="container mt-4 mb-1 mx-0 px-0">
+        {{ caller() }}
+    </div>
+    <div class="d-flex justify-content-start mb-2">
+        <button id="{{ dialogID }}-close-2" type="button" class="btn btn-sm btn-primary">{{ pageText.close_button }}</button>
+    </div>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro baseline_period_dialog(dialogID, pageText) %}
+{% call create_settings_dialog(dialogID, pageText) %}
+<div class="container p-2 mt-2 mx-auto border rounded-3">
+    <div class="row p-2 m-auto">
+        <div class="col-sm-4 d-flex justify-content-end align-items-center pe-1 mx-0">
+            {{ pageText.base_period_dialog.start_year }}
+        </div>
+        <div class="col-sm-2 ps-0 mx-0">
+            <input id="{{ dialogID }}-start" class="text-center" type="text" size="5" value="{{ pageText.base_period.start_year }}">
+        </div>
+        <div class="col-sm-4 d-flex justify-content-end align-items-center pe-1 mx-0">
+            {{ pageText.base_period_dialog.end_year }}
+        </div>
+        <div class="col-sm-2 ps-0 mx-0">
+            <input id="{{ dialogID }}-end" class="text-center" type="text" size="5" value="{{ pageText.base_period.end_year }}">
+        </div>
+    </div>
+    <div class="row m-auto">
+        <div class="col-sm-8 d-flex text-nowrap justify-content-end align-items-center pe-1 me-0">
+            {{ pageText.base_period_dialog.min_year }}
+        </div>
+        <div class="col-sm-2 ps-0 ms-0">
+            <input id="{{ dialogID }}-min" class="text-center" type="text" size="4" value="{{ pageText.base_period.min_year }}">
+        </div>
+    </div>
+</div>
+{% endcall %}
+{% endmacro %}

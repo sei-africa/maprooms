@@ -1,0 +1,37 @@
+title: 
+    en: Monitoring
+    fr: Surveillance
+description: 
+    en: Provides historical context for current conditions, helps identify long-term trends, and informs strategies to deal with extreme weather events.
+    fr: Fournit un contexte historique aux conditions actuelles, aide à identifier les tendances à long terme et éclaire les stratégies de gestion des phénomènes météorologiques extrêmes.
+type: navigation-page
+icon_image: emi_climate_water.gif
+
+maprooms:
+    - dekadal:
+        title:
+            en: Dekadal
+            fr: Décadaire
+        description:
+            en: This interface allows users to view rainfall, maximum, minimum and mean temperature dekadal climatologies and seasonal anomalies.
+            fr: Cette interface permet à l'utilisateur de visualiser les climatologies décadaires et les anomalies saisonnières de précipitations et des températures.
+        # icon_function: icon_dekadal_analysis
+        icon_image: emi_mon_water_dekadal.png
+    - monthly:
+        title:
+            en: Monthly
+            fr: Mensuelle
+        description:
+            en: This interface allows users to view rainfall, maximum, minimum and mean temperature monthly climatologies and seasonal anomalies.
+            fr: Cette interface permet à l'utilisateur de visualiser les climatologies mensuelles et les anomalies saisonnières de précipitations et des températures.
+        # icon_function: icon_monthly_analysis
+        icon_image: emi_mon_water_monthly.png
+    - seasonal:
+        title:
+            en: Seasonal
+            fr: Saisonnière
+        description:
+            en: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
+            fr: Le suivi climatique saisonnier analyse les tendances des températures et précipitations sur trois mois, comparant les conditions à venir (chaud/froid, humide/sec) avec les normales climatiques.
+        # icon_function: icon_daily_analysis
+        icon_image: emi_mon_water_daily.gif

@@ -1,0 +1,102 @@
+<header>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{{ url_for('homepage') }}">
+                    <img class="meteo-logo" src="{{ url_for('static', filename='images/meteo_logo.png') }}">
+                </a>
+            </div>
+            <ul class="navbar-nav me-auto nav-maproom">
+                {% for nav in mapNav %}
+                <li class="nav-item">
+                    {% if not loop.last %}
+                    <a class="nav-link nav-link-path" href="{{ url_for('maproom_items', component = nav.path) }}"> {{ nav.label }} </a>
+                    {% else %}
+                    <a class="nav-link nav-link-path disabled"> {{ nav.label }} </a>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            <ul class="navbar-nav navbar-right d-flex justify-content-end">
+                {% if langUser.list|length > 1 %}
+                <li class="d-flex justify-content-end">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle lang-maproom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> {{ langUser.selected.label }} ({{ langUser.selected.name }}) </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% for lang in langUser.list %}
+                            <li>
+                                {% if pageType == 'main' %}
+                                {% set lang_endpoint='set_languages_main' %}
+                                {% elif pageType == 'page' %}
+                                {% set lang_endpoint='set_languages_page' %}
+                                {% elif pageType == 'user' %}
+                                {% set lang_endpoint='auth.set_languages_user' %}
+                                {% else %}
+                                {% set lang_endpoint='unknown_page' %}
+                                {% endif %}
+                                {% if pageType == 'user' %}
+                                <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code = lang.code, user_page = pageText.user_page) }}"> {{lang.name}} </a>
+                                {% else %}
+                                <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code = lang.code) }}"> {{lang.name}} </a>
+                                {% endif %}
+                            </li>
+                            {% if not loop.last %}
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+                {% endif %}
+                {% if session.logged_in %}
+                <li class="d-flex justify-content-end">
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ session.data.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% if session.data.role == 'admin' %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('auth.users_management') }}">{{ pageText.user_management }} </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('auth.user_account') }}">{{ pageText.user_accout }}</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('auth.logoutUser') }}">{{ pageText.logout }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                {% else %}
+                <li class="d-flex justify-content-end">
+                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#loginModal">{{ pageText.login }}</button>
+                    {% include 'user-login.html' %}
+                    {% if error_login %}
+                    <script>
+                        showModalDialog('loginModal');
+                    </script>
+                    {% endif %}
+                </li>
+                {% endif %}
+                <!--  -->
+                <li class="d-flex justify-content-end">
+                    <button type="button" id="btn-theme-toggle" class="btn btn-sm shadow-none"><i id="btn-theme-icon" class="bi bi-sun-fill"></i></button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!--  -->
+    <div class="div-flash-alert">
+        {% include 'flashes.html' %}
+    </div>
+</header>

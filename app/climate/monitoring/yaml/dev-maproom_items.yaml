@@ -1,0 +1,37 @@
+title: 
+    en: Climate Monitoring
+    fr: Suivi Climatique
+description: 
+    en: Historical, current and forecast climate conditions around the country.
+    fr: Conditions climatiques historiques, courantes et prévues dans le pays.
+type: navigation-page
+icon_function: icon_climate_monitoring
+# icon_image: monitoring.gif
+
+## - dekadal: name of the html file under templates (ex: dekadal.html)
+## and name of the yaml file under the folder yaml (ex: dekadal.html)
+maprooms:
+    - dekadal:
+        title:
+            en: Dekadal Climate Monitoring
+            fr: Suivi Climatique Décadaire
+        description:
+            en: This page displays dekadal (approximately 10-day) rainfall amounts over the country. The default map shows rainfall totals for the most recently available dekad, but totals for previous dekads can be displayed as well.
+            fr: Cette page présente les cumuls de précipitations décadaires (approximativement 10 jours) sur l'ensemble du pays. La carte par défaut présente le total de précipitations pour la décade la plus récente disponible, mais les décades précédentes peuvent également être visualisées.
+        icon_image: test-page.png
+    - monthly:
+        title:
+            en: Monthly Climate Monitoring
+            fr: Suivi Climatique Mensuel
+        description:
+            en: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
+            fr: Le SPI est un indicateur d'évènements extrêmes de précipitations, qu'il s'agisse de sécheresse ou de fortes pluies.
+        icon_image: monitoring.gif
+    - seasonal:
+        title:
+            en: Seasonal Climate Monitoring
+            fr: Suivi Climatique Saisonnière
+        description:
+            en: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
+            fr: Le suivi climatique saisonnier analyse les tendances des températures et précipitations sur trois mois, comparant les conditions à venir (chaud/froid, humide/sec) avec les normales climatiques.
+        icon_image: monitoring.gif

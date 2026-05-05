@@ -1,0 +1,59 @@
+from flask_caching import Cache
+import os
+import json
+import hashlib
+from ._global import GLOBAL_CONFIG
+
+cache_dir = GLOBAL_CONFIG['app_cache']
+if not os.path.exists(cache_dir):
+    os.makedirs(cache_dir)
+
+cache = Cache(config = {
+    'CACHE_TYPE': 'FileSystemCache',
+    'CACHE_DIR': cache_dir,
+    'CACHE_THRESHOLD': 1000000,
+    'CACHE_DEFAULT_TIMEOUT': 0,
+    'CACHE_OPTIONS':{'mode': 777}
+})
+
+def _hash_params(pars):
+    pars = json.dumps(pars, sort_keys=True, separators=(',', ':'))
+    pars = pars.encode('utf-8')
+    return hashlib.md5(pars).hexdigest()
+
+def cache_data_functions(function, hash_key, params):
+    cache_key = hash_key(params)
+    cached_data = cache.get(cache_key)
+    if cached_data is None:
+        cached_data = function(params)
+        if cached_data['status'] == -1:
+            return json.dumps(cached_data)
+        cache.set(cache_key, cached_data)
+    return json.dumps(cached_data)
+
+def hash_pamars_clim(params):
+    exclude = ['apiKey', 'user', 'httpMethod', 'webApp']
+    pars = {k: str(v) for k, v in params.items() if k not in exclude}
+    return _hash_params(pars)
+
+def hash_pamars_anom(params):
+    pars_keys = [
+        'analysis', 'anomaly', 'Date', 'startDate', 'endDate', 'seasStart', 'seasLength',
+         'dataset', 'temporalRes', 'variable', 'climFunction', 'fullYear',
+         'climDate', 'daysWindow', 'startYear', 'endYear', 'minYear',
+         'geomExtract', 'pointsSource', 'pointsFile', 'pointsList',
+         'padLon', 'padLat', 'minLon', 'maxLon', 'minLat', 'maxLat',
+         'shpSource', 'shpFile', 'shpField', 'Poly', 'allPolygons',
+         'geojsonSource', 'geojsonFile', 'geojsonData', 'geojsonField', 'spatialAvg'
+    ]
+    pars = {k: str(v) for k, v in params.items() if k in pars_keys}
+    return _hash_params(pars)
+
+def hash_params_monthly_ts(params):
+    pars_keys = [
+        'geomExtract', 'pointsSource', 'pointsList', 'shpSource', 'shpFile',
+        'shpField', 'Poly', 'dataset', 'temporalRes', 'variable', 'startDate',
+        'endDate', 'startYear', 'endYear', 'minYear', 'anomaly', 'chartType'
+    ]
+    pars = {k: str(v) for k, v in params.items() if k in pars_keys}
+    return _hash_params(pars)

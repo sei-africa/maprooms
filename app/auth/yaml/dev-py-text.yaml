@@ -1,0 +1,16 @@
+login0:
+  en: You need to login first
+  fr: Vous devez d'abord vous connecter
+login1:
+  en: You are now logged in!
+  fr: Vous êtes maintenant connecté!
+login2:
+  en: You have been logged out!
+  fr: Vous avez été déconnecté!
+login3:
+  en: An email has been sent to you
+  fr: Un email vous a été envoyé
+login4:
+  en: No information about user
+  fr: Aucune information sur l'utilisateur
+

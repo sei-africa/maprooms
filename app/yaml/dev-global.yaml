@@ -1,0 +1,45 @@
+login:
+    en: Login
+    fr: Se connecter
+logout:
+    en: Logout
+    fr: Se déconnecter
+user_accout:
+    en: My Account
+    fr: Mon Compte
+user_management:
+    en: Users Management
+    fr: Gestion des utilisateurs
+expand_chart:
+    en: Expand Chart
+    fr: Agrandir le graphique
+map_control:
+    en: Map control
+    fr: Contrôle de la carte
+save_leaflet_map:
+    en: Save current map
+    fr: Enregistrer la carte actuelle
+layers_control:
+    en: Layers control
+    fr: Contrôle des couches
+map_matplotlib:
+    en: Create map with Matplotlib
+    fr: Créer la carte avec Matplotlib
+spatial_avg_rm_layers:
+    en: Remove marker or selected polygon
+    fr: Supprimer marqueur ou polygone sélectionné
+time_nav_prev:
+    en: Previous
+    fr: Précédent
+time_nav_next:
+    en: Next
+    fr: Suivant
+plotly_replot:
+    en: Update plot
+    fr: Mettre à jour le graphique
+plotly_download:
+    en: Download as image
+    fr: Télécharger comme image
+close_button:
+    en: Close
+    fr: Fermer

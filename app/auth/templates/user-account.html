@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block title %} {{metInfo.pageTitle}} {% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('auth.static', filename='css/user-account.css') }}">
+{% endblock %}
+{% import 'user_macros.html' as umacros %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#personalinfo" data-bs-toggle="tab">{{ pageText.page.tab_info }}</a>
+                </li>
+                {% if 'userpolygons' in dataUser.extract %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#shapefiles" data-bs-toggle="tab">{{ pageText.page.tab_shp }}</a>
+                </li>
+                {% endif %}
+                {% if 'usermpoints' in dataUser.extract %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#ptscoords" data-bs-toggle="tab">{{ pageText.page.tab_points }}</a>
+                </li>
+                {% endif %}
+                {% if 'usergeojson' in dataUser.extract %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#geojson" data-bs-toggle="tab">{{ pageText.page.tab_geojs }}</a>
+                </li>
+                {% endif %}
+            </ul>
+            <div class="tab-content" id="tab-container">
+                <div class="tab-pane active" id="personalinfo">
+                    {% include 'user-information.html' %}
+                </div>
+                {% if 'userpolygons' in dataUser.extract %}
+                <div class="tab-pane" id="shapefiles">
+                    {% include 'user-shapefiles.html' %}
+                </div>
+                {% endif %}
+                {% if 'usermpoints' in dataUser.extract %}
+                <div class="tab-pane" id="ptscoords">
+                    {% include 'user-multipoints.html' %}
+                </div>
+                {% endif %}
+                {% if 'usergeojson' in dataUser.extract %}
+                <div class="tab-pane" id="geojson">
+                    {% include 'user-geojsonfiles.html' %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+{% include 'user-block-js.html' %}
+<script type="text/javascript" src="{{ url_for('auth.static', filename='js/user-account.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('auth.static', filename='js/user-information.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('auth.static', filename='js/user-uploadfiles.js') }}"></script>
+{% endblock %}

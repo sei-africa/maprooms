@@ -1,0 +1,28 @@
+<div class="row mt-2 item-maproom">
+    {% for item in mapItems.right %}
+    <div class="col-md-6">
+        <div class="card border mb-3 shadow">
+            <div class="card-body item-card">
+                <a href="{{ url_for(item.endpoint, template=item.template,  component=item.component) }}">
+                    <h5 class="mb-2 item-title-1">{{ item.title }} </h5>
+                </a>
+                <hr class="bg-primary-subtle border-primary-subtle" />
+                <div class="row">
+                    <div class="col">
+                        <div class="item-icon float-end">
+                            <a href="{{ url_for(item.endpoint, template=item.template, component=item.component) }}">
+                                <img class="item-image" src="{{ item.icon }}" />
+                            </a>
+                        </div>
+                        <div class="item-description">
+                            <p class="mb-0 item-text-1">
+                                {{ item.description|safe }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

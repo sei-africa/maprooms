@@ -1,0 +1,87 @@
+page:
+  tab_user:
+    en: New User
+    fr: Nouvel Utilisateur
+  tab_list:
+    en: User List
+    fr: Liste Utilisateurs
+  tab_info:
+    en: User Information
+    fr: Informations Utilisateur
+user_create:
+  title:
+    en: Create New User
+    fr: Créer Nouvel Utilisateur
+  instr:
+    en: Fill in this form to create an account.
+    fr: Remplissez ce formulaire pour créer un compte.
+  btn:
+    en: Reset Form
+    fr: Réinitialiser Formulaire
+user_list:
+  title:
+    en: Users List
+    fr: Liste Utilisateurs
+  btn:
+    en: Refresh List
+    fr: Actualiser Liste
+user_edit:
+  title:
+    en: User Information
+    fr: Informations Utilisateur
+  btn1:
+    en: Make Modification
+    fr: Faire une Modification
+  btn2:
+    en: Remove this User
+    fr: Supprimer cet Utilisateur
+  btn3:
+    en: 'Yes'
+    fr: Oui
+  btn4:
+    en: 'No'
+    fr: Non
+js_text:
+  user_from:
+    pwd:
+      en: Change password
+      fr: Modifier le mot de passe
+    submit1:
+      en: Create account
+      fr: Créer un compte
+    submit2:
+      en: Update account
+      fr: Mettre à jour le compte
+  del_user:
+    en: Are you sure to delete permanently the user
+    fr: Êtes-vous sûr de vouloir supprimer définitivement l'utilisateur
+  validate:
+    inputs:
+      en: Please fill out this field.
+      fr: Veuillez remplir ce champ.
+    email:
+      en: Please enter a valid email address.
+      fr: Veuillez entrer une adresse email valide.
+    pwd1:
+      en: The password must be at least 4 characters.
+      fr: Le mot de passe doit avoir au moins 4 caractères.
+    pwd2:
+      en: Passwords did not match.
+      fr: Les mots de passe ne correspondent pas.
+    expr1:
+      en: Invalid account expiration date.
+      fr: Date d'expiration du compte non valide.
+    expr2:
+      en: Account expiration date must be in the future
+      fr: La date d'expiration du compte doit être dans le futur
+    xsupp:
+      en: Extraction Support, at least one option must be checked.
+      fr: Support d'Extraction, au moins une option doit être cochée.
+  reply:
+    title1:
+      en: User information updated
+      fr: Informations utilisateur mises à jour
+    title2:
+      en: New user added
+      fr: Nouvel utilisateur ajouté
+

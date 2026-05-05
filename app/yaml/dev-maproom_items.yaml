@@ -1,0 +1,24 @@
+title: 
+    en: Maprooms
+    fr: Maprooms
+description: 
+    en: The maproom is a collection of maps and other figures 
+        that monitor climate and societal conditions at present and in the recent past. 
+        The maps and figures can be manipulated and are linked to the original data. 
+        Even if you are primarily interested in data rather than figures, 
+        this is a good place to see which datasets are particularly useful 
+        for monitoring current conditions.
+    fr: La Maproom est une collection de cartes et d'autres figures 
+        qui décrivent le climat et des secteurs sociétaux associés. 
+        Les cartes et les figures peuvent être manipulées et sont liées aux données d'origine. 
+        Même si vous êtes principalement intéressés par les données bruts plutôt que des figures, 
+        la Maproom est un bon endroit pour voir quelles données sont particulièrement utiles 
+        pour décrire le climat.
+type: navigation-card
+components:
+    - climate
+    - agriculture
+    - health
+    - drm
+    - water
+

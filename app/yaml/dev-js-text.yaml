@@ -1,0 +1,6 @@
+delete_marker:
+    en: Remove Marker
+    fr: Supprimer Marqueur
+point_outside:
+    en: Location outside of the data spatial coverage
+    fr: Localisation en dehors de la couverture spatiale des données

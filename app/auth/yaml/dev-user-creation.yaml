@@ -1,0 +1,76 @@
+user_role:
+    user: 
+        en: User
+        fr: Utilisateur
+    admin: 
+        en: Administrator
+        fr: Administrateurr
+user_access:
+    all: 
+        en: All Data
+        fr: Toutes Données
+    climatology:
+        en: Climatology Data
+        fr: Données Climatologiques
+    clim-analysis:
+        en: Climatology and Analysis
+        fr: Climatologie et Analyses
+    analysis:
+        en: Analysis Results
+        fr: Résultats d'Analyse
+user_form:
+    fullname: 
+        text:
+            en: Full Name
+            fr: Nom et Prénoms
+        type: text
+    institution:
+        text:
+            en: Institution
+            fr: Institution
+        type: text
+    email:
+        text:
+            en: Email Address
+            fr: Adresse Email
+        type: text
+    username:
+        text:
+            en: Username
+            fr: Nom d'utilisateur
+        type: text
+    password:
+        text:
+            en: Password
+            fr: Mot de passe
+        type: password
+    confirm:
+        text:
+            en: Repeat Password
+            fr: Répéter le mot de passe
+        type: password
+    role:
+        text:
+            en: User Role
+            fr: Rôle de l'utilisateur
+        type: select
+    access:
+        text:
+            en: Data Access
+            fr: Accès aux données
+        type: select
+    expiry:
+        text:
+            en: Account Expiration
+            fr: Expiration du compte
+        type: datepicker
+    extract:
+        text: 
+            en: Extraction Support
+            fr: Support des extractions
+        type: checkbox
+    analysis:
+        text:
+            en: Analysis
+            fr: Analyses
+        type: checkbox

@@ -1,0 +1,33 @@
+analysis:
+    anomaly:
+        en: Anomalies
+        fr: Anomalies
+    spi:
+        en: Standardized Precipitation Index (SPI)
+        fr: Indice de Précipitations Standardisé (SPI)
+# analysis_sel: anomaly
+anomaly_type:
+    difference:
+        en: Deviation from mean
+        fr: Écart par rapport à la moyenne
+    percentage:
+        en: Percentage of mean
+        fr: Pourcentage de la moyenne
+    standardized:
+        en: Standardized anomaly
+        fr: Anomalie standardisée
+spi_analysis_type:
+    time_series:
+        en: Time series data
+        fr: Données séries chronologiques
+    proba_exc:
+        en: Probability of exceeding
+        fr: Probabilité de dépassement
+    proba_nexc:
+        en: Probability of non exceeding
+        fr: Probabilité de non-dépassement
+spi_dist_function:
+    gamma: Gamma
+    pearson3: Pearson Type III
+    loglogistic: log-Logistic
+    zscore: Z-Score

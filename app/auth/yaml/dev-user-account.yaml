@@ -1,0 +1,151 @@
+page:
+  tab_info:
+    en: Personal info
+    fr: Info personnelles
+  tab_shp:
+    en: Shapefiles
+    fr: Shapefiles
+  tab_points:
+    en: Points coordinates
+    fr: Coordonnées points
+  tab_geojs:
+    en: GeoJSON Files
+    fr: Fichiers GeoJSON
+user_info:
+  title:
+    en: Change password
+    fr: Changer le mot de passe
+  new_pwd:
+    en: New Password
+    fr: Nouveau mot de passe
+  change:
+    en: Change
+    fr: Modifier
+  rpt_pwd:
+    en: Repeat Password
+    fr: Répéter le mot de passe
+tab_content:
+  points:
+    title:
+      en: User multiple points files list
+      fr: Liste des fichiers points multiples utilisateur
+    type:
+      en: File name
+      fr: Nom de fichier
+    add_file:
+      en: Add new multiple points file
+      fr: Ajouter un nouveau fichier points multiples
+    instruction:
+      en: |
+          <p>The file containing the multiple points must be in CSV format (Comma-separated values). The data must have 3 columns and the first row must be a header.
+          <ul>
+          <li>The 1st column may be the name of the locations or ID of stations</li>
+          <li>The 2nd column must be the longitude</li>
+          <li>The 3rd column must be the latitude</li>
+          </ul></p>
+          <h5>Example</h5>
+      fr: |
+          <p>Le fichier contenant les points multiples doit être au format CSV (valeurs séparées par des virgules). Les données doivent comporter trois colonnes et la première ligne doit être un en-tête.
+          <ul>
+          <li>La 1ère colonne peut être le nom des emplacements ou l'identifiant des stations</li>
+          <li>La 2ème colonne doit être la longitude</li>
+          <li>La 3ème colonne doit être la latitude</li>
+          </ul></p>
+          <h5>Exemple</h5>
+  shp:
+    title:
+      en: User shapefiles list
+      fr: Liste des fichiers shapefiles utilisateur
+    type:
+      en: Layer name
+      fr: Nom de la couche
+    add_file:
+      en: Add new shapefile
+      fr: Ajouter un nouveau shapefile
+    instruction:
+      en: |
+          <p>The shapefile must consist of the 4 files with file names extensions: <strong>.shp</strong>, <strong>.shx</strong>, <strong>.dbf</strong> and <strong>.prj</strong>. The shapefile's coordinate system must be EPSG:4326 (WGS84).</p>
+          <h5>Example</h5>
+      fr: |
+          <p>Le shapefile doit être composé de 4 fichiers avec des extensions de noms de fichiers: <strong>.shp</strong>, <strong>.shx</strong>, <strong>.dbf</strong> et <strong>.prj</strong>. Le système de coordonnées du shapefile doit être EPSG:4326 (WGS84).</p>
+          <h5>Exemple</h5>
+  geojs:
+    title:
+      en: User GeoJSON files list
+      fr: Liste des fichiers GeoJSON utilisateur
+    type:
+      en: File name
+      fr: Nom de fichier
+    add_file:
+      en: Add new GeoJSON file
+      fr: Ajouter un nouveau fichier GeoJSON
+    instruction:
+      en: |
+          <p>The coordinate of the GeoJSON must be EPSG:4326 (WGS84). The geometry types should be <strong>Point</strong>, <strong>Polygon</strong> or <strong>MultiPolygon</strong>. You can have one or multiple geometry types in one file.</p>
+          <p>The data structures are as follow </p>
+      fr: |
+          <p>Les coordonnées du GeoJSON doivent être EPSG:4326 (WGS84). Les types de géométrie doivent être <strong>Point</strong>, <strong>Polygon</strong> ou <strong>MultiPolygon</strong>. Vous pouvez avoir un ou plusieurs types de géométrie dans un fichier.</p>
+          <p>The data structures are as follow </p>
+  delete:
+    en: Delete
+    fr: Supprimer
+js_text:
+  api:
+    key:
+      en: API key
+      fr: Clé API
+    btn:
+      en: Generate new API key
+      fr: Générer une nouvelle clé API
+  valid_pwd:
+    length:
+      en: The password must be at least 4 characters
+      fr: Le mot de passe doit comporter au moins 4 caractères
+    equal:
+      en: Passwords did not match
+      fr: Les mots de passe ne sont pas égaux
+  api_key:
+    en: A new API key has been generated
+    fr: Une nouvelle clé API a été générée
+  delete:
+    title:
+      en: Delete User File
+      fr: Supprimer Fichier Utilisateur
+    qstn:
+      en: Are you sure you want to permanently delete
+      fr: Êtes-vous sûr de vouloir supprimer définitivement
+    btn:
+      en: Delete
+      fr: Supprimer
+    close:
+      en: Close
+      fr: Fermer
+  upload:
+    check1:
+      en: No file selected.
+      fr: Aucun fichier sélectionné.
+    check2:
+      en: The file must be in GeoJSON format.
+      fr: Le fichier doit être au format GeoJSON.
+    check3:
+      en: The coordinates file must be in CSV format.
+      fr: Le fichier de coordonnées doit être au format CSV.
+    check4:
+      en: Require exactly 4 files with extensions (.shp, .shx, .dbf and .prj).
+      fr: Nécessite exactement 4 fichiers avec des extensions (.shp, .shx, .dbf et .prj).
+    check5:
+      en: The 4 file names must be the same.
+      fr: Les 4 noms de fichiers doivent être identiques.
+    up1:
+      en: Layer
+      fr: Couche
+    up2:
+      en: File
+      fr: Fichier
+    up3:
+      en: is already in the list.
+      fr: est déjà dans la liste.
+    up4:
+      en: Would you like to replace it?
+      fr: Souhaitez-vous le remplacer?
+

@@ -1,0 +1,22 @@
+<div id="user-account"> </div>
+<hr>
+<div id="change-password">
+    <p style="font-weight:bold;">{{ pageText.user_info.title }}</p>
+    <form>
+        <table id="pwdInput">
+            <tr>
+                <td> <label for="password">{{ pageText.user_info.new_pwd }}</label> </td>
+                <td> <input id="password" type="password" value="" autocomplete="on">
+                </td>
+                <td rowspan="2">
+                    <button id="btn-submit-pwd" type="button" class="btn btn-primary">{{ pageText.user_info.change }}</button>
+                </td>
+            </tr>
+            <tr>
+                <td> <label for="confirm">{{ pageText.user_info.rpt_pwd }}</label> </td>
+                <td> <input id="confirm" type="password" value="" autocomplete="on">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

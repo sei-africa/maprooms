@@ -1,0 +1,9 @@
+description:
+    en: test
+    fr: test
+# all about daily data
+dataset:
+    rawdata:
+        dataset: ALL
+    dryday:
+        dataset: ALL

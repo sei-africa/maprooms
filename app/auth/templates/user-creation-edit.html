@@ -1,0 +1,32 @@
+<div class="user-management-container">
+    <div class="row">
+        <div class="col">
+            <h2>{{ pageText.user_edit.title }}</h2>
+        </div>
+        <div class="col d-flex align-items-center justify-content-end">
+            <button type="button" id="btn-edit-user" class="btn btn-primary">{{ pageText.user_edit.btn1 }}</button>
+            <button type="button" id="btn-delete-user" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-delete-user" style="margin-left: 10px;">{{ pageText.user_edit.btn2 }}</button>
+        </div>
+    </div>
+    <hr>
+    <div id="divEditUser"></div>
+</div>
+<div class="modal fade" id="modal-delete-user" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- 
+            <div class="modal-header">
+                <h5 class="modal-title">Remove User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+             -->
+            <div class="modal-body">
+                <p id="ask-delete-user"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn-delete-user-yes" class="btn btn-secondary" data-bs-dismiss="modal">{{ pageText.user_edit.btn3 }}</button>
+                <button type="button" id="btn-delete-user-no" class="btn btn-secondary" data-bs-dismiss="modal">{{ pageText.user_edit.btn4 }}</button>
+            </div>
+        </div>
+    </div>
+</div>

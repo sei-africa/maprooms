@@ -1,0 +1,11 @@
+description:
+    en: test
+    fr: test
+# all about monthly
+dataset:
+    rawdata:
+        dataset: MON
+    climatology:
+        dataset: MON
+    anomaly:
+        dataset: MON

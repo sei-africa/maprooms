@@ -1,0 +1,35 @@
+<div class="container p-0" id="container-map-navigation">
+    <div class="row gap-0 m-0 p-0">
+        <div class="col m-0 p-0">
+            <button id="prev-time-navigation" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.time_nav_prev }}"><i class="bi bi-arrow-left-square-fill"></i></button>
+        </div>
+        <div class="col m-0 p-0">
+            <input type="text" id="input-time-navigation" size="11" placeholder="2024-12">
+        </div>
+        <div class="col m-0 p-0">
+            <button id="next-time-navigation" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.time_nav_next }}"><i class="bi bi-arrow-right-square-fill"></i></button>
+        </div>
+        <div class="col m-0 p-0">
+            <button id="rm-layer-spatial-average" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.spatial_avg_rm_layers }}"><i class="bi bi-layers-half"></i></button>
+        </div>
+        <div class="col m-0 p-0 div-spatial-average">
+            <select id="list-spatial-average" class="form-select form-select2" style="width: 200px;"></select>
+        </div>
+        <div class="col m-0 p-0 div-spatial-average">
+            <select id="support-spatial-average" class="form-select form-select2-nosearch" style="width: 200px;">
+                {% for key, value in pageText.layers.extract_gridpoint.items() %}
+                <option value="{{key}}" selected>{{value}}</option>
+                {% endfor %}
+                {% for gkey, gvalue in pageText.layers.subdivision_group.items() %}
+                <optgroup label="{{ gvalue }}">
+                    {% for key, value in pageText.layers.subdivision.items() %}
+                    {% if value.group == gkey %}
+                    <option value="{{key}}">{{value.name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,256 @@
+:root {
+    --maproom-light-navbar: #e3f2fd;
+    --maproom-light-hover: #80cce3;
+    --maproom-light-select2-group: #ced4da;
+    --maproom-dark-navbar: #6200ee;
+    --maproom-dark-hover: #3700b3;
+    --maproom-dark-select2-group: #ab296a;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+.navbar-header img {
+    text-align: center;
+    max-width: 300px;
+    height: 40px;
+    padding: 0px;
+    margin-left: -5px;
+}
+
+.navbar-right li {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.nav-link-path {
+    font-weight: bold;
+    border: 1px solid #b6d0e3;
+    border-radius: 15px;
+    margin-right: 5px;
+}
+
+#btn-theme-toggle {
+    padding: 0px;
+    margin-top: 0px;
+}
+
+/*-----------*/
+.item-card .item-title-0 {
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.item-card .item-title-1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.hover-item-title-1 {
+    line-height: 1.5;
+    padding-left: 15px;
+    border-radius: 15px;
+}
+
+.item-card a {
+    text-decoration: none;
+}
+
+.item-card hr {
+    border-top: none;
+    height: 2px;
+    margin: 1rem 0;
+    border: 0;
+    opacity: .5;
+    background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, .4), transparent);
+}
+
+.item-card .item-icon {
+    max-width: 40%;
+}
+
+.item-card img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+}
+
+.item-container .card.border {
+    border-radius: 25px;
+}
+
+/*-----------*/
+
+.div-flash-alert {
+    display: block;
+    width: 99%;
+    vertical-align: top;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.div-flash-alert .alert {
+    padding: 5px;
+    text-align: center;
+    border-radius: 10px;
+    border-width: 2px;
+    border-style: solid;
+    margin-bottom: 3px;
+}
+
+.div-flash-alert .alert button {
+    padding: 5px;
+    margin-right: 5px;
+    margin-top: 7px;
+    margin-bottom: 3px;
+    font-size: 10px;
+}
+
+/*-----------*/
+
+.vertical-alignment-helper {
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+
+.vertical-align-center {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+/*------------*/
+
+#loginModal .modal-content {
+    width: 400px;
+    height: inherit;
+    margin: 50px auto;
+}
+
+#loginModal form {
+    margin-bottom: 10px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+}
+
+#loginModal .modal-header h4 {
+    text-align: center;
+}
+
+#loginModal .form-group {
+    margin-bottom: 10px;
+}
+
+#btn-submit-login {
+    min-height: 38px;
+    font-size: 15px;
+    font-weight: bold;
+    padding-right: 50px;
+    padding-left: 50px;
+}
+
+/*----------*/
+
+.select2-selection {
+    background-color: transparent !important;
+}
+
+.select2-selection__choice {
+    background-color: transparent !important;
+}
+
+.select2-results {
+    background-color: var(--bs-body-bg) !important;
+}
+
+[data-bs-theme="dark"] .select2-results__option--highlighted {
+    color: var(--bs-dark-text-emphasis) !important;
+    background-color: transparent !important;
+}
+
+[data-bs-theme="light"] .select2-results__option--highlighted {
+    color: var(--bs-light-text-emphasis) !important;
+    background-color: transparent !important;
+}
+
+[data-bs-theme="dark"] .select2-container:hover {
+    color: var(--bs-dark-text-emphasis) !important;
+    background-color: var(--maproom-dark-hover) !important;
+}
+
+[data-bs-theme="light"] .select2-container:hover {
+    color: var(--bs-light-text-emphasis) !important;
+    background-color: var(--maproom-light-hover) !important;
+}
+
+[data-bs-theme="dark"] .select2-results__option--selectable:hover {
+    color: var(--bs-dark-text-emphasis) !important;
+    background-color: var(--maproom-dark-hover) !important;
+}
+
+[data-bs-theme="light"] .select2-results__option--selectable:hover {
+    color: var(--bs-light-text-emphasis) !important;
+    background-color: var(--maproom-light-hover) !important;
+}
+
+[data-bs-theme="dark"] .select2-results__option--selected {
+    color: var(--bs-dark-text-emphasis) !important;
+    background-color: var(--bs-primary) !important;
+    font-weight: bold !important;
+}
+
+[data-bs-theme="light"] .select2-results__option--selected {
+    color: var(--bs-light-text-emphasis) !important;
+    background-color: var(--bs-primary) !important;
+    font-weight: bold !important;
+}
+
+[data-bs-theme="dark"] .select2-selection__rendered {
+    color: var(--bs-dark-text-emphasis) !important;
+}
+
+[data-bs-theme="dark"] .select2-results__group {
+    background-color: var(--maproom-dark-select2-group);
+    border-radius: 5px 5px 0px 0px;
+}
+
+[data-bs-theme="light"] .select2-results__group {
+    background-color: var(--maproom-light-select2-group);
+    border-radius: 5px 5px 0px 0px;
+}
+
+[data-bs-theme="dark"] .select2-results__option--group {
+    margin: 3px;
+    border: 1px solid var(--maproom-dark-select2-group);
+    border-radius: 5px;
+}
+
+[data-bs-theme="light"] .select2-results__option--group {
+    margin: 3px;
+    border: 1px solid var(--maproom-light-select2-group);
+    border-radius: 5px;
+}
+
+/*******/
+.select2-search {
+    background-color: transparent !important;
+}
+
+/*
+[data-bs-theme="dark"] .select2-search {
+    background-color: var(--maproom-dark-navbar) !important;
+}
+[data-bs-theme="light"] .select2-search {
+    background-color: var(--maproom-light-navbar) !important;
+}
+*/
+
+/*******/
+
+.jcalendar_warning {
+    color: var(--bs-body-color) !important;
+}
+
+/*******/

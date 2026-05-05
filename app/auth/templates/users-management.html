@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %} {{metInfo.pageTitle}} {% endblock %}
+{% block head %}
+{{ super() }}
+<!--  -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/themes/base/jquery-ui.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js"></script>
+<!--  -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('auth.static', filename='css/users-management.css') }}">
+{% endblock %}
+{% import 'user_macros.html' as umacros %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" id="nav-tab-user-creation" href="#user-creation" data-bs-toggle="tab">{{ pageText.page.tab_user }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="nav-tab-user-list" href="#user-list" data-bs-toggle="tab">{{ pageText.page.tab_list }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="nav-tab-user-info" href="#user-information" data-bs-toggle="tab">{{ pageText.page.tab_info }}</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="tab-container">
+                <div class="tab-pane active" id="user-creation">
+                    {% include 'user-creation-form.html' %}
+                </div>
+                <div class="tab-pane" id="user-list">
+                    {% include 'user-list.html' %}
+                </div>
+                <div class="tab-pane" id="user-information">
+                    {% include 'user-creation-edit.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+{% include 'user-block-js.html' %}
+<script type="text/javascript" src="{{ url_for('auth.static', filename='js/users-management.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,64 @@
+<div class="container">
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="monthly-map-variable" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.monthly_map.label_display }}</legend>
+        <select id="monthly-map-type" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.monthly_map.select_display.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.monthly_map.label_date }}</legend>
+        <div id="monthly-map-date">
+            <input id="monthly-map-date-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset id="monthly-map-anomaly" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.monthly_anomaly.label }}</legend>
+        <div>
+            <select id="monthly-map-anomaly-type" class="form-select form-select2-nosearch" style="width:100%;">
+                {% for key, value in pageText.monthly_anomaly.select.items() %}
+                <option value="{{key}}" {% if (key=='difference' ) %} selected {% endif %}>{{value}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </fieldset>
+    <fieldset id="monthly-map-climato" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.monthly_climato.label_climato }}</legend>
+        <div>
+            <select id="monthly-map-climato-func" class="form-select form-select2-nosearch" style="width:100%;">
+                {% for key, value in pageText.monthly_climato.func_climato.items() %}
+                <option value="{{key}}" {% if (key=='mean' ) %} selected {% endif %}>{{value}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="div-monthly-map-climato-perc" class="input-group w-50 mt-2" style="display: none;">
+            <span class="input-group-text">{{ pageText.monthly_climato.label_perc }}</span>
+            <input id="monthly-map-climato-perc" type="text" size="3" value="95" class="form-control">
+        </div>
+        <div id="div-monthly-map-climato-freq" style="display: none;">
+            <div class="row p-0 g-0">
+                <div class="col-md-6 input-group w-auto mt-2">
+                    <span class="input-group-text">{{ pageText.monthly_climato.label_freq_op }}</span>
+                    <select id="monthly-map-climato-freqOp" class="form-select form-select2-nosearch">
+                        {% for op in ['>=', '>', '<=', '<' ] %} <option value="{{op}}">{{op}}</option>
+                            {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 input-group w-auto mt-2">
+                    <span class="input-group-text">{{ pageText.monthly_climato.label_freq_th }}</span>
+                    <input id="monthly-map-climato-freqTh" type="text" size="3" value="300" class="form-control">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<!--  -->

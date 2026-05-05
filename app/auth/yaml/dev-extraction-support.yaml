@@ -1,0 +1,16 @@
+extraction_support:
+    usermpoints:
+        en: Multiple Points from User
+        fr: Multiple Points de l'utilisateur
+    rectangle:
+        en: Rectangle
+        fr: Rectangle
+    userpolygons:
+        en: Shapefiles from User
+        fr: Shapefiles de l'utilisateur
+    usergeojson:
+        en: GeoJSON File
+        fr: Fichier GeoJSON
+    originalgrid:
+        en: Get Original Files
+        fr: Obtenir les fichiers originaux

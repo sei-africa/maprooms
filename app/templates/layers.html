@@ -1,0 +1,91 @@
+<div class="container">
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.layers.region_label }}</legend>
+        <select id="select-country-region" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.layers.region_choice.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="select-region-container" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.layers.region_select }}</legend>
+        <select id="select-region-name" class="form-select form-select2-nosearch">
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.layers.subdivision_label }}</legend>
+        <select id="map-display-subdivision" class="form-select form-select2" multiple>
+            {% for key, value in pageText.layers.subdivision.items() %}
+            <option value="{{key}}" {% if (key==pageText.layers.subdivision_sel) %} selected {% endif %}>{{value.name}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.layers.subdivision_styles_label }}</legend>
+        <div id="map-styles-subdivision"></div>
+    </fieldset>
+    <!--  -->
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.layers.raster_opacity_label }}</legend>
+        <div class="d-flex align-items-center">
+            <input type="range" id="raster-image-opacity-slide" class="form-range" min="0" max="1" step="0.1" value="1">
+            <span id="raster-image-opacity-value" style="font-weight: bold; margin-left: 5px;">1</span>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.layers.basemap_style_label }}</legend>
+        <select id="map-basemap-style" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.layers.basemap_style.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.layers.colorbar_col.label }}</legend>
+        <div class="colorbar-selection">
+            <select id="map-colorbar-colors" class="form-select form-select2-nosearch">
+                {% for key, value in pageText.layers.colorbar_col.type.items() %}
+                <option value="{{key}}">{{value}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="colorbar-color-preset" class="colorbar-selection">
+            <select id="colorbar-color-preset-select" class="form-select form-select2-nosearch">
+                {% for loko in pageText.layers.colorbar_list %}
+                <option value="{{loko}}">{{loko}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="colorbar-color-user" class="colorbar-selection" style="display: none;">
+            <div class="container mb-1 mx-0 p-0">
+                <textarea id="colorbar-color-user-text" class="form-control" placeholder="{{ pageText.layers.colorbar_col.note }}"></textarea>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button id="colorbar-preview-user" type="button" class="btn btn-sm btn-primary">{{ pageText.layers.colorbar_preview }}</button>
+            </div>
+        </div>
+        <div class="colorbar-selection">
+            <img id="colorbar-preview" src="">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.layers.colorbar_lev.label }}</legend>
+        <div class="colorbar-selection">
+            <select id="map-colorbar-breaks" class="form-select form-select2-nosearch">
+                {% for key, value in pageText.layers.colorbar_lev.type.items() %}
+                <option value="{{key}}">{{value}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="colorbar-breaks-user" class="colorbar-selection" style="display: none;">
+            <textarea id="colorbar-breaks-user-text" class="form-control" placeholder="{{ pageText.layers.colorbar_lev.note }}"></textarea>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.layers.colorbar_title }}</legend>
+        <div class="colorbar-selection">
+            <input id="colorbar-title-user" type="text" class="form-control">
+        </div>
+    </fieldset>
+</div>

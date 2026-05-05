@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!-- <html lang="en" data-bs-theme="dark"> -->
+<html lang="en">
+
+<head>
+    {% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %} </title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/meteo_favicon.png') }}">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <!--  -->
+    <!-- use npm  instead of cdn and remove crossorigin="anonymous" -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet" crossorigin="anonymous">
+    <!--  -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!--  -->
+    <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <!--  -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!--  -->
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet-mouse-position@1.0.4/src/L.Control.MousePosition.css" crossorigin="anonymous">
+    <script type="text/javascript" src="https://unpkg.com/leaflet-mouse-position@1.0.4/src/L.Control.MousePosition.js"></script>
+    <!--  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.Spin/1.1.2/leaflet.spin.min.js"></script>
+    <!--  -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-easyprint@2.1.9/dist/bundle.js"></script>
+    <!--  -->
+    <script src=" https://cdn.jsdelivr.net/npm/@turf/turf@7.2/turf.min.js"></script>
+    <!--  -->
+    <script src="https://cdn.jsdelivr.net/npm/jsuites/dist/jsuites.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsuites/dist/jsuites.min.css" type="text/css" crossorigin="anonymous">
+    <!--  -->
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='lang/plotly-locale-fr.js') }}"></script>
+    <!--  -->
+    <script src="https://unpkg.com/geotiff@2.1.3/dist-browser/geotiff.js"></script>
+    <script src="https://unpkg.com/plotty@0.4.9/dist/plotty.min.js"></script>
+    <script src="https://unpkg.com/leaflet-geotiff@0.2.0/leaflet-geotiff.js"></script>
+    <script src="https://unpkg.com/leaflet-geotiff@0.2.0/leaflet-geotiff-plotty.js"></script>
+    <!--  -->
+    {{ JSGlue.include() }}
+    <!--  -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/maprooms.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/map-pages.css') }}" />
+    <script type="text/javascript" src="{{ url_for('static', filename='js/maprooms.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/leaflet-map.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/leaflet-site.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/rstudio-leaflet-2.0.3.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/colorkeys.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/colorkeys.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plotly.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/colors.js') }}"></script>
+    {% endblock %}
+</head>
+
+<body>
+    {% import 'macros.html' as fmacros %}
+    {% include 'navigation.html' %}
+    {% block content %}{% endblock %}
+    {% block javascript %}{% endblock %}
+</body>
+
+</html>
