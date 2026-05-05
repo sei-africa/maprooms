@@ -1,0 +1,3 @@
+[submodule "app/dst_api"]
+	path = app/dst_api
+	url = git@github.com:sei-africa/dst_api.git
