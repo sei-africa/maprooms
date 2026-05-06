@@ -6,6 +6,7 @@ from app.dst_api.scripts import (download_climdata, extract_climdata,
                                  download_rawdata)
 from app.scripts.imagepng import create_imagePng
 from app.scripts.util import pretty
+from app.scripts._cache import _hash_params
 
 def get_spatial_monthly_data(params):
     if params['mapType'] == 'climatology':
@@ -124,13 +125,18 @@ def get_climato_monthly_ts(params):
 
     if one_var:
         params_mean = _create_params_monthly_clim_mean_ts(params)
-        # data_mean = download_climdata(params_mean)
-        data_mean = extract_climdata(params_mean)
+        if params['compute_new']:
+            data_mean = download_climdata(params_mean)
+        else:
+            data_mean = extract_climdata(params_mean)
         data_mean = json.loads(data_mean)
         if data_mean['status'] != 0: return data_mean
+
         params_perc = _create_params_monthly_clim_perc_ts(params)
-        # data_perc = download_climdata(params_perc)
-        data_perc = extract_climdata(params_perc)
+        if params['compute_new']:
+            data_perc = download_climdata(params_perc)
+        else:
+            data_perc = extract_climdata(params_perc)
         data_perc = json.loads(data_perc)
         if data_perc['status'] != 0: return data_perc
 
@@ -184,10 +190,12 @@ def get_climato_monthly_ts(params):
         for var in variables:
             params_mean = _create_params_monthly_clim_mean_ts(params)
             params_mean['variable'] = var
-            # data_mean = download_climdata(params_mean)
-            data_mean = extract_climdata(params_mean)
+            if params['compute_new']:
+                data_mean = download_climdata(params_mean)
+            else:
+                data_mean = extract_climdata(params_mean)
             data_mean = json.loads(data_mean)
-            # if data_mean['status'] != 0: return data_mean
+            if data_mean['status'] != 0: return data_mean
 
             data_mean['data'] = json.loads(data_mean['data'])
 
@@ -320,3 +328,11 @@ def _create_params_monthly_clim_perc_ts(params):
         pars = pars_0 | {'spatialAvg': True, 'allPolygons': False}
     return pars | params
 
+def hash_params_monthly_ts(params):
+    pars_keys = [
+        'geomExtract', 'pointsSource', 'pointsList', 'shpSource', 'shpFile',
+        'shpField', 'Poly', 'dataset', 'temporalRes', 'variable', 'startDate',
+        'endDate', 'startYear', 'endYear', 'minYear', 'anomaly', 'chartType'
+    ]
+    pars = {k: str(v) for k, v in params.items() if k in pars_keys}
+    return _hash_params(pars)

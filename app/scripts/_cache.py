@@ -24,7 +24,9 @@ def _hash_params(pars):
 def cache_data_functions(function, hash_key, params):
     cache_key = hash_key(params)
     cached_data = cache.get(cache_key)
+    params['compute_new'] = False
     if cached_data is None:
+        params['compute_new'] = True
         cached_data = function(params)
         if cached_data['status'] == -1:
             return json.dumps(cached_data)
@@ -45,15 +47,6 @@ def hash_pamars_anom(params):
          'padLon', 'padLat', 'minLon', 'maxLon', 'minLat', 'maxLat',
          'shpSource', 'shpFile', 'shpField', 'Poly', 'allPolygons',
          'geojsonSource', 'geojsonFile', 'geojsonData', 'geojsonField', 'spatialAvg'
-    ]
-    pars = {k: str(v) for k, v in params.items() if k in pars_keys}
-    return _hash_params(pars)
-
-def hash_params_monthly_ts(params):
-    pars_keys = [
-        'geomExtract', 'pointsSource', 'pointsList', 'shpSource', 'shpFile',
-        'shpField', 'Poly', 'dataset', 'temporalRes', 'variable', 'startDate',
-        'endDate', 'startYear', 'endYear', 'minYear', 'anomaly', 'chartType'
     ]
     pars = {k: str(v) for k, v in params.items() if k in pars_keys}
     return _hash_params(pars)

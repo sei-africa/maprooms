@@ -101,13 +101,13 @@ def render_template_main(nav_path):
 # def render_template_page(cm):
 def render_template_page(tm, cm):
     nav_path = set_navbar_path(cm, 'file')
-    print('---------------------')
-    print(nav_path)
-    print('---------------------')
+    # print('---------------------')
+    # print(nav_path)
+    # print('---------------------')
     mapNav = load_navigation_items(nav_path)
-    print('---------------------')
-    print(mapNav)
-    print('---------------------')
+    # print('---------------------')
+    # print(mapNav)
+    # print('---------------------')
     pageText = load_maproom_page_text(nav_path, 'page')
     # return render_template(f'{cm}.html',
     return render_template(f'{tm}/{cm}.html',

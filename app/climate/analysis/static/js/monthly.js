@@ -141,7 +141,8 @@ $(document).ready(function() {
 
         // update chart
         $(`#plotly-replot-${idc}`).on('click', function() {
-            expand_charts_monthly_rawdata(contChart);
+            // console.log(contChart);
+            expand_charts_monthly_climato(contChart);
         });
 
         // download chart
@@ -785,8 +786,6 @@ function expand_charts_monthly_display_climato(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
     const theme = $('html').attr('data-bs-theme');
-
-    // console.log(container)
 
     if (json.chartType === 'multiple') {
         var data = [{
