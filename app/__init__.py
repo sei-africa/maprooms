@@ -60,6 +60,9 @@ from app.scripts._colors import COLORS_MAPROOM
 from app.scripts._cache import cache
 cache.init_app(app)
 
+# from flask_wtf.csrf import CSRFProtect
+# csrf = CSRFProtect(app)
+
 from app.auth.scripts.sqlite import initUsersTable
 try:
     ret = initUsersTable()

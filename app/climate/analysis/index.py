@@ -36,6 +36,8 @@ def before_request():
 def monthly_map():
     params = request.get_json()
     try:
+        # print('----------- monthly_map -----------')
+        # print(params)
         map_data = get_spatial_monthly_data(params)
         return json.dumps(map_data)
     except Exception as e:
@@ -47,6 +49,7 @@ def monthly_map():
 def charts_monthly_rawdata():
     params = request.get_json()
     try:
+        # print('----------- charts_monthly_rawdata -----------')
         # print(params)
         return cache_data_functions(
                     get_rawdata_monthly_ts,
@@ -60,6 +63,7 @@ def charts_monthly_rawdata():
 def charts_monthly_anomaly():
     params = request.get_json()
     try:
+        # print('----------- charts_monthly_anomaly -----------')
         # print(params)
         return cache_data_functions(
                     get_anomaly_monthly_ts,
@@ -73,6 +77,7 @@ def charts_monthly_anomaly():
 def charts_monthly_climato():
     params = request.get_json()
     try:
+        # print('----------- charts_monthly_climato -----------')
         # print(params)
         return cache_data_functions(
                     get_climato_monthly_ts,

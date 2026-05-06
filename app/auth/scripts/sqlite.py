@@ -7,8 +7,11 @@ from app.dst_api.scripts.util import convert2json
 from app.scripts._global import GLOBAL_CONFIG
 
 def connection():
-    sqllite_db = os.path.join(GLOBAL_CONFIG['data_dir'], 'maprooms-sqlite.db')
-    conn = sqlite3.connect(sqllite_db)
+    sqlite_db = os.path.join(
+        GLOBAL_CONFIG['data_dir'],
+        'maprooms-sqlite.db'
+    )
+    conn = sqlite3.connect(sqlite_db)
     cursor = conn.cursor()
     return cursor, conn
 

@@ -1,5 +1,5 @@
 import os
-import config
+# import config
 from app.scripts._global import GLOBAL_CONFIG
 from app.scripts.util import load_yaml_file
 from app.scripts.maproom_items import pasre_lang_yaml_nested4
@@ -26,10 +26,12 @@ def auth_message_text():
     return pasre_lang_yaml_nested4(tmp)
 
 def _get_admin_datauser():
-    if not os.path.exists(config.INIT_ADMIN):
-        msg = 'Admin yaml file not found.'
-        return {'status': -1, 'message': msg}
-    admin = load_yaml_file(config.INIT_ADMIN)
+    admin = {}
+    admin['fullname'] = 'Maprooms Administrator'
+    admin['institution'] = 'NMHS'
+    admin['email'] = 'adminMaprooms@localhost'
+    admin['username'] = 'admin'
+    admin['password'] = 'admin'
     admin['role'] = 'admin'
     admin['access'] = 'all'
     admin['expiry'] = '2100-01-01'

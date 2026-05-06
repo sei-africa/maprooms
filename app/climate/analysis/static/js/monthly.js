@@ -503,7 +503,7 @@ function expand_query_monthly_rawdata() {
         return query;
     }
 
-    query.temporalRes = 'monthly'
+    query.temporalRes = 'monthly';
     query.dataset = DATA_SET.rawdata.dataset;
     query.variable = $('#monthly-chart-raw-variable').val();
     query.startDate = $('#monthly-chart-raw-startdate-calendar').val();
@@ -750,7 +750,7 @@ function expand_query_monthly_climato() {
     }
 
     query.chartType = $('#monthly-chart-clim-charts').val();
-    query.temporalRes = 'monthly'
+    query.temporalRes = 'monthly';
     query.dataset = DATA_SET.climatology.dataset;
     query.variable = $('#monthly-chart-clim-variable').val();
     query.startYear = parseInt($('#monthly-chart-clim-bp-start').val().trim());
@@ -1001,7 +1001,7 @@ function expand_query_monthly_anomaly() {
         return query;
     }
 
-    query.temporalRes = 'monthly'
+    query.temporalRes = 'monthly';
     query.dataset = DATA_SET.anomaly.dataset;
     query.variable = $('#monthly-chart-anom-variable').val();
     query.anomaly = $('#monthly-chart-anom-type').val();
