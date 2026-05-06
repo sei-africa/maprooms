@@ -283,3 +283,5 @@ datasets:
                     function: sum
                     input: dekadal
                     minfrac: 1
+climatology:
+    zarr_dir: /home/enacts/ENACTS_DATA/DATA/ZARR/CLIM

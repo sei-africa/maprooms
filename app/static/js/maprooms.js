@@ -1,3 +1,6 @@
+const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+
 $(document).ready(function() {
     const path = '/static/images/';
     $('link[rel="shortcut icon"]').attr('href', path + MTO_INIT.iconImage);

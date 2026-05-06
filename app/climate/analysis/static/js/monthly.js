@@ -781,14 +781,12 @@ function expand_charts_monthly_climato(container_id) {
     );
 }
 
-// var JSON_data;
-
 function expand_charts_monthly_display_climato(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
     const theme = $('html').attr('data-bs-theme');
 
-    console.log(container)
+    // console.log(container)
 
     if (json.chartType === 'multiple') {
         var data = [{
