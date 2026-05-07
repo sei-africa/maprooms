@@ -162,6 +162,7 @@ function setStylesTheme(theme) {
     changeHoverColorTheme('.offcanvas-body fieldset .form-control', hov_nav);
     changeHoverColorTheme('.modal-expand-charts fieldset .form-control', hov_nav);
     changeHoverColorTheme('.modal-expand-charts fieldset button', hov_nav);
+    changeHoverColorTheme('.input-map-time-navigation', hov_nav);
 
     $('.item-title-1').each(function() {
         $(this).on('mouseenter', () => {

@@ -107,8 +107,16 @@ function monthlyDateCalendar(divContainerID, variableID, dataset, dispDate = nul
         },
         onupdate: function() {
             jcalendarHover();
+        },
+        onclose: function() {
+            const this_date = calendar.getValue();
+            $('#input-time-navigation').val(this_date.slice(0, 7));
         }
     });
+
+    // set date on map navigation
+    $('#input-time-navigation').val(dispDate.slice(0, 7));
+
     const theme = localStorage.getItem('theme');
     const color = theme_styles[theme].hover;
     changeHoverColorTheme(`#${calendarID}`, color);
@@ -145,6 +153,13 @@ function monthsNamesCalendar(divContainerID, dropdownParent = $(document.body)) 
     select.select2({
         minimumResultsForSearch: -1,
         dropdownParent: dropdownParent
+    });
+
+    // set date on map navigation
+    $('#input-time-navigation').val(months[0]);
+    select.on('change', function() {
+        const this_month = $(this).find('option:selected').text();
+        $('#input-time-navigation').val(this_month);
     });
 
     // var theme = localStorage.getItem('theme');
@@ -213,4 +228,14 @@ function formatDateToString(date) {
     const month = (dd.getMonth() + 1).toString().padStart(2, '0');
     const day = dd.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
+}
+
+function addDateMonths(date, n) {
+    const result = new Date(date);
+    const expectedDay = result.getDate();
+    result.setMonth(result.getMonth() + n);
+    if (result.getDate() !== expectedDay) {
+        result.setDate(0);
+    }
+    return result;
 }

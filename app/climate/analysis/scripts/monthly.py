@@ -6,7 +6,6 @@ from app.dst_api.scripts import (download_climdata, extract_climdata,
                                  download_rawdata)
 from app.scripts.imagepng import create_imagePng
 from app.scripts.util import pretty
-from app.scripts._cache import _hash_params
 
 def get_spatial_monthly_data(params):
     if params['mapType'] == 'climatology':
@@ -327,12 +326,3 @@ def _create_params_monthly_clim_perc_ts(params):
     else:
         pars = pars_0 | {'spatialAvg': True, 'allPolygons': False}
     return pars | params
-
-def hash_params_monthly_ts(params):
-    pars_keys = [
-        'geomExtract', 'pointsSource', 'pointsList', 'shpSource', 'shpFile',
-        'shpField', 'Poly', 'dataset', 'temporalRes', 'variable', 'startDate',
-        'endDate', 'startYear', 'endYear', 'minYear', 'anomaly', 'chartType'
-    ]
-    pars = {k: str(v) for k, v in params.items() if k in pars_keys}
-    return _hash_params(pars)

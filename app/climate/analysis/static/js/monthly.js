@@ -101,7 +101,6 @@ $(document).ready(function() {
         $(`#plotly-download-${idc}`).on('click', function() {
             downloadPlotlyImageJPG(contChart);
         });
-
     });
 
     ////////////
@@ -261,6 +260,176 @@ $(document).ready(function() {
     });
 
     // 
+    $('#input-time-navigation').on('blur', () => {
+        const this_date = $('#input-time-navigation').val().trim();
+        if (this_date === '') {
+            flashMessage(JS_TEXT.date_missing, 'error');
+            return;
+        }
+        const maptype = $('#monthly-map-type').val();
+        if (maptype === 'climatology') {
+            const months = getListOfMonthsCalendar().long;
+            let m = months.indexOf(this_date);
+            if (m === -1) {
+                flashMessage(JS_TEXT.date_invalid, 'error');
+                return;
+            }
+            $('#monthly-map-date-calendar').val(m + 1).trigger('change');
+        } else {
+            if (maptype === 'anomaly') {
+                var dataset = DATA_SET.anomaly.dataset;
+            } else {
+                var dataset = DATA_SET.rawdata.dataset;
+            }
+
+            const str_time = `${this_date}-01 00:00:00`;
+            const this_time = new Date(str_time);
+            if (isNaN(this_time.getTime())) {
+                flashMessage(JS_TEXT.date_invalid, 'error');
+                return;
+            }
+
+            const variable = $('#monthly-map-variable').val();
+            const temp_cov = getTempCoverageCalendar(dataset, 'monthly', variable);
+            const start = new Date(temp_cov.start);
+            const end = new Date(temp_cov.end);
+            if (this_time < start || this_time > end) {
+                flashMessage(JS_TEXT.date_outrange, 'error');
+                return;
+            }
+
+            const calendarElement = document.getElementById('monthly-map-date-calendar');
+            const calendar = calendarElement.calendar;
+            if (calendar) {
+                calendar.setValue(str_time);
+            } else {
+                flashMessage(JS_TEXT.date_calendar, 'error');
+                return;
+            }
+        }
+
+        display_map_climate_monthly(map_options, map);
+    });
+
+    $('#prev-time-navigation').on('click', () => {
+        const this_date = $('#input-time-navigation').val().trim();
+        if (this_date === '') {
+            flashMessage(JS_TEXT.date_missing, 'error');
+            return;
+        }
+        const maptype = $('#monthly-map-type').val();
+        if (maptype === 'climatology') {
+            const months = getListOfMonthsCalendar().long;
+            let m = months.indexOf(this_date);
+            if (m === -1) {
+                flashMessage(JS_TEXT.date_invalid, 'error');
+                return;
+            }
+            m = m - 1;
+            if (m < 0) {
+                m = 11;
+            }
+            $('#input-time-navigation').val(months[m]);
+            $('#monthly-map-date-calendar').val(m + 1).trigger('change');
+        } else {
+            if (maptype === 'anomaly') {
+                var dataset = DATA_SET.anomaly.dataset;
+            } else {
+                var dataset = DATA_SET.rawdata.dataset;
+            }
+
+            const str_time = `${this_date}-01 00:00:00`;
+            const this_time = new Date(str_time);
+            if (isNaN(this_time.getTime())) {
+                flashMessage(JS_TEXT.date_invalid, 'error');
+                return;
+            }
+
+            const variable = $('#monthly-map-variable').val();
+            const temp_cov = getTempCoverageCalendar(dataset, 'monthly', variable);
+            const start = new Date(temp_cov.start);
+            const end = new Date(temp_cov.end);
+
+            var prev_mon = addDateMonths(this_time, -1);
+            if (prev_mon < start) {
+                prev_mon = end;
+            }
+            const str_mon = formatDateToString(prev_mon);
+            $('#input-time-navigation').val(str_mon.slice(0, 7));
+
+            const calendarElement = document.getElementById('monthly-map-date-calendar');
+            const calendar = calendarElement.calendar;
+            if (calendar) {
+                calendar.setValue(`${str_mon} 00:00:00`);
+            } else {
+                flashMessage(JS_TEXT.date_calendar, 'error');
+                return;
+            }
+        }
+
+        display_map_climate_monthly(map_options, map);
+    });
+
+    $('#next-time-navigation').on('click', () => {
+        const this_date = $('#input-time-navigation').val().trim();
+        if (this_date === '') {
+            flashMessage(JS_TEXT.date_missing, 'error');
+            return;
+        }
+        const maptype = $('#monthly-map-type').val();
+        if (maptype === 'climatology') {
+            const months = getListOfMonthsCalendar().long;
+            let m = months.indexOf(this_date);
+            if (m === -1) {
+                flashMessage(JS_TEXT.date_invalid, 'error');
+                return;
+            }
+            m = m + 1;
+            if (m > 11) {
+                m = 0;
+            }
+            $('#input-time-navigation').val(months[m]);
+            $('#monthly-map-date-calendar').val(m + 1).trigger('change');
+        } else {
+            if (maptype === 'anomaly') {
+                var dataset = DATA_SET.anomaly.dataset;
+            } else {
+                var dataset = DATA_SET.rawdata.dataset;
+            }
+
+            const str_time = `${this_date}-01 00:00:00`;
+            const this_time = new Date(str_time);
+            if (isNaN(this_time.getTime())) {
+                flashMessage(JS_TEXT.date_invalid, 'error');
+                return;
+            }
+
+            const variable = $('#monthly-map-variable').val();
+            const temp_cov = getTempCoverageCalendar(dataset, 'monthly', variable);
+            const start = new Date(temp_cov.start);
+            const end = new Date(temp_cov.end);
+
+            var prev_mon = addDateMonths(this_time, 1);
+            if (prev_mon > end) {
+                prev_mon = start;
+            }
+            const str_mon = formatDateToString(prev_mon);
+            $('#input-time-navigation').val(str_mon.slice(0, 7));
+
+            const calendarElement = document.getElementById('monthly-map-date-calendar');
+            const calendar = calendarElement.calendar;
+            if (calendar) {
+                calendar.setValue(`${str_mon} 00:00:00`);
+            } else {
+                flashMessage(JS_TEXT.date_calendar, 'error');
+                return;
+            }
+        }
+
+        display_map_climate_monthly(map_options, map);
+    });
+
+    // 
     $('#monthly-map-variable').on('change', () => {
         //get data resolution
         const data_res = get_data_resolution_monthly();
@@ -347,8 +516,6 @@ $(document).ready(function() {
     $('#select-region-name').on('change', () => {
         mapClickLayersSpatialAverage(preview_display_charts_monthly, map);
     });
-
-
 });
 
 ///////////////////
@@ -1585,4 +1752,3 @@ function preview_charts_monthly_display_climato(json, container) {
 
     setPlotlyThemeColors(container);
 }
-//

@@ -4,3 +4,15 @@ delete_marker:
 point_outside:
     en: Location outside of the data spatial coverage
     fr: Localisation en dehors de la couverture spatiale des données
+date_missing:
+    en: Missing date
+    fr: Date manquante
+date_invalid:
+    en: Invalid date
+    fr: Date invalide
+date_outrange:
+    en: Date outside range
+    fr: Date hors plage
+date_calendar:
+    en: No calendar found
+    fr: Aucun calendrier trouvé
