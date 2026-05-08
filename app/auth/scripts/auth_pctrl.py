@@ -2,20 +2,24 @@ import os
 # import config
 from app.scripts._global import GLOBAL_CONFIG
 from app.scripts.util import load_yaml_file
-from app.scripts.maproom_items import pasre_lang_yaml_nested4
+# from app.scripts.maproom_items import pasre_lang_yaml_nested4
+from app.scripts.maproom_items import parse_lang_yaml_nested
 
 def page_control_musers():
     dir_app = GLOBAL_CONFIG['app_dir']
     dir_yaml = os.path.join(dir_app, 'auth', 'yaml')
     yaml_file = os.path.join(dir_yaml, 'user-creation.yaml')
     yaml_tmp = load_yaml_file(yaml_file)
-    page_contorl = pasre_lang_yaml_nested4(yaml_tmp)
+    # page_contorl = pasre_lang_yaml_nested4(yaml_tmp)
+    page_contorl = parse_lang_yaml_nested(yaml_tmp)
     extract_file = os.path.join(dir_yaml, 'extraction-support.yaml')
     extract_tmp = load_yaml_file(extract_file)
-    page_contorl.update(pasre_lang_yaml_nested4(extract_tmp))
+    # page_contorl.update(pasre_lang_yaml_nested4(extract_tmp))
+    page_contorl.update(parse_lang_yaml_nested(extract_tmp))
     analysis_file = os.path.join(dir_yaml, 'download-analysis.yaml')
     analysis = load_yaml_file(analysis_file)
-    page_contorl.update(pasre_lang_yaml_nested4(analysis))
+    # page_contorl.update(pasre_lang_yaml_nested4(analysis))
+    page_contorl.update(parse_lang_yaml_nested(analysis))
     return page_contorl
 
 def auth_message_text():
@@ -23,7 +27,8 @@ def auth_message_text():
     dir_yaml = os.path.join(dir_app, 'auth', 'yaml')
     py_file = os.path.join(dir_yaml, 'py-text.yaml')
     tmp = load_yaml_file(py_file)
-    return pasre_lang_yaml_nested4(tmp)
+    # return pasre_lang_yaml_nested4(tmp)
+    return parse_lang_yaml_nested(tmp)
 
 def _get_admin_datauser():
     admin = {}

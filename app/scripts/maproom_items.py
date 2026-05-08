@@ -125,16 +125,19 @@ def load_maproom_page_text(item_dirs, page_type):
     app_dir = GLOBAL_CONFIG['app_dir']
     yaml_file = os.path.join(app_dir, 'yaml', 'global.yaml')
     tmp = load_yaml_file(yaml_file)
-    out = pasre_lang_yaml_nested4(tmp)
+    # out = pasre_lang_yaml_nested4(tmp)
+    out = parse_lang_yaml_nested(tmp)
 
     yaml_file = os.path.join(app_dir, 'yaml', 'layers.yaml')
     tmp = load_yaml_file(yaml_file)
-    layers = pasre_lang_yaml_nested4(tmp)
+    # layers = pasre_lang_yaml_nested4(tmp)
+    layers = parse_lang_yaml_nested(tmp)
     out['layers'] = layers
 
     yaml_file = os.path.join(app_dir, 'yaml', 'base-period.yaml')
     tmp = load_yaml_file(yaml_file)
-    base_period = pasre_lang_yaml_nested4(tmp)
+    # base_period = pasre_lang_yaml_nested4(tmp)
+    base_period = parse_lang_yaml_nested(tmp)
     out = out | base_period
 
     if page_type in ['page', 'user']:
@@ -145,17 +148,20 @@ def load_maproom_page_text(item_dirs, page_type):
         yaml_file = os.path.join(nav_path, 'yaml', yaml_file)
         if os.path.exists(yaml_file):
             tmp = load_yaml_file(yaml_file)
-            page = pasre_lang_yaml_nested4(tmp)
+            # page = pasre_lang_yaml_nested4(tmp)
+            page = parse_lang_yaml_nested(tmp)
             out = out | page
 
     if page_type == 'page':
         yaml_file = os.path.join(app_dir, 'yaml', 'instruction.yaml')
         tmp = load_yaml_file(yaml_file)
-        out.update(pasre_lang_yaml_nested4(tmp))
+        # out.update(pasre_lang_yaml_nested4(tmp))
+        out.update(parse_lang_yaml_nested(tmp))
 
         yaml_file = os.path.join(app_dir, 'yaml', 'js-text.yaml')
         tmp = load_yaml_file(yaml_file)
-        out['js_text'] = pasre_lang_yaml_nested4(tmp)
+        # out['js_text'] = pasre_lang_yaml_nested4(tmp)
+        out['js_text'] = parse_lang_yaml_nested(tmp)
 
     return out
 
@@ -216,3 +222,26 @@ def pasre_lang_yaml_nested4(nested_dict):
         else:
             page[k1] = v1
     return page
+
+## generalization of pasre_lang_yaml_nested4
+def parse_lang_yaml_nested(nested_dict):
+    lang_list, lang_code = _get_lang_info()
+
+    def parse_value(value):
+        if not isinstance(value, dict):
+            return value
+
+        keys = list(value.keys())
+
+        # Case: dictionary is a language dictionary: {"en": "...", "fr": "..."}
+        if any(k in lang_list for k in keys):
+            lg = lang_code if lang_code in value else keys[0]
+            return value[lg]
+
+        # Case: normal nested dictionary
+        return {
+            k: parse_value(v)
+            for k, v in value.items()
+        }
+
+    return parse_value(nested_dict)
