@@ -23,6 +23,7 @@ subdivision:
         file: gadm41_ETH_1.shp
         type: shapefile
         field: NAME_1
+        region: NAME_1
         order: 2
         group: administrative
         name:
