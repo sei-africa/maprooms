@@ -97,7 +97,6 @@ def load_maproom_items(item_dirs):
 
     GLOBAL_CONFIG['current_path'] = item_dirs
 
-
     return out
 
 def load_navigation_items(item_dirs):
@@ -183,7 +182,8 @@ def pasre_lang_yaml_nested4(nested_dict):
             keys1 = list(v1.keys())
             if any(l in lang_list for l in keys1):
                 lg = lang_code if lang_code in keys1 else keys1[0]
-                page[k1] = v1[lang_code]
+                # page[k1] = v1[lang_code]
+                page[k1] = v1[lg]
             else:
                 page[k1] = {}
                 for k2, v2 in v1.items():

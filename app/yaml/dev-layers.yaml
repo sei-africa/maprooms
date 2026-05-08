@@ -48,6 +48,40 @@ subdivision:
             en: Basin
             fr: Bassin
 subdivision_sel: region
+
+####################
+## Zoom and clip map to a region
+region_to_use: region
+region_subdivision: [zone, woreda]
+
+####################
+## Basemap selection
+basemap_style:
+    openstreetmap: OpenStreetMap
+    carto_light_all: CARTO Positron
+    carto_light_nolabels: CARTO Positron no labels
+    carto_dark_all: CARTO Dark Matter
+    carto_dark_nolabels: CARTO Dark Matter no labels
+    carto_rastertiles_voyager: CARTO Voyager
+    carto_rastertiles_voyager_nolabels: CARTO Voyager no labels
+    mapbox_light: Mapbox Light
+    mapbox_dark: Mapbox Dark
+    mapbox_streets: Mapbox Streets
+    mapbox_outdoors: Mapbox Outdoors
+    mapbox_satellite: Mapbox Satellite
+    mapbox_satellite_streets: Mapbox Satellite Streets
+    google_maps_nolabels: Google Maps no labels
+
+####################
+## preset colorbar list
+colorbar_list: ['tim_colors', precipitation_1, 'rainbow',
+                'turbo', 'viridis', 'inferno', 
+                'jet', 'plasma', 'magma', 'plasma',
+                'hsv', 'hot', 'cool', 'spring', 'summer',
+                'winter', 'autumn', 'copper', 'bone']
+
+####################
+## Labels and Texts
 subdivision_group:
     administrative:
         en: Administrative boundaries
@@ -55,8 +89,6 @@ subdivision_group:
     whatershed:
         en: Watershed boundaries
         fr: Limites bassins versants
-region_to_use: region
-region_subdivision: [zone, woreda]
 region_choice:
     country:
         en: Country wide data
@@ -99,21 +131,6 @@ raster_opacity_label:
 basemap_style_label:
     en: Background map style
     fr: Sytle fond de carte
-basemap_style:
-    openstreetmap: OpenStreetMap
-    carto_light_all: CARTO Positron
-    carto_light_nolabels: CARTO Positron no labels
-    carto_dark_all: CARTO Dark Matter
-    carto_dark_nolabels: CARTO Dark Matter no labels
-    carto_rastertiles_voyager: CARTO Voyager
-    carto_rastertiles_voyager_nolabels: CARTO Voyager no labels
-    mapbox_light: Mapbox Light
-    mapbox_dark: Mapbox Dark
-    mapbox_streets: Mapbox Streets
-    mapbox_outdoors: Mapbox Outdoors
-    mapbox_satellite: Mapbox Satellite
-    mapbox_satellite_streets: Mapbox Satellite Streets
-    google_maps_nolabels: Google Maps no labels
 colorbar_col:
     label:
         en: Colorbar colors
@@ -141,11 +158,7 @@ colorbar_lev:
             fr: Intervalles personnalisées
     note:
         en: Edit here the desired levels separated by comma.
-colorbar_list: ['tim_colors', precipitation_1, 'rainbow',
-                'turbo', 'viridis', 'inferno', 
-                'jet', 'plasma', 'magma', 'plasma',
-                'hsv', 'hot', 'cool', 'spring', 'summer',
-                'winter', 'autumn', 'copper', 'bone']
+        fr: Donner les graduations souhaitées, séparées par une virgule.
 colorbar_preview:
     en: Preview
     fr: Aperçu

@@ -98,18 +98,10 @@ def render_template_main(nav_path):
                            pageText=pageText,
                            pageType='main')
 
-# def render_template_page(cm):
 def render_template_page(tm, cm):
     nav_path = set_navbar_path(cm, 'file')
-    # print('---------------------')
-    # print(nav_path)
-    # print('---------------------')
     mapNav = load_navigation_items(nav_path)
-    # print('---------------------')
-    # print(mapNav)
-    # print('---------------------')
     pageText = load_maproom_page_text(nav_path, 'page')
-    # return render_template(f'{cm}.html',
     return render_template(f'{tm}/{cm}.html',
                            dataUser=g.dataUser,
                            langUser=GLOBAL_CONFIG['language'],
@@ -141,7 +133,6 @@ def set_languages_page():
     tm = GLOBAL_CONFIG['current_path'][-2]
     cm = GLOBAL_CONFIG['current_path'][-1]
     return render_template_page(tm, cm)
-    # return render_template_page(GLOBAL_CONFIG['current_path'][-1])
 
 @app.route('/maproom_items')
 def maproom_items():
@@ -154,7 +145,6 @@ def maproom_pages():
     tm = request.args.get('template')
     cm = request.args.get('component')
     return render_template_page(tm, cm)
-    # return render_template_page(cm)
 
 @app.route('/get_flashes')
 def get_flashes():
