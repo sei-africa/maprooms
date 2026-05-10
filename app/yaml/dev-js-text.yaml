@@ -16,3 +16,18 @@ date_outrange:
 date_calendar:
     en: No calendar found
     fr: Aucun calendrier trouvé
+colorbar_col_empty:
+    en: No user colors input found
+    fr: Aucun couleurs utilisateur trouvé
+colorbar_col_length:
+    en: Need at least 2 colors
+    fr: Il faut au moins 2 couleurs
+colorbar_brk_empty:
+    en: No user colorbar breaks input found
+    fr: Aucune subdivion fourni par l'utilisateur trouvée
+colorbar_brk_length:
+    en: Need at least 2 colorbar breaks
+    fr: Il faut au moins 2 subdivions
+colorbar_brk_invalid:
+    en: Invalid breaks
+    fr: Subdivision invalide

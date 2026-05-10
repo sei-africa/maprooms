@@ -16,6 +16,10 @@
     font-size: 0.688rem;
 }
 
+.leaflet-container .leaflet-control-attribution {
+    margin-right: 5px;
+}
+
 .leaflet-touch .leaflet-control-zoom-in,
 .leaflet-touch .leaflet-control-zoom-out {
     font-size: 1.375rem;

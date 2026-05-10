@@ -43,3 +43,6 @@ plotly_download:
 close_button:
     en: Close
     fr: Fermer
+redraw_map:
+    en: Redraw map
+    fr: Redessiner la carte

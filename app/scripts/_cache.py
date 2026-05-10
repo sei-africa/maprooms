@@ -24,9 +24,7 @@ def _hash_params(pars):
 def cache_data_functions(function, hash_key, params):
     cache_key = hash_key(params)
     cached_data = cache.get(cache_key)
-    params['compute_new'] = False
     if cached_data is None:
-        params['compute_new'] = True
         cached_data = function(params)
         if cached_data['status'] == -1:
             return json.dumps(cached_data)

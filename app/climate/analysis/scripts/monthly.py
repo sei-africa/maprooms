@@ -1,9 +1,11 @@
 import json
 import numpy as np
 from datetime import datetime
-from app.dst_api.scripts import (download_climdata, extract_climdata,
+from app.dst_api.scripts import (download_climdata,
+                                 extract_climdata,
                                  download_analysis,
-                                 download_rawdata)
+                                 download_rawdata,
+                                 is_climato_normals)
 from app.scripts.imagepng import create_imagePng
 from app.scripts.util import pretty
 
@@ -24,7 +26,22 @@ def get_spatial_monthly_data(params):
         return {'status': -1, 'message': 'Unknown map data'}
 
     if data['status'] == -1: return data
-    map_png = create_imagePng(data, color_name=params['colorbar'])
+
+    if params['colorbar']['color_type'] == 'preset':
+        map_png = create_imagePng(
+            data,
+            breaks=params['colorbar']['break_cbar'],
+            color_name=params['colorbar']['color_cbar'],
+            colors_ext=None
+        )
+    else:
+        map_png = create_imagePng(
+            data,
+            breaks=params['colorbar']['break_cbar'],
+            colors=params['colorbar']['color_cbar'],
+            colors_ext=None
+        )
+
     map_png['date'] = data['date']
     map_png['ckeys']['title'] = f"{data['longname']} ({data['units']})"
     return {'status': 0, 'data': map_png}
@@ -119,23 +136,24 @@ def get_anomaly_monthly_ts(params):
 
 def get_climato_monthly_ts(params):
     one_var = True
+    clim_normal = is_climato_normals(params)
     if 'chartType' in params:
         one_var = params['chartType'] == 'one'
 
     if one_var:
         params_mean = _create_params_monthly_clim_mean_ts(params)
-        if params['compute_new']:
-            data_mean = download_climdata(params_mean)
-        else:
+        if(clim_normal):
             data_mean = extract_climdata(params_mean)
+        else:
+            data_mean = download_climdata(params_mean)
         data_mean = json.loads(data_mean)
         if data_mean['status'] != 0: return data_mean
 
         params_perc = _create_params_monthly_clim_perc_ts(params)
-        if params['compute_new']:
-            data_perc = download_climdata(params_perc)
-        else:
+        if(clim_normal):
             data_perc = extract_climdata(params_perc)
+        else:
+            data_perc = download_climdata(params_perc)
         data_perc = json.loads(data_perc)
         if data_perc['status'] != 0: return data_perc
 
@@ -189,10 +207,10 @@ def get_climato_monthly_ts(params):
         for var in variables:
             params_mean = _create_params_monthly_clim_mean_ts(params)
             params_mean['variable'] = var
-            if params['compute_new']:
-                data_mean = download_climdata(params_mean)
-            else:
+            if(clim_normal):
                 data_mean = extract_climdata(params_mean)
+            else:
+                data_mean = download_climdata(params_mean)
             data_mean = json.loads(data_mean)
             if data_mean['status'] != 0: return data_mean
 

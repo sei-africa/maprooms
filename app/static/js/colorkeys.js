@@ -30,8 +30,10 @@ function displayColorBar(ckeys, direction, map) {
         $('.leaflet-colorbar td.ckeyvE-tick').css('width', '5px');
     } else {
         $('.leaflet-right .leaflet-colorbar').css({
-            'margin-right': 0,
-            'margin-bottom': 0
+            'margin-right': '5px',
+            'margin-bottom': 0,
+            'padding-right': '3px',
+            'padding-left': '3px'
         });
         $('.leaflet-colorbar .ckeyh').css({
             'width': '290px',

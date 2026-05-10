@@ -1299,6 +1299,26 @@ function colorbarSettings(json) {
     });
     $('#map-colorbar-colors').trigger('change');
 
+    $('#colorbar-preview-user').on('click', () => {
+        const colorbar = colorbarGetData();
+        if (!colorbar) {
+            return;
+        }
+        console.log(colorbar);
+        $.ajax({
+            url: '/check_colobar_colors',
+            dataType: 'json',
+            data: JSON.stringify(colorbar),
+            contentType: 'application/json',
+            success: (json) => {
+                console.log(json);
+            },
+            error: (xhr, s, e) => {
+                displayAjaxError(xhr, s, e);
+            }
+        });
+    });
+
     $('#map-colorbar-breaks').on('change', function() {
         if ($(this).val() === 'user') {
             $('#colorbar-breaks-user').show();
@@ -1321,6 +1341,66 @@ function colorbarSettings(json) {
     $('#colorbar-title-user').on('blur', function() {
         $('.leaflet-colorbar .ckeyh-title td').html($(this).val().trim());
     });
+}
+
+function colorbarGetData() {
+    const ctype = $('#map-colorbar-colors').val();
+    if (ctype === 'preset') {
+        var colorbar = $('#colorbar-color-preset-select').val();
+    } else {
+        const colors = $('#colorbar-color-user-text').val();
+        if (colors.trim() === '') {
+            flashMessage(JS_TEXT.colorbar_col_empty, 'error');
+            return false;
+        }
+        var arr_col = colors.split(',').map(s => s.trim());
+        arr_col = arr_col.filter(s => s !== '');
+        if (arr_col.length < 2) {
+            flashMessage(JS_TEXT.colorbar_col_length, 'error');
+            return false;
+        }
+        var colorbar = arr_col;
+    }
+    // 
+    const extension = ['white', 'grey'];
+
+    // 
+    const btype = $('#map-colorbar-breaks').val();
+    if (btype === 'user') {
+        const brks = $('#colorbar-breaks-user-text').val();
+        if (brks.trim() === '') {
+            flashMessage(JS_TEXT.colorbar_brk_empty, 'error');
+            return false;
+        }
+        var arr_str = brks.split(',').map(b => b.trim());
+        arr_str = arr_str.filter(b => b !== '');
+        if (arr_str.length < 2) {
+            flashMessage(JS_TEXT.colorbar_brk_length, 'error');
+            return false;
+        }
+        const arr_brk = arr_str.map(Number);
+        const idx = arr_brk
+            .map((v, i) => Number.isNaN(v) ? i : -1)
+            .filter(i => i !== -1);
+        if (idx.length > 0) {
+            const wrng = idx.map(i => arr_str[i]).join(', ');
+            const msg = `${JS_TEXT.colorbar_brk_invalid}: ${wrng}`;
+            flashMessage(msg, 'error');
+            return false;
+        }
+
+        var breaks = arr_brk;
+    } else {
+        var breaks = null;
+    }
+
+    return {
+        color_type: ctype,
+        color_cbar: colorbar,
+        color_ext: extension,
+        break_type: btype,
+        break_cbar: breaks
+    }
 }
 
 function displayMapRegions(map = MAP_BE) {

@@ -12,6 +12,7 @@ jsglue = JSGlue(app)
 ####
 from app.auth.index import auth
 from app.dst_api.index import dst_api
+from app.misc.index import misc
 
 from app.climate.analysis.index import climate_analysis
 from app.climate.monitoring.index import climate_monitoring
@@ -30,6 +31,7 @@ from app.water.projection.index import water_projection
 
 app.register_blueprint(auth)
 app.register_blueprint(dst_api)
+app.register_blueprint(misc)
 
 app.register_blueprint(climate_analysis)
 app.register_blueprint(climate_monitoring)
@@ -55,8 +57,6 @@ from app.scripts.maproom_items import (load_maproom_items,
                                        load_navigation_items,
                                        load_maproom_page_text,
                                        data_info_coverage)
-from app.scripts.subdivision import get_subdivisions_data
-from app.scripts._colors import COLORS_MAPROOM
 from app.scripts._cache import cache
 cache.init_app(app)
 
@@ -153,13 +153,3 @@ def get_flashes():
 @app.route('/unknown_page')
 def unknown_page():
     return render_template('unknown-page.html')
-
-@app.route('/map_subdivisions_data')
-def map_subdivisions_data():
-    sub_data = get_subdivisions_data()
-    return json.dumps(sub_data)
-
-@app.route('/maproom_colors')
-def maproom_colors():
-    return json.dumps(COLORS_MAPROOM)
-

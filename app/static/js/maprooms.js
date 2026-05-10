@@ -328,6 +328,12 @@ function ajaxLeafletMap(endpoint, query, callback, options, map) {
 }
 
 function ajaxGetSubdivisions() {
+    // const endpoint = createEndpoint(
+    //     'misc',
+    //     'map_subdivisions_data'
+    // );
+    // // const endpoint = '/map_subdivisions_data';
+    // $.getJSON(endpoint, (json) => {
     $.getJSON('/map_subdivisions_data', (json) => {
         if (json.status !== 0) {
             flashMessage(json.message, 'error');
