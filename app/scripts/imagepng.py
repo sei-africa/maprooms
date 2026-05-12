@@ -51,10 +51,6 @@ def create_imagePng(data,
             colors = [None] * nkol
             for j in range(nkol):
                 colors[j] = mcolors.to_hex(listedCmap(j))
-
-        if colors_ext is None:
-            colors_ext = [colors[0], colors[-1]]
-            colors = colors[1:-1]
     else:
         ex = 1 if colors_ext is None else -1
         nkol = len(breaks) + ex
@@ -63,6 +59,7 @@ def create_imagePng(data,
 
     if colors_ext is None:
         colors_ext = [colors[0], colors[-1]]
+        colors = colors[1:-1]
 
     ###### map
     cmap = mcolors.ListedColormap(colors)
@@ -72,9 +69,12 @@ def create_imagePng(data,
 
     fig = plt.figure()
     ax = plt.axes([0, 0, 1, 1])
-    pm = ax.pcolormesh(lon, lat, data,
-                       vmin=vmin, vmax=vmax,
-                       shading='nearest')
+    pm = ax.pcolormesh(
+        lon, lat, data,
+        vmin=vmin,
+        vmax=vmax,
+        shading='nearest'
+    )
     pm.set_cmap(cmap)
     pm.set_norm(norm)
     pm.cmap.set_under(colors_ext[0])
@@ -84,9 +84,12 @@ def create_imagePng(data,
               [bbox[2].item(), bbox[1].item()]]
 
     img = io.BytesIO()
-    plt.savefig(img, format='png',
-                bbox_inches=None,
-                transparent=True)
+    plt.savefig(
+        img,
+        format='png',
+        bbox_inches=None,
+        transparent=True
+    )
     img.seek(0)
     img_png = base64.b64encode(img.getvalue()).decode()
     img_png = 'data:image/png;base64,' + img_png
@@ -98,19 +101,72 @@ def create_imagePng(data,
 
     colors = [colors_ext[0]] + colors + [colors_ext[1]]
     cmap = mcolors.ListedColormap(colors)
-    norm = mcolors.BoundaryNorm(breaks, cmap.N, extend='both')
+    norm = mcolors.BoundaryNorm(
+        breaks,
+        cmap.N,
+        extend='both'
+    )
 
-    fig, ax = plt.subplots(figsize=(8, 1), layout='constrained')
-    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
-                 cax=ax, extendrect=True, orientation='horizontal')
+    fig, ax = plt.subplots(
+        figsize=(8, 1),
+        layout='constrained'
+    )
+    fig.colorbar(
+        mpl.cm.ScalarMappable(
+            norm=norm,
+            cmap=cmap
+        ),
+        cax=ax,
+        extendrect=True,
+        orientation='horizontal'
+    )
 
     cbar = io.BytesIO()
-    plt.savefig(cbar, format='png',
-                bbox_inches=None,
-                transparent=True)
+    plt.savefig(
+        cbar,
+        format='png',
+        bbox_inches=None,
+        transparent=True
+    )
     cbar.seek(0)
     cbar_png = base64.b64encode(cbar.getvalue()).decode()
     ckeys['png'] = 'data:image/png;base64,' + cbar_png
     plt.close('all')
 
     return {'data': img_out, 'ckeys': ckeys}
+
+def raster_colorbar_imagePng(colors_list, n = 100):
+    colors_fun = colorRampPalette(colors_list)
+    colors = colors_fun(n)
+    cmap = mcolors.ListedColormap(colors)
+    norm = mcolors.BoundaryNorm(
+        np.linspace(0, 1, n + 1),
+        cmap.N,
+        extend='neither'
+    )
+
+    fig, ax = plt.subplots(
+        figsize=(8, 1),
+        layout='constrained'
+    )
+    fig.colorbar(
+        mpl.cm.ScalarMappable(
+            norm=norm,
+            cmap=cmap
+        ),
+        cax=ax,
+        extendrect=True,
+        orientation='horizontal'
+    )
+
+    cbar = io.BytesIO()
+    plt.savefig(
+        cbar,
+        format='png',
+        bbox_inches=None,
+        transparent=True
+    )
+    cbar.seek(0)
+    cbar_png = base64.b64encode(cbar.getvalue()).decode()
+
+    return 'data:image/png;base64,' + cbar_png

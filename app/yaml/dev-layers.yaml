@@ -74,11 +74,12 @@ basemap_style:
 
 ####################
 ## preset colorbar list
-colorbar_list: ['tim_colors', precipitation_1, 'rainbow',
+colorbar_color_list: ['tim_colors', precipitation_1, 'rainbow',
                 'turbo', 'viridis', 'inferno', 
                 'jet', 'plasma', 'magma', 'plasma',
                 'hsv', 'hot', 'cool', 'spring', 'summer',
                 'winter', 'autumn', 'copper', 'bone']
+colorbar_color_ext: ['white', 'gray']
 
 ####################
 ## Labels and Texts
@@ -165,3 +166,12 @@ colorbar_preview:
 colorbar_title:
     en: Colorbar title
     fr: Colorbar titre
+colorbar_extension:
+    en: Provide colorbar extensions
+    fr: Fournir les extensions de colorbar
+colorbar_ext_under:
+    en: Under
+    fr: Dessous
+colorbar_ext_over:
+    en: Over
+    fr: Dessus

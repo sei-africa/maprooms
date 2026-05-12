@@ -51,22 +51,50 @@
         </div>
         <div id="colorbar-color-preset" class="colorbar-selection">
             <select id="colorbar-color-preset-select" class="form-select form-select2-nosearch">
-                {% for loko in pageText.layers.colorbar_list %}
+                {% for loko in pageText.layers.colorbar_color_list %}
                 <option value="{{loko}}">{{loko}}
                 </option>
                 {% endfor %}
             </select>
+        </div>
+        <div class="colorbar-selection">
+            <img id="colorbar-preview-preset" src="">
         </div>
         <div id="colorbar-color-user" class="colorbar-selection" style="display: none;">
             <div class="container mb-1 mx-0 p-0">
                 <textarea id="colorbar-color-user-text" class="form-control" placeholder="{{ pageText.layers.colorbar_col.note }}"></textarea>
             </div>
             <div class="d-flex justify-content-end">
-                <button id="colorbar-preview-user" type="button" class="btn btn-sm btn-primary">{{ pageText.layers.colorbar_preview }}</button>
+                <button id="colorbar-preview-user-btn" type="button" class="btn btn-sm btn-primary">{{ pageText.layers.colorbar_preview }}</button>
+            </div>
+            <div class="colorbar-selection">
+                <img id="colorbar-preview-user" src="">
             </div>
         </div>
+        <!--
         <div class="colorbar-selection">
             <img id="colorbar-preview" src="">
+        </div>
+        -->
+        <div class="colorbar-extension">
+            <div class="row">
+                <label class="float-start checkbox-inline">
+                    <input type="checkbox" id="colorbar-color-extension-check" name="colorbar-color-extension-check">
+                    {{ pageText.layers.colorbar_extension }}
+                </label>
+            </div>
+            <div id="colorbar-color-extension-div" style="display: none;">
+                <div class="d-flex gap-1">
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text" id="addon-wrapping1">{{ pageText.layers.colorbar_ext_under }}</span>
+                        <input type="text" id="colorbar-color-extension-under" class="form-control" aria-describedby="addon-wrapping1" value="{{pageText.layers.colorbar_color_ext[0]}}">
+                    </div>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text" id="addon-wrapping2">{{ pageText.layers.colorbar_ext_over }}</span>
+                        <input type="text" id="colorbar-color-extension-over" class="form-control" aria-describedby="addon-wrapping2" value="{{pageText.layers.colorbar_color_ext[1]}}">
+                    </div>
+                </div>
+            </div>
         </div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3">

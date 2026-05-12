@@ -27,23 +27,27 @@ def get_spatial_monthly_data(params):
 
     if data['status'] == -1: return data
 
+    # check color here
+    print(params['colorbar'])
+
     if params['colorbar']['color_type'] == 'preset':
         map_png = create_imagePng(
             data,
             breaks=params['colorbar']['break_cbar'],
             color_name=params['colorbar']['color_cbar'],
-            colors_ext=None
+            colors_ext=params['colorbar']['color_ext']
         )
     else:
         map_png = create_imagePng(
             data,
             breaks=params['colorbar']['break_cbar'],
             colors=params['colorbar']['color_cbar'],
-            colors_ext=None
+            colors_ext=params['colorbar']['color_ext']
         )
 
     map_png['date'] = data['date']
     map_png['ckeys']['title'] = f"{data['longname']} ({data['units']})"
+
     return {'status': 0, 'data': map_png}
 
 def get_rawdata_monthly_ts(params):

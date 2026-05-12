@@ -22,6 +22,9 @@ colorbar_col_empty:
 colorbar_col_length:
     en: Need at least 2 colors
     fr: Il faut au moins 2 couleurs
+colorbar_col_invalid:
+    en: Matplotlib invalid colors
+    fr: Matplotlib couleurs invalides
 colorbar_brk_empty:
     en: No user colorbar breaks input found
     fr: Aucune subdivion fourni par l'utilisateur trouvée

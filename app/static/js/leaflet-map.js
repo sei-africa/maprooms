@@ -1290,28 +1290,37 @@ function colorbarSettings(json) {
         if ($(this).val() === 'user') {
             $('#colorbar-color-user').show();
             $('#colorbar-color-preset').hide();
-            $('#colorbar-preview').hide();
+            $('#colorbar-preview-preset').hide();
+            $('#colorbar-preview-user').show();
         } else {
             $('#colorbar-color-user').hide();
             $('#colorbar-color-preset').show();
-            $('#colorbar-preview').show();
+            $('#colorbar-preview-preset').show();
+            $('#colorbar-preview-user').hide();
         }
     });
     $('#map-colorbar-colors').trigger('change');
 
-    $('#colorbar-preview-user').on('click', () => {
+    $('#colorbar-preview-user-btn').on('click', () => {
         const colorbar = colorbarGetData();
         if (!colorbar) {
             return;
         }
-        console.log(colorbar);
         $.ajax({
-            url: '/check_colobar_colors',
+            type: 'POST',
+            url: '/preview_user_colobar',
             dataType: 'json',
             data: JSON.stringify(colorbar),
             contentType: 'application/json',
             success: (json) => {
-                console.log(json);
+                if (json.status === -1) {
+                    const kol = json.colors.join(', ');
+                    const msg = `${JS_TEXT.colorbar_col_invalid}: ${kol}`;
+                    flashMessage(msg, 'error');
+                    return false;
+                } else {
+                    $('#colorbar-preview-user').attr('src', json.colors);
+                }
             },
             error: (xhr, s, e) => {
                 displayAjaxError(xhr, s, e);
@@ -1329,10 +1338,18 @@ function colorbarSettings(json) {
     });
     $('#map-colorbar-breaks').trigger('change');
 
+    $('#colorbar-color-extension-check').on('change', function() {
+        if ($(this).prop('checked')) {
+            $('#colorbar-color-extension-div').show();
+        } else {
+            $('#colorbar-color-extension-div').hide();
+        }
+    });
+
     ////
     $('#colorbar-color-preset-select').on('change', function() {
         const pl = L.LeafletGeotiff.plotty({ colorScale: $(this).val() });
-        $('#colorbar-preview').attr('src', pl.colorScaleData);
+        $('#colorbar-preview-preset').attr('src', pl.colorScaleData);
     });
     $('#colorbar-color-preset-select').trigger('change');
 
@@ -1361,8 +1378,17 @@ function colorbarGetData() {
         }
         var colorbar = arr_col;
     }
-    // 
-    const extension = ['white', 'grey'];
+
+    //
+    const add_extension = $('#colorbar-color-extension-check').is(':checked');
+    if (add_extension) {
+        var extensions = [
+            $('#colorbar-color-extension-under').val().trim(),
+            $('#colorbar-color-extension-over').val().trim()
+        ];
+    } else {
+        var extensions = null;
+    }
 
     // 
     const btype = $('#map-colorbar-breaks').val();
@@ -1397,7 +1423,7 @@ function colorbarGetData() {
     return {
         color_type: ctype,
         color_cbar: colorbar,
-        color_ext: extension,
+        color_ext: extensions,
         break_type: btype,
         break_cbar: breaks
     }
