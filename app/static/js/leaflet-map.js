@@ -1423,6 +1423,7 @@ function colorbarGetData() {
     return {
         color_type: ctype,
         color_cbar: colorbar,
+        color_add_ext: add_extension,
         color_ext: extensions,
         break_type: btype,
         break_cbar: breaks

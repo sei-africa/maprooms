@@ -1,3 +1,10 @@
+{% macro tmp_placeholder_image() %}
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <img src="{{ url_for('static', filename='images/homer.jpg') }}">
+</div>
+{% endmacro %}
+<!--  -->
+<!--  -->
 {% macro create_card_charts(divchartID, pageText) %}
 <div class="card card-charts" id="container-{{ divchartID }}">
     <div class="position-relative">

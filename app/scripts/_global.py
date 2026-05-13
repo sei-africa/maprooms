@@ -125,44 +125,39 @@ GLOBAL_CONFIG['navigation'] += get_navigation_users(yaml_dir)
 
 GLOBAL_CONFIG['current_path'] = None
 
-def set_navbar_path(cm, item_type):
-    current_path = GLOBAL_CONFIG['current_path']
+def set_navbar_path(maproom=None, component=None, page=None, item_type='directory'):
+    """Return the current navigation path from explicit URL arguments.
+
+    New URL format:
+      /maproom_items?maproom=maproom
+      /maproom_items?maproom=maproom&component=climate
+      /maproom_items?maproom=climate&component=analysis
+      /maproom_pages?maproom=climate&component=analysis&page=monthly
+
+    The previous implementation inferred the path from GLOBAL_CONFIG['current_path'],
+    which can be wrong when a URL is pasted directly in the browser.
+    """
+    maproom = (maproom or '').strip()
+    component = (component or '').strip()
+    page = (page or '').strip()
+
     if item_type == 'directory':
-        if cm == '' or cm == 'maproom':
+        if maproom in ['', 'maproom'] and component in ['', 'maproom']:
             nav_path = None
-            GLOBAL_CONFIG['current_path'] = None
+        elif maproom in ['', 'maproom']:
+            nav_path = [component]
+        elif component == '':
+            nav_path = [maproom]
         else:
-            if current_path is None:
-                nav_path = [cm]
-                dir_path = [p['path'] for p in GLOBAL_CONFIG['navigation']]
-                for p in dir_path:
-                    if p is None: continue
-                    if len(p) == 1: continue
-                    if p[-1] == cm:
-                        current_path = p[:-1]
-                        nav_path = current_path + [cm]
-                        break
-            else:
-                if cm in current_path:
-                    ip = current_path.index(cm) + 1
-                    nav_path = current_path[:ip]
-                else:
-                    pth = current_path + [cm]
-                    nav_path = remove_duplicates_list(pth)
-            GLOBAL_CONFIG['current_path'] = nav_path
+            nav_path = [maproom, component]
     else:
-        if current_path is None:
-            page_path = [p['path'] for p in GLOBAL_CONFIG['navigation']]
-            for p in page_path:
-                if p is None: continue
-                if p[-1] == cm:
-                    current_path = p[:-1]
-                    break
+        nav_path = [maproom, component, page]
 
-        pth = current_path + [cm]
-        nav_path = remove_duplicates_list(pth)
-        GLOBAL_CONFIG['current_path'] = nav_path
+    if nav_path is not None:
+        nav_path = [x for x in nav_path if x not in ['', None, 'maproom']]
+        nav_path = remove_duplicates_list(nav_path)
 
+    GLOBAL_CONFIG['current_path'] = nav_path
     return nav_path
 
 def selected_language(lang_code):

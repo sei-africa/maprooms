@@ -11,7 +11,8 @@ from app.scripts._cache import cache
 from app.scripts.maproom_items import (load_maproom_items,
                                        load_navigation_items,
                                        load_maproom_page_text,
-                                       data_info_coverage)
+                                       data_info_coverage,
+                                       _url_args_nav_path)
 from .scripts import *
 
 auth = Blueprint(
@@ -27,16 +28,19 @@ def render_template_main(error_login):
     mapItems = load_maproom_items(None)
     mapNav = load_navigation_items(None)
     pageText = load_maproom_page_text(None, 'main')
-    return render_template('main.html',
-                           error_login=error_login,
-                           dataUser=g.dataUser,
-                           langUser=GLOBAL_CONFIG['language'],
-                           metInfo=GLOBAL_CONFIG['metInfo'],
-                           dataInfo=g.dataInfoCoverage,
-                           mapItems=mapItems,
-                           mapNav=mapNav,
-                           pageText=pageText,
-                           pageType='main')
+    return render_template(
+        'main.html',
+        error_login=error_login,
+        dataUser=g.dataUser,
+        langUser=GLOBAL_CONFIG['language'],
+        metInfo=GLOBAL_CONFIG['metInfo'],
+        dataInfo=g.dataInfoCoverage,
+        mapItems=mapItems,
+        mapNav=mapNav,
+        pageText=pageText,
+        pageType='main',
+        urlArgs=_url_args_nav_path(None)
+    )
 
 def render_template_user(user_page, dataUser):
     page_contorl = page_control_musers()
@@ -47,6 +51,7 @@ def render_template_user(user_page, dataUser):
                            dataUser = dataUser,
                            langUser=GLOBAL_CONFIG['language'],
                            metInfo = GLOBAL_CONFIG['metInfo'],
+                           dataInfo=g.dataInfoCoverage,
                            mapNav=mapNav,
                            pageText=pageText,
                            pageCtrl = page_contorl,

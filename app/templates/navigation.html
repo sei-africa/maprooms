@@ -10,7 +10,11 @@
                 {% for nav in mapNav %}
                 <li class="nav-item">
                     {% if not loop.last %}
-                    <a class="nav-link nav-link-path" href="{{ url_for('maproom_items', component = nav.path) }}"> {{ nav.label }} </a>
+                    {% if nav.component %}
+                    <a class="nav-link nav-link-path" href="{{ url_for(nav.endpoint, maproom=nav.maproom, component=nav.component) }}"> {{ nav.label }} </a>
+                    {% else %}
+                    <a class="nav-link nav-link-path" href="{{ url_for(nav.endpoint, maproom=nav.maproom) }}"> {{ nav.label }} </a>
+                    {% endif %}
                     {% else %}
                     <a class="nav-link nav-link-path disabled"> {{ nav.label }} </a>
                     {% endif %}
@@ -37,7 +41,13 @@
                                 {% if pageType == 'user' %}
                                 <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code = lang.code, user_page = pageText.user_page) }}"> {{lang.name}} </a>
                                 {% else %}
-                                <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code = lang.code) }}"> {{lang.name}} </a>
+                                {% if pageType == 'page' %}
+                                <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code=lang.code, maproom=urlArgs.maproom, component=urlArgs.component, page=urlArgs.page) }}"> {{lang.name}} </a>
+                                {% elif urlArgs.component is defined %}
+                                <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code=lang.code, maproom=urlArgs.maproom, component=urlArgs.component) }}"> {{lang.name}} </a>
+                                {% else %}
+                                <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code=lang.code, maproom=urlArgs.maproom) }}"> {{lang.name}} </a>
+                                {% endif %}
                                 {% endif %}
                             </li>
                             {% if not loop.last %}

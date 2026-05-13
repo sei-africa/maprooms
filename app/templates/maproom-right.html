@@ -3,14 +3,19 @@
     <div class="col-md-6">
         <div class="card border mb-3 shadow">
             <div class="card-body item-card">
-                <a href="{{ url_for(item.endpoint, template=item.template,  component=item.component) }}">
+                {% if item.endpoint == 'maproom_pages' %}
+                {% set item_url = url_for(item.endpoint, maproom=item.maproom, component=item.component, page=item.page) %}
+                {% else %}
+                {% set item_url = url_for(item.endpoint, maproom=item.maproom, component=item.component) %}
+                {% endif %}
+                <a href="{{ item_url }}">
                     <h5 class="mb-2 item-title-1">{{ item.title }} </h5>
                 </a>
                 <hr class="bg-primary-subtle border-primary-subtle" />
                 <div class="row">
                     <div class="col">
                         <div class="item-icon float-end">
-                            <a href="{{ url_for(item.endpoint, template=item.template, component=item.component) }}">
+                            <a href="{{ item_url }}">
                                 <img class="item-image" src="{{ item.icon }}" />
                             </a>
                         </div>

@@ -6,7 +6,11 @@
 <!-- <style> </style> -->
 {% endblock %}
 {% block content %}
-<div class="container-fluid"></div>
+<div class="container-fluid">
+    <div class="text-center">maproom: water, component: analysis, page: monthly</div>
+    {{ fmacros.tmp_placeholder_image() }}
+    <!--  -->
+</div>
 {% endblock %}
 {% block javascript %}
 {% include "analysis/block-js.html" %}

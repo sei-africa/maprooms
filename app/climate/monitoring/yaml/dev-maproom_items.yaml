@@ -18,7 +18,7 @@ maprooms:
         description:
             en: This page displays dekadal (approximately 10-day) rainfall amounts over the country. The default map shows rainfall totals for the most recently available dekad, but totals for previous dekads can be displayed as well.
             fr: Cette page présente les cumuls de précipitations décadaires (approximativement 10 jours) sur l'ensemble du pays. La carte par défaut présente le total de précipitations pour la décade la plus récente disponible, mais les décades précédentes peuvent également être visualisées.
-        icon_image: test-page.png
+        icon_image: test-icon.gif
     - monthly:
         title:
             en: Monthly Climate Monitoring

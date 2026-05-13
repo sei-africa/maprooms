@@ -11,7 +11,7 @@ from .colorbar import colorRampPalette
 from .util import pretty
 
 ## icon functions from each blueprint
-from app.agriculture.historical.scripts.icons import *
+from app.agriculture.analysis.scripts.icons import *
 from app.climate.analysis.scripts.icons import *
 from app.climate.forecast.scripts.icons import *
 from app.climate.monitoring.scripts.icons import *

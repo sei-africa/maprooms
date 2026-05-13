@@ -28,6 +28,19 @@ def _get_description_text(obj, lang_code):
 
     return descrp
 
+def _url_args_nav_path(nav_path):
+    if nav_path is None:
+        return {'maproom': 'maproom'}
+    if len(nav_path) == 1:
+        return {
+                'maproom': 'maproom',
+                'component': nav_path[0]
+            }
+    return {
+            'maproom': nav_path[-2],
+            'component': nav_path[-1]
+        }
+
 def load_maproom_items(item_dirs):
     lang_list, lang_code = _get_lang_info()
     app_dir = GLOBAL_CONFIG['app_dir']
@@ -39,10 +52,8 @@ def load_maproom_items(item_dirs):
 
     if item_dirs is None:
         nav_path = ''
-        template = 'maproom'
     else:
         nav_path = os.path.join(*item_dirs)
-        template = item_dirs[-1]
 
     item_path = os.path.join(app_dir, nav_path)
     yaml_file = os.path.join(item_path, 'yaml', 'maproom_items.yaml')
@@ -59,7 +70,7 @@ def load_maproom_items(item_dirs):
             res['title'] = _get_lang_text(cm_tmp['title'], lang_code)
             res['description'] = _get_description_text(cm_tmp['description'], lang_code)
             res['endpoint'] = 'maproom_items'
-            res['template'] = template
+            res['maproom'] = 'maproom' if item_dirs is None else item_dirs[-1]
             res['component'] = cm
             if 'icon_image' in cm_tmp:
                 icon_dir = os.path.join(app_dir, 'static', 'images', 'card_icons')
@@ -81,7 +92,8 @@ def load_maproom_items(item_dirs):
             res['title'] = _get_lang_text(cm[page]['title'], lang_code)
             res['description'] = _get_lang_text(cm[page]['description'], lang_code)
             res['endpoint'] = 'maproom_pages'
-            res['template'] = template
+            res['maproom'] = item_dirs[0]
+            res['component'] = item_dirs[-1]
             if 'icon_image' in cm[page]:
                 icon_path = os.path.join(item_path, 'static', 'images', cm[page]['icon_image'])
                 if os.path.exists(icon_path):
@@ -92,7 +104,7 @@ def load_maproom_items(item_dirs):
                 res['icon'] = create_icon_function(cm[page]['icon_function'])
             else:
                 res['icon'] = blank_icon
-            res['component'] = page
+            res['page'] = page
             out['right'] = out['right'] + [res]
 
     GLOBAL_CONFIG['current_path'] = item_dirs
@@ -106,7 +118,7 @@ def load_navigation_items(item_dirs):
     tmp = {}
     for nav in nav_info:
         if nav['path'] == item_dirs:
-            if item_dirs == None:
+            if item_dirs is None:
                 pths = ['maproom']
             else:
                 pths = ['maproom'] + nav['path']
@@ -117,6 +129,23 @@ def load_navigation_items(item_dirs):
     out = []
     for j in range(len(tmp['path'])):
         x = {'path': tmp['path'][j], 'label': tmp['label'][j]}
+
+        # Build explicit URLs instead of depending on GLOBAL_CONFIG['current_path'].
+        # This makes pasted/deep URLs deterministic, e.g.
+        # /maproom_pages?maproom=climate&component=analysis&page=monthly
+        if j == 0:
+            x['endpoint'] = 'maproom_items'
+            x['maproom'] = 'maproom'
+            x['component'] = None
+        elif j == 1:
+            x['endpoint'] = 'maproom_items'
+            x['maproom'] = 'maproom'
+            x['component'] = tmp['path'][j]
+        else:
+            x['endpoint'] = 'maproom_items'
+            x['maproom'] = tmp['path'][j - 1]
+            x['component'] = tmp['path'][j]
+
         out += [x]
 
     return out

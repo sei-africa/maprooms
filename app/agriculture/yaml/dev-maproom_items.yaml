@@ -11,4 +11,4 @@ icon_image: emi_climate_agriculture.gif
 # icon_image: agriculture.gif
 
 components:
-    - historical
+    - analysis

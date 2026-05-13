@@ -6,9 +6,13 @@
 <!-- <style> </style> -->
 {% endblock %}
 {% block content %}
-<div class="container-fluid"></div>
+<div class="container-fluid">
+    <div class="text-center">maproom: agriculture, component: analysis, page: rainy_season</div>
+    {{ fmacros.tmp_placeholder_image() }}
+    <!--  -->
+</div>
 {% endblock %}
 {% block javascript %}
-{% include "block-js.html" %}
+{% include "analysis/block-js.html" %}
 <!--  -->
 {% endblock %}

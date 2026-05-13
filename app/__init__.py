@@ -1,5 +1,8 @@
 from flask import (Flask, render_template,
+                   render_template_string,
                    g, flash, session, request)
+import os
+import re
 import json
 from flask_cors import CORS
 from flask_jsglue import JSGlue
@@ -19,7 +22,7 @@ from app.climate.monitoring.index import climate_monitoring
 from app.climate.forecast.index import climate_forecast
 from app.climate.projection.index import climate_projection
 
-from app.agriculture.historical.index import agri_historical
+from app.agriculture.analysis.index import agri_analysis
 
 from app.health.index import health
 from app.drm.index import drm
@@ -38,7 +41,7 @@ app.register_blueprint(climate_monitoring)
 app.register_blueprint(climate_forecast)
 app.register_blueprint(climate_projection)
 
-app.register_blueprint(agri_historical)
+app.register_blueprint(agri_analysis)
 
 app.register_blueprint(health)
 app.register_blueprint(drm)
@@ -56,7 +59,8 @@ from app.scripts._global import (GLOBAL_CONFIG,
 from app.scripts.maproom_items import (load_maproom_items,
                                        load_navigation_items,
                                        load_maproom_page_text,
-                                       data_info_coverage)
+                                       data_info_coverage,
+                                       _url_args_nav_path)
 from app.scripts._cache import cache
 cache.init_app(app)
 
@@ -83,33 +87,103 @@ def before_request():
         else:
             g.dataUser = {'uid': -1}
 
+def _render_maproom_template(maproom, component, page, **context):
+    candidate_template_dirs = [
+        # "app/<maproom>/<component>/templates/<component>" layout
+        os.path.join(
+            GLOBAL_CONFIG['app_dir'],
+            maproom,
+            component,
+            'templates',
+            component
+        ),
+        # "app/<maproom>/templates/<component>" layout
+        os.path.join(
+            GLOBAL_CONFIG['app_dir'],
+            maproom,
+            'templates',
+            component
+        )
+    ]
+
+    template_dir = None
+    template_file = None
+    for cand_dir in candidate_template_dirs:
+        cand_file = os.path.join(cand_dir, f'{page}.html')
+        if os.path.exists(cand_file):
+            template_dir = cand_dir
+            template_file = cand_file
+            break
+
+    if template_file is None:
+        return render_template('unknown-page.html')
+
+    with open(template_file, 'r', encoding='utf-8') as f:
+        template_source = f.read()
+
+    block_file = os.path.join(template_dir, 'block-js.html')
+    if os.path.exists(block_file):
+        with open(block_file, 'r', encoding='utf-8') as f:
+            block_source = f.read()
+
+        include_names = {
+            f'{component}/block-js.html',
+            f'{maproom}/block-js.html',
+        }
+        for include_name in include_names:
+            include_re = (
+                r"{%\s*include\s+['\"]"
+                + re.escape(include_name)
+                + r"['\"]\s*%}"
+            )
+            template_source = re.sub(
+                include_re, block_source, template_source
+            )
+
+    return render_template_string(template_source, **context)
+
 def render_template_main(nav_path):
     mapItems = load_maproom_items(nav_path)
     mapNav = load_navigation_items(nav_path)
     pageText = load_maproom_page_text(nav_path, 'main')
-    return render_template('main.html',
-                           error_login=False,
-                           dataUser=g.dataUser,
-                           langUser=GLOBAL_CONFIG['language'],
-                           metInfo=GLOBAL_CONFIG['metInfo'],
-                           dataInfo=g.dataInfoCoverage,
-                           mapItems=mapItems,
-                           mapNav=mapNav,
-                           pageText=pageText,
-                           pageType='main')
+    return render_template(
+        'main.html',
+        error_login=False,
+        dataUser=g.dataUser,
+        langUser=GLOBAL_CONFIG['language'],
+        metInfo=GLOBAL_CONFIG['metInfo'],
+        dataInfo=g.dataInfoCoverage,
+        mapItems=mapItems,
+        mapNav=mapNav,
+        pageText=pageText,
+        pageType='main',
+        urlArgs=_url_args_nav_path(nav_path)
+    )
 
-def render_template_page(tm, cm):
-    nav_path = set_navbar_path(cm, 'file')
+def render_template_page(maproom, component, page):
+    nav_path = set_navbar_path(
+        maproom=maproom,
+        component=component,
+        page=page,
+        item_type='file'
+    )
     mapNav = load_navigation_items(nav_path)
     pageText = load_maproom_page_text(nav_path, 'page')
-    return render_template(f'{tm}/{cm}.html',
-                           dataUser=g.dataUser,
-                           langUser=GLOBAL_CONFIG['language'],
-                           metInfo=GLOBAL_CONFIG['metInfo'],
-                           dataInfo=g.dataInfoCoverage,
-                           mapNav=mapNav,
-                           pageText=pageText,
-                           pageType='page')
+    return _render_maproom_template(
+        maproom, component, page,
+        dataUser=g.dataUser,
+        langUser=GLOBAL_CONFIG['language'],
+        metInfo=GLOBAL_CONFIG['metInfo'],
+        dataInfo=g.dataInfoCoverage,
+        mapNav=mapNav,
+        pageText=pageText,
+        pageType='page',
+        urlArgs={
+            'maproom': maproom,
+            'component': component,
+            'page': page
+        } 
+    )
 
 @app.route('/')
 def homepage():
@@ -124,27 +198,37 @@ def homepage():
 def set_languages_main():
     lang_code = request.args.get('lang_code')
     selected_language(lang_code)
-    return render_template_main(GLOBAL_CONFIG['current_path'])
+    maproom = request.args.get('maproom')
+    component = request.args.get('component')
+    nav_path = set_navbar_path(maproom=maproom,
+                               component=component,
+                               item_type='directory')
+    return render_template_main(nav_path)
 
 @app.route('/set_languages_page')
 def set_languages_page():
     lang_code = request.args.get('lang_code')
     selected_language(lang_code)
-    tm = GLOBAL_CONFIG['current_path'][-2]
-    cm = GLOBAL_CONFIG['current_path'][-1]
-    return render_template_page(tm, cm)
+    maproom = request.args.get('maproom')
+    component = request.args.get('component')
+    page = request.args.get('page')
+    return render_template_page(maproom, component, page)
 
 @app.route('/maproom_items')
 def maproom_items():
-    cm = request.args.get('component')
-    nav_path = set_navbar_path(cm, 'directory')
+    maproom = request.args.get('maproom')
+    component = request.args.get('component')
+    nav_path = set_navbar_path(maproom=maproom,
+                               component=component,
+                               item_type='directory')
     return render_template_main(nav_path)
 
 @app.route('/maproom_pages')
 def maproom_pages():
-    tm = request.args.get('template')
-    cm = request.args.get('component')
-    return render_template_page(tm, cm)
+    maproom = request.args.get('maproom')
+    component = request.args.get('component')
+    page = request.args.get('page')
+    return render_template_page(maproom, component, page)
 
 @app.route('/get_flashes')
 def get_flashes():

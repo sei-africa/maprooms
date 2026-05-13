@@ -8,8 +8,26 @@ from app.dst_api.scripts import (download_climdata,
                                  is_climato_normals)
 from app.scripts.imagepng import create_imagePng
 from app.scripts.util import pretty
+from app.scripts.colorbar import matplotlib_invalid_colors
 
 def get_spatial_monthly_data(params):
+    if params['colorbar']['color_type'] == 'user':
+        user_col = matplotlib_invalid_colors(
+            params['colorbar']['color_cbar']
+        )
+        if user_col is not None:
+            wrng_col = ', '.join(user_col)
+            msg = f'Matplotlib invalid colors: {wrng_col}'
+            return {'status': -1, 'message': msg}
+        if params['colorbar']['color_add_ext']:
+            ext_col = matplotlib_invalid_colors(
+                params['colorbar']['color_ext']
+            )
+            if ext_col is not None:
+                wrng_col = ', '.join(ext_col)
+                msg = f'Matplotlib invalid colors extensions: {wrng_col}'
+                return {'status': -1, 'message': msg}
+
     if params['mapType'] == 'climatology':
         params = _create_params_monthly_clim_map(params)
         json_data = download_climdata(params)
@@ -26,9 +44,6 @@ def get_spatial_monthly_data(params):
         return {'status': -1, 'message': 'Unknown map data'}
 
     if data['status'] == -1: return data
-
-    # check color here
-    print(params['colorbar'])
 
     if params['colorbar']['color_type'] == 'preset':
         map_png = create_imagePng(
