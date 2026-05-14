@@ -4,9 +4,17 @@
         <div class="card border mb-3 shadow">
             <div class="card-body item-card">
                 {% if item.endpoint == 'maproom_pages' %}
+                {% if item.component %}
                 {% set item_url = url_for(item.endpoint, maproom=item.maproom, component=item.component, page=item.page) %}
                 {% else %}
+                {% set item_url = url_for(item.endpoint, maproom=item.maproom, page=item.page) %}
+                {% endif %}
+                {% else %}
+                {% if item.component %}
                 {% set item_url = url_for(item.endpoint, maproom=item.maproom, component=item.component) %}
+                {% else %}
+                {% set item_url = url_for(item.endpoint, maproom=item.maproom) %}
+                {% endif %}
                 {% endif %}
                 <a href="{{ item_url }}">
                     <h5 class="mb-2 item-title-1">{{ item.title }} </h5>

@@ -10,10 +10,18 @@
                 {% for nav in mapNav %}
                 <li class="nav-item">
                     {% if not loop.last %}
+                    {% if nav.endpoint == 'maproom_pages' %}
+                    {% if nav.component %}
+                    <a class="nav-link nav-link-path" href="{{ url_for(nav.endpoint, maproom=nav.maproom, component=nav.component, page=nav.page) }}"> {{ nav.label }} </a>
+                    {% else %}
+                    <a class="nav-link nav-link-path" href="{{ url_for(nav.endpoint, maproom=nav.maproom, page=nav.page) }}"> {{ nav.label }} </a>
+                    {% endif %}
+                    {% else %}
                     {% if nav.component %}
                     <a class="nav-link nav-link-path" href="{{ url_for(nav.endpoint, maproom=nav.maproom, component=nav.component) }}"> {{ nav.label }} </a>
                     {% else %}
                     <a class="nav-link nav-link-path" href="{{ url_for(nav.endpoint, maproom=nav.maproom) }}"> {{ nav.label }} </a>
+                    {% endif %}
                     {% endif %}
                     {% else %}
                     <a class="nav-link nav-link-path disabled"> {{ nav.label }} </a>
@@ -42,8 +50,12 @@
                                 <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code = lang.code, user_page = pageText.user_page) }}"> {{lang.name}} </a>
                                 {% else %}
                                 {% if pageType == 'page' %}
+                                {% if urlArgs.component %}
                                 <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code=lang.code, maproom=urlArgs.maproom, component=urlArgs.component, page=urlArgs.page) }}"> {{lang.name}} </a>
-                                {% elif urlArgs.component is defined %}
+                                {% else %}
+                                <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code=lang.code, maproom=urlArgs.maproom, page=urlArgs.page) }}"> {{lang.name}} </a>
+                                {% endif %}
+                                {% elif urlArgs.component is defined and urlArgs.component %}
                                 <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code=lang.code, maproom=urlArgs.maproom, component=urlArgs.component) }}"> {{lang.name}} </a>
                                 {% else %}
                                 <a class="dropdown-item maproom-lang-{{ lang.code }}" href="{{ url_for(lang_endpoint, lang_code=lang.code, maproom=urlArgs.maproom) }}"> {{lang.name}} </a>

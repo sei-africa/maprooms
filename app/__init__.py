@@ -88,23 +88,31 @@ def before_request():
             g.dataUser = {'uid': -1}
 
 def _render_maproom_template(maproom, component, page, **context):
-    candidate_template_dirs = [
-        # "app/<maproom>/<component>/templates/<component>" layout
-        os.path.join(
-            GLOBAL_CONFIG['app_dir'],
-            maproom,
-            component,
-            'templates',
-            component
-        ),
-        # "app/<maproom>/templates/<component>" layout
-        os.path.join(
-            GLOBAL_CONFIG['app_dir'],
-            maproom,
-            'templates',
-            component
+    component = (component or '').strip()
+    maproom = (maproom or '').strip()
+
+    candidate_template_dirs = []
+    if component != '':
+        # agriculture, climate, water layout
+        # "app/<maproom>/<component>/templates"
+        candidate_template_dirs.append(
+            os.path.join(
+                GLOBAL_CONFIG['app_dir'],
+                maproom,
+                component,
+                'templates'
+            )
         )
-    ]
+
+    # drm, health layout
+    # "app/<maproom>/templates"
+    candidate_template_dirs.append(
+        os.path.join(
+            GLOBAL_CONFIG['app_dir'],
+            maproom,
+            'templates'
+        )
+    )
 
     template_dir = None
     template_file = None
@@ -127,9 +135,12 @@ def _render_maproom_template(maproom, component, page, **context):
             block_source = f.read()
 
         include_names = {
-            f'{component}/block-js.html',
+            'block-js.html',
+            f'{component}/block-js.html' if component else None,
             f'{maproom}/block-js.html',
         }
+        include_names.discard(None)
+
         for include_name in include_names:
             include_re = (
                 r"{%\s*include\s+['\"]"
@@ -161,6 +172,7 @@ def render_template_main(nav_path):
     )
 
 def render_template_page(maproom, component, page):
+    component = (component or '').strip()
     nav_path = set_navbar_path(
         maproom=maproom,
         component=component,
@@ -180,7 +192,7 @@ def render_template_page(maproom, component, page):
         pageType='page',
         urlArgs={
             'maproom': maproom,
-            'component': component,
+            'component': component if component != '' else None,
             'page': page
         } 
     )

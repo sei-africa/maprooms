@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %} {{metInfo.pageTitle}} {% endblock %}
+{% block head %}
+{{ super() }}
+<!-- block head -->
+<!-- <style> </style> -->
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="text-center">maproom: drm, page: ext_rainfall</div>
+    {{ fmacros.tmp_placeholder_image() }}
+    <!--  -->
+</div>
+{% endblock %}
+{% block javascript %}
+{% include "block-js.html" %}
+<!--  -->
+{% endblock %}

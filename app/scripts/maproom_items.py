@@ -1,4 +1,5 @@
 import os
+import re
 from .util import load_yaml_file
 from .icons import *
 from ._global import GLOBAL_CONFIG
@@ -28,10 +29,30 @@ def _get_description_text(obj, lang_code):
 
     return descrp
 
+def _is_top_level_navigation_page(maproom):
+    yaml_file = os.path.join(
+        GLOBAL_CONFIG['app_dir'],
+        maproom,
+        'yaml',
+        'maproom_items.yaml'
+    )
+    if not os.path.exists(yaml_file):
+        return False
+    try:
+        with open(yaml_file, 'r', encoding='utf-8') as f:
+            return re.search(
+                        r'^type:\s*navigation-page\s*$',
+                        f.read(),
+                        re.MULTILINE) is not None
+    except OSError:
+        return False
+
 def _url_args_nav_path(nav_path):
     if nav_path is None:
         return {'maproom': 'maproom'}
     if len(nav_path) == 1:
+        if _is_top_level_navigation_page(nav_path[0]):
+            return {'maproom': nav_path[0]}
         return {
                 'maproom': 'maproom',
                 'component': nav_path[0]
@@ -40,6 +61,14 @@ def _url_args_nav_path(nav_path):
             'maproom': nav_path[-2],
             'component': nav_path[-1]
         }
+
+def _first_page_from_maproom_items(maproom_yaml):
+    if maproom_yaml.get('type') != 'navigation-page':
+        return None
+    pages = maproom_yaml.get('maprooms', [])
+    if len(pages) == 0:
+        return None
+    return list(pages[0].keys())[0]
 
 def load_maproom_items(item_dirs):
     lang_list, lang_code = _get_lang_info()
@@ -69,9 +98,18 @@ def load_maproom_items(item_dirs):
             cm_tmp = load_yaml_file(yaml_file)
             res['title'] = _get_lang_text(cm_tmp['title'], lang_code)
             res['description'] = _get_description_text(cm_tmp['description'], lang_code)
+
+            first_page = _first_page_from_maproom_items(cm_tmp)
             res['endpoint'] = 'maproom_items'
-            res['maproom'] = 'maproom' if item_dirs is None else item_dirs[-1]
-            res['component'] = cm
+            if first_page is not None and item_dirs is None:
+                # drm/health layout: /maproom_pages?maproom=drm&page=spi
+                res['maproom'] = cm
+                res['component'] = None
+            else:
+                # agriculture/climate/water layout: /maproom_items?maproom=climate&component=analysis
+                res['maproom'] = 'maproom' if item_dirs is None else item_dirs[-1]
+                res['component'] = cm
+
             if 'icon_image' in cm_tmp:
                 icon_dir = os.path.join(app_dir, 'static', 'images', 'card_icons')
                 icon_path = os.path.join(icon_dir, cm_tmp['icon_image'])
@@ -93,7 +131,15 @@ def load_maproom_items(item_dirs):
             res['description'] = _get_lang_text(cm[page]['description'], lang_code)
             res['endpoint'] = 'maproom_pages'
             res['maproom'] = item_dirs[0]
-            res['component'] = item_dirs[-1]
+
+            if len(item_dirs) == 1:
+                # drm/health layout: /maproom_pages?maproom=drm&page=ext_temperature
+                res['component'] = None
+            else:
+                # agriculture/climate/water layout:
+                # /maproom_pages?maproom=climate&component=analysis&page=daily
+                res['component'] = item_dirs[-1]
+ 
             if 'icon_image' in cm[page]:
                 icon_path = os.path.join(item_path, 'static', 'images', cm[page]['icon_image'])
                 if os.path.exists(icon_path):
@@ -137,14 +183,36 @@ def load_navigation_items(item_dirs):
             x['endpoint'] = 'maproom_items'
             x['maproom'] = 'maproom'
             x['component'] = None
+            x['page'] = None
         elif j == 1:
+            # For top-level navigation-page maprooms such as drm and health,
+            # avoid /maproom_items?maproom=maproom&component=drm.
+            # Link to their intermediate page-selection view instead:
+            # /maproom_items?maproom=drm
+            maproom_yaml = os.path.join(
+                GLOBAL_CONFIG['app_dir'],
+                tmp['path'][j], 'yaml',
+                'maproom_items.yaml'
+            )
+            first_page = None
+            if os.path.exists(maproom_yaml):
+                first_page = _first_page_from_maproom_items(
+                    load_yaml_file(maproom_yaml)
+                )
+
             x['endpoint'] = 'maproom_items'
-            x['maproom'] = 'maproom'
-            x['component'] = tmp['path'][j]
+            x['page'] = None
+            if first_page is not None:
+                x['maproom'] = tmp['path'][j]
+                x['component'] = None
+            else:
+                x['maproom'] = 'maproom'
+                x['component'] = tmp['path'][j]
         else:
             x['endpoint'] = 'maproom_items'
             x['maproom'] = tmp['path'][j - 1]
             x['component'] = tmp['path'][j]
+            x['page'] = None
 
         out += [x]
 
@@ -203,50 +271,6 @@ def data_info_coverage():
 
     return tmp_cov
 
-def parse_lang_yaml_nested4(nested_dict):
-    lang_list, lang_code = _get_lang_info()
-    page = {}
-    for k1, v1 in nested_dict.items():
-        if isinstance(v1, dict):
-            keys1 = list(v1.keys())
-            if any(l in lang_list for l in keys1):
-                lg = lang_code if lang_code in keys1 else keys1[0]
-                # page[k1] = v1[lang_code]
-                page[k1] = v1[lg]
-            else:
-                page[k1] = {}
-                for k2, v2 in v1.items():
-                    if isinstance(v2, dict):
-                        keys2 = list(v2.keys())
-                        if any(l in lang_list for l in keys2):
-                            lg = lang_code if lang_code in keys2 else keys2[0]
-                            page[k1][k2] = v2[lg]
-                        else:
-                            page[k1][k2] = {}
-                            for k3, v3 in v2.items():
-                                if isinstance(v3, dict):
-                                    keys3 = list(v3.keys())
-                                    if any(l in lang_list for l in keys3):
-                                        lg = lang_code if lang_code in keys3 else keys3[0]
-                                        page[k1][k2][k3] = v3[lg]
-                                    else:
-                                        page[k1][k2][k3] = {}
-                                        for k4, v4 in v3.items():
-                                            if isinstance(v4, dict):
-                                                keys4 = list(v4.keys())
-                                                lg = lang_code if lang_code in keys4 else keys4[0]
-                                                page[k1][k2][k3][k4] = v4[lg]
-                                            else:
-                                                page[k1][k2][k3][k4] = v4
-                                else:
-                                    page[k1][k2][k3] = v3
-                    else:
-                        page[k1][k2] = v2
-        else:
-            page[k1] = v1
-    return page
-
-## generalization of parse_lang_yaml_nested4
 def parse_lang_yaml_nested(nested_dict):
     lang_list, lang_code = _get_lang_info()
 

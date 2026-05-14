@@ -133,6 +133,7 @@ def set_navbar_path(maproom=None, component=None, page=None, item_type='director
       /maproom_items?maproom=maproom&component=climate
       /maproom_items?maproom=climate&component=analysis
       /maproom_pages?maproom=climate&component=analysis&page=monthly
+      /maproom_pages?maproom=drm&page=ext_temperature
 
     The previous implementation inferred the path from GLOBAL_CONFIG['current_path'],
     which can be wrong when a URL is pasted directly in the browser.
