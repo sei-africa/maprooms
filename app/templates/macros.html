@@ -1,6 +1,15 @@
-{% macro tmp_placeholder_image() %}
-<div class="d-flex justify-content-center align-items-center vh-100">
-    <img src="{{ url_for('static', filename='images/homer.jpg') }}">
+{% macro tmp_placeholder_image(urlArgs) %}
+<div class="d-flex flex-column justify-content-center align-items-center vh-100">
+    <div class="bg-primary text-white">
+        {% if urlArgs.component %}
+        maproom: {{ urlArgs.maproom }} ==> component: {{ urlArgs.component }} ==> page: {{ urlArgs.page }}
+        {% else %}
+        maproom: {{ urlArgs.maproom }} ==> page: {{ urlArgs.page }}
+        {% endif %}
+    </div>
+    <div>
+        <img src="{{ url_for('static', filename='images/homer.jpg') }}">
+    </div>
 </div>
 {% endmacro %}
 <!--  -->

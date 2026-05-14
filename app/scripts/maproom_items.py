@@ -153,8 +153,6 @@ def load_maproom_items(item_dirs):
             res['page'] = page
             out['right'] = out['right'] + [res]
 
-    GLOBAL_CONFIG['current_path'] = item_dirs
-
     return out
 
 def load_navigation_items(item_dirs):
@@ -176,7 +174,7 @@ def load_navigation_items(item_dirs):
     for j in range(len(tmp['path'])):
         x = {'path': tmp['path'][j], 'label': tmp['label'][j]}
 
-        # Build explicit URLs instead of depending on GLOBAL_CONFIG['current_path'].
+        # Build explicit URLs.
         # This makes pasted/deep URLs deterministic, e.g.
         # /maproom_pages?maproom=climate&component=analysis&page=monthly
         if j == 0:

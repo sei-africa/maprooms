@@ -123,8 +123,6 @@ GLOBAL_CONFIG['navigation'] = get_navigation_items()
 # add user account and management to navigation
 GLOBAL_CONFIG['navigation'] += get_navigation_users(yaml_dir)
 
-GLOBAL_CONFIG['current_path'] = None
-
 def set_navbar_path(maproom=None, component=None, page=None, item_type='directory'):
     """Return the current navigation path from explicit URL arguments.
 
@@ -134,9 +132,6 @@ def set_navbar_path(maproom=None, component=None, page=None, item_type='director
       /maproom_items?maproom=climate&component=analysis
       /maproom_pages?maproom=climate&component=analysis&page=monthly
       /maproom_pages?maproom=drm&page=ext_temperature
-
-    The previous implementation inferred the path from GLOBAL_CONFIG['current_path'],
-    which can be wrong when a URL is pasted directly in the browser.
     """
     maproom = (maproom or '').strip()
     component = (component or '').strip()
@@ -158,7 +153,6 @@ def set_navbar_path(maproom=None, component=None, page=None, item_type='director
         nav_path = [x for x in nav_path if x not in ['', None, 'maproom']]
         nav_path = remove_duplicates_list(nav_path)
 
-    GLOBAL_CONFIG['current_path'] = nav_path
     return nav_path
 
 def selected_language(lang_code):
