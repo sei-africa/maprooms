@@ -8,7 +8,7 @@ type: navigation-page
 icon_image: test-main.png
 
 maprooms:
-    - rainy_season:
+    - rainy-season:
         title:
             en: Historical Onset Date
             fr: Début Historique de la Saison des Pluies
