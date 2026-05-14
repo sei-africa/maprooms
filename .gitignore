@@ -1,9 +1,7 @@
 dev-config.py
 
 config.py
-
 run.py
-setup.py
 
 maprooms.egg-info
 
@@ -12,9 +10,3 @@ maprooms.egg-info
 
 *__pycache__/
 *.DS_Store
-
-__init__.py
-!*/__init__.py
-!*/*/__init__.py
-!*/*/*/__init__.py
-!*/*/*/*/__init__.py
