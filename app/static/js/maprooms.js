@@ -233,7 +233,7 @@ function flashMessage(message, category) {
 
 function showModalDialog(modal_id) {
     const modal_div = document.getElementById(modal_id);
-    let modal = new bootstrap.Modal(modal_div, {});
+    let modal = bootstrap.Modal.getOrCreateInstance(modal_div, {});
     modal.show();
 }
 
@@ -261,9 +261,22 @@ function expandModalCharts(container, callback_chart) {
         .addClass('modal-expand-charts-plotly')
         .appendTo(divChart);
 
-    setTimeout(() => {
-        callback_chart(contChart);
-    }, 100);
+    const modalEl = document.getElementById(`modal-expand-${container}`);
+    const drawChart = () => {
+        if (typeof callback_chart === 'function') {
+            callback_chart(contChart);
+        }
+    };
+
+    if (modalEl && modalEl.classList.contains('show')) {
+        setTimeout(drawChart, 150);
+    } else if (modalEl) {
+        $(modalEl).one('shown.bs.modal', () => {
+            setTimeout(drawChart, 50);
+        });
+    } else {
+        setTimeout(drawChart, 150);
+    }
 }
 
 // dialog tag
@@ -279,16 +292,20 @@ function hideBoxDialog(dialog_id) {
 
 // dialog div
 function setBoxDialog(dialog_id, open_id, callback = null) {
-    $(`#${open_id}`).click(function() {
-        $(`#${dialog_id}`).fadeIn(200);
-    });
+    $(`#${open_id}`)
+        .off('click.boxDialog')
+        .on('click.boxDialog', function() {
+            $(`#${dialog_id}`).fadeIn(200);
+        });
 
-    $(`#${dialog_id}-close-1, #${dialog_id}-close-2`).click(function() {
-        $(`#${dialog_id}`).fadeOut(200);
-        if (callback !== null) {
-            callback();
-        }
-    });
+    $(`#${dialog_id}-close-1, #${dialog_id}-close-2`)
+        .off('click.boxDialog')
+        .on('click.boxDialog', function() {
+            $(`#${dialog_id}`).fadeOut(200);
+            if (callback !== null) {
+                callback();
+            }
+        });
 }
 
 function displayAjaxError(jqXHR, textStatus, errorThrown) {

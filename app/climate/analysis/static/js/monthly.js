@@ -67,20 +67,23 @@ $(document).ready(function() {
         //
         const contChart = `container-chart-${idc}`;
 
+        const updateRawSeriesControls = () => {
+            if ($('#monthly-chart-raw-series').val() === 'one') {
+                $('#monthly-chart-raw-startmonth-list').hide();
+            } else {
+                $('#monthly-chart-raw-startmonth-list').show();
+            }
+        };
+        updateRawSeriesControls();
+
         $('#monthly-chart-raw-series')
             .off('change.monthlyRaw')
             .on('change.monthlyRaw', function() {
-                if ($(this).val() === 'one') {
-                    $('#monthly-chart-raw-startmonth-list').hide();
-                } else {
-                    $('#monthly-chart-raw-startmonth-list').show();
-                }
-
+                updateRawSeriesControls();
                 maproomDB.getData('ts_rawdata', function(data) {
                     expand_charts_monthly_display_rawdata(data, contChart);
                 });
             });
-        $('#monthly-chart-raw-series').trigger('change');
 
         $('#monthly-chart-raw-variable')
             .off('change.monthlyRaw')
@@ -97,14 +100,18 @@ $(document).ready(function() {
             });
 
         // update chart
-        $(`#plotly-replot-${idc}`).on('click', function() {
-            expand_charts_monthly_rawdata(contChart);
-        });
+        $(`#plotly-replot-${idc}`)
+            .off('click.monthlyRaw')
+            .on('click.monthlyRaw', function() {
+                expand_charts_monthly_rawdata(contChart);
+            });
 
         // download chart
-        $(`#plotly-download-${idc}`).on('click', function() {
-            downloadPlotlyImageJPG(contChart);
-        });
+        $(`#plotly-download-${idc}`)
+            .off('click.monthlyRaw')
+            .on('click.monthlyRaw', function() {
+                downloadPlotlyImageJPG(contChart);
+            });
     });
 
     ////////////
@@ -119,22 +126,19 @@ $(document).ready(function() {
         // 
         const contChart = `container-chart-${idc}`;
 
-        $('#monthly-chart-clim-charts')
-            .off('change.monthlyClim')
-            .on('change.monthlyClim', function() {
-                if ($(this).val() === 'one') {
-                    $('#monthly-chart-clim-variable-cont').show();
-                } else {
-                    $('#monthly-chart-clim-variable-cont').hide();
-                }
-
-                // expand_charts_monthly_climato(contChart);
-            });
-        $('#monthly-chart-clim-charts').trigger('change');
+        const updateClimatoChartControls = () => {
+            if ($('#monthly-chart-clim-charts').val() === 'one') {
+                $('#monthly-chart-clim-variable-cont').show();
+            } else {
+                $('#monthly-chart-clim-variable-cont').hide();
+            }
+        };
+        updateClimatoChartControls();
 
         $('#monthly-chart-clim-charts')
             .off('change.monthlyClim')
             .on('change.monthlyClim', function() {
+                updateClimatoChartControls();
                 expand_charts_monthly_climato(contChart);
             });
 
@@ -151,14 +155,18 @@ $(document).ready(function() {
         );
 
         // update chart
-        $(`#plotly-replot-${idc}`).on('click', function() {
-            expand_charts_monthly_climato(contChart);
-        });
+        $(`#plotly-replot-${idc}`)
+            .off('click.monthlyClim')
+            .on('click.monthlyClim', function() {
+                expand_charts_monthly_climato(contChart);
+            });
 
         // download chart
-        $(`#plotly-download-${idc}`).on('click', function() {
-            downloadPlotlyImageJPG(contChart);
-        });
+        $(`#plotly-download-${idc}`)
+            .off('click.monthlyClim')
+            .on('click.monthlyClim', function() {
+                downloadPlotlyImageJPG(contChart);
+            });
     });
 
     ////////////
@@ -210,20 +218,23 @@ $(document).ready(function() {
         //
         const contChart = `container-chart-${idc}`;
 
+        const updateAnomalySeriesControls = () => {
+            if ($('#monthly-chart-anom-series').val() === 'one') {
+                $('#monthly-chart-anom-months-list').hide();
+            } else {
+                $('#monthly-chart-anom-months-list').show();
+            }
+        };
+        updateAnomalySeriesControls();
+
         $('#monthly-chart-anom-series')
             .off('change.monthlyAnom')
             .on('change.monthlyAnom', function() {
-                if ($(this).val() === 'one') {
-                    $('#monthly-chart-anom-months-list').hide();
-                } else {
-                    $('#monthly-chart-anom-months-list').show();
-                }
-
+                updateAnomalySeriesControls();
                 maproomDB.getData('ts_anomaly', function(data) {
                     expand_charts_monthly_display_anomaly(data, contChart);
                 });
             });
-        $('#monthly-chart-anom-series').trigger('change');
 
         $('#monthly-chart-anom-variable')
             .off('change.monthlyAnom')
@@ -937,6 +948,9 @@ function expand_charts_monthly_display_rawdata(json_input, container) {
     }
 
     setPlotlyThemeColors(container);
+    if (Plotly && Plotly.Plots) {
+        Plotly.Plots.resize(document.getElementById(container));
+    }
 }
 
 /////////
@@ -1185,6 +1199,9 @@ function expand_charts_monthly_display_climato(json, container) {
     );
 
     setPlotlyThemeColors(container);
+    if (Plotly && Plotly.Plots) {
+        Plotly.Plots.resize(document.getElementById(container));
+    }
 }
 
 /////////
@@ -1354,6 +1371,9 @@ function expand_charts_monthly_display_anomaly(json_input, container) {
     addRangeselector(container, ranges, last_date)
 
     setPlotlyThemeColors(container);
+    if (Plotly && Plotly.Plots) {
+        Plotly.Plots.resize(document.getElementById(container));
+    }
 }
 
 ///////////////////
