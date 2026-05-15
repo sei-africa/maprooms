@@ -13,10 +13,11 @@ function createLeafletTileLayer(container, options) {
 
         const meteo = `<a href="${options.metServiceURL}" target="_blank">${options.metServiceName}</a>`;
         const attribu = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-        let tiles = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        let tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: `${attribu} | ${meteo}`,
             maxZoom: 19,
-            subdomains: ['a', 'b', 'c']
+            subdomains: ['a', 'b', 'c'],
+            crossOrigin: true
         });
         tiles.addTo(map);
         MAP_BE.basemapTiles = tiles;
@@ -37,7 +38,7 @@ function createLeafletTileLayer(container, options) {
         addLControlDisplayText('subdivision', { position: 'topleft' });
 
         // download map
-        downloadLeafletMap();
+        easyPrintMap();
     } else {
         var map = MAP_BE;
         map.invalidateSize();
@@ -79,30 +80,6 @@ function setRasterImageOpacity(map = MAP_BE) {
     });
 }
 
-// function easyPrintMap(map) {
-//     return L.easyPrint({
-//         tileLayer: map.basemapTiles,
-//         exportOnly: true,
-//         hideControlContainer: false,
-//         hidden: true,
-//         hideClasses: ['div-map-control']
-//     });
-// }
-
-function downloadLeafletMap(map = MAP_BE) {
-    let printer = L.easyPrint({
-        tileLayer: map.basemapTiles,
-        exportOnly: true,
-        hideControlContainer: false,
-        hidden: true,
-        hideClasses: ['div-map-control']
-    }).addTo(map);
-
-    $('#map-control-save').on('click', () => {
-        printer.printMap('CurrentSize', 'save_current_map');
-    });
-}
-
 function changeLeafletBasemapStyle(map = MAP_BE, options = MTO_INIT) {
     $('#map-basemap-style').on('change', function() {
         const basemap = $(this).val();
@@ -133,10 +110,11 @@ function selectLeafletBasemapStyle(basemap, options) {
     switch (basemap) {
         case 'openstreetmap':
             var attribu = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
-            tiles = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: `${attribu} | ${meteo}`,
                 maxZoom: 19,
-                subdomains: ['a', 'b', 'c']
+                subdomains: ['a', 'b', 'c'],
+                crossOrigin: true
             });
             break;
         case 'carto_light_all':
@@ -190,7 +168,8 @@ function selectLeafletBasemapStyle(basemap, options) {
             tiles = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
                 attribution: '&copy; Google Maps',
                 maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                crossOrigin: true
             });
     }
 
@@ -205,7 +184,8 @@ function getMapboxTileLayer(mapid, options) {
         attribution: `${attribu} | ${meteo}`,
         maxZoom: 23,
         id: mapid,
-        accessToken: options.mapboxAccessToken
+        accessToken: options.mapboxAccessToken,
+        crossOrigin: true
     });
 
     return tiles;
@@ -220,7 +200,8 @@ function getCartoTileLayer(style, options) {
         attribution: `${attribu} | ${meteo}`,
         subdomains: 'abcd',
         style: style,
-        maxZoom: 19
+        maxZoom: 19,
+        crossOrigin: true
     });
 
     return tiles;
@@ -242,14 +223,16 @@ function getEsriTileLayer(url_template, tile_name, options, max_zoom = 19) {
         tile_name = 'World_Imagery';
         var tiles = L.tileLayer(`https://clarity.maptiles.arcgis.com/arcgis/rest/services/${tile_name}/MapServer/tile/{z}/{y}/{x}`, {
             attribution: `${attribu} | ${meteo}`,
-            maxZoom: max_zoom
+            maxZoom: max_zoom,
+            crossOrigin: true
         });
     } else {
         var tiles = L.tileLayer(`https://{s}.arcgisonline.com/ArcGIS/rest/services/${tile_name}/MapServer/tile/{z}/{y}/{x}`, {
             attribution: `${attribu} | ${meteo}`,
             subdomains: ['server', 'services'],
             // token: options.esriAccessToken,
-            maxZoom: max_zoom
+            maxZoom: max_zoom,
+            crossOrigin: true
         });
     }
 
