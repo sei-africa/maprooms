@@ -47,8 +47,8 @@ function downloadLeafletMap(map = MAP_BE) {
     }
 
     $('#map-control-save')
-        .off('click.easyPrintMap')
-        .on('click.easyPrintMap', () => {
+        .off('click.downLeafletMap')
+        .on('click.downLeafletMap', () => {
             const hiddenElements = hideMapControlsForExport();
 
             waitForVisibleMap(() => {
@@ -64,6 +64,7 @@ function downloadLeafletMap(map = MAP_BE) {
                 const preservedStyles = [];
 
                 preserveSelectors.forEach(selector => {
+                    // 
                     document.querySelectorAll(selector).forEach(el => {
                         preservedStyles.push({
                             element: el,
@@ -84,10 +85,30 @@ function downloadLeafletMap(map = MAP_BE) {
                             'opacity', 'zIndex'
                         ];
                         properties.forEach(prop => {
-                            el.style[prop] = computed[prop];
+                            if (selector === '.leaflet-colorbar') {
+                                // console.log(`${prop}: ${computed[prop]}`);
+                                if (prop === 'height') {
+                                    el.style[prop] = '65px';
+                                } else {
+                                    el.style[prop] = computed[prop];
+                                }
+                            } else {
+                                el.style[prop] = computed[prop];
+                            }
                         });
                     });
                 });
+                // 
+                // Put colorbar at bottom right because attribution is hidden
+                const colorbar = document.querySelector('.leaflet-colorbar');
+                if (colorbar) {
+                    colorbar.style.position = 'absolute';
+                    colorbar.style.right = '0px';
+                    colorbar.style.left = 'auto';
+                    colorbar.style.bottom = '0px';
+                    colorbar.style.top = 'auto';
+                    colorbar.style.zIndex = '1000';
+                }
 
                 // 
                 domtoimage.toPng(mapContainer, {
