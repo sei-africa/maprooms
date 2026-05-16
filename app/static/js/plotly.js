@@ -377,3 +377,18 @@ function setPlotlyLanguage() {
     const localeS = LANG_USER.list[ils].locale;
     Plotly.setPlotConfig({ locale: localeS });
 }
+
+function purgePlotlyChart(containerID) {
+    const gd = document.getElementById(containerID);
+    if (gd && gd.data) {
+        Plotly.purge(gd);
+    }
+}
+
+function purgePlotlyChartExpandModal(expandID) {
+    const modalExpID = $(`#modal-expand-${expandID}`);
+    const chartID = `container-chart-${expandID}`
+    modalExpID.on('hidden.bs.modal', function() {
+        purgePlotlyChart(chartID);
+    });
+}

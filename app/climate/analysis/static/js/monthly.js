@@ -26,6 +26,7 @@ $(document).ready(function() {
             idc,
             expand_charts_monthly_rawdata
         );
+        purgePlotlyChartExpandModal(idc);
 
         const end_date = $('#monthly-chart-raw-enddate-calendar').val();
         if (end_date === '') {
@@ -122,6 +123,7 @@ $(document).ready(function() {
             idc,
             expand_charts_monthly_climato
         );
+        purgePlotlyChartExpandModal(idc);
 
         // 
         const contChart = `container-chart-${idc}`;
@@ -177,6 +179,7 @@ $(document).ready(function() {
             idc,
             expand_charts_monthly_anomaly
         );
+        purgePlotlyChartExpandModal(idc);
 
         const end_date = $('#monthly-chart-anom-enddate-calendar').val();
         if (end_date === '') {
@@ -865,6 +868,7 @@ function expand_charts_monthly_display_rawdata(json_input, container) {
             layout.xaxis.rangeslider.bgcolor = data[0].line.color;
         }
 
+        purgePlotlyChart(container);
         Plotly.newPlot(
             container,
             data,
@@ -939,6 +943,7 @@ function expand_charts_monthly_display_rawdata(json_input, container) {
 
         layout = deepMerge(setPlotlyColors(), layout);
 
+        purgePlotlyChart(container);
         Plotly.newPlot(
             container,
             data,
@@ -1191,6 +1196,7 @@ function expand_charts_monthly_display_climato(json, container) {
     layout.print_legend = 'climato';
     layout = deepMerge(setPlotlyColors(), layout);
 
+    purgePlotlyChart(container);
     Plotly.newPlot(
         container,
         data,
@@ -1357,6 +1363,7 @@ function expand_charts_monthly_display_anomaly(json_input, container) {
     layout = deepMerge(setPlotlyColors(), layout);
     layout.xaxis.rangeslider.bgcolor = defColors.positive;
 
+    purgePlotlyChart(container);
     Plotly.newPlot(
         container,
         data,
@@ -1524,6 +1531,7 @@ function preview_charts_monthly_display_rawdata(json, container) {
         displayModeBar: false
     };
 
+    purgePlotlyChart(container);
     Plotly.newPlot(
         container,
         data,
@@ -1646,6 +1654,7 @@ function preview_charts_monthly_display_anomaly(json, container) {
         displayModeBar: false
     };
 
+    purgePlotlyChart(container);
     Plotly.newPlot(
         container,
         data,
@@ -1793,6 +1802,7 @@ function preview_charts_monthly_display_climato(json, container) {
         displayModeBar: false,
     };
 
+    purgePlotlyChart(container);
     Plotly.newPlot(
         container,
         data,

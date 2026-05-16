@@ -38,7 +38,7 @@ function createLeafletTileLayer(container, options) {
         addLControlDisplayText('subdivision', { position: 'topleft' });
 
         // download map
-        easyPrintMap();
+        downloadLeafletMap(map);
     } else {
         var map = MAP_BE;
         map.invalidateSize();
