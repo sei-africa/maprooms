@@ -6,7 +6,8 @@ function downloadLeafletMap(map = MAP_BE) {
     const mapContainer = map.getContainer();
     const hiddenSelectors = [
         '.leaflet-bottom.leaflet-left > *',
-        '#container-map-navigation > *'
+        '#container-map-navigation > *',
+        '.leaflet-bottom.leaflet-right > .leaflet-control-attribution'
     ];
 
     function hideMapControlsForExport() {
@@ -51,6 +52,44 @@ function downloadLeafletMap(map = MAP_BE) {
             const hiddenElements = hideMapControlsForExport();
 
             waitForVisibleMap(() => {
+                // preserve colobar styles from map
+                const preserveSelectors = [
+                    '.leaflet-colorbar',
+                    '.leaflet-colorbar table.ckeyh',
+                    '.leaflet-colorbar table.ckeyh tr',
+                    '.leaflet-colorbar table.ckeyh th',
+                    '.leaflet-colorbar table.ckeyh td'
+                ];
+
+                const preservedStyles = [];
+
+                preserveSelectors.forEach(selector => {
+                    document.querySelectorAll(selector).forEach(el => {
+                        preservedStyles.push({
+                            element: el,
+                            style: el.getAttribute('style')
+                        });
+
+                        const computed = window.getComputedStyle(el);
+                        const properties = [
+                            'display', 'position', 'left', 'right', 'top', 'bottom',
+                            'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
+                            'margin', 'padding',
+                            'background', 'backgroundColor', 'backgroundImage',
+                            'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft',
+                            'borderCollapse', 'borderSpacing', 'borderRadius',
+                            'boxShadow',
+                            'font', 'fontSize', 'fontFamily', 'fontWeight', 'lineHeight',
+                            'color', 'textAlign', 'verticalAlign', 'whiteSpace',
+                            'opacity', 'zIndex'
+                        ];
+                        properties.forEach(prop => {
+                            el.style[prop] = computed[prop];
+                        });
+                    });
+                });
+
+                // 
                 domtoimage.toPng(mapContainer, {
                     cacheBust: true,
                     bgcolor: '#ffffff',
@@ -65,6 +104,16 @@ function downloadLeafletMap(map = MAP_BE) {
                     console.error('Saving the Leaflet map failed', error);
                     alert('Could not save the map. Please check the browser console for details.');
                 }).finally(() => {
+                    // restore previous colobar styles
+                    preservedStyles.forEach(item => {
+                        if (item.style === null) {
+                            item.element.removeAttribute('style');
+                        } else {
+                            item.element.setAttribute('style', item.style);
+                        }
+                    });
+
+                    // 
                     restoreMapControlsAfterExport(hiddenElements);
                     map.invalidateSize(false);
                 });

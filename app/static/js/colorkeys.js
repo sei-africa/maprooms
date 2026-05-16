@@ -31,7 +31,7 @@ function displayColorBar(ckeys, direction, map) {
     } else {
         $('.leaflet-right .leaflet-colorbar').css({
             'margin-right': '5px',
-            'margin-bottom': 0,
+            'margin-bottom': '1px',
             'padding-right': '3px',
             'padding-left': '3px'
         });
