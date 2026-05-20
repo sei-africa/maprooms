@@ -61,6 +61,18 @@ def create_imagePng(data,
         colors_ext = [colors[0], colors[-1]]
         colors = colors[1:-1]
 
+    ######
+    if 'transparent' in colors_ext:
+        data = data.astype(float)
+
+    if colors_ext[0] == 'transparent':
+        data[data < breaks[0]] = np.nan
+        colors_ext[0] = 'white'
+
+    if colors_ext[1] == 'transparent':
+        data[data > breaks[-1]] = np.nan
+        colors_ext[1] = 'white'
+
     ###### map
     cmap = mcolors.ListedColormap(colors)
     norm = mcolors.BoundaryNorm(breaks, cmap.N)

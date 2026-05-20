@@ -71,11 +71,7 @@
                 <img id="colorbar-preview-user" src="">
             </div>
         </div>
-        <!--
-        <div class="colorbar-selection">
-            <img id="colorbar-preview" src="">
-        </div>
-        -->
+        <!--  -->
         <div class="colorbar-extension">
             <div class="row">
                 <label class="float-start checkbox-inline">
@@ -84,13 +80,13 @@
                 </label>
             </div>
             <div id="colorbar-color-extension-div" style="display: none;">
-                <div class="d-flex gap-1">
-                    <div class="input-group flex-nowrap">
-                        <span class="input-group-text" id="addon-wrapping1">{{ pageText.layers.colorbar_ext_under }}</span>
+                <div class="d-flex flex-column gap-1">
+                    <div class="input-group d-flex flex-nowrap">
+                        <span class="input-group-text w-50 justify-content-end" id="addon-wrapping1">{{ pageText.layers.colorbar_ext_under }}</span>
                         <input type="text" id="colorbar-color-extension-under" class="form-control" aria-describedby="addon-wrapping1" value="{{pageText.layers.colorbar_color_ext[0]}}">
                     </div>
-                    <div class="input-group flex-nowrap">
-                        <span class="input-group-text" id="addon-wrapping2">{{ pageText.layers.colorbar_ext_over }}</span>
+                    <div class="input-group d-flex flex-nowrap">
+                        <span class="input-group-text w-50 justify-content-end" id="addon-wrapping2">{{ pageText.layers.colorbar_ext_over }}</span>
                         <input type="text" id="colorbar-color-extension-over" class="form-control" aria-describedby="addon-wrapping2" value="{{pageText.layers.colorbar_color_ext[1]}}">
                     </div>
                 </div>

@@ -17,7 +17,8 @@ def climate_analysis_sp_data(params):
             return {'status': -1, 'message': msg}
         if params['colorbar']['color_add_ext']:
             ext_col = matplotlib_invalid_colors(
-                params['colorbar']['color_ext']
+                params['colorbar']['color_ext'],
+                transparent=True
             )
             if ext_col is not None:
                 wrng_col = ', '.join(ext_col)

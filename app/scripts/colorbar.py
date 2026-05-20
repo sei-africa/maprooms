@@ -120,11 +120,19 @@ def get_ColorBarName(color, n, inverse=False):
 def convert_NameToHex(color_list):
     return [mcolors.to_hex(c) for c in color_list]
 
-def matplotlib_invalid_colors(list_colors):
-    is_colors = [
-        not mcolors.is_color_like(k)
-        for k in list_colors
-    ]
+def matplotlib_invalid_colors(list_colors, transparent=False):
+    if transparent:
+        is_colors = [
+            not mcolors.is_color_like(k)
+            if k != 'transparent' else False
+            for k in list_colors
+        ]
+    else:
+        is_colors = [
+            not mcolors.is_color_like(k)
+            for k in list_colors
+        ]
+
     if any(is_colors):
         tmp = zip(list_colors, is_colors)
         wcolors = [k for k, w in tmp if w]

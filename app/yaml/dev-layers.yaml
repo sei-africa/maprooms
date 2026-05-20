@@ -79,7 +79,7 @@ colorbar_color_list: ['tim_colors', precipitation_1, 'rainbow',
                 'jet', 'plasma', 'magma', 'plasma',
                 'hsv', 'hot', 'cool', 'spring', 'summer',
                 'winter', 'autumn', 'copper', 'bone']
-colorbar_color_ext: ['white', 'gray']
+colorbar_color_ext: ['transparent', 'gray']
 
 ####################
 ## Labels and Texts
