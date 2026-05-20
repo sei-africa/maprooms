@@ -6,7 +6,7 @@ description:
         This interface allows users to view rainfall, maximum and minimum temperature climatologies and anomalies.
         </p>
     fr: |
-        <h4>Analyseg Climatique Mensuelle</h4>
+        <h4>Analyse Climatique Mensuelle</h4>
         <p>
         Séries temporelles (à partir de 1981) de précipitations et de température reconstruites à partir de données in-situ et de données de télédétection.
         Cette interface permet à l'utilisateur de visualiser les climatologies et les anomalies de précipitations et températures. Les climatologies sont définies par la période 1991-2020.
@@ -32,7 +32,7 @@ variables:
         tmin:
             en: Minimum temperature
             fr: Température minimale
-monthly_map:
+opt_map:
     label_display:
         en: Display
         fr: Afficher
@@ -49,7 +49,7 @@ monthly_map:
     label_date:
         en: Date
         fr: Date
-monthly_anomaly:
+opt_anomaly:
     label:
         en: Anomaly
         fr: Anomalie
@@ -63,7 +63,7 @@ monthly_anomaly:
         percentage:
             en: Percentage of mean
             fr: Pourcentage de la moyenne
-monthly_climato:
+opt_climato:
     func_climato:
         mean:
             en: Average
@@ -92,7 +92,7 @@ monthly_climato:
     label_freq_th:
         en: Threshold
         fr: Seuil
-monthly_ts_raw:
+opt_ts_raw:
     label_date:
         start:
             en: Start
@@ -113,7 +113,7 @@ monthly_ts_raw:
     start_mon:
         en: Start month
         fr: Début mois
-monthly_ts_anom:
+opt_ts_anom:
     label_date:
         start:
             en: Start
@@ -134,7 +134,7 @@ monthly_ts_anom:
     label_month:
         en: Month
         fr: Mois
-monthly_ts_clim:
+opt_ts_clim:
     label_charts:
         en: Display
         fr: Afficher

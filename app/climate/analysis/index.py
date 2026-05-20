@@ -5,12 +5,13 @@ import config
 
 from app.scripts._global import GLOBAL_CONFIG
 from app.scripts._cache import (cache_data_functions,
-                                hash_params_monthly_ts)
+                                hash_params_ts_data)
 from app.auth.index import login_required
-from .scripts.monthly import (get_spatial_monthly_data, 
-                              get_rawdata_monthly_ts,
-                              get_anomaly_monthly_ts,
-                              get_climato_monthly_ts)
+
+from .scripts.analysis_sp import climate_analysis_sp_data
+from .scripts.analysis_ts import (climate_analysis_ts_rawdata,
+                                  climate_analysis_ts_anomaly,
+                                  climate_analysis_ts_climato)
 
 climate_analysis = Blueprint(
     'climate_analysis',
@@ -32,56 +33,54 @@ def before_request():
         else:
             dataUser = {'uid': -1}
 
-@climate_analysis.route('/monthly_map', methods=['POST'])
-def monthly_map():
+@climate_analysis.route('/climate_analysis_map', methods=['POST'])
+def climate_analysis_map():
     params = request.get_json()
     try:
-        # print('----------- monthly_map -----------')
+        # print('----------- map -----------')
         # print(params)
-        map_data = get_spatial_monthly_data(params)
+        map_data = climate_analysis_sp_data(params)
         return json.dumps(map_data)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})
 
-#####################
-
-@climate_analysis.route('/charts_monthly_rawdata', methods=['POST'])
-def charts_monthly_rawdata():
+@climate_analysis.route('/climate_analysis_rawdata', methods=['POST'])
+def climate_analysis_rawdata():
     params = request.get_json()
     try:
-        # print('----------- charts_monthly_rawdata -----------')
+        # print('----------- rawdata -----------')
         # print(params)
         return cache_data_functions(
-                    get_rawdata_monthly_ts,
-                    hash_params_monthly_ts,
+                    climate_analysis_ts_rawdata,
+                    hash_params_ts_data,
                     params
                 )
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})
 
-@climate_analysis.route('/charts_monthly_anomaly', methods=['POST'])
-def charts_monthly_anomaly():
+@climate_analysis.route('/climate_analysis_anomaly', methods=['POST'])
+def climate_analysis_anomaly():
     params = request.get_json()
     try:
-        # print('----------- charts_monthly_anomaly -----------')
+        # print('----------- anomaly -----------')
         # print(params)
         return cache_data_functions(
-                    get_anomaly_monthly_ts,
-                    hash_params_monthly_ts,
+                    climate_analysis_ts_anomaly,
+                    hash_params_ts_data,
                     params
                 )
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})
 
-@climate_analysis.route('/charts_monthly_climato', methods=['POST'])
-def charts_monthly_climato():
+@climate_analysis.route('/climate_analysis_climato', methods=['POST'])
+def climate_analysis_climato():
     params = request.get_json()
     try:
-        # print('----------- charts_monthly_climato -----------')
+        # print('----------- climato -----------')
         # print(params)
         return cache_data_functions(
-                    get_climato_monthly_ts,
-                    hash_params_monthly_ts,
+                    climate_analysis_ts_climato,
+                    hash_params_ts_data,
                     params
                 )
     except Exception as e:

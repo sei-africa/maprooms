@@ -996,7 +996,7 @@ function featureSubdivisionStyles(state) {
     return style;
 }
 
-function mapClickLayers(layer, callback, map) {
+function mapClickLayers(layer, callback, time_res, map) {
     if (map.clickMapControl) {
         map.clickMapControl = false;
         return;
@@ -1015,11 +1015,11 @@ function mapClickLayers(layer, callback, map) {
         $('.selected-subdiv-poly').val(field);
         $('#list-spatial-average').val(field);
         $('#list-spatial-average').trigger('change.select2');
-        callback();
+        callback(time_res);
     }
 }
 
-function createMarkerLocation(lon, lat, callback, map) {
+function createMarkerLocation(lon, lat, callback, time_res, map) {
     removeMarkersLayer('marker-loc-id', map);
 
     $('.marker-loc-lat').val(lat.toFixed(6));
@@ -1050,18 +1050,19 @@ function createMarkerLocation(lon, lat, callback, map) {
         var divPop = createMarkerPopup(marker, map);
         marker.setPopupContent(divPop.get(0));
         if (callback !== null) {
-            callback();
+            callback(time_res);
         }
     });
 
-    callback();
+    callback(time_res);
 }
 
-function mapClickLoctation(callback, map) {
+function mapClickLoctation(callback, time_res, map) {
     createMarkerLocation(
         MTO_INIT.mapCenterLON,
         MTO_INIT.mapCenterLAT,
         callback,
+        time_res,
         map
     );
 
@@ -1076,6 +1077,7 @@ function mapClickLoctation(callback, map) {
                 e.latlng.lng,
                 e.latlng.lat,
                 callback,
+                time_res,
                 map
             );
         }
@@ -1140,7 +1142,7 @@ function checkQueryPointOutside(query, time_res) {
 var LAYER_SELECTED;
 var LAYER_GEOJSON;
 
-function mapClickLayersSpatialAverage(callback, map = MAP_BE) {
+function mapClickLayersSpatialAverage(callback, time_res, map = MAP_BE) {
     $('#support-spatial-average').on('change', function() {
         const sp_avg = $(this).val();
         map.displayText_subdivision.update('');
@@ -1158,7 +1160,7 @@ function mapClickLayersSpatialAverage(callback, map = MAP_BE) {
 
         if (sp_avg === 'gridpoint') {
             // if point outside return false
-            mapClickLoctation(callback, map);
+            mapClickLoctation(callback, time_res, map);
         } else {
             // create the selected layer, set styles, display chart on click
             var subdiv = JSON.parse(SUBDIV_BE[sp_avg]);
@@ -1178,14 +1180,14 @@ function mapClickLayersSpatialAverage(callback, map = MAP_BE) {
                             resetHighlightSubdivision(layer, map);
                         },
                         click: function(e) {
-                            mapClickLayers(layer, callback, map);
+                            mapClickLayers(layer, callback, time_res, map);
                         }
                     });
                 }
             }).addTo(map);
 
             // set styles and display charts on select from list of polygon
-            getPolygonSpatialAverage(callback);
+            getPolygonSpatialAverage(callback, time_res);
 
             // clear selected polygon
             clearSelectedSpatialAverage(map);
@@ -1208,7 +1210,7 @@ function setSelectSpatialAverage(data_res = null) {
     $('#support-spatial-average').trigger('change');
 }
 
-function getPolygonSpatialAverage(callback) {
+function getPolygonSpatialAverage(callback, time_res) {
     $('#list-spatial-average').on('change', function() {
         const field = $(this).val();
         $('.selected-subdiv-poly').val(field);
@@ -1221,7 +1223,7 @@ function getPolygonSpatialAverage(callback) {
                 }
             });
         }
-        callback();
+        callback(time_res);
     });
     $('#list-spatial-average').trigger('change');
 }
@@ -1653,4 +1655,113 @@ async function maskImageMapRegions(json, region) {
         };
         img.onerror = reject;
     });
+}
+
+///////////
+
+function queryParamsSpatialAverage() {
+    let query = new Object();
+
+    const sp_avg = $('#support-spatial-average').val();
+    query.geomExtract = sp_avg === 'gridpoint' ? 'points' : 'polygons';
+
+    if (query.geomExtract === 'points') {
+        query.pointsSource = 'upload';
+        query.pointsList = getClickLoctation();
+    } else {
+        const subdiv = LAYERS.subdivision[sp_avg];
+        query.shpSource = 'default';
+        query.shpFile = subdiv.file;
+        query.shpField = subdiv.field;
+        query.Poly = getClickPolygon();
+        if (query.Poly === null) {
+            return false;
+        }
+    }
+    return query;
+}
+
+function queryParamsAnalysisMap(time_res) {
+    let query = new Object();
+    query.temporalRes = time_res;
+    query.variable = $(`#${time_res}-map-variable`).val();
+    query.mapType = $(`#${time_res}-map-type`).val();
+    let date = $(`#${time_res}-map-date-calendar`).val();
+
+    if (query.mapType === 'climatology') {
+        if (time_res === 'monthly') {
+            date = date === '' ? '1' : date;
+            query.climDate = Number(date);
+        } else if (time_res === 'dekadal') {
+            date = date === '' ? '01-1' : date;
+            query.climDate = date;
+        } else {
+            return false;
+        }
+
+        query.climFunction = $(`#${time_res}-map-climato-func`).val();
+        if (query.climFunction == 'percentile') {
+            query.precentileValue = $(`#${time_res}-map-climato-perc`).val();
+        }
+        if (query.climFunction == 'frequency') {
+            query.frequencyOper = $(`#${time_res}-map-climato-freqOp`).val();
+            query.frequencyThres = $(`#${time_res}-map-climato-freqTh`).val();
+        }
+        query.dataset = DATA_SET.climatology.dataset;
+        // todo: add input for base period
+        query.startYear = BASE_PERIOD.start_year;
+        query.endYear = BASE_PERIOD.end_year;
+        query.minYear = BASE_PERIOD.min_year;
+    } else {
+        if (time_res === 'monthly') {
+            console.log(date)
+            query.Date = date;
+        } else if (time_res === 'dekadal') {
+            query.Date = formatDekadDate(date);
+        } else {
+            return false;
+        }
+
+        if (query.mapType === 'anomaly') {
+            query.anomaly = $(`#${time_res}-map-anomaly-type`).val();
+            query.dataset = DATA_SET.anomaly.dataset;
+            // todo: add input for base period
+            query.startYear = BASE_PERIOD.start_year;
+            query.endYear = BASE_PERIOD.end_year;
+            query.minYear = BASE_PERIOD.min_year;
+        } else {
+            query.dataset = DATA_SET.rawdata.dataset;
+        }
+    }
+
+    const colorbar = colorbarGetData();
+    if (!colorbar) {
+        return false;
+    }
+    query.colorbar = colorbar;
+
+    return query;
+}
+
+function displayClimateAnalysisMap(time_res, options, map) {
+    const query = queryParamsAnalysisMap(time_res);
+    if (!query) {
+        return false;
+    }
+    const endpoint = createEndpoint('climate_analysis', 'climate_analysis_map');
+    ajaxLeafletMap(endpoint, query, displayRasterImage, options, map);
+
+    if (query.mapType === 'climatology') {
+        var date = $(`#${time_res}-map-date-calendar option:selected`).text();
+        if (date === '') {
+            setTimeout(() => {
+                var date = $(`#${time_res}-map-date-calendar option:selected`).text();
+                map.displayText_date.update(date);
+            }, 100);
+        } else {
+            map.displayText_date.update(date);
+        }
+    } else {
+        map.displayText_date.update(query.Date);
+    }
 }

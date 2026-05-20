@@ -1,0 +1,178 @@
+{% macro create_map_control_inputs(tempRes, pageText) %}
+<div class="container">
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-map-variable" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.opt_map.label_display }}</legend>
+        <select id="{{ tempRes }}-map-type" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.opt_map.select_display.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.opt_map.label_date }}</legend>
+        <div id="{{ tempRes }}-map-date">
+            <input id="{{ tempRes }}-map-date-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-map-anomaly" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_anomaly.label }}</legend>
+        <div>
+            <select id="{{ tempRes }}-map-anomaly-type" class="form-select form-select2-nosearch" style="width:100%;">
+                {% for key, value in pageText.opt_anomaly.select.items() %}
+                <option value="{{key}}" {% if (key=='difference' ) %} selected {% endif %}>{{value}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-map-climato" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_climato.label_climato }}</legend>
+        <div>
+            <select id="{{ tempRes }}-map-climato-func" class="form-select form-select2-nosearch" style="width:100%;">
+                {% for key, value in pageText.opt_climato.func_climato.items() %}
+                <option value="{{key}}" {% if (key=='mean' ) %} selected {% endif %}>{{value}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="div-{{ tempRes }}-map-climato-perc" class="input-group w-50 mt-2" style="display: none;">
+            <span class="input-group-text">{{ pageText.opt_climato.label_perc }}</span>
+            <input id="{{ tempRes }}-map-climato-perc" type="text" size="3" value="95" class="form-control">
+        </div>
+        <div id="div-{{ tempRes }}-map-climato-freq" style="display: none;">
+            <div class="row p-0 g-0">
+                <div class="col-md-6 input-group w-auto mt-2">
+                    <span class="input-group-text">{{ pageText.opt_climato.label_freq_op }}</span>
+                    <select id="{{ tempRes }}-map-climato-freqOp" class="form-select form-select2-nosearch">
+                        {% for op in ['>=', '>', '<=', '<' ] %} <option value="{{op}}">{{op}}</option>
+                            {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 input-group w-auto mt-2">
+                    <span class="input-group-text">{{ pageText.opt_climato.label_freq_th }}</span>
+                    <input id="{{ tempRes }}-map-climato-freqTh" type="text" size="3" value="300" class="form-control">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_expand_charts_raw(tempRes, pageText) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-raw-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-chart-raw-variable" class="form-select {{ tempRes }}-raw-select2" style="width: 200px;">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_raw.label_date.start }}</legend>
+        <div id="{{ tempRes }}-chart-raw-startdate" style="width: 8.0em">
+            <input id="{{ tempRes }}-chart-raw-startdate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_raw.label_date.end }}</legend>
+        <div id="{{ tempRes }}-chart-raw-enddate" style="width: 8.0em">
+            <input id="{{ tempRes }}-chart-raw-enddate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_raw.label_series }}</legend>
+        <select id="{{ tempRes }}-chart-raw-series" class="form-select {{ tempRes }}-raw-select2" style="width: 150px;">
+            {% for key, value in pageText.opt_ts_raw.series.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-chart-raw-startmonth-list" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_ts_raw.start_mon }}</legend>
+        <div id="{{ tempRes }}-chart-raw-startmonth" style="width: 120px;"></div>
+    </fieldset>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_expand_charts_anom(tempRes, pageText, fmacros) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-anom-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-chart-anom-variable" class="form-select {{ tempRes }}-anom-select2" style="width: 200px;">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.start }}</legend>
+        <div id="{{ tempRes }}-chart-anom-startdate" style="width: 6.5em">
+            <input id="{{ tempRes }}-chart-anom-startdate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.end }}</legend>
+        <div id="{{ tempRes }}-chart-anom-enddate" style="width: 6.5em">
+            <input id="{{ tempRes }}-chart-anom-enddate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_anomaly.label }}</legend>
+        <select id="{{ tempRes }}-chart-anom-type" class="form-select {{ tempRes }}-anom-select2" style="width: 200px;">
+            {% for key, value in pageText.opt_anomaly.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_anom.label_series }}</legend>
+        <select id="{{ tempRes }}-chart-anom-series" class="form-select {{ tempRes }}-anom-select2" style="width: 150px;">
+            {% for key, value in pageText.opt_ts_anom.series.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-chart-anom-months-list" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_ts_anom.label_month }}</legend>
+        <div id="{{ tempRes }}-chart-anom-months" style="width: 120px;"></div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.base_period_modal.label }}</legend>
+        <button id="{{ tempRes }}-chart-anom-bp-open" type="button" class="btn btn-outline-secondary">{{ pageText.base_period_modal.button }}</button>
+    </fieldset>
+    {{ fmacros.baseline_period_dialog(tempRes ~ '-chart-anom-bp', pageText) }}
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_expand_charts_clim(tempRes, pageText, fmacros) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-clim-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_clim.label_charts }}</legend>
+        <select id="{{ tempRes }}-chart-clim-charts" class="form-select {{ tempRes }}-clim-select2" style="width: 180px;">
+            {% for key, value in pageText.opt_ts_clim.charts.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1" id="{{ tempRes }}-chart-clim-variable-cont">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-chart-clim-variable" class="form-select {{ tempRes }}-clim-select2" style="width: 200px;">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.base_period_modal.label }}</legend>
+        <button id="{{ tempRes }}-chart-clim-bp-open" type="button" class="btn btn-outline-secondary">{{ pageText.base_period_modal.button }}</button>
+    </fieldset>
+    {{ fmacros.baseline_period_dialog(tempRes ~ '-chart-clim-bp', pageText) }}
+</div>
+{% endmacro %}

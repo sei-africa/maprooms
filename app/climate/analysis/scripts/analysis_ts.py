@@ -6,74 +6,20 @@ from app.dst_api.scripts import (download_climdata,
                                  download_analysis,
                                  download_rawdata,
                                  is_climato_normals)
-from app.scripts.imagepng import create_imagePng
 from app.scripts.util import pretty
-from app.scripts.colorbar import matplotlib_invalid_colors
 
-def get_spatial_monthly_data(params):
-    if params['colorbar']['color_type'] == 'user':
-        user_col = matplotlib_invalid_colors(
-            params['colorbar']['color_cbar']
-        )
-        if user_col is not None:
-            wrng_col = ', '.join(user_col)
-            msg = f'Matplotlib invalid colors: {wrng_col}'
-            return {'status': -1, 'message': msg}
-        if params['colorbar']['color_add_ext']:
-            ext_col = matplotlib_invalid_colors(
-                params['colorbar']['color_ext']
-            )
-            if ext_col is not None:
-                wrng_col = ', '.join(ext_col)
-                msg = f'Matplotlib invalid colors extensions: {wrng_col}'
-                return {'status': -1, 'message': msg}
-
-    if params['mapType'] == 'climatology':
-        params = _create_params_monthly_clim_map(params)
-        json_data = download_climdata(params)
-        data = _parse_json_spatial_data(json_data, 'Dates')
-    elif params['mapType'] == 'rawdata':
-        params = _create_params_monthly_raw_map(params)
-        json_data = download_rawdata(params)
-        data = _parse_json_spatial_data(json_data, 'Date')
-    elif params['mapType'] == 'anomaly':
-        params = _create_params_monthly_anom_map(params)
-        json_data = download_analysis(params)
-        data = _parse_json_spatial_data(json_data, 'Date')
-    else:
-        return {'status': -1, 'message': 'Unknown map data'}
-
-    if data['status'] == -1: return data
-
-    if params['colorbar']['color_type'] == 'preset':
-        map_png = create_imagePng(
-            data,
-            breaks=params['colorbar']['break_cbar'],
-            color_name=params['colorbar']['color_cbar'],
-            colors_ext=params['colorbar']['color_ext']
-        )
-    else:
-        map_png = create_imagePng(
-            data,
-            breaks=params['colorbar']['break_cbar'],
-            colors=params['colorbar']['color_cbar'],
-            colors_ext=params['colorbar']['color_ext']
-        )
-
-    map_png['date'] = data['date']
-    map_png['ckeys']['title'] = f"{data['longname']} ({data['units']})"
-
-    return {'status': 0, 'data': map_png}
-
-def get_rawdata_monthly_ts(params):
-    params = _create_params_monthly_raw_ts(params)
+def climate_analysis_ts_rawdata(params):
+    params = _create_params_ts_raw(params)
     json_data = download_rawdata(params)
     json_data = json.loads(json_data)
     if json_data['status'] != 0: return json_data
     json_data['data'] = json.loads(json_data['data'])
+
     time = json_data['data']['Dates']
-    time = [datetime.strptime(t, '%Y%m') for t in time]
-    time = [t.strftime('%Y-%m-16') for t in time]
+    time = _format_ts_dates(time, params['temporalRes'])
+    if time is None:
+        return {'status': -1, 'message': 'Unknown temporal resolution'}
+
     miss = json_data['data']['Missing']
     values = json_data['data']['Data'][0]['Values']
     values = np.array(values)
@@ -89,7 +35,8 @@ def get_rawdata_monthly_ts(params):
             'name': json_data['data']['VariableName'],
             'units': json_data['data']['VariableUnits'],
             'type': params['variable']
-        }
+        },
+        'time_res': params['temporalRes']
     }
 
     if ~np.all(np.isnan(values)):
@@ -109,15 +56,18 @@ def get_rawdata_monthly_ts(params):
             crd = f'polygon ({info['geom']['name']})'
         return {'status': -1, 'message': f'All data are missing for point {crd}'}
 
-def get_anomaly_monthly_ts(params):
-    params = _create_params_monthly_anom_ts(params)
+def climate_analysis_ts_anomaly(params):
+    params = _create_params_ts_anom(params)
     json_data = download_analysis(params)
     json_data = json.loads(json_data)
     if json_data['status'] != 0: return json_data
     json_data['data'] = json.loads(json_data['data'])
+
     time = json_data['data']['Dates']
-    time = [datetime.strptime(t, '%Y%m') for t in time]
-    time = [t.strftime('%Y-%m-16') for t in time]
+    time = _format_ts_dates(time, params['temporalRes'])
+    if time is None:
+        return {'status': -1, 'message': 'Unknown temporal resolution'}
+
     miss = json_data['data']['Missing']
     values = json_data['data']['Data'][0]['Values']
     values = np.array(values)
@@ -133,7 +83,8 @@ def get_anomaly_monthly_ts(params):
             'name': json_data['data']['VariableName'],
             'units': json_data['data']['VariableUnits'],
             'type': params['variable']
-        }
+        },
+        'time_res': params['temporalRes']
     }
 
     if ~np.all(np.isnan(values)):
@@ -153,26 +104,30 @@ def get_anomaly_monthly_ts(params):
             crd = f'polygon ({info['geom']['name']})'
         return {'status': -1, 'message': f'Anomaly: All data are missing for {crd}'}
 
-def get_climato_monthly_ts(params):
+def climate_analysis_ts_climato(params):
     one_var = True
     clim_normal = is_climato_normals(params)
     if 'chartType' in params:
         one_var = params['chartType'] == 'one'
 
     if one_var:
-        params_mean = _create_params_monthly_clim_mean_ts(params)
-        if(clim_normal):
+        params_mean = _create_params_ts_clim_mean(params)
+        if clim_normal:
+            print('----------- eto mean --------------')
             data_mean = extract_climdata(params_mean)
         else:
             data_mean = download_climdata(params_mean)
+
         data_mean = json.loads(data_mean)
         if data_mean['status'] != 0: return data_mean
 
-        params_perc = _create_params_monthly_clim_perc_ts(params)
-        if(clim_normal):
+        params_perc = _create_params_ts_clim_perc(params)
+        if clim_normal:
+            print('----------- eto perc --------------')
             data_perc = extract_climdata(params_perc)
         else:
             data_perc = download_climdata(params_perc)
+
         data_perc = json.loads(data_perc)
         if data_perc['status'] != 0: return data_perc
 
@@ -180,7 +135,9 @@ def get_climato_monthly_ts(params):
         data_perc['data'] = json.loads(data_perc['data'])
 
         time = data_mean['data']['Dates']
-        time = [f"2025-{t.split('_')[1]}-16" for t in time]
+        time = _format_clim_dates(time, params['temporalRes'])
+        if time is None:
+            return {'status': -1, 'message': 'Unknown temporal resolution'}
 
         miss_mean = data_mean['data']['Missing']
         values_mean = data_mean['data']['Data'][0]['Values']
@@ -204,7 +161,8 @@ def get_climato_monthly_ts(params):
                 'name': data_mean['data']['VariableName'].split(', ')[1],
                 'units': data_mean['data']['VariableUnits'],
                 'type': params['variable']
-            }
+            },
+            'time_res': params['temporalRes']
         }
 
         if ~np.all(np.isnan(values)):
@@ -224,9 +182,9 @@ def get_climato_monthly_ts(params):
         values = []
         info_var = {}
         for var in variables:
-            params_mean = _create_params_monthly_clim_mean_ts(params)
+            params_mean = _create_params_ts_clim_mean(params)
             params_mean['variable'] = var
-            if(clim_normal):
+            if clim_normal:
                 data_mean = extract_climdata(params_mean)
             else:
                 data_mean = download_climdata(params_mean)
@@ -236,7 +194,9 @@ def get_climato_monthly_ts(params):
             data_mean['data'] = json.loads(data_mean['data'])
 
             time = data_mean['data']['Dates']
-            time = [f"2025-{t.split('_')[1]}-16" for t in time]
+            time = _format_clim_dates(time, params['temporalRes'])
+            if time is None:
+                return {'status': -1, 'message': 'Unknown temporal resolution'}
 
             info_var[var] = {
                 'name': data_mean['data']['VariableName'].split(', ')[1],
@@ -261,6 +221,7 @@ def get_climato_monthly_ts(params):
             }
         }
         info = info_geom | info_var
+        info['time_res'] = params['temporalRes']
 
         values = np.array(values)
         if ~np.all(np.isnan(values)):
@@ -279,50 +240,9 @@ def get_climato_monthly_ts(params):
                 crd = f'polygon ({info['geom']['name']})'
             return {'status': -1, 'message': f'Climatology: All data are missing for {crd}'}
 
-def _get_axis_breaks(values):
-    vmin = np.nanmin(values)
-    vmax = np.nanmax(values)
-    breaks = pretty(vmin, vmax, 7).tolist()
-    ylim = [breaks[0], breaks[-1]]
-    ylim[1] = ylim[1] + (ylim[1] - ylim[0]) * 0.1
-    return breaks, ylim
+#####
 
-def _create_params_monthly_clim_map(params):
-    pars = {'fullYear': False, 'geomExtract': 'original',
-            'outFormat': 'JSON-Format', 'webApp': True,
-            'httpMethod': 'POST'}
-    return pars | params
-
-def _create_params_monthly_raw_map(params):
-    pars = {'geomExtract': 'original', 'outFormat': 'JSON-Format',
-            'gridded': True, 'webApp': True,
-            'finalOutput': True, 'httpMethod': 'POST'}
-    return pars | params
-
-def _create_params_monthly_anom_map(params):
-    pars = {'analysis': 'anomaly', 'geomExtract': 'original',
-            'outFormat': 'JSON-Format',
-            'climFunction': 'mean-stdev', 'fullYear': True,
-            'climDate': None, 'gridded': True, 'webApp': True,
-            'httpMethod': 'POST', 'outFormat_0': 'JSON-Format'}
-    return pars | params
-
-def _parse_json_spatial_data(json_data, date_key):
-    jsd = json.loads(json_data)
-    if jsd['status'] == -1: return jsd
-    jsd = json.loads(jsd['data'])
-    lat = np.array(jsd['Latitude'])
-    lon = np.array(jsd['Longitude'])
-    data = np.array(jsd['Data'])
-    data = np.where(data == jsd['Missing'], np.nan, data)
-    # jsd['Dimensions']
-    return {'status': 0, 'date': jsd[date_key],
-            'lon': lon, 'lat': lat, 'data': data,
-            'longname': jsd['VariableName'],
-            'units': jsd['VariableUnits']
-            }
-
-def _create_params_monthly_raw_ts(params):
+def _create_params_ts_raw(params):
     pars_0 = {'gridded': False, 'outFormat': 'JSON-Format',
               'webApp': True, 'finalOutput': True, 'httpMethod': 'POST'}
     if params['geomExtract'] == 'points':
@@ -331,7 +251,7 @@ def _create_params_monthly_raw_ts(params):
         pars = pars_0 | {'spatialAvg': True, 'allPolygons': False}
     return pars | params
 
-def _create_params_monthly_anom_ts(params):
+def _create_params_ts_anom(params):
     pars_0 = {'analysis': 'anomaly', 'climFunction': 'mean-stdev',
               'fullYear': True, 'climDate': None,
               'outFormat': 'JSON-Format', 'outFormat_0': 'JSON-Format',
@@ -343,7 +263,7 @@ def _create_params_monthly_anom_ts(params):
         pars = pars_0 | {'spatialAvg': True, 'allPolygons': False}
     return pars | params
 
-def _create_params_monthly_clim_mean_ts(params):
+def _create_params_ts_clim_mean(params):
     pars_0 = {'climFunction': 'mean', 'fullYear': True, 'climDate': None,
               'outFormat': 'JSON-Format', 'gridded': False, 'webApp': True,
               'finalOutput': True, 'httpMethod': 'POST'}
@@ -353,7 +273,7 @@ def _create_params_monthly_clim_mean_ts(params):
         pars = pars_0 | {'spatialAvg': True, 'allPolygons': False}
     return pars | params
 
-def _create_params_monthly_clim_perc_ts(params):
+def _create_params_ts_clim_perc(params):
     pars_0 = {'climFunction': 'percentile', 'precentileValue': [5., 50., 95.],
               'fullYear': True, 'climDate': None,
               'outFormat': 'JSON-Format', 'gridded': False, 'webApp': True,
@@ -363,3 +283,63 @@ def _create_params_monthly_clim_perc_ts(params):
     else:
         pars = pars_0 | {'spatialAvg': True, 'allPolygons': False}
     return pars | params
+
+#####
+
+def _format_ts_dates(dates_l, time_res):
+    if time_res == 'monthly':
+        tmp = [
+                datetime.strptime(t, '%Y%m')
+                for t in dates_l
+            ]
+        res = [t.strftime('%Y-%m-16') for t in tmp]
+    elif time_res == 'dekadal':
+        y = [s[:4] for s in dates_l]
+        m = [s[4:6] for s in dates_l]
+        dk = [s[6:] for s in dates_l]
+        dy = [
+                '01' if d == '1'
+                else 
+                '11' if d == '2'
+                else
+                '21'
+                for d in dk
+            ]
+        res = ['-'.join(l) for l in zip(y, m, dy)]
+    else:
+        res = None
+
+    return res
+
+def _format_clim_dates(dates_l, time_res):
+    if time_res == 'monthly':
+        res = [
+                f"2025-{t.split('_')[1]}-16"
+                for t in dates_l
+            ]
+    elif time_res == 'dekadal':
+        mdk = [t.split('_')[1] for t in dates_l]
+        m = [t.split('-')[0] for t in mdk]
+        dk = [t.split('-')[1] for t in mdk]
+        dy = [
+                '01' if d == '1'
+                else 
+                '11' if d == '2'
+                else
+                '21'
+                for d in dk
+            ]
+        mdk = ['-'.join(l) for l in zip(m, dy)]
+        res = [f'2025-{t}' for t in mdk]
+    else:
+        res = None
+
+    return res
+
+def _get_axis_breaks(values):
+    vmin = np.nanmin(values)
+    vmax = np.nanmax(values)
+    breaks = pretty(vmin, vmax, 7).tolist()
+    ylim = [breaks[0], breaks[-1]]
+    ylim[1] = ylim[1] + (ylim[1] - ylim[0]) * 0.1
+    return breaks, ylim

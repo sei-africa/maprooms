@@ -8,46 +8,45 @@ function jcalendarTheme() {
             'color': '#f8f9fa',
             'selected': theme_styles['dark'].hover,
             'disabled': '#fff',
-            'svgprev': svg_prev.replace('fill=%27%23000%27', 'fill=%27%23fff%27'),
-            'svgnext': svg_next.replace('fill=%27%23000%27', 'fill=%27%23fff%27')
+            'svgprev': svg_prev
+                .replace('fill=%27%23000%27', 'fill=%27%23fff%27'),
+            'svgnext': svg_next
+                .replace('fill=%27%23000%27', 'fill=%27%23fff%27')
         },
         'light': {
             'bgcolor': theme_styles['light'].bgcolor,
             'color': '#212529',
             'selected': theme_styles['light'].hover,
             'disabled': '#000',
-            'svgprev': svg_prev.replace('fill=%27%23fff%27', 'fill=%27%23000%27'),
-            'svgnext': svg_next.replace('fill=%27%23fff%27', 'fill=%27%23000%27')
+            'svgprev': svg_prev
+                .replace('fill=%27%23fff%27', 'fill=%27%23000%27'),
+            'svgnext': svg_next
+                .replace('fill=%27%23fff%27', 'fill=%27%23000%27')
         }
     };
 
-    $('.jcalendar-prev').css('background-image', th_styles[theme].svgprev);
-    $('.jcalendar-next').css('background-image', th_styles[theme].svgnext);
+    $('.jcalendar-prev').css(
+        'background-image', th_styles[theme].svgprev
+    );
+    $('.jcalendar-next').css(
+        'background-image', th_styles[theme].svgnext
+    );
 
     $('.jcalendar-table, .jcalendar-table table').css({
         'background-color': th_styles[theme].bgcolor,
         'color': th_styles[theme].color,
         'font-weight': 700
     });
-    $('.jcalendar-selected').css('background-color', th_styles[theme].selected);
-    $('.jcalendar-disabled').css({
-        'color': th_styles[theme].disabled,
-        'font-weight': 100
-    });
 
-    $('.jcalendar-header, .jcalendar-prev, .jcalendar-next').on('click', () => {
-        $('.jcalendar-selected').css('background-color', th_styles[theme].selected);
-        $('.jcalendar-disabled').css({
-            'color': th_styles[theme].disabled,
-            'font-weight': 100
-        });
-    });
-
-    // $('.jcalendar_warning').css('color', 'red');
-    // $('.jcalendar_warning').css('color', 'var(--bs-body-color) !important');
-
-    changeHoverColorTheme('.offcanvas-body fieldset .form-control', theme_styles[theme].hover);
-    changeHoverColorTheme('.modal-expand-charts fieldset .form-control', theme_styles[theme].hover);
+    // 
+    changeHoverColorTheme(
+        '.offcanvas-body fieldset .form-control',
+        theme_styles[theme].hover
+    );
+    changeHoverColorTheme(
+        '.modal-expand-charts fieldset .form-control',
+        theme_styles[theme].hover
+    );
 }
 
 function jcalendarHover() {
@@ -75,9 +74,9 @@ function jcalendarHover() {
     );
 }
 
-function monthlyDateCalendar(divContainerID, variableID, dataset, dispDate = null) {
+function setDateCalendar(divContainerID, variableID, dataset, tempRes, dispDate = null) {
     const variable = $(`#${variableID} option:selected`).val();
-    const temp_cov = getTempCoverageCalendar(dataset, 'monthly', variable);
+    const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
 
     let divCont = $(`#${divContainerID}`);
     divCont.empty();
@@ -85,40 +84,129 @@ function monthlyDateCalendar(divContainerID, variableID, dataset, dispDate = nul
     $('<input>', { type: 'text', id: calendarID })
         .addClass('form-control').appendTo(divCont);
 
+    if (tempRes === 'monthly') {
+        cl_type = 'year-month-picker';
+        cl_format = 'YYYY-MM';
+        cl_slice = 7;
+    } else {
+        cl_type = 'default';
+        cl_format = 'YYYY-MM-DD';
+        cl_slice = 10;
+    }
+
     if (dispDate === null) {
         dispDate = temp_cov.end;
     }
-
     const months = getListOfMonthsCalendar();
+
     const inputDateID = document.getElementById(calendarID);
     const calendar = jSuites.calendar(inputDateID, {
-        type: 'year-month-picker',
+        type: cl_type,
         value: dispDate,
         fullscreen: false,
         readonly: false,
-        format: 'YYYY-MM',
+        format: cl_format,
         months: months.short,
         monthsFull: months.long,
         validRange: [temp_cov.start, temp_cov.end],
         onopen: function() {
             $('.jcalendar-controls').hide();
+            $('.jcalendar-update').hide();
             jcalendarTheme();
             jcalendarHover();
         },
         onupdate: function() {
             jcalendarHover();
         },
-        onclose: function() {
-            const this_date = calendar.getValue();
-            $('#input-time-navigation').val(this_date.slice(0, 7));
+        onclose: function(el) {
+            const this_date = $(el).val();
+            if (tempRes === 'dekadal') {
+                // const this_date = $(el).val();
+                const dek_date = calendarFormatDekad(this_date);
+                $(el).val(dek_date);
+            }
+
+            // const this_date = calendar.getValue();
+            $('#input-time-navigation').val(this_date.slice(0, cl_slice));
+        }
+    });
+
+    inputDateID.addEventListener('change', function() {
+        if (tempRes === 'dekadal') {
+            const this_date = calendar_date.getValue();
+            const dek_date = calendarFormatDekad(this_date);
+            calendar_date.setValue(dek_date);
         }
     });
 
     // set date on map navigation
-    $('#input-time-navigation').val(dispDate.slice(0, 7));
+    $('#input-time-navigation').val(dispDate.slice(0, cl_slice));
 
     const theme = localStorage.getItem('theme');
     const color = theme_styles[theme].hover;
+    changeHoverColorTheme(`#${calendarID}`, color);
+}
+
+function setNamesCalendar(divContainerID, tempRes, dropdownParent = $(document.body)) {
+    let divCont = $(`#${divContainerID}`);
+    divCont.empty();
+    const calendarID = `${divContainerID}-calendar`;
+    let select = $('<select>').attr('id', calendarID)
+        .addClass('form-select form-select2-nosearch')
+        .appendTo(divCont)
+        .css('width', '100%');
+
+    if (tempRes === 'monthly') {
+        const months = getListOfMonthsCalendar().long;
+        for (let m = 0; m < months.length; m++) {
+            select.append(
+                $('<option>')
+                .text(months[m])
+                .val(m + 1)
+            );
+        }
+        select.val('1');
+        var int_value = months[0];
+    } else if (tempRes === 'dekadal') {
+        const dekads = getListOfDekadsCalendar();
+        for (let d = 0; d < dekads.length; d++) {
+            select.append(
+                $('<option>')
+                .text(dekads[d].long)
+                .val(dekads[d].value)
+            );
+        }
+        select.val(dekads[0].value);
+        var int_value = dekads[0].short;
+
+    } else {
+        console.log('Not set up yet.');
+        return false;
+    }
+
+    select.select2({
+        minimumResultsForSearch: -1,
+        dropdownParent: dropdownParent
+    });
+
+    // set date on map navigation
+    $('#input-time-navigation').val(int_value);
+    select.on('change', function() {
+        if (tempRes === 'monthly') {
+            var this_date = $(this).find('option:selected').text();
+        } else if (tempRes === 'dekadal') {
+            const this_dekad = this.value;
+            const dekads = getListOfDekadsCalendar();
+            const i = dekads.map(x => x.value).indexOf(this_dekad);
+            var this_date = dekads[i].short;
+        } else {
+            return false;
+        }
+        $('#input-time-navigation').val(this_date);
+    });
+
+    var theme = localStorage.getItem('theme');
+    var color = theme_styles[theme].hover;
     changeHoverColorTheme(`#${calendarID}`, color);
 }
 
@@ -134,37 +222,21 @@ function getListOfMonthsCalendar() {
     return { short: short, long: long }
 }
 
-function monthsNamesCalendar(divContainerID, dropdownParent = $(document.body)) {
-    let divCont = $(`#${divContainerID}`);
-    divCont.empty();
-    const calendarID = `${divContainerID}-calendar`;
-    let select = $('<select>').attr('id', calendarID)
-        .addClass('form-select form-select2-nosearch')
-        .appendTo(divCont)
-        .css('width', '100%');
-    const months = getListOfMonthsCalendar().long;
-
-    for (let m = 0; m < months.length; m++) {
-        select.append(
-            $('<option>').text(months[m]).val(m + 1)
-        );
+function getListOfDekadsCalendar() {
+    const months = getListOfMonthsCalendar();
+    const dekads = [];
+    for (let m = 0; m < months.long.length; m++) {
+        for (let d = 0; d < 3; d++) {
+            const m1 = m + 1;
+            const mon = m1 < 10 ? `0${m1}` : m1.toString();
+            dekads.push({
+                long: `${months.long[m]} dek-${d+1}`,
+                short: `${months.short[m]}-d${d+1}`,
+                value: `${mon}-${d + 1}`
+            });
+        }
     }
-    select.val('1');
-    select.select2({
-        minimumResultsForSearch: -1,
-        dropdownParent: dropdownParent
-    });
-
-    // set date on map navigation
-    $('#input-time-navigation').val(months[0]);
-    select.on('change', function() {
-        const this_month = $(this).find('option:selected').text();
-        $('#input-time-navigation').val(this_month);
-    });
-
-    // var theme = localStorage.getItem('theme');
-    // var color = theme_styles[theme].hover;
-    // changeHoverColorTheme(`#${calendarID}`, color);
+    return dekads;
 }
 
 function getTempCoverageCalendar(dataset, tempres, variable) {
@@ -210,6 +282,27 @@ function calendarFormatDekadalStr(str_date) {
     return dk.join('-');
 }
 
+function calendarFormatDekad(date) {
+    let dk = Number(date.substring(8, 10));
+    if (dk <= 10) {
+        dek = '01';
+    } else if (dk >= 21) {
+        dek = '21';
+    } else {
+        dek = '11';
+    }
+
+    return date.substring(0, 8) + dek + date.substring(10);
+}
+
+function formatDekadDate(date) {
+    const arr_dk = date.split('-');
+    const ym = arr_dk.slice(0, 2).join('-');
+    const d = Number(arr_dk[2]);
+    const dk = d <= 10 ? 1 : (d >= 21 ? 3 : 2);
+    return `${ym}-${dk}`;
+}
+
 function calendarFormatMonthlyStr(str_date) {
     return `${str_date}-16`;
 }
@@ -238,4 +331,29 @@ function addDateMonths(date, n) {
         result.setDate(0);
     }
     return result;
+}
+
+function addDateDekads(date, n) {
+    const result = new Date(date);
+    const day = result.getDate();
+    let dekadDay;
+    if (day <= 10) {
+        dekadDay = 1;
+    } else if (day <= 20) {
+        dekadDay = 11;
+    } else {
+        dekadDay = 21;
+    }
+    const currentDekad =
+        result.getFullYear() * 12 * 3 +
+        result.getMonth() * 3 +
+        (dekadDay === 1 ? 0 : dekadDay === 11 ? 1 : 2);
+
+    const newDekad = currentDekad + n;
+    const year = Math.floor(newDekad / 36);
+    const remainder = newDekad % 36;
+    const month = Math.floor(remainder / 3);
+    const dekadIndex = remainder % 3;
+    const newDay = [1, 11, 21][dekadIndex];
+    return new Date(year, month, newDay);
 }

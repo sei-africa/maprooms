@@ -253,7 +253,7 @@ function disposeModalDialog(modal_id) {
     }
 }
 
-function expandModalCharts(container, callback_chart) {
+function expandModalCharts(container, callback_chart, time_res = null) {
     const divChart = $(`#modal-chart-${container}`);
     divChart.empty();
     const contChart = `container-chart-${container}`;
@@ -264,7 +264,11 @@ function expandModalCharts(container, callback_chart) {
     const modalEl = document.getElementById(`modal-expand-${container}`);
     const drawChart = () => {
         if (typeof callback_chart === 'function') {
-            callback_chart(contChart);
+            if (time_res === null) {
+                callback_chart(contChart);
+            } else {
+                callback_chart(contChart, time_res);
+            }
         }
     };
 
@@ -448,109 +452,4 @@ function spinnerChartOptions() {
         className: 'spinnerChart',
         position: 'absolute',
     };
-}
-
-function arrayRemoveDuplicates(arr) {
-    return arr.filter((item, index) => arr.indexOf(item) === index);
-}
-
-function orderSelect2SelectedItems(selector) {
-    let select = $(selector);
-    let selItems = [];
-
-    function reorderOptions() {
-        let selOpts = select.find('option:selected');
-
-        selOpts.sort(function(a, b) {
-            return selItems.indexOf(a.value) - selItems.indexOf(b.value);
-        });
-
-        selOpts.detach().appendTo(select);
-        select.trigger('change.select2');
-    }
-
-    select.on('select2:select', function(e) {
-        const id = e.params.data.id;
-        if (selItems.indexOf(id) === -1) {
-            selItems.push(id);
-        }
-        reorderOptions();
-    });
-
-    select.on('select2:unselect', function(e) {
-        const id = e.params.data.id;
-        const ix = selItems.indexOf(id);
-        if (ix > -1) {
-            selItems.splice(ix, 1);
-        }
-        reorderOptions();
-    });
-}
-
-//////////////
-
-function makeCopy(obj) {
-    const js = JSON.stringify(obj);
-    return JSON.parse(js);
-}
-
-function deepMerge(target, source) {
-    const output = { ...target };
-    if (target && typeof target === 'object' && source && typeof source === 'object') {
-        Object.keys(source).forEach(key => {
-            if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-                if (!(key in target)) {
-                    Object.assign(output, {
-                        [key]: source[key]
-                    });
-                } else {
-                    output[key] = deepMerge(target[key], source[key]);
-                }
-            } else {
-                Object.assign(output, {
-                    [key]: source[key]
-                });
-            }
-        });
-    }
-    return output;
-}
-
-function pretty(x, n = 5) {
-    if (x.length === 0) return [];
-
-    const min = Math.min(...x);
-    const max = Math.max(...x);
-
-    const d = max - min;
-
-    if (d === 0) {
-        const defaultRange = max * 0.05;
-        if (defaultRange === 0) return [min - 1, min, min + 1];
-        return pretty([min - defaultRange, min + defaultRange], n);
-    }
-
-    const c = d / n;
-    const base = Math.pow(10, Math.floor(Math.log10(c)));
-    const unit = [1, 2, 5, 10].find(u => (u * base) >= c) * base;
-
-    const start = Math.floor(min / unit) * unit;
-    let end = Math.ceil(max / unit) * unit;
-
-    while (end < max) {
-        end += unit;
-    }
-
-    const result = [];
-    for (let i = start; i <= end; i += unit) {
-        result.push(i);
-    }
-
-    return result;
-}
-
-function generateSequence01(length) {
-    if (length < 2) return [0];
-    const step = 1 / (length - 1);
-    return Array.from({ length }, (_, i) => i * step);
 }

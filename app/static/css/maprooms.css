@@ -253,4 +253,46 @@ body {
     color: var(--bs-body-color) !important;
 }
 
+[data-bs-theme="dark"] .jcalendar-weekday {
+    color: var(--bs-dark-text-emphasis) !important;
+    background-color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="light"] .jcalendar-weekday {
+    color: var(--bs-light-text-emphasis) !important;
+    background-color: var(--bs-light) !important;
+}
+
+[data-bs-theme="dark"] .jcalendar-selected {
+    background-color: var(--maproom-dark-hover) !important;
+}
+
+[data-bs-theme="light"] .jcalendar-selected {
+    background-color: var(--maproom-light-hover) !important;
+}
+
+[data-bs-theme="dark"] .jcalendar-disabled {
+    color: #fff !important;
+    font-weight: 100;
+}
+
+[data-bs-theme="light"] .jcalendar-disabled {
+    color: #000 !important;
+    font-weight: 100;
+}
+
+[data-bs-theme="dark"] .jcalendar-header:hover,
+.jcalendar-prev:hover,
+.jcalendar-next:hover {
+    color: var(--bs-dark-text-emphasis) !important;
+    background-color: var(--maproom-dark-hover) !important;
+}
+
+[data-bs-theme="light"] .jcalendar-header:hover,
+.jcalendar-prev:hover,
+.jcalendar-next:hover {
+    color: var(--bs-light-text-emphasis) !important;
+    background-color: var(--maproom-light-hover) !important;
+}
+
 /*******/

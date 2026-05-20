@@ -49,7 +49,7 @@ def hash_pamars_anom(params):
     pars = {k: str(v) for k, v in params.items() if k in pars_keys}
     return _hash_params(pars)
 
-def hash_params_monthly_ts(params):
+def hash_params_ts_data(params):
     pars_keys = [
         'geomExtract', 'pointsSource', 'pointsList', 'shpSource', 'shpFile',
         'shpField', 'Poly', 'dataset', 'temporalRes', 'variable', 'startDate',

@@ -5,12 +5,9 @@ import config
 
 # from app.scripts._global import GLOBAL_CONFIG
 # from app.scripts._cache import (cache_data_functions,
-#                                 hash_params_monthly_ts)
+#                                 hash_params_ts_data)
+
 from app.auth.index import login_required
-# from .scripts.monthly import (get_spatial_monthly_data, 
-#                               get_rawdata_monthly_ts,
-#                               get_anomaly_monthly_ts,
-#                               get_climato_monthly_ts)
 
 water_analysis = Blueprint(
     'water_analysis',
