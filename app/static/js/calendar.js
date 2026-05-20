@@ -74,7 +74,13 @@ function jcalendarHover() {
     );
 }
 
-function setDateCalendar(divContainerID, variableID, dataset, tempRes, dispDate = null) {
+function setDateCalendar(
+    divContainerID,
+    variableID,
+    dataset, tempRes,
+    dispDate = null,
+    mapNavigation = true
+) {
     const variable = $(`#${variableID} option:selected`).val();
     const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
 
@@ -126,8 +132,10 @@ function setDateCalendar(divContainerID, variableID, dataset, tempRes, dispDate 
                 $(el).val(dek_date);
             }
 
-            // const this_date = calendar.getValue();
-            $('#input-time-navigation').val(this_date.slice(0, cl_slice));
+            if (mapNavigation) {
+                // const this_date = calendar.getValue();
+                $('#input-time-navigation').val(this_date.slice(0, cl_slice));
+            }
         }
     });
 
@@ -140,14 +148,20 @@ function setDateCalendar(divContainerID, variableID, dataset, tempRes, dispDate 
     });
 
     // set date on map navigation
-    $('#input-time-navigation').val(dispDate.slice(0, cl_slice));
+    if (mapNavigation) {
+        $('#input-time-navigation').val(dispDate.slice(0, cl_slice));
+    }
 
     const theme = localStorage.getItem('theme');
     const color = theme_styles[theme].hover;
     changeHoverColorTheme(`#${calendarID}`, color);
 }
 
-function setNamesCalendar(divContainerID, tempRes, dropdownParent = $(document.body)) {
+function setNamesCalendar(
+    divContainerID, tempRes,
+    dropdownParent = $(document.body),
+    mapNavigation = true
+) {
     let divCont = $(`#${divContainerID}`);
     divCont.empty();
     const calendarID = `${divContainerID}-calendar`;
@@ -189,22 +203,24 @@ function setNamesCalendar(divContainerID, tempRes, dropdownParent = $(document.b
         dropdownParent: dropdownParent
     });
 
-    // set date on map navigation
-    $('#input-time-navigation').val(int_value);
-    select.on('change', function() {
-        if (tempRes === 'monthly') {
-            var this_date = $(this).find('option:selected').text();
-        } else if (tempRes === 'dekadal') {
-            const this_dekad = this.value;
-            const dekads = getListOfDekadsCalendar();
-            const i = dekads.map(x => x.value).indexOf(this_dekad);
-            var this_date = dekads[i].short;
-        } else {
-            return false;
-        }
-        $('#input-time-navigation').val(this_date);
-    });
+    if (mapNavigation) {
+        // set date on map navigation
+        $('#input-time-navigation').val(int_value);
 
+        select.on('change', function() {
+            if (tempRes === 'monthly') {
+                var this_date = $(this).find('option:selected').text();
+            } else if (tempRes === 'dekadal') {
+                const this_dekad = this.value;
+                const dekads = getListOfDekadsCalendar();
+                const i = dekads.map(x => x.value).indexOf(this_dekad);
+                var this_date = dekads[i].short;
+            } else {
+                return false;
+            }
+            $('#input-time-navigation').val(this_date);
+        });
+    }
     var theme = localStorage.getItem('theme');
     var color = theme_styles[theme].hover;
     changeHoverColorTheme(`#${calendarID}`, color);

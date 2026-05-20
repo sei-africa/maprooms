@@ -128,10 +128,10 @@ opt_ts_anom:
         one:
             en: One serie
             fr: Une série
-        month:
+        tstep:
             en: By dekad
             fr: Par décade
-    label_month:
+    label_tstep:
         en: Dekad
         fr: Décade
 opt_ts_clim:

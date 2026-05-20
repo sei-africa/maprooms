@@ -499,7 +499,8 @@ function expand_analysis_format_rawdata(json) {
     const time_res = jsc.info.time_res;
     const ts = $(`#${time_res}-chart-raw-series`).val();
     if (ts === 'years') {
-        const mon = parseInt($(`#${time_res}-chart-raw-startmonth-calendar`).val());
+        const tstep_id = `${time_res}-chart-raw-startmonth`;
+        const mon = parseInt($(`#${tstep_id}-calendar`).val());
         const dataYear = groupTSDataByYear(jsc.time, jsc.values, mon, time_res);
         if (dataYear === null) {
             return null;
@@ -1041,33 +1042,33 @@ function expand_analysis_charts_anomaly(container_id, tempRes) {
 
 function expand_analysis_format_anomaly(json) {
     let jsc = makeCopy(json);
-    const ts = $('#monthly-chart-anom-series').val();
-    if (ts === 'month') {
-        const m = parseInt($('#monthly-chart-anom-months-calendar').val());
-        const n = jsc.time.length;
-        let dates = [];
-        let values = [];
-        for (let i = 0; i < n; i++) {
-            let t = parseInt(jsc.time[i].split('-')[1]);
-            if (t === m) {
-                dates.push(jsc.time[i]);
-                values.push(jsc.values[i]);
-            }
-        }
-        jsc.time = dates;
-        jsc.values = values;
+    const time_res = jsc.info.time_res;
+    const ts = $(`#${time_res}-chart-anom-series`).val();
+    if (ts === 'tstep') {
+        const tstep_id = `${time_res}-chart-anom-tstep`;
+        const tstep_val = $(`#${tstep_id}-calendar`).val();
 
-        const mn = Math.min(...values);
-        const mx = Math.max(...values);
-        const max = Math.max(Math.abs(mn), Math.abs(mx));
-        const breaks = pretty([-max, max], 7);
-        let ylim = [breaks[0], breaks.at(-1)];
-        const y10 = (ylim[1] - ylim[0]) * 0.1;
-        ylim[0] = ylim[0] - y10;
-        ylim[1] = ylim[1] + y10;
-        jsc.yrange = ylim;
-        jsc.yticks = breaks;
-        jsc['month'] = m;
+        let this_date;
+        if (time_res === 'monthly') {
+            this_date = parseInt(tstep_val);
+        } else if (time_res === 'dekadal') {
+            this_date = tstep_val;
+        } else {
+            return null;
+        }
+
+        const res = splitAnomalyDataByStep(
+            jsc.time, jsc.values, this_date, time_res
+        );
+        if (res === null) {
+            return null;
+        }
+
+        jsc.time = res.dates;
+        jsc.values = res.values;
+        jsc.yrange = res.ylim;
+        jsc.yticks = res.breaks;
+        jsc['tstep'] = this_date;
     }
     jsc['chartType'] = ts;
     return jsc;
@@ -1078,6 +1079,13 @@ function expand_analysis_display_anomaly(json_input, container) {
     divCont.empty();
 
     const json = expand_analysis_format_anomaly(json_input);
+    if (json === null) {
+        return false;
+    }
+
+    const xaxisHoverText = json.time.map((t) => {
+        return formatPlotlyHoverDate(t, json.info.time_res);
+    });
 
     if (json.info.var.type === 'precip') {
         var defColors = {
@@ -1114,7 +1122,9 @@ function expand_analysis_display_anomaly(json_input, container) {
                 width: 0
             }
         },
-        hovertemplate: 'Date: %{x|%B %Y}<br> %{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        customdata: xaxisHoverText,
+        hovertemplate: 'Date: %{customdata}<br> %{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        // hovertemplate: 'Date: %{x|%B %Y}<br> %{data.name}: %{y:.1f} %{data.units} <extra></extra>'
     }];
 
     var layout = {

@@ -203,6 +203,7 @@ async function setMapDatesNavInput(tempRes) {
         return false;
     }
 
+    const tstepID = `${tempRes}-map-date`;
     const maptype = $(`#${tempRes}-map-type`).val();
     if (maptype === 'climatology') {
         let cl_date = null;
@@ -226,8 +227,7 @@ async function setMapDatesNavInput(tempRes) {
             flashMessage(JS_TEXT.date_invalid, 'error');
             return false;
         }
-        $(`#${tempRes}-map-date-calendar`)
-            .val(cl_date).trigger('change');
+        $(`#${tstepID}-calendar`).val(cl_date).trigger('change');
     } else {
         let dataset;
         if (maptype === 'anomaly') {
@@ -260,7 +260,7 @@ async function setMapDatesNavInput(tempRes) {
             return false;
         }
 
-        const calendarElement = document.getElementById(`${tempRes}-map-date-calendar`);
+        const calendarElement = document.getElementById(`${tstepID}-calendar`);
         const calendar = calendarElement.calendar;
         if (calendar) {
             calendar.setValue(str_time);
@@ -280,6 +280,7 @@ async function setMapDatesNavPrev(tempRes) {
         return false;
     }
 
+    const tstepID = `${tempRes}-map-date`;
     const maptype = $(`#${tempRes}-map-type`).val();
     if (maptype === 'climatology') {
         let cl_date = null;
@@ -316,8 +317,7 @@ async function setMapDatesNavPrev(tempRes) {
         }
 
         $('#input-time-navigation').val(cl_input);
-        $(`#${tempRes}-map-date-calendar`)
-            .val(cl_date).trigger('change');
+        $(`#${tstepID}-calendar`).val(cl_date).trigger('change');
     } else {
         let dataset;
         if (maptype === 'anomaly') {
@@ -367,7 +367,7 @@ async function setMapDatesNavPrev(tempRes) {
         }
         $('#input-time-navigation').val(input_date);
 
-        const calendarElement = document.getElementById(`${tempRes}-map-date-calendar`);
+        const calendarElement = document.getElementById(`${tstepID}-calendar`);
         const calendar = calendarElement.calendar;
         if (calendar) {
             calendar.setValue(`${str_date} 00:00:00`);
@@ -387,6 +387,7 @@ async function setMapDatesNavNext(tempRes) {
         return false;
     }
 
+    const tstepID = `${tempRes}-map-date`;
     const maptype = $(`#${tempRes}-map-type`).val();
     if (maptype === 'climatology') {
         let cl_date = null;
@@ -423,8 +424,7 @@ async function setMapDatesNavNext(tempRes) {
         }
 
         $('#input-time-navigation').val(cl_input);
-        $(`#${tempRes}-map-date-calendar`)
-            .val(cl_date).trigger('change');
+        $(`#${tstepID}-calendar`).val(cl_date).trigger('change');
     } else {
         let dataset;
         if (maptype === 'anomaly') {
@@ -474,7 +474,7 @@ async function setMapDatesNavNext(tempRes) {
         }
         $('#input-time-navigation').val(input_date);
 
-        const calendarElement = document.getElementById(`${tempRes}-map-date-calendar`);
+        const calendarElement = document.getElementById(`${tstepID}-calendar`);
         const calendar = calendarElement.calendar;
         if (calendar) {
             calendar.setValue(`${str_date} 00:00:00`);
@@ -510,7 +510,8 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
         `${tempRes}-chart-raw-enddate`,
         `${tempRes}-chart-raw-variable`,
         DATA_SET.rawdata.dataset,
-        tempRes, disp_end
+        tempRes, disp_end,
+        mapNavigation = false
     );
 
     const start_date = $(`#${tempRes}-chart-raw-startdate-calendar`).val();
@@ -530,14 +531,15 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
         `${tempRes}-chart-raw-startdate`,
         `${tempRes}-chart-raw-variable`,
         DATA_SET.rawdata.dataset,
-        tempRes, disp_start
+        tempRes, disp_start,
+        mapNavigation = false
     );
 
+    const tstepID = `${tempRes}-chart-raw-startmonth`;
     setNamesCalendar(
-        `${tempRes}-chart-raw-startmonth`,
-        // tempRes,
-        'monthly',
-        $(`#${tempRes}-raw-control`)
+        tstepID, 'monthly',
+        $(`#${tempRes}-raw-control`),
+        mapNavigation = false
     );
 
     //
@@ -567,7 +569,7 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
             expand_analysis_charts_rawdata(contChart, tempRes);
         });
 
-    $(`#${tempRes}-chart-raw-startmonth-calendar`)
+    $(`#${tstepID}-calendar`)
         .off('change.chartTsRaw')
         .on('change.chartTsRaw', function() {
             maproomDB.getData('ts_rawdata', function(data) {
@@ -666,7 +668,8 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         `${tempRes}-chart-anom-enddate`,
         `${tempRes}-chart-anom-variable`,
         DATA_SET.anomaly.dataset,
-        tempRes, disp_end
+        tempRes, disp_end,
+        mapNavigation = false
     );
 
     const start_date = $(`#${tempRes}-chart-anom-startdate-calendar`).val();
@@ -686,13 +689,15 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         `${tempRes}-chart-anom-startdate`,
         `${tempRes}-chart-anom-variable`,
         DATA_SET.anomaly.dataset,
-        tempRes, disp_start
+        tempRes, disp_start,
+        mapNavigation = false
     );
 
+    const tstepID = `${tempRes}-chart-anom-tstep`;
     setNamesCalendar(
-        `${tempRes}-chart-anom-months`,
-        tempRes,
-        $(`#${tempRes}-anom-control`)
+        tstepID, tempRes,
+        $(`#${tempRes}-anom-control`),
+        mapNavigation = false
     );
 
     //
@@ -700,9 +705,9 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
 
     const updateAnomalySeriesControls = () => {
         if ($(`#${tempRes}-chart-anom-series`).val() === 'one') {
-            $(`#${tempRes}-chart-anom-months-list`).hide();
+            $(`#${tempRes}-chart-anom-tstep-list`).hide();
         } else {
-            $(`#${tempRes}-chart-anom-months-list`).show();
+            $(`#${tempRes}-chart-anom-tstep-list`).show();
         }
     };
     updateAnomalySeriesControls();
@@ -729,7 +734,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
             expand_analysis_charts_anomaly(contChart, tempRes);
         });
 
-    $(`#${tempRes}-chart-anom-months-calendar`)
+    $(`#${tstepID}-calendar`)
         .off('change.chartTsAnom')
         .on('change.chartTsAnom', function() {
             maproomDB.getData('ts_anomaly', function(data) {
@@ -759,6 +764,45 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
 }
 
 //////////////
+
+function splitAnomalyDataByStep(ts_dates, ts_data, date, time_res) {
+    let dates = [];
+    let values = [];
+    for (let i = 0; i < ts_dates.length; i++) {
+        let this_date;
+        if (time_res === 'dekadal') {
+            const d = ts_dates[i].split('-').slice(-2);
+            const dy = Number(d[1]);
+            const dk = dy <= 10 ? 1 : (dy >= 21 ? 3 : 2);
+            this_date = `${d[0]}-${dk}`;
+        } else if (time_res === 'monthly') {
+            const m = ts_dates[i].split('-')[1];
+            this_date = parseInt(m);
+        } else {
+            return null;
+        }
+        if (this_date === date) {
+            dates.push(ts_dates[i]);
+            values.push(ts_data[i]);
+        }
+    }
+
+    const mn = Math.min(...values);
+    const mx = Math.max(...values);
+    const max = Math.max(Math.abs(mn), Math.abs(mx));
+    const breaks = pretty([-max, max], 7);
+    let ylim = [breaks[0], breaks.at(-1)];
+    const y10 = (ylim[1] - ylim[0]) * 0.1;
+    ylim[0] = ylim[0] - y10;
+    ylim[1] = ylim[1] + y10;
+
+    return {
+        dates: dates,
+        values: values,
+        ylim: ylim,
+        breaks: breaks
+    };
+}
 
 function groupTSDataByYear(ts_dates, ts_data, start_mon, time_res) {
     let parsed = [];

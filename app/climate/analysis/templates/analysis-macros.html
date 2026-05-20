@@ -17,9 +17,10 @@
         </select>
     </fieldset>
     <fieldset class="border border-secondary rounded-3">
+        {% set tstepID = tempRes ~ '-map-date' %}
         <legend class="legend-label">{{ pageText.opt_map.label_date }}</legend>
-        <div id="{{ tempRes }}-map-date">
-            <input id="{{ tempRes }}-map-date-calendar" type="text" class="form-control">
+        <div id="{{ tstepID }}">
+            <input id="{{ tstepID }}-calendar" type="text" class="form-control">
         </div>
     </fieldset>
     <fieldset id="{{ tempRes }}-map-anomaly" class="border border-secondary rounded-3" style="display: none;">
@@ -139,9 +140,9 @@
             {% endfor %}
         </select>
     </fieldset>
-    <fieldset id="{{ tempRes }}-chart-anom-months-list" class="border border-secondary rounded-3 py-1" style="display: none;">
-        <legend class="legend-label">{{ pageText.opt_ts_anom.label_month }}</legend>
-        <div id="{{ tempRes }}-chart-anom-months" style="width: 120px;"></div>
+    <fieldset id="{{ tempRes }}-chart-anom-tstep-list" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_ts_anom.label_tstep }}</legend>
+        <div id="{{ tempRes }}-chart-anom-tstep" style="width: 160px;"></div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.base_period_modal.label }}</legend>

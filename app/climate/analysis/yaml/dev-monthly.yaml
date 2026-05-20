@@ -128,10 +128,10 @@ opt_ts_anom:
         one:
             en: One serie
             fr: Une série
-        month:
+        tstep:
             en: By month
             fr: Par mois
-    label_month:
+    label_tstep:
         en: Month
         fr: Mois
 opt_ts_clim:

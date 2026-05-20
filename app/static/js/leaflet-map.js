@@ -1686,7 +1686,8 @@ function queryParamsAnalysisMap(time_res) {
     query.temporalRes = time_res;
     query.variable = $(`#${time_res}-map-variable`).val();
     query.mapType = $(`#${time_res}-map-type`).val();
-    let date = $(`#${time_res}-map-date-calendar`).val();
+    const tstep_id = `${time_res}-map-date`;
+    let date = $(`#${tstep_id}-calendar`).val();
 
     if (query.mapType === 'climatology') {
         if (time_res === 'monthly') {
@@ -1714,7 +1715,6 @@ function queryParamsAnalysisMap(time_res) {
         query.minYear = BASE_PERIOD.min_year;
     } else {
         if (time_res === 'monthly') {
-            console.log(date)
             query.Date = date;
         } else if (time_res === 'dekadal') {
             query.Date = formatDekadDate(date);
@@ -1752,10 +1752,11 @@ function displayClimateAnalysisMap(time_res, options, map) {
     ajaxLeafletMap(endpoint, query, displayRasterImage, options, map);
 
     if (query.mapType === 'climatology') {
-        var date = $(`#${time_res}-map-date-calendar option:selected`).text();
+        const tstep_id = `${time_res}-map-date`;
+        var date = $(`#${tstep_id}-calendar option:selected`).text();
         if (date === '') {
             setTimeout(() => {
-                var date = $(`#${time_res}-map-date-calendar option:selected`).text();
+                var date = $(`#${tstep_id}-calendar option:selected`).text();
                 map.displayText_date.update(date);
             }, 100);
         } else {
