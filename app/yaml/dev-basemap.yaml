@@ -1,0 +1,16 @@
+## Basemap selection
+basemap_style:
+    openstreetmap: OpenStreetMap
+    carto_light_all: CARTO Positron
+    carto_light_nolabels: CARTO Positron no labels
+    carto_dark_all: CARTO Dark Matter
+    carto_dark_nolabels: CARTO Dark Matter no labels
+    carto_rastertiles_voyager: CARTO Voyager
+    carto_rastertiles_voyager_nolabels: CARTO Voyager no labels
+    mapbox_light: Mapbox Light
+    mapbox_dark: Mapbox Dark
+    mapbox_streets: Mapbox Streets
+    mapbox_outdoors: Mapbox Outdoors
+    mapbox_satellite: Mapbox Satellite
+    mapbox_satellite_streets: Mapbox Satellite Streets
+    google_maps_nolabels: Google Maps no labels

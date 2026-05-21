@@ -1,0 +1,20 @@
+base_period_dialog:
+    title:
+        en: Base Period Settings
+        fr: Paramètres Période de Référence
+    start_year:
+        en: Start year
+        fr: Année début
+    end_year:
+        en: End year
+        fr: Année fin
+    min_year:
+        en: Minimum number of years
+        fr: Nombre minimum d'années
+base_period_modal:
+    label:
+        en: Baseline period
+        fr: Période de référence
+    button:
+        en: Set base period
+        fr: Définir période de base

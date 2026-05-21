@@ -1,0 +1,9 @@
+## preset colorbar list
+colorbar_color_list: ['tim_colors', precipitation_1,
+                'rainbow', 'turbo', 'viridis', 'inferno',
+                'jet', 'plasma', 'magma', 'plasma',
+                'hsv', 'hot', 'cool', 'spring', 'summer',
+                'winter', 'autumn', 'copper', 'bone']
+
+## colorbar extension
+colorbar_color_ext: ['transparent', 'gray']

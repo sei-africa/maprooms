@@ -1,0 +1,57 @@
+## Shapefiles or GeoJSON of the subdivision
+subdivision:
+    woreda:
+        file: gadm41_ETH_3.json
+        type: geojson
+        field: NAME_3
+        region: NAME_1
+        order: 0
+        group: administrative
+        name:
+            en: Woreda
+            fr: Woreda
+    zone:
+        file: gadm41_ETH_2.shp
+        type: shapefile
+        field: NAME_2
+        region: NAME_1
+        order: 1
+        group: administrative
+        name:
+            en: Zone
+            fr: Zone
+    region:
+        file: gadm41_ETH_1.shp
+        type: shapefile
+        field: NAME_1
+        region: NAME_1
+        order: 2
+        group: administrative
+        name:
+            en: Region
+            fr: Région
+    sub_basins:
+        file: ethiopa_river_sub_basins.shp
+        type: shapefile
+        field: sub_basin_
+        order: 3
+        group: whatershed
+        name:
+            en: Sub basin
+            fr: Sous bassin
+    basins:
+        file: ethiopa_river_basins.shp
+        type: shapefile
+        field: basinname
+        order: 4
+        group: whatershed
+        name:
+            en: Basin
+            fr: Bassin
+
+## default display
+subdivision_sel: region
+
+## Zoom and clip map to a region
+region_to_use: region
+region_subdivision: [zone, woreda]

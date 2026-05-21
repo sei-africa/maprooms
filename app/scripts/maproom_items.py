@@ -216,26 +216,31 @@ def load_navigation_items(item_dirs):
 
     return out
 
+def parse_config_yaml_file(app_dir, yaml_file):
+    file = os.path.join(app_dir, 'yaml', yaml_file)
+    tmp = load_yaml_file(file)
+    return parse_lang_yaml_nested(tmp)
+
 def load_maproom_page_text(item_dirs, page_type):
     app_dir = GLOBAL_CONFIG['app_dir']
-    yaml_file = os.path.join(app_dir, 'yaml', 'global.yaml')
-    tmp = load_yaml_file(yaml_file)
-    out = parse_lang_yaml_nested(tmp)
+    out = parse_config_yaml_file(app_dir, 'global.yaml')
 
-    yaml_file = os.path.join(app_dir, 'yaml', 'layers.yaml')
-    tmp = load_yaml_file(yaml_file)
-    layers = parse_lang_yaml_nested(tmp)
-    out['layers'] = layers
+    layers_subdiv = parse_config_yaml_file(app_dir, 'subdivision-config.yaml')
+    layers_basem = parse_config_yaml_file(app_dir, 'basemap.yaml')
+    layers_cbar = parse_config_yaml_file(app_dir, 'colorbar.yaml')
+    layers_lab = parse_config_yaml_file(app_dir, 'layers-label.yaml')
+    out['layers'] = layers_subdiv | layers_basem | layers_cbar | layers_lab
 
-    yaml_file = os.path.join(app_dir, 'yaml', 'base-period.yaml')
-    tmp = load_yaml_file(yaml_file)
-    base_period = parse_lang_yaml_nested(tmp)
-    out = out | base_period
+    base_period = parse_config_yaml_file(app_dir, 'base-period.yaml')
+    base_period_lab = parse_config_yaml_file(app_dir, 'base-period-label.yaml')
+
+    out = out | base_period | base_period_lab
 
     if page_type in ['page', 'user']:
         nav_path = item_dirs[:-1]
         nav_path = os.path.join(*nav_path)
         nav_path = os.path.join(app_dir, nav_path)
+
         yaml_file = f'{item_dirs[-1]}.yaml'
         yaml_file = os.path.join(nav_path, 'yaml', yaml_file)
         if os.path.exists(yaml_file):

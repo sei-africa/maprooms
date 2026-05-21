@@ -5,7 +5,7 @@ from .util import load_yaml_file
 
 def get_subdivisions_data():
     app_dir = GLOBAL_CONFIG['app_dir']
-    layers_file = os.path.join(app_dir, 'yaml', 'layers.yaml')
+    layers_file = os.path.join(app_dir, 'yaml', 'subdivision-config.yaml')
     layers = load_yaml_file(layers_file)
 
     subdiv = {}
