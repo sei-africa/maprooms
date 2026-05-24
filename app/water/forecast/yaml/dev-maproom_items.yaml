@@ -6,7 +6,6 @@ description:
     fr: Conditions climatiques historiques, courantes et prévues dans le pays.
 type: navigation-page
 icon_function: icon_climate_forecast
-# icon_image: forecast.gif
 
 maprooms:
     - seasonal:
@@ -16,7 +15,7 @@ maprooms:
         description:
             en: This Maproom displays the full forecast distribution in different flavors.
             fr: Le Maproom affiche la distribution complète des prévisions saisonnières dans différents formats.
-        icon_image: test-icon.gif
+        icon_image: default-emi_forecast.gif
     - monthly:
         title:
             en: Monthly Forecast
@@ -24,7 +23,7 @@ maprooms:
         description:
             en: This Maproom displays the full forecast distribution in different flavors.
             fr: Le Maproom affiche la distribution complète des prévisions saisonnières dans différents formats.
-        icon_image: test-icon.gif
+        icon_image: default-emi_forecast.gif
     - ten-days:
         title:
             en: 10-Days Forecast
@@ -32,4 +31,4 @@ maprooms:
         description:
             en: This Maproom displays the full forecast distribution in different flavors.
             fr: Le Maproom affiche la distribution complète des prévisions saisonnières dans différents formats.
-        icon_image: test-icon.gif
+        icon_image: default-emi_forecast.gif

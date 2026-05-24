@@ -5,7 +5,7 @@ description:
     en: Analyzing historical climate conditions around the country.
     fr: Analyse des conditions climatiques historiques à travers le pays.
 type: navigation-page
-icon_image: emi_climate_water.gif
+icon_image: default-emi_climate_water.gif
 
 maprooms:
     - daily:
@@ -16,7 +16,7 @@ maprooms:
             en: The Maproom explores historical daily precipitation by calculating simple seasonal statistics.
             fr: Le Maproom explore les précipitations journalières en calculant de simple statistiques saisonniers.
         # icon_function: icon_daily_analysis
-        icon_image: emi_water_daily.gif
+        icon_image: default-emi_water_daily.gif
     - dekadal:
         title:
             en: Dekadal
@@ -25,7 +25,7 @@ maprooms:
             en: This interface allows users to view rainfall, maximum, minimum and mean temperature dekadal climatologies and seasonal anomalies.
             fr: Cette interface permet à l'utilisateur de visualiser les climatologies décadaires et les anomalies saisonnières de précipitations et des températures.
         # icon_function: icon_dekadal_analysis
-        icon_image: emi_water_dekadal.png
+        icon_image: default-emi_water_dekadal.png
     - monthly:
         title:
             en: Monthly
@@ -34,4 +34,4 @@ maprooms:
             en: This interface allows users to view rainfall, maximum, minimum and mean temperature monthly climatologies and seasonal anomalies.
             fr: Cette interface permet à l'utilisateur de visualiser les climatologies mensuelles et les anomalies saisonnières de précipitations et des températures.
         # icon_function: icon_monthly_analysis
-        icon_image: emi_water_monthly.png
+        icon_image: default-emi_water_monthly.png

@@ -4,8 +4,8 @@ metServiceLongname: Ethiopian Meteorological Institute
 pageTitle: EMI ENACTS
 metServiceURL: https://www.ethiomet.gov.et/
 ## put the images under app/static/images
-iconImage: emi_favicon.png
-metLogo: emi_logo.png
+iconImage: default-emi_favicon.png
+metLogo: default-emi_logo.png
 
 ## map lat/lon center
 mapCenterLON:  40.47985

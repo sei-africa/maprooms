@@ -10,3 +10,19 @@ maprooms.egg-info
 
 *__pycache__/
 *.DS_Store
+
+# Ignore everything in any static/images directory
+app/**/static/images/**
+
+# Do not ignore the directories themselves
+!app/**/static/images/
+!app/**/static/images/**/
+
+# Keep files starting with default-emi_
+!app/**/static/images/default-emi_*
+
+# case of card_icons directory
+!app/**/static/images/**/default-emi_*
+
+# Keep files starting with default-meteo_
+!app/static/images/default-meteo_*

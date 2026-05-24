@@ -7,7 +7,8 @@ description:
     fr: La variabilité des précipitations saisonnières, et leurs statistiques sub-saisonnières,
         jouent une rôle clé dans le bon déroulement de la campagne agricole, ce qualitativement comme quantativement.
 type: navigation-card
-icon_image: emi_climate_agriculture.gif
+# icon_image from /app/static/images/card_icons
+icon_image: default-emi_climate_agriculture.gif
 
 components:
     - analysis

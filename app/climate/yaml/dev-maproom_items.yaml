@@ -5,8 +5,8 @@ description:
     en: Historical, current and forecast climate conditions around the country.
     fr: Conditions climatiques historiques, courantes et prévues dans le pays.
 type: navigation-card
-icon_image: emi_climate.gif
-# icon_image: climate.gif
+# icon_image from /app/static/images/card_icons
+icon_image: default-emi_climate.gif
 
 components:
     - analysis

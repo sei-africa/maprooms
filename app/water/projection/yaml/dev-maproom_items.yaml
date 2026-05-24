@@ -5,8 +5,8 @@ description:
     en: Future changes in seasonal climate with reference to a historical climatological period. Climatological period is user defined and is same in both historical and future periods. Future projections are based on the representative concentration pathways (RCPs).
     fr: Évolution future du climat saisonnier par rapport à une période climatologique historique. Cette période, définie par l'utilisateur, est identique pour les périodes passées et futures. Les projections futures sont basées sur les scénarios de concentration représentatifs (RCP).
 type: navigation-page
-# icon_function: icon_climate_projection
-icon_image: emi_projection.gif
+# icon_function: icon_water_projection
+icon_image: default-emi_projection.gif
 
 maprooms:
     - spi-monthly:
@@ -16,7 +16,7 @@ maprooms:
         description:
             en: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
             fr: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
-        icon_image: test_icons.gif
+        icon_image: default-emi_test_icons.gif
     - seasonal-change:
         title:
             en: Seasonal Changes
@@ -24,7 +24,7 @@ maprooms:
         description:
             en: Future changes in seasonal climate with reference to a historical climatological period. Climatological period is user defined and is same in both historical and future periods. Future projections are based on the representative concentration pathways (RCPs).
             fr: Future changes in seasonal climate with reference to a historical climatological period. Climatological period is user defined and is same in both historical and future periods. Future projections are based on the representative concentration pathways (RCPs).
-        icon_image: test_icons.gif
+        icon_image: default-emi_test_icons.gif
     - model-agreement:
         title:
             en: Model Agreement
@@ -32,4 +32,4 @@ maprooms:
         description:
             en: The level of agreement on either positive or negative change in a future time period with reference to the baseline (historical period).
             fr: The level of agreement on either positive or negative change in a future time period with reference to the baseline (historical period).
-        icon_image: test_icons.gif
+        icon_image: default-emi_test_icons.gif
