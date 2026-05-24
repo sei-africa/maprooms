@@ -26,3 +26,5 @@ app/**/static/images/**
 
 # Keep files starting with default-meteo_
 !app/static/images/default-meteo_*
+
+!app/static/images/default-sei_*
