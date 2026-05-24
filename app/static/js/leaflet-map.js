@@ -1687,6 +1687,7 @@ function queryParamsAnalysisMap(time_res) {
     query.variable = $(`#${time_res}-map-variable`).val();
     query.mapType = $(`#${time_res}-map-type`).val();
     const tstep_id = `${time_res}-map-date`;
+    const bp_id = `${time_res}-base-period`;
     let date = $(`#${tstep_id}-calendar`).val();
 
     if (query.mapType === 'climatology') {
@@ -1696,23 +1697,34 @@ function queryParamsAnalysisMap(time_res) {
         } else if (time_res === 'dekadal') {
             date = date === '' ? '01-1' : date;
             query.climDate = date;
+        } else if (time_res === 'seasonal') {
+            query.fullYear = false;
+            date = date === '' ? '1' : date;
+            query.climDate = Number(date);
+            query.seasLength = Number($(`#${tstep_id}-length`).val());
         } else {
             return false;
         }
 
         query.climFunction = $(`#${time_res}-map-climato-func`).val();
-        if (query.climFunction == 'percentile') {
+        if (query.climFunction === 'percentile') {
             query.precentileValue = $(`#${time_res}-map-climato-perc`).val();
         }
-        if (query.climFunction == 'frequency') {
+        if (query.climFunction === 'frequency') {
             query.frequencyOper = $(`#${time_res}-map-climato-freqOp`).val();
             query.frequencyThres = $(`#${time_res}-map-climato-freqTh`).val();
         }
-        query.dataset = DATA_SET.climatology.dataset;
-        // todo: add input for base period
-        query.startYear = BASE_PERIOD.start_year;
-        query.endYear = BASE_PERIOD.end_year;
-        query.minYear = BASE_PERIOD.min_year;
+        if (query.climFunction === 'probExc' || query.climFunction === 'probNoExc') {
+            query.probaThres = $(`#${time_res}-map-climato-probaTh`).val();
+        }
+        if (query.climFunction === 'trend') {
+            query.trendUnit = $(`#${time_res}-map-climato-trendUnit`).val();
+        }
+
+        query.dataset = DATA_SET.climatology;
+        query.startYear = Number($(`#${bp_id}-start`).val().trim());
+        query.endYear = Number($(`#${bp_id}-end`).val().trim());
+        query.minYear = Number($(`#${bp_id}-min`).val().trim());
     } else {
         if (time_res === 'monthly') {
             query.Date = date;
@@ -1724,13 +1736,12 @@ function queryParamsAnalysisMap(time_res) {
 
         if (query.mapType === 'anomaly') {
             query.anomaly = $(`#${time_res}-map-anomaly-type`).val();
-            query.dataset = DATA_SET.anomaly.dataset;
-            // todo: add input for base period
-            query.startYear = BASE_PERIOD.start_year;
-            query.endYear = BASE_PERIOD.end_year;
-            query.minYear = BASE_PERIOD.min_year;
+            query.dataset = DATA_SET.anomaly;
+            query.startYear = Number($(`#${bp_id}-start`).val().trim());
+            query.endYear = Number($(`#${bp_id}-end`).val().trim());
+            query.minYear = Number($(`#${bp_id}-min`).val().trim());
         } else {
-            query.dataset = DATA_SET.rawdata.dataset;
+            query.dataset = DATA_SET.rawdata;
         }
     }
 

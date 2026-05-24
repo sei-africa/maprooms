@@ -2,6 +2,11 @@ function arrayRemoveDuplicates(arr) {
     return arr.filter((item, index) => arr.indexOf(item) === index);
 }
 
+function setVisibility(showIds = [], hideIds = []) {
+    showIds.forEach(id => $(`#${id}`).show());
+    hideIds.forEach(id => $(`#${id}`).hide());
+}
+
 function orderSelect2SelectedItems(selector) {
     let select = $(selector);
     let selItems = [];
@@ -35,6 +40,64 @@ function orderSelect2SelectedItems(selector) {
     });
 }
 
+function getInputGroupHeight() {
+    const divCont = $('<div>')
+        .attr('id', 'test-div')
+        .addClass('input-group')
+        .appendTo('body');
+    const span = $('<span>')
+        .addClass('input-group-text')
+        .text('Test')
+        .appendTo(divCont);
+    const hgt = span.outerHeight();
+    divCont.remove();
+    return hgt;
+}
+
+function getSelect2Height() {
+    const divCont = $('<div>')
+        .attr('id', 'test-div')
+        .appendTo('body');
+    let select = $('<select>')
+        .attr('id', 'test-id')
+        .addClass('form-select')
+        .appendTo(divCont);
+    select.append(
+        $('<option>').text('Test').val(1)
+    );
+    select.select2({
+        minimumResultsForSearch: -1
+    }).trigger('change');
+    const hgt = $('#select2-test-id-container')
+        .outerHeight();
+    divCont.remove();
+    return hgt;
+}
+
+function adjustSelect2Height(select_id, input_group = true) {
+    let hgt;
+    if (input_group) {
+        hgt = getInputGroupHeight();
+    } else {
+        hgt = getSelect2Height();
+    }
+    const hgt0 = parseInt(hgt, 10);
+    const hgt1 = hgt0 - 2;
+
+    const $select2 = $(`#${select_id}`).next('.select2');
+    $select2.find('.select2-selection--single')
+        .css({
+            'min-height': hgt0 + 'px'
+        });
+    $select2.find('.select2-selection__rendered')
+        .css({
+            'line-height': hgt1 + 'px'
+        });
+    $select2.find('.select2-selection__arrow')
+        .css({
+            'height': hgt1 + 'px'
+        });
+}
 //////////////
 
 function makeCopy(obj) {
@@ -105,93 +168,392 @@ function generateSequence01(length) {
 
 //////////////
 
-function getDataSpatialResolution(tempRes) {
+function getDataSpatialResolution0(tempRes) {
     const maptype = $(`#${tempRes}-map-type option:selected`).val();
     const variable = $(`#${tempRes}-map-variable option:selected`).val();
-    const dset = DATA_SET[maptype].dataset;
+    const dset = DATA_SET[maptype];
     const data = DATA_INFO[dset][tempRes][variable];
     return data.spatial_resolution;
+}
+
+function getDataSpatialResolution1(tempRes) {
+    const maptype = $(`#${tempRes}-map-type option:selected`).val();
+    const variable = $(`#${tempRes}-map-variable option:selected`).val();
+    const dset = DATA_SET[maptype];
+    const pvar = DATA_SET.varid[variable];
+    const data = DATA_INFO[dset][tempRes][pvar];
+    return data.spatial_resolution;
+}
+
+function refreshSpatialAverage(tempRes, id) {
+    const funRes = id === 0 ?
+        getDataSpatialResolution0 :
+        getDataSpatialResolution1;
+
+    const dataRes = funRes(tempRes);
+    setSelectSpatialAverage(dataRes);
 }
 
 //////////////
 
 function setOffCanvasMapControl(tempRes) {
-    $(`#${tempRes}-map-variable`).on('change', () => {
-        //get data resolution
-        const data_res = getDataSpatialResolution(tempRes);
-        // set spatial average select
-        setSelectSpatialAverage(data_res);
-    });
+    const tstep_id = `${tempRes}-map-date`;
+
+    setAnalysisSeasonLength(tempRes);
+
+    $(`#${tempRes}-map-variable`)
+        .off(`change.${tempRes}Variable`)
+        .on(`change.${tempRes}Variable`, function() {
+            refreshSpatialAverage(tempRes, 0);
+            setAnalysisThresholdDef(tempRes);
+        });
+
+    $(`#${tempRes}-map-climato-func`)
+        .off(`change.${tempRes}ClimatoFunc`)
+        .on(`change.${tempRes}ClimatoFunc`, function() {
+            setAnalysisClimatoFun(tempRes);
+        });
+
+    if (tempRes === 'seasonal') {
+        $(`#${tstep_id}-length`)
+            .off(`change.${tempRes}SeasonLength`)
+            .on(`change.${tempRes}SeasonLength`, function() {
+                const map_type = $(`#${tempRes}-map-type`).val();
+                setAnalysisSeasonMonths(tempRes, map_type);
+            });
+    }
+
+    $(`#${tempRes}-map-type`)
+        .off(`change.${tempRes}MapType`)
+        .on(`change.${tempRes}MapType`, function() {
+            const map_type = $(this).val();
+            if (map_type === 'climatology') {
+                setNamesCalendar(
+                    `${tempRes}-map-date`, tempRes
+                );
+                setVisibility(
+                    [
+                        `${tempRes}-map-climato`,
+                        `div-${tempRes}-base-period`
+                    ],
+                    [`${tempRes}-map-anomaly`]
+                );
+
+                setAnalysisClimatoFun(tempRes);
+
+                if (tempRes === 'seasonal') {
+                    setAnalysisSeasonMonths(tempRes, map_type);
+                    adjustSelect2Height(`${tstep_id}-length`, false);
+                }
+            } else {
+                const dataset = map_type === 'anomaly' ?
+                    DATA_SET.anomaly : DATA_SET.rawdata;
+
+                if (map_type === 'anomaly') {
+                    setVisibility(
+                        [
+                            `${tempRes}-map-anomaly`,
+                            `div-${tempRes}-base-period`
+                        ],
+                        [`${tempRes}-map-climato`]
+                    );
+                } else {
+                    setVisibility(
+                        [],
+                        [
+                            `${tempRes}-map-anomaly`,
+                            `div-${tempRes}-base-period`,
+                            `${tempRes}-map-climato`
+                        ]
+                    );
+                }
+
+                setDateCalendar(
+                    `${tempRes}-map-date`,
+                    `${tempRes}-map-variable`,
+                    dataset, tempRes
+                );
+
+                if (tempRes === 'seasonal') {
+                    setAnalysisSeasonMonths(tempRes, map_type);
+                    adjustSelect2Height(`${tstep_id}-length`, true);
+                }
+            }
+            refreshSpatialAverage(tempRes, 0);
+        });
+
     $(`#${tempRes}-map-variable`).trigger('change');
-
-    // 
-    $(`#${tempRes}-map-type`).on('change', () => {
-        const maptype = $(`#${tempRes}-map-type`).val();
-        if (maptype === 'climatology') {
-            setNamesCalendar(
-                `${tempRes}-map-date`, tempRes
-            );
-
-            $(`#${tempRes}-map-anomaly`).hide();
-            $(`#${tempRes}-map-climato`).show();
-
-            const clim_fun = $(`#${tempRes}-map-climato-func`).val();
-            if (clim_fun === 'percentile') {
-                $(`#div-${tempRes}-map-climato-freq`).hide();
-                $(`#div-${tempRes}-map-climato-perc`).show();
-            } else if (clim_fun === 'frequency') {
-                $(`#div-${tempRes}-map-climato-perc`).hide();
-                $(`#div-${tempRes}-map-climato-freq`).show();
-            } else {
-                $(`#div-${tempRes}-map-climato-perc`).hide();
-                $(`#div-${tempRes}-map-climato-freq`).hide();
-            }
-        } else {
-            if (maptype === 'anomaly') {
-                $(`#${tempRes}-map-anomaly`).show();
-                var dataset = DATA_SET.anomaly.dataset;
-            } else {
-                $(`#${tempRes}-map-anomaly`).hide();
-                var dataset = DATA_SET.rawdata.dataset;
-            }
-
-            setDateCalendar(
-                `${tempRes}-map-date`,
-                `${tempRes}-map-variable`,
-                dataset, tempRes
-            );
-
-            $(`#${tempRes}-map-climato`).hide();
-        }
-
-        //get data resolution
-        const data_res = getDataSpatialResolution(tempRes);
-        // set spatial average select
-        setSelectSpatialAverage(data_res);
-    });
     $(`#${tempRes}-map-type`).trigger('change');
+    $(`#${tempRes}-map-climato-func`).trigger('change');
+}
+
+function setAnalysisSeasonLength(tempRes) {
+    if (tempRes !== 'seasonal') return;
+
+    const tstepID = `${tempRes}-map-date`;
+    const seasLenId = $(`#${tstepID}-length`);
+
+    if (seasLenId.children().length === 0) {
+        for (let l = 2; l <= 12; l++) {
+            seasLenId.append(
+                $('<option>').text(l).val(l)
+            );
+        }
+        seasLenId.val(3);
+    }
+}
+
+function setAnalysisSeasonMonths(tempRes, mapType) {
+    if (tempRes !== 'seasonal') return;
+
+    const map_type = $(`#${tempRes}-map-type`).val();
+    const tstepID = `${tempRes}-map-date`;
+    const this_len = parseInt($(`#${tstepID}-length`).val(), 10);
+
+    let this_mon;
+    if (mapType === 'climatology') {
+        this_mon = parseInt($(`#${tstepID}-calendar`).val(), 10);
+    } else {
+        const this_date = $(`#${tstepID}-calendar`).val();
+        this_mon = parseInt(this_date.split('-')[1], 10);
+    }
+
+    if (!Number.isFinite(this_mon) || !Number.isFinite(this_len)) return;
+
+    const seas_mon = defineSeasonMonths(this_mon, this_len);
+    $(`#${tempRes}-season-months`).text(seas_mon);
+}
+
+function setAnalysisClimatoFun(tempRes) {
+    const climFun = $(`#${tempRes}-map-climato-func`).val();
+
+    const ids = {
+        percentile: `div-${tempRes}-map-climato-perc`,
+        frequency: `div-${tempRes}-map-climato-freq`,
+        probability: `div-${tempRes}-map-climato-proba`,
+        trend: `div-${tempRes}-map-climato-trend`
+    };
+    const allIds = Object.values(ids);
+
+    if (climFun === 'percentile') {
+        setVisibility([ids.percentile], allIds.filter(id => id !== ids.percentile));
+    } else if (climFun === 'frequency') {
+        setVisibility([ids.frequency], allIds.filter(id => id !== ids.frequency));
+        adjustSelect2Height(`${tempRes}-map-climato-freqOp`, true);
+    } else if (['probExc', 'probNoExc'].includes(climFun)) {
+        setVisibility([ids.probability], allIds.filter(id => id !== ids.probability));
+    } else if (climFun === 'trend') {
+        setVisibility([ids.trend], allIds.filter(id => id !== ids.trend));
+    } else {
+        setVisibility([], allIds);
+    }
+}
+
+function setAnalysisThresholdDef(tempRes) {
+    const this_var = $(`#${tempRes}-map-variable`).val();
+
+    $(`#${tempRes}-map-climato-freqTh`)
+        .val(THRESHOLD_DEF.value[this_var]);
+    $(`#${tempRes}-map-climato-freqU`)
+        .text(THRESHOLD_DEF.unit[this_var]);
+
+    if (tempRes === 'seasonal') {
+        $(`#${tempRes}-map-climato-probaTh`)
+            .val(THRESHOLD_DEF.value[this_var]);
+        $(`#${tempRes}-map-climato-probaU`)
+            .text(THRESHOLD_DEF.unit[this_var]);
+    }
+}
+
+//////////////
+
+function setOffCanvasMapControlDaily(tempRes) {
+    const tstep_id = `${tempRes}-map-date`;
+    setMonthsDaysCalendar(
+        `${tstep_id}-start-mon`,
+        `${tstep_id}-start-day`,
+        SEASON_DEF.start_mon,
+        SEASON_DEF.start_day,
+        true
+    );
+
+    setMonthsDaysCalendar(
+        `${tstep_id}-end-mon`,
+        `${tstep_id}-end-day`,
+        SEASON_DEF.end_mon,
+        SEASON_DEF.end_day,
+        false
+    );
+
+    $(`#${tempRes}-map-variable`)
+        .off(`change.${tempRes}Variable`)
+        .on(`change.${tempRes}Variable`, function() {
+            const this_var = $(this).val();
+
+            refreshSpatialAverage(tempRes, 1);
+            // 
+            $(`#${tempRes}-map-parameters`).empty();
+            for (const item of PARAMS_ORDER[this_var]) {
+                $(`#${tempRes}-map-parameters`).append(
+                    $('<option>').val(item)
+                    .text(PARAMS_LIST[this_var][item].select)
+                );
+            }
+
+            setAnalysisParamsDefDaily(tempRes);
+            setAnalysisStatProbaDaily(tempRes);
+            setAnalysisMapTypeDaily(tempRes);
+        });
+
+    $(`#${tempRes}-map-type`)
+        .off(`change.${tempRes}MapType`)
+        .on(`change.${tempRes}MapType`, function() {
+            setAnalysisMapTypeDaily(tempRes);
+        });
 
     // 
-    $(`#${tempRes}-map-climato-func`).on('change', () => {
-        const clim_fun = $(`#${tempRes}-map-climato-func`).val();
-        if (clim_fun === 'percentile') {
-            $(`#div-${tempRes}-map-climato-freq`).hide();
-            $(`#div-${tempRes}-map-climato-perc`).show();
-        } else if (clim_fun === 'frequency') {
-            $(`#div-${tempRes}-map-climato-perc`).hide();
-            $(`#div-${tempRes}-map-climato-freq`).show();
+    $(`#${tempRes}-map-statistics`)
+        .off(`change.${tempRes}Statistics`)
+        .on(`change.${tempRes}Statistics`, function() {
+            setAnalysisStatProbaDaily(tempRes);
+        });
 
-            const hgt = $(`#div-${tempRes}-map-climato-freq .input-group-text`).innerHeight();
-            $(`#select2-${tempRes}-map-climato-freqOp-container`)
-                .parent('span').css({
-                    'min-height': hgt
-                });
-        } else {
-            $(`#div-${tempRes}-map-climato-perc`).hide();
-            $(`#div-${tempRes}-map-climato-freq`).hide();
+    // 
+    $(`#${tempRes}-map-parameters`)
+        .off(`change.${tempRes}Parameters`)
+        .on(`change.${tempRes}Parameters`, function() {
+            setAnalysisParamsDefDaily(tempRes);
+            setAnalysisStatProbaDaily(tempRes);
+        });
+
+    $(`#${tempRes}-map-variable`).trigger('change');
+}
+
+function setAnalysisMapTypeDaily(time_res) {
+    const tstepID = `${time_res}-map-date`;
+    const maptype = $(`#${time_res}-map-type`).val();
+
+    if (maptype === 'climatology') {
+        setVisibility(
+            [
+                `div-${tstepID}-climato-years`,
+                `${time_res}-map-climato`
+            ],
+            [`div-${tstepID}-tseries-years`]
+        );
+
+        $('#input-time-navigation').val('').prop('disabled', true);
+        $('#prev-time-navigation').prop('disabled', true);
+        $('#next-time-navigation').prop('disabled', true);
+
+        return;
+    }
+
+    setVisibility(
+        [`div-${tstepID}-tseries-years`],
+        [
+            `div-${tstepID}-climato-years`,
+            `${time_res}-map-climato`
+        ]
+    );
+
+    $('#input-time-navigation').prop('disabled', false);
+    $('#prev-time-navigation').prop('disabled', false);
+    $('#next-time-navigation').prop('disabled', false);
+
+    const this_var = $(`#${time_res}-map-variable`).val();
+    const dataset = DATA_SET[maptype];
+    const variable = DATA_SET.varid[this_var];
+    const year_cov = getTempCoverageYear(
+        dataset, time_res, variable
+    );
+    $(`#${tstepID}-tseries-year`).attr({
+        'min': year_cov.start,
+        'max': year_cov.end
+    }).val(year_cov.end);
+
+    $('#input-time-navigation').val(year_cov.end);
+}
+
+function setAnalysisStatProbaDaily(time_res) {
+    const this_var = $(`#${time_res}-map-variable`).val();
+    const this_par = $(`#${time_res}-map-parameters`).val();
+    const this_stat = $(`#${time_res}-map-statistics`).val();
+
+    if (!['probExc', 'probNoExc'].includes(this_stat)) {
+        $(`#div-${time_res}-map-climato-proba`).hide();
+        return;
+    }
+
+    const param = PARAMS_LIST[this_var][this_par];
+
+    $(`#div-${time_res}-map-climato-proba`).show();
+    $(`#${time_res}-map-climato-probaTh`).val(param.value);
+    $(`#${time_res}-map-climato-parUnit`).text(param.unit);
+
+    adjustSelect2Height(
+        `${time_res}-map-climato-probaUnit`, true
+    );
+}
+
+function setAnalysisParamsDefDaily(time_res) {
+    const this_var = $(`#${time_res}-map-variable`).val();
+    const this_par = $(`#${time_res}-map-parameters`).val();
+
+    const var_def = PARAMS_DEF[this_var];
+    if (!var_def) return false;
+
+    function setNumberInputs() {
+        $(`#${time_res}-def-number-thres-lab`)
+            .text(var_def.number.label);
+        $(`#${time_res}-def-number-thres-txt`)
+            .text(var_def.number.text);
+        $(`#${time_res}-def-number-thres-val`)
+            .val(var_def.number.value);
+        $(`#${time_res}-def-number-thres-unit`)
+            .text(var_def.number.unit);
+    }
+
+    function setSpellInputs() {
+        $(`#${time_res}-def-spell-thres-lab`)
+            .text(var_def.spell.label);
+        $(`#${time_res}-def-spell-thres-val`)
+            .val(var_def.spell.value);
+        $(`#${time_res}-def-spell-thres-txt`)
+            .text(var_def.spell.text);
+    }
+
+    const rules = {
+        rainfall: {
+            numberOnly: ['NumWD', 'NumDD', 'RainInt', 'LongDS'],
+            numberAndSpell: ['NumDS', 'NumWS'],
+            spellOnly: []
+        },
+        temperature: {
+            numberOnly: ['NumCD', 'NumHD'],
+            numberAndSpell: [],
+            spellOnly: ['CDD', 'HDD', 'GDD']
         }
-    });
-    $(`#${tempRes}-map-climato-func`).trigger('change');
+    };
+
+    const rule = rules[this_var];
+    if (!rule) return false;
+
+    const showNumber =
+        rule.numberOnly.includes(this_par) ||
+        rule.numberAndSpell.includes(this_par);
+
+    const showSpell =
+        rule.spellOnly.includes(this_par) ||
+        rule.numberAndSpell.includes(this_par);
+
+    $(`#${time_res}-def-number`).toggle(showNumber);
+    $(`#${time_res}-def-spell`).toggle(showSpell);
+
+    if (showNumber) setNumberInputs();
+    if (showSpell) setSpellInputs();
+
+    return true;
 }
 
 //////////////
@@ -207,7 +569,7 @@ async function setMapDatesNavInput(tempRes) {
     const maptype = $(`#${tempRes}-map-type`).val();
     if (maptype === 'climatology') {
         let cl_date = null;
-        if (tempRes === 'monthly') {
+        if (tempRes === 'monthly' || tempRes === 'seasonal') {
             const months = getListOfMonthsCalendar().long;
             const m = months.indexOf(this_date);
             if (m !== -1) {
@@ -231,13 +593,13 @@ async function setMapDatesNavInput(tempRes) {
     } else {
         let dataset;
         if (maptype === 'anomaly') {
-            dataset = DATA_SET.anomaly.dataset;
+            dataset = DATA_SET.anomaly;
         } else {
-            dataset = DATA_SET.rawdata.dataset;
+            dataset = DATA_SET.rawdata;
         }
 
         let str_time;
-        if (tempRes === 'monthly') {
+        if (tempRes === 'monthly' || tempRes === 'seasonal') {
             str_time = `${this_date}-01 00:00:00`;
         } else if (tempRes === 'dekadal') {
             str_time = `${this_date} 00:00:00`;
@@ -285,7 +647,7 @@ async function setMapDatesNavPrev(tempRes) {
     if (maptype === 'climatology') {
         let cl_date = null;
         let cl_input = null;
-        if (tempRes === 'monthly') {
+        if (tempRes === 'monthly' || tempRes === 'seasonal') {
             const months = getListOfMonthsCalendar().long;
             let m = months.indexOf(this_date);
             if (m !== -1) {
@@ -321,13 +683,13 @@ async function setMapDatesNavPrev(tempRes) {
     } else {
         let dataset;
         if (maptype === 'anomaly') {
-            dataset = DATA_SET.anomaly.dataset;
+            dataset = DATA_SET.anomaly;
         } else {
-            dataset = DATA_SET.rawdata.dataset;
+            dataset = DATA_SET.rawdata;
         }
 
         let str_time;
-        if (tempRes === 'monthly') {
+        if (tempRes === 'monthly' || tempRes === 'seasonal') {
             str_time = `${this_date}-01 00:00:00`;
         } else if (tempRes === 'dekadal') {
             str_time = `${this_date} 00:00:00`;
@@ -348,7 +710,7 @@ async function setMapDatesNavPrev(tempRes) {
 
         let input_date;
         let str_date;
-        if (tempRes === 'monthly') {
+        if (tempRes === 'monthly' || tempRes === 'seasonal') {
             let prev_mon = addDateMonths(this_time, -1);
             if (prev_mon < start) {
                 prev_mon = end;
@@ -392,7 +754,7 @@ async function setMapDatesNavNext(tempRes) {
     if (maptype === 'climatology') {
         let cl_date = null;
         let cl_input = null;
-        if (tempRes === 'monthly') {
+        if (tempRes === 'monthly' || tempRes === 'seasonal') {
             const months = getListOfMonthsCalendar().long;
             let m = months.indexOf(this_date);
             if (m !== -1) {
@@ -428,13 +790,13 @@ async function setMapDatesNavNext(tempRes) {
     } else {
         let dataset;
         if (maptype === 'anomaly') {
-            dataset = DATA_SET.anomaly.dataset;
+            dataset = DATA_SET.anomaly;
         } else {
-            dataset = DATA_SET.rawdata.dataset;
+            dataset = DATA_SET.rawdata;
         }
 
         let str_time;
-        if (tempRes === 'monthly') {
+        if (tempRes === 'monthly' || tempRes === 'seasonal') {
             str_time = `${this_date}-01 00:00:00`;
         } else if (tempRes === 'dekadal') {
             str_time = `${this_date} 00:00:00`;
@@ -455,7 +817,7 @@ async function setMapDatesNavNext(tempRes) {
 
         let input_date;
         let str_date;
-        if (tempRes === 'monthly') {
+        if (tempRes === 'monthly' || tempRes === 'seasonal') {
             let prev_mon = addDateMonths(this_time, 1);
             if (prev_mon > end) {
                 prev_mon = start;
@@ -509,7 +871,7 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
     setDateCalendar(
         `${tempRes}-chart-raw-enddate`,
         `${tempRes}-chart-raw-variable`,
-        DATA_SET.rawdata.dataset,
+        DATA_SET.rawdata,
         tempRes, disp_end,
         mapNavigation = false
     );
@@ -519,7 +881,7 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
     if (start_date === '') {
         const varTs = $(`#${tempRes}-chart-raw-variable`).val();
         const trange = getTemporalRangeCalendar(
-            DATA_SET.rawdata.dataset,
+            DATA_SET.rawdata,
             tempRes, varTs, 5
         );
         disp_start = trange.start;
@@ -530,7 +892,7 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
     setDateCalendar(
         `${tempRes}-chart-raw-startdate`,
         `${tempRes}-chart-raw-variable`,
-        DATA_SET.rawdata.dataset,
+        DATA_SET.rawdata,
         tempRes, disp_start,
         mapNavigation = false
     );
@@ -667,7 +1029,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
     setDateCalendar(
         `${tempRes}-chart-anom-enddate`,
         `${tempRes}-chart-anom-variable`,
-        DATA_SET.anomaly.dataset,
+        DATA_SET.anomaly,
         tempRes, disp_end,
         mapNavigation = false
     );
@@ -677,7 +1039,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
     if (start_date === '') {
         const varTs = $(`#${tempRes}-chart-anom-variable`).val();
         const trange = getTemporalRangeCalendar(
-            DATA_SET.anomaly.dataset,
+            DATA_SET.anomaly,
             tempRes, varTs, 30
         );
         disp_start = trange.start;
@@ -688,7 +1050,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
     setDateCalendar(
         `${tempRes}-chart-anom-startdate`,
         `${tempRes}-chart-anom-variable`,
-        DATA_SET.anomaly.dataset,
+        DATA_SET.anomaly,
         tempRes, disp_start,
         mapNavigation = false
     );
@@ -777,7 +1139,7 @@ function splitAnomalyDataByStep(ts_dates, ts_data, date, time_res) {
             this_date = `${d[0]}-${dk}`;
         } else if (time_res === 'monthly') {
             const m = ts_dates[i].split('-')[1];
-            this_date = parseInt(m);
+            this_date = parseInt(m, 10);
         } else {
             return null;
         }
@@ -810,15 +1172,15 @@ function groupTSDataByYear(ts_dates, ts_data, start_mon, time_res) {
         let ar_dates = ts_dates[i].split('-');
         if (time_res === 'dekadal') {
             parsed.push({
-                year: parseInt(ar_dates[0]),
-                month: parseInt(ar_dates[1]),
-                dekad: parseInt(ar_dates[2]),
+                year: parseInt(ar_dates[0], 10),
+                month: parseInt(ar_dates[1], 10),
+                dekad: parseInt(ar_dates[2], 10),
                 value: ts_data[i]
             });
         } else if (time_res === 'monthly') {
             parsed.push({
-                year: parseInt(ar_dates[0]),
-                month: parseInt(ar_dates[1]),
+                year: parseInt(ar_dates[0], 10),
+                month: parseInt(ar_dates[1], 10),
                 value: ts_data[i]
             });
         } else {
@@ -839,7 +1201,7 @@ function groupTSDataByYear(ts_dates, ts_data, start_mon, time_res) {
 
         for (let i = 0; i < 12; i++) {
             let month = ((start_mon - 1 + i) % 12) + 1;
-            let year = parseInt(dataYear);
+            let year = parseInt(dataYear, 10);
             if (month < start_mon) year += 1;
 
             if (time_res === 'dekadal') {

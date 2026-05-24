@@ -1,11 +1,198 @@
 description:
-    en: test
-    fr: test
-# all about seasonal data
+    en: |
+        <h4>Seasonal Climate Analysis</h4>
+        <p>
+        This interface allows users to view rainfall, maximum, minimum and mean temperature seasonal climatologies, anomalies and probability of exceedance.
+        Rainfall time series and temperature time series (1981-2021) reconstructed from station observations, remote sensing and other proxies.
+        </p>
+    fr: |
+        <h4>Analyse Climatique Saisonnière</h4>
+        <p>
+        Cette interface permet à l'utilisateur de visualiser les climatologies et les anomalies saisonnières de précipitations et des températures ainsi que la probabilité de dépassement d'un seuil donné.
+        Séries temporelles de précipitations et de température (1981-2021) reconstruites à partir de données in-situ et de données de télédétection et autres proxy.
+        </p>
 dataset:
-    precip:
-        dataset: ALL
-    tmax:
-        dataset: ALL
-    tmin:
-        dataset: ALL
+    rawdata: ALL
+    climatology: ALL
+    anomaly: ALL
+variables:
+    label:
+        en: Variable
+        fr: Variable
+    select:
+        precip:
+            en: Rainfall
+            fr: Précipitation
+        tmax:
+            en: Maximum temperature
+            fr: Température maximale
+        tmin:
+            en: Minimum temperature
+            fr: Température minimale
+opt_threshold:
+    value:
+        precip: 400
+        tmax: 30
+        tmin: 10
+    unit:
+        precip: mm
+        tmax: °C
+        tmin: °C
+opt_season:
+    start:
+        en: Start month
+        fr: Mois de début
+    length:
+        en: Length
+        fr: Longueur
+opt_map:
+    label_display:
+        en: Display
+        fr: Afficher
+    select_display:
+        climatology:
+            en: Climatology
+            fr: Climatologie
+        anomaly:
+            en: Anomaly
+            fr: Anomalie
+        rawdata:
+            en: Seasonal data
+            fr: Données saisonnières
+    label_date:
+        en: Date
+        fr: Date
+opt_anomaly:
+    label:
+        en: Anomaly
+        fr: Anomalie
+    select:
+        difference:
+            en: Deviation from mean
+            fr: Écart par rapport à la moyenne
+        standardized:
+            en: Standardized anomaly
+            fr: Anomalie standardisée
+        percentage:
+            en: Percentage of mean
+            fr: Pourcentage de la moyenne
+opt_climato:
+    func_climato:
+        mean:
+            en: Average
+            fr: Moyenne
+        max:
+            en: Maximum
+            fr: Maximale
+        min:
+            en: Minimum
+            fr: Minimale
+        stdev:
+            en: Standard deviation
+            fr: Écart type
+        cv:
+            en: Coefficient of variation
+            fr: coefficient de variation
+        percentile:
+            en: Percentile
+            fr: Percentile
+        frequency:
+            en: Frequency
+            fr: Fréquence
+        probExc:
+            en: Probability of exceeding
+            fr: Probabilité de dépassement
+        probNoExc:
+            en: Probability of non-exceeding
+            fr: Probabilité de non-dépassement
+        trend:
+            en: Seasonal trends 
+            fr: Tendances saisonnières
+    label_climato:
+        en: Climatology
+        fr: Climatologie
+    label_perc:
+        en: Percentile
+        fr: Percentile
+    label_freq_op:
+        en: Operator
+        fr: Opérateur
+    label_thres:
+        en: Threshold
+        fr: Seuil
+    label_trend:
+        en: Units
+        fr: Unités
+    trend_unit:
+        perYear:
+            en: Trend per year 
+            fr: Tendance par an
+        overPeriod:
+            en: Trend over the period
+            fr: Tendance sur toute la période
+        percPeriod:
+            en: Trend in percentage of mean
+            fr: Tendance en pourcentage de la moyenne
+opt_ts_raw:
+    label_date:
+        start:
+            en: Start
+            fr: Début
+        end:
+            en: End
+            fr: Fin
+    label_series:
+        en: Display
+        fr: Afficher
+    series:
+        one:
+            en: One serie
+            fr: Une série
+        years:
+            en: Each year
+            fr: Chaque année
+    start_mon:
+        en: Start month
+        fr: Début mois
+opt_ts_anom:
+    label_date:
+        start:
+            en: Start
+            fr: Début
+        end:
+            en: End
+            fr: Fin
+    label_series:
+        en: Display
+        fr: Afficher
+    series:
+        one:
+            en: One serie
+            fr: Une série
+        tstep:
+            en: By month
+            fr: Par mois
+    label_tstep:
+        en: Month
+        fr: Mois
+opt_ts_clim:
+    label_charts:
+        en: Display
+        fr: Afficher
+    charts:
+        one:
+            en: Selected variable
+            fr: Variable sélectionnée
+        multiple:
+            en: Multiple variables
+            fr: Plusieurs variables
+lines_ts:
+    color:
+        en: Select colors
+        fr: Sélectionner couleurs
+    width:
+        en: Width
+        fr: Largeur
+    type:
+        en: Type
+        fr: Type

@@ -16,8 +16,8 @@ maprooms:
             en: Daily Climate Analysis
             fr: Analyse Climatique Journalières
         description:
-            en: The Maproom explores historical daily precipitation by calculating simple seasonal statistics.
-            fr: Le Maproom explore les précipitations journalières en calculant de simple statistiques saisonniers.
+            en: The Maproom explores historical daily precipitation and temperatures by calculating simple seasonal statistics and the history of extreme.
+            fr: Le Maproom explore les précipitations et températures journalières en calculant de simple statistiques saisonniers et des extrêmes historiques.
         icon_function: icon_daily_analysis
         # icon_image: test-page.png
     - dekadal:
@@ -42,8 +42,8 @@ maprooms:
             en: Seasonal Climate Analysis
             fr: Analyse Climatique Saisonnière
         description:
-            en: This interface allows users to view rainfall, maximum, minimum and mean temperature seasonal climatologies, anomalies and probability of exceedance, and seasonal trends expressed per year, over the selected period or percent of the average over the selected period.
-            fr: This interface allows users to view rainfall, maximum, minimum and mean temperature seasonal climatologies, anomalies and probability of exceedance, and seasonal trends expressed per year, over the selected period or percent of the average over the selected period.
+            en: This interface allows users to view rainfall, maximum and minimum temperature seasonal climatologies, anomalies and probability of exceedance.
+            fr: Cette interface permet à l'utilisateur de visualiser les climatologies et les anomalies saisonnières de précipitations et des températures ainsi que la probabilité de dépassement d'un seuil donné.
         # icon_function: icon_monthly_analysis
         icon_image: seasonal.gif
     - teleconnections:

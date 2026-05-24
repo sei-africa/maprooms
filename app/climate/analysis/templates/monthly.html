@@ -6,8 +6,6 @@
 {% endblock %}
 {% block content %}
 <!--  -->
-{% import 'analysis-macros.html' as fanalysis %}
-<!--  -->
 <div class="container-fluid" id="container-page">
     <div class="row">
         <div class="col-sm-4">
@@ -50,5 +48,9 @@
 {% endblock %}
 {% block javascript %}
 {% include "block-js.html" %}
+<script>
+const DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
+const THRESHOLD_DEF = JSON.parse('{{ pageText.opt_threshold | tojson }}');
+</script>
 <script type="text/javascript" src="{{ url_for('climate_analysis.static', filename='js/monthly.js') }}"></script>
 {% endblock %}

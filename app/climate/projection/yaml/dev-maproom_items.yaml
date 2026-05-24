@@ -6,7 +6,7 @@ description:
     fr: Future changes in seasonal climate with reference to a historical climatological period. Climatological period is user defined and is same in both historical and future periods. Future projections are based on the representative concentration pathways (RCPs).
 type: navigation-page
 # icon_function: icon_climate_projection
-icon_image: projection.gif
+icon_image: emi_projection.gif
 
 maprooms:
     - spi-monthly:

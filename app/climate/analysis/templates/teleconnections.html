@@ -13,5 +13,8 @@
 {% endblock %}
 {% block javascript %}
 {% include "block-js.html" %}
+<script>
+const DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
+</script>
 <!--  -->
 {% endblock %}

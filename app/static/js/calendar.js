@@ -82,15 +82,21 @@ function setDateCalendar(
     mapNavigation = true
 ) {
     const variable = $(`#${variableID} option:selected`).val();
-    const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
+    const temp_cov = getTempCoverageCalendar(
+        dataset, tempRes, variable
+    );
 
     let divCont = $(`#${divContainerID}`);
     divCont.empty();
     const calendarID = `${divContainerID}-calendar`;
-    $('<input>', { type: 'text', id: calendarID })
-        .addClass('form-control').appendTo(divCont);
+    $('<input>', {
+            type: 'text',
+            id: calendarID
+        })
+        .addClass('form-control')
+        .appendTo(divCont);
 
-    if (tempRes === 'monthly') {
+    if (tempRes === 'monthly' || tempRes === 'seasonal') {
         cl_type = 'year-month-picker';
         cl_format = 'YYYY-MM';
         cl_slice = 7;
@@ -127,12 +133,19 @@ function setDateCalendar(
         onclose: function(el) {
             const this_date = $(el).val();
             if (tempRes === 'dekadal') {
-                // const this_date = $(el).val();
                 const dek_date = calendarFormatDekad(this_date);
                 $(el).val(dek_date);
             }
 
             if (mapNavigation) {
+                if (tempRes === 'seasonal') {
+                    const this_mon = parseInt(this_date.split('-')[1], 10);
+                    const tstepID = `${tempRes}-map-date`;
+                    const this_len = parseInt($(`#${tstepID}-length`).val(), 10);
+                    const seas_mon = defineSeasonMonths(this_mon, this_len);
+                    $(`#${tempRes}-season-months`).text(seas_mon);
+                }
+
                 // const this_date = calendar.getValue();
                 $('#input-time-navigation').val(this_date.slice(0, cl_slice));
             }
@@ -149,7 +162,8 @@ function setDateCalendar(
 
     // set date on map navigation
     if (mapNavigation) {
-        $('#input-time-navigation').val(dispDate.slice(0, cl_slice));
+        $('#input-time-navigation')
+            .val(dispDate.slice(0, cl_slice));
     }
 
     const theme = localStorage.getItem('theme');
@@ -165,12 +179,13 @@ function setNamesCalendar(
     let divCont = $(`#${divContainerID}`);
     divCont.empty();
     const calendarID = `${divContainerID}-calendar`;
-    let select = $('<select>').attr('id', calendarID)
+    let select = $('<select>')
+        .attr('id', calendarID)
         .addClass('form-select form-select2-nosearch')
         .appendTo(divCont)
         .css('width', '100%');
 
-    if (tempRes === 'monthly') {
+    if (tempRes === 'monthly' || tempRes === 'seasonal') {
         const months = getListOfMonthsCalendar().long;
         for (let m = 0; m < months.length; m++) {
             select.append(
@@ -192,7 +207,6 @@ function setNamesCalendar(
         }
         select.val(dekads[0].value);
         var int_value = dekads[0].short;
-
     } else {
         console.log('Not set up yet.');
         return false;
@@ -210,6 +224,14 @@ function setNamesCalendar(
         select.on('change', function() {
             if (tempRes === 'monthly') {
                 var this_date = $(this).find('option:selected').text();
+            } else if (tempRes === 'seasonal') {
+                var this_date = $(this).find('option:selected').text();
+                const this_mon = parseInt(this.value, 10);
+                const tstepID = `${tempRes}-map-date`;
+                // const this_mon = parseInt($(`#${tstepID}-calendar`).val());
+                const this_len = parseInt($(`#${tstepID}-length`).val(), 10);
+                const seas_mon = defineSeasonMonths(this_mon, this_len);
+                $(`#${tempRes}-season-months`).text(seas_mon);
             } else if (tempRes === 'dekadal') {
                 const this_dekad = this.value;
                 const dekads = getListOfDekadsCalendar();
@@ -226,14 +248,66 @@ function setNamesCalendar(
     changeHoverColorTheme(`#${calendarID}`, color);
 }
 
+function setMonthsDaysCalendar(monthID, dayID, month0, day0, isStart) {
+    const months = getListOfMonthsCalendar().long;
+    const end_mon = [
+        31, 29, 31, 30, 31, 30,
+        31, 31, 30, 31, 30, 31
+    ];
+
+    const mon_id = $(`#${monthID}`);
+    const day_id = $(`#${dayID}`);
+
+    for (let m = 0; m < months.length; m++) {
+        mon_id.append(
+            $('<option>')
+            .text(months[m])
+            .val(m + 1)
+        );
+    }
+
+    mon_id
+        .off(`change.${monthID}`)
+        .on(`change.${monthID}`, function() {
+            day_id.empty();
+            const m = parseInt(this.value, 10) - 1;
+            for (let d = 0; d < end_mon[m]; d++) {
+                let d0 = d + 1;
+                day_id.append(
+                    $('<option>')
+                    .text(
+                        d0.toString()
+                        .padStart(2, '0')
+                    )
+                    .val(d0)
+                );
+            }
+            const v = isStart ? 1 : end_mon[m];
+            day_id.val(v);
+        });
+
+    mon_id.val(month0).trigger('change');
+    day_id.val(day0);
+}
+
+function defineSeasonMonths(start, length) {
+    const months = getListOfMonthsCalendar().long;
+    let end = (start + length - 1) % 12;
+    if (end === 0) end = 12;
+    return `${months[start - 1]} -> ${months[end - 1]}`;
+}
+
 function getListOfMonthsCalendar() {
-    const ils = LANG_USER.list.map(l => l.code).indexOf(LANG_USER.code);
+    const ils = LANG_USER.list.map(l => l.code)
+        .indexOf(LANG_USER.code);
     const localeS = LANG_USER.list[ils].locale;
     const short = Array.from({ length: 12 }, (item, i) => {
-        return new Date(0, i).toLocaleString(localeS, { month: 'short' })
+        return new Date(0, i)
+            .toLocaleString(localeS, { month: 'short' })
     });
     const long = Array.from({ length: 12 }, (item, i) => {
-        return new Date(0, i).toLocaleString(localeS, { month: 'long' })
+        return new Date(0, i)
+            .toLocaleString(localeS, { month: 'long' })
     });
     return { short: short, long: long }
 }
@@ -274,11 +348,22 @@ function getTempCoverageCalendar(dataset, tempres, variable) {
         start = calendarFormatSeasonalStr(temp_coverage.start);
         end = calendarFormatSeasonalStr(temp_coverage.end);
     }
-    return { start: start, end: end }
+    return { start: start, end: end };
+}
+
+function getTempCoverageYear(dataset, tempres, variable) {
+    const temp_cov = getTempCoverageCalendar(
+        dataset, tempres, variable
+    );
+    const start = parseInt(temp_cov.start.split('-')[0], 10);
+    const end = parseInt(temp_cov.end.split('-')[0], 10);
+    return { start: start, end: end };
 }
 
 function getTemporalRangeCalendar(dataset, tempres, variable, nb_year) {
-    const temp_cov = getTempCoverageCalendar(dataset, tempres, variable);
+    const temp_cov = getTempCoverageCalendar(
+        dataset, tempres, variable
+    );
     const end_year = Number(temp_cov.end.split('-')[0]);
     const start_year = end_year - nb_year + 1;
     const start = `${start_year}-01-01`;
@@ -308,7 +393,8 @@ function calendarFormatDekad(date) {
         dek = '11';
     }
 
-    return date.substring(0, 8) + dek + date.substring(10);
+    return date.substring(0, 8) +
+        dek + date.substring(10);
 }
 
 function formatDekadDate(date) {
@@ -334,8 +420,12 @@ function calendarFormatSeasonalStr(str_date) {
 function formatDateToString(date) {
     const dd = new Date(date);
     const year = dd.getFullYear();
-    const month = (dd.getMonth() + 1).toString().padStart(2, '0');
-    const day = dd.getDate().toString().padStart(2, '0');
+    const month = (dd.getMonth() + 1)
+        .toString()
+        .padStart(2, '0');
+    const day = dd.getDate()
+        .toString()
+        .padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
 

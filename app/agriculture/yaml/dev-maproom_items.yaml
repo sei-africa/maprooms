@@ -8,7 +8,6 @@ description:
         jouent une rôle clé dans le bon déroulement de la campagne agricole, ce qualitativement comme quantativement.
 type: navigation-card
 icon_image: emi_climate_agriculture.gif
-# icon_image: agriculture.gif
 
 components:
     - analysis

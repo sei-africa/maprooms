@@ -49,6 +49,23 @@
     background-color: var(--bs-body-bg);
 }
 
+/*----*/
+/*
+#map-control-offcanvas-dataselect {
+    --bs-offcanvas-width: 500px;
+}
+#map-control-offcanvas-layers {
+    --bs-offcanvas-width: 500px;
+}
+*/
+
+.offcanvas-start,
+.offcanvas-end {
+    --bs-offcanvas-width: 32%;
+}
+
+/*----*/
+
 .map-control-offcanvas {
     margin-top: 0px;
     padding-top: 0px;

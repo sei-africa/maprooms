@@ -2,35 +2,34 @@ $(document).ready(function() {
     $('[data-bs-toggle="tooltip"]').tooltip();
     let map = createLeafletTileLayer('div-map-container', MTO_INIT);
 
+    // offcanvas map controls
+    setOffCanvasMapControl('monthly');
+
     ////////////
+    // Modal Expand Charts
     // initialize select2 for modal expand
     $('.monthly-raw-select2').select2({
         minimumResultsForSearch: -1,
         dropdownParent: $('#monthly-raw-control')
     });
-
-    $('.monthly-anom-select2').select2({
-        minimumResultsForSearch: -1,
-        dropdownParent: $('#monthly-anom-control')
-    });
-
-    $('.monthly-clim-select2').select2({
-        minimumResultsForSearch: -1,
-        dropdownParent: $('#monthly-clim-control')
-    });
-
-    ////////////
-    // Modal Expand Charts
     $('#btn-div-chart-raw').on('click', () => {
         setAnalysisExpandModalRaw('monthly', 'div-chart-raw');
     });
 
     //
+    $('.monthly-clim-select2').select2({
+        minimumResultsForSearch: -1,
+        dropdownParent: $('#monthly-clim-control')
+    });
     $('#btn-div-chart-clim').on('click', () => {
         setAnalysisExpandModalClim('monthly', 'div-chart-clim');
     });
 
     //
+    $('.monthly-anom-select2').select2({
+        minimumResultsForSearch: -1,
+        dropdownParent: $('#monthly-anom-control')
+    });
     $('#btn-div-chart-anom').on('click', () => {
         setAnalysisExpandModalAnom('monthly', 'div-chart-anom');
     });
@@ -49,9 +48,6 @@ $(document).ready(function() {
     $('#map-control-offcanvas-dataselect').on('hidden.bs.offcanvas', () => {
         displayClimateAnalysisMap('monthly', map_options, map);
     });
-
-    // offcanvas map controls
-    setOffCanvasMapControl('monthly');
 
     // 
     $('#map-control-redraw').on('click', () => {

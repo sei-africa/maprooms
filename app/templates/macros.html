@@ -111,19 +111,19 @@
         <div class="col-auto btns-map-control">
             {% include "map-navigation.html" %}
         </div>
-        <!--  -->
+        <!-- redraw map -->
         <div class="col-auto btns-map-control">
             <button id="map-control-redraw" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.redraw_map }}"><i class="bi bi-arrow-counterclockwise"></i></button>
         </div>
-        <!--  -->
+        <!-- save map -->
         <div class="col-auto btns-map-control">
             <button id="map-control-save" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.save_leaflet_map }}"><i class="bi bi-save2"></i></button>
         </div>
-        <!--  -->
+        <!-- plot with matplotlib -->
         <div class="col-auto btns-map-control">
             <button id="map-control-matplotlib" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.map_matplotlib}}"><i class="bi bi-pencil-square"></i></button>
         </div>
-        <!--  -->
+        <!-- map layers -->
         <div class="col-auto btns-map-control">
             <span data-bs-toggle="offcanvas" data-bs-target="#map-control-offcanvas-layers">
                 <button id="map-control-layers" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.layers_control }}"><i class="bi bi-stack"></i></button>
@@ -138,7 +138,7 @@
                 </div>
             </div>
         </div>
-        <!--  -->
+        <!-- map control -->
         <div class="col-auto btns-map-control">
             <span data-bs-toggle="offcanvas" data-bs-target="#map-control-offcanvas-dataselect">
                 <button id="map-control-dataselect" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.map_control }}"><i class="bi bi-layout-text-sidebar"></i></button>

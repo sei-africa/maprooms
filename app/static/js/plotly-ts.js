@@ -41,7 +41,7 @@ function preview_analysis_query_anomaly(tempRes) {
     }
 
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.anomaly.dataset;
+    query.dataset = DATA_SET.anomaly;
     query.variable = $(`#${tempRes}-map-variable`).val();
     // query.anomaly = 'standardized';
     query.anomaly = 'difference';
@@ -168,7 +168,7 @@ function preview_analysis_query_rawdata(tempRes) {
     }
 
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.rawdata.dataset;
+    query.dataset = DATA_SET.rawdata;
     query.variable = $(`#${tempRes}-map-variable`).val();
     const dates = preview_analysis_query_temporal(
         query.dataset, tempRes, query.variable, 5
@@ -306,7 +306,7 @@ function preview_analysis_query_climato(tempRes) {
 
     query.chartType = 'one';
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.climatology.dataset;
+    query.dataset = DATA_SET.climatology;
     query.variable = $(`#${tempRes}-map-variable`).val();
     query.startYear = BASE_PERIOD.start_year;
     query.endYear = BASE_PERIOD.end_year;
@@ -461,7 +461,7 @@ function expand_analysis_query_rawdata(tempRes) {
     }
 
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.rawdata.dataset;
+    query.dataset = DATA_SET.rawdata;
     query.variable = $(`#${tempRes}-chart-raw-variable`).val();
     query.startDate = analysis_query_format_date(
         $(`#${tempRes}-chart-raw-startdate-calendar`).val(),
@@ -500,7 +500,7 @@ function expand_analysis_format_rawdata(json) {
     const ts = $(`#${time_res}-chart-raw-series`).val();
     if (ts === 'years') {
         const tstep_id = `${time_res}-chart-raw-startmonth`;
-        const mon = parseInt($(`#${tstep_id}-calendar`).val());
+        const mon = parseInt($(`#${tstep_id}-calendar`).val(), 10);
         const dataYear = groupTSDataByYear(jsc.time, jsc.values, mon, time_res);
         if (dataYear === null) {
             return null;
@@ -741,11 +741,11 @@ function expand_analysis_query_climato(tempRes) {
 
     query.chartType = $(`#${tempRes}-chart-clim-charts`).val();
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.climatology.dataset;
+    query.dataset = DATA_SET.climatology;
     query.variable = $(`#${tempRes}-chart-clim-variable`).val();
-    query.startYear = parseInt($(`#${tempRes}-chart-clim-bp-start`).val().trim());
-    query.endYear = parseInt($(`#${tempRes}-chart-clim-bp-end`).val().trim());
-    query.minYear = parseInt($(`#${tempRes}-chart-clim-bp-min`).val().trim());
+    query.startYear = parseInt($(`#${tempRes}-chart-clim-bp-start`).val().trim(), 10);
+    query.endYear = parseInt($(`#${tempRes}-chart-clim-bp-end`).val().trim(), 10);
+    query.minYear = parseInt($(`#${tempRes}-chart-clim-bp-min`).val().trim(), 10);
 
     return query;
 }
@@ -1002,13 +1002,13 @@ function expand_analysis_query_anomaly(tempRes) {
     }
 
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.anomaly.dataset;
+    query.dataset = DATA_SET.anomaly;
     query.variable = $(`#${tempRes}-chart-anom-variable`).val();
     query.anomaly = $(`#${tempRes}-chart-anom-type`).val();
 
-    query.startYear = parseInt($(`#${tempRes}-chart-anom-bp-start`).val().trim());
-    query.endYear = parseInt($(`#${tempRes}-chart-anom-bp-end`).val().trim());
-    query.minYear = parseInt($(`#${tempRes}-chart-anom-bp-min`).val().trim());
+    query.startYear = parseInt($(`#${tempRes}-chart-anom-bp-start`).val().trim(), 10);
+    query.endYear = parseInt($(`#${tempRes}-chart-anom-bp-end`).val().trim(), 10);
+    query.minYear = parseInt($(`#${tempRes}-chart-anom-bp-min`).val().trim(), 10);
 
     query.startDate = analysis_query_format_date(
         $(`#${tempRes}-chart-anom-startdate-calendar`).val(),
@@ -1050,7 +1050,7 @@ function expand_analysis_format_anomaly(json) {
 
         let this_date;
         if (time_res === 'monthly') {
-            this_date = parseInt(tstep_val);
+            this_date = parseInt(tstep_val, 10);
         } else if (time_res === 'dekadal') {
             this_date = tstep_val;
         } else {

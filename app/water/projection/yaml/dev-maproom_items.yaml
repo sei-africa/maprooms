@@ -6,7 +6,7 @@ description:
     fr: Évolution future du climat saisonnier par rapport à une période climatologique historique. Cette période, définie par l'utilisateur, est identique pour les périodes passées et futures. Les projections futures sont basées sur les scénarios de concentration représentatifs (RCP).
 type: navigation-page
 # icon_function: icon_climate_projection
-icon_image: projection.gif
+icon_image: emi_projection.gif
 
 maprooms:
     - spi-monthly:
