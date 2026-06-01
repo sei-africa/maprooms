@@ -98,6 +98,7 @@ function adjustSelect2Height(select_id, input_group = true) {
             'height': hgt1 + 'px'
         });
 }
+
 //////////////
 
 function makeCopy(obj) {
@@ -426,6 +427,12 @@ function setOffCanvasMapControlDaily(tempRes) {
             setAnalysisStatProbaDaily(tempRes);
         });
 
+    $(`#${tstep_id}-tseries-year`)
+        .on('input', function() {
+            const this_year = $(this).val();
+            $('#input-time-navigation').val(this_year);
+        });
+
     $(`#${tempRes}-map-variable`).trigger('change');
 }
 
@@ -603,6 +610,8 @@ async function setMapDatesNavInput(tempRes) {
             str_time = `${this_date}-01 00:00:00`;
         } else if (tempRes === 'dekadal') {
             str_time = `${this_date} 00:00:00`;
+        } else if (tempRes === 'daily') {
+            str_time = `${this_date}-01-01 00:00:00`;
         } else {
             return false;
         }
@@ -613,7 +622,11 @@ async function setMapDatesNavInput(tempRes) {
             return false;
         }
 
-        const variable = $(`#${tempRes}-map-variable`).val();
+        let variable = $(`#${tempRes}-map-variable`).val();
+        if (tempRes === 'daily') {
+            variable = DATA_SET.varid[variable];
+        }
+
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
@@ -622,13 +635,17 @@ async function setMapDatesNavInput(tempRes) {
             return false;
         }
 
-        const calendarElement = document.getElementById(`${tstepID}-calendar`);
-        const calendar = calendarElement.calendar;
-        if (calendar) {
-            calendar.setValue(str_time);
+        if (tempRes === 'daily') {
+            $(`#${tstepID}-tseries-year`).val(this_date);
         } else {
-            flashMessage(JS_TEXT.date_calendar, 'error');
-            return false;
+            const calendarElement = document.getElementById(`${tstepID}-calendar`);
+            const calendar = calendarElement.calendar;
+            if (calendar) {
+                calendar.setValue(str_time);
+            } else {
+                flashMessage(JS_TEXT.date_calendar, 'error');
+                return false;
+            }
         }
     }
 
@@ -693,6 +710,8 @@ async function setMapDatesNavPrev(tempRes) {
             str_time = `${this_date}-01 00:00:00`;
         } else if (tempRes === 'dekadal') {
             str_time = `${this_date} 00:00:00`;
+        } else if (tempRes === 'daily') {
+            str_time = `${this_date}-01-01 00:00:00`;
         } else {
             return false;
         }
@@ -703,7 +722,11 @@ async function setMapDatesNavPrev(tempRes) {
             return false;
         }
 
-        const variable = $(`#${tempRes}-map-variable`).val();
+        let variable = $(`#${tempRes}-map-variable`).val();
+        if (tempRes === 'daily') {
+            variable = DATA_SET.varid[variable];
+        }
+
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
@@ -724,18 +747,31 @@ async function setMapDatesNavPrev(tempRes) {
             }
             str_date = formatDateToString(prev_dek);
             input_date = str_date.slice(0, 10);
+        } else if (tempRes === 'daily') {
+            let prev_year = new Date(this_time);
+            const this_year = prev_year.getFullYear();
+            prev_year.setFullYear(this_year - 1);
+            if (prev_year < start) {
+                prev_year = end;
+            }
+            str_date = formatDateToString(prev_year);
+            input_date = str_date.slice(0, 4);
         } else {
             return false;
         }
         $('#input-time-navigation').val(input_date);
 
-        const calendarElement = document.getElementById(`${tstepID}-calendar`);
-        const calendar = calendarElement.calendar;
-        if (calendar) {
-            calendar.setValue(`${str_date} 00:00:00`);
+        if (tempRes === 'daily') {
+            $(`#${tstepID}-tseries-year`).val(input_date);
         } else {
-            flashMessage(JS_TEXT.date_calendar, 'error');
-            return false;
+            const calendarElement = document.getElementById(`${tstepID}-calendar`);
+            const calendar = calendarElement.calendar;
+            if (calendar) {
+                calendar.setValue(`${str_date} 00:00:00`);
+            } else {
+                flashMessage(JS_TEXT.date_calendar, 'error');
+                return false;
+            }
         }
     }
 
@@ -800,6 +836,8 @@ async function setMapDatesNavNext(tempRes) {
             str_time = `${this_date}-01 00:00:00`;
         } else if (tempRes === 'dekadal') {
             str_time = `${this_date} 00:00:00`;
+        } else if (tempRes === 'daily') {
+            str_time = `${this_date}-01-01 00:00:00`;
         } else {
             return false;
         }
@@ -810,7 +848,11 @@ async function setMapDatesNavNext(tempRes) {
             return false;
         }
 
-        const variable = $(`#${tempRes}-map-variable`).val();
+        let variable = $(`#${tempRes}-map-variable`).val();
+        if (tempRes === 'daily') {
+            variable = DATA_SET.varid[variable];
+        }
+
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
@@ -831,18 +873,31 @@ async function setMapDatesNavNext(tempRes) {
             }
             str_date = formatDateToString(prev_dek);
             input_date = str_date.slice(0, 10);
+        } else if (tempRes === 'daily') {
+            let prev_year = new Date(this_time);
+            const this_year = prev_year.getFullYear();
+            prev_year.setFullYear(this_year + 1);
+            if (prev_year > end) {
+                prev_year = start;
+            }
+            str_date = formatDateToString(prev_year);
+            input_date = str_date.slice(0, 4);
         } else {
             return false;
         }
         $('#input-time-navigation').val(input_date);
 
-        const calendarElement = document.getElementById(`${tstepID}-calendar`);
-        const calendar = calendarElement.calendar;
-        if (calendar) {
-            calendar.setValue(`${str_date} 00:00:00`);
+        if (tempRes === 'daily') {
+            $(`#${tstepID}-tseries-year`).val(input_date);
         } else {
-            flashMessage(JS_TEXT.date_calendar, 'error');
-            return false;
+            const calendarElement = document.getElementById(`${tstepID}-calendar`);
+            const calendar = calendarElement.calendar;
+            if (calendar) {
+                calendar.setValue(`${str_date} 00:00:00`);
+            } else {
+                flashMessage(JS_TEXT.date_calendar, 'error');
+                return false;
+            }
         }
     }
 
@@ -1018,12 +1073,21 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
     );
     purgePlotlyChartExpandModal(contID);
 
+    let disp_year = false;
+    if (tempRes === 'seasonal') {
+        disp_year = true;
+    }
+
     const end_date = $(`#${tempRes}-chart-anom-enddate-calendar`).val();
     let disp_end;
     if (end_date === '') {
         disp_end = null;
     } else {
-        disp_end = end_date;
+        if (end_date.length == 4) {
+            disp_end = `${end_date}-12`;
+        } else {
+            disp_end = end_date;
+        }
     }
 
     setDateCalendar(
@@ -1031,7 +1095,8 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         `${tempRes}-chart-anom-variable`,
         DATA_SET.anomaly,
         tempRes, disp_end,
-        mapNavigation = false
+        mapNavigation = false,
+        dispYear = disp_year
     );
 
     const start_date = $(`#${tempRes}-chart-anom-startdate-calendar`).val();
@@ -1044,7 +1109,11 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         );
         disp_start = trange.start;
     } else {
-        disp_start = start_date;
+        if (start_date.length == 4) {
+            disp_start = `${start_date}-01`;
+        } else {
+            disp_start = start_date;
+        }
     }
 
     setDateCalendar(
@@ -1052,9 +1121,22 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         `${tempRes}-chart-anom-variable`,
         DATA_SET.anomaly,
         tempRes, disp_start,
-        mapNavigation = false
+        mapNavigation = false,
+        dispYear = disp_year
     );
 
+    // 
+    if (tempRes === 'seasonal') {
+        const seasLenId = $(`#${tempRes}-chart-anom-seaslen`);
+        for (let l = 2; l <= 12; l++) {
+            seasLenId.append(
+                $('<option>').text(l).val(l)
+            );
+        }
+        seasLenId.val(3);
+    }
+
+    // 
     const tstepID = `${tempRes}-chart-anom-tstep`;
     setNamesCalendar(
         tstepID, tempRes,
@@ -1104,6 +1186,15 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
             });
         });
 
+    // 
+    if (tempRes === 'seasonal') {
+        $(`#${tempRes}-chart-anom-seaslen`)
+            .off('change.chartTsAnom')
+            .on('change.chartTsAnom', function() {
+                expand_analysis_charts_anomaly(contChart, tempRes);
+            });
+    }
+
     // set base period
     setBoxDialog(
         `${tempRes}-chart-anom-bp`,
@@ -1125,9 +1216,279 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         });
 }
 
+function setProbaPlotContainer(data, container) {
+    const divCont = $(`#${container}`);
+    const divRow = $('<div>')
+        .addClass('row flex-nowrap')
+        .appendTo(divCont);
+
+    const cont_plot = `${container}-plot`;
+    $('<div>')
+        .attr('id', cont_plot)
+        .addClass('col-md-8')
+        .css({
+            'width': '75%',
+            'height': '100%'
+        })
+        .appendTo(divRow);
+
+    const div_distr = `${container}-distr-div`;
+    const divDistr = $('<div>')
+        .attr('id', div_distr)
+        .addClass('col-md-4 m-2 p-2')
+        .css({
+            'width': '22%',
+            'height': '100%',
+            'border': '1px solid #d0d7de'
+        })
+        .appendTo(divRow);
+
+    $('<h5>')
+        .appendTo(divDistr)
+        .text('Fitted Distribution');
+
+    const frmtJson = JSON.stringify(
+        data.info.proba, null, 2
+    );
+    const pre_distr = `${container}-distr-pre`;
+    $('<pre>')
+        .attr('id', pre_distr)
+        .appendTo(divDistr)
+        .text(frmtJson);
+
+    divDistr.hide();
+
+    return cont_plot
+}
+
+function setAnalysisExpandModalProba(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_proba,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    const end_date = $(`#${tempRes}-chart-proba-enddate-calendar`).val();
+    let disp_end;
+    if (end_date === '') {
+        disp_end = null;
+    } else {
+        if (end_date.length == 4) {
+            disp_end = `${end_date}-12`;
+        } else {
+            disp_end = end_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-proba-enddate`,
+        `${tempRes}-chart-proba-variable`,
+        DATA_SET.rawdata, tempRes,
+        disp_end,
+        mapNavigation = false,
+        dispYear = true
+    );
+
+    const start_date = $(`#${tempRes}-chart-proba-startdate-calendar`).val();
+    let disp_start;
+    if (start_date === '') {
+        const varTs = $(`#${tempRes}-chart-proba-variable`).val();
+        const trange = getTemporalRangeCalendar(
+            DATA_SET.rawdata,
+            tempRes, varTs, 30
+        );
+        disp_start = trange.start;
+    } else {
+        if (start_date.length == 4) {
+            disp_start = `${start_date}-01`;
+        } else {
+            disp_start = start_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-proba-startdate`,
+        `${tempRes}-chart-proba-variable`,
+        DATA_SET.rawdata, tempRes,
+        disp_start,
+        mapNavigation = false,
+        dispYear = true
+    );
+
+    // 
+    if (tempRes === 'seasonal') {
+        const sDId = `${tempRes}-chart-proba`;
+        setNamesCalendar(
+            `${sDId}-startmon`, tempRes,
+            $(`#${tempRes}-proba-control`),
+            mapNavigation = false
+        );
+
+        const seasLenId = $(`#${sDId}-seaslen`);
+        for (let l = 2; l <= 12; l++) {
+            seasLenId.append(
+                $('<option>').text(l).val(l)
+            );
+        }
+        seasLenId.val(3);
+    }
+
+    // 
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-chart-proba-variable`)
+        .off('change.chartTsProba')
+        .on('change.chartTsProba', function() {
+            expand_analysis_charts_proba(contChart, tempRes);
+        });
+
+    if (tempRes === 'seasonal') {
+        const sDId = `${tempRes}-chart-proba`;
+        $(`#${sDId}-seaslen, #${sDId}-startmon-calendar`)
+            .off('change.chartTsProba')
+            .on('change.chartTsProba', function() {
+                expand_analysis_charts_proba(contChart, tempRes);
+            });
+    }
+    // 
+
+    const updateProbaDataControls = () => {
+        if ($(`#${tempRes}-chart-proba-plot-type`).val() === 'cdf') {
+            $(`#${tempRes}-chart-proba-plot-cdf`).show();
+            $(`#${tempRes}-chart-proba-plot-pdf`).hide();
+        } else {
+            $(`#${tempRes}-chart-proba-plot-cdf`).hide();
+            $(`#${tempRes}-chart-proba-plot-pdf`).show();
+        }
+    };
+    updateProbaDataControls();
+
+    $(`#${tempRes}-chart-proba-plot-type`)
+        .off('change.chartTsProba')
+        .on('change.chartTsProba', function() {
+            updateProbaDataControls();
+            maproomDB.getData('data_proba', function(data) {
+                expand_analysis_display_proba(data, contChart);
+            });
+        });
+
+    $(`.${tempRes}-proba-plot`)
+        .off('change.chartTsProba')
+        .on('change.chartTsProba', function() {
+            const pKind = $(this).data('plot');
+            const pType = $(this).val();
+            const isVisible = $(this).is(':checked');
+
+            const ix = PROBA_PLOT[pKind].indexOf(pType);
+
+            Plotly.restyle(`${contChart}-plot`, {
+                visible: isVisible
+            }, [ix]);
+
+            if (pType === 'fitted') {
+                $(`#${contChart}-distr-div`).toggle(isVisible);
+            }
+        });
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsProba')
+        .on('click.chartTsProba', function() {
+            expand_analysis_charts_proba(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsProba')
+        .on('click.chartTsProba', function() {
+            downloadPlotlyImageJPG(`${contChart}-plot`);
+        });
+}
+
+function setAnalysisExpandModalSeason(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_season,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    const end_date = $(`#${tempRes}-chart-season-enddate-calendar`).val();
+    let disp_end;
+    if (end_date === '') {
+        disp_end = null;
+    } else {
+        if (end_date.length == 4) {
+            disp_end = `${end_date}-12`;
+        } else {
+            disp_end = end_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-season-enddate`,
+        `${tempRes}-chart-season-variable`,
+        DATA_SET.rawdata, tempRes,
+        disp_end,
+        mapNavigation = false,
+        dispYear = true
+    );
+
+    const start_date = $(`#${tempRes}-chart-season-startdate-calendar`).val();
+    let disp_start;
+    if (start_date === '') {
+        const varTs = $(`#${tempRes}-chart-season-variable`).val();
+        const trange = getTemporalRangeCalendar(
+            DATA_SET.rawdata,
+            tempRes, varTs, 30
+        );
+        disp_start = trange.start;
+    } else {
+        if (start_date.length == 4) {
+            disp_start = `${start_date}-01`;
+        } else {
+            disp_start = start_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-season-startdate`,
+        `${tempRes}-chart-season-variable`,
+        DATA_SET.rawdata, tempRes,
+        disp_start,
+        mapNavigation = false,
+        dispYear = true
+    );
+
+    // 
+    if (tempRes === 'seasonal') {
+        const tstepID = `${tempRes}-chart-season-startmon`;
+        setNamesCalendar(
+            tstepID, tempRes,
+            $(`#${tempRes}-season-control`),
+            mapNavigation = false
+        );
+
+        const seasLenId = $(`#${tempRes}-chart-season-seaslen`);
+        for (let l = 2; l <= 12; l++) {
+            seasLenId.append(
+                $('<option>').text(l).val(l)
+            );
+        }
+        seasLenId.val(3);
+    }
+
+    // 
+
+
+}
+
 //////////////
 
-function splitAnomalyDataByStep(ts_dates, ts_data, date, time_res) {
+function splitAnomalyDataByStep(ts_dates, ts_data, date, time_res, seas_len = 3) {
     let dates = [];
     let values = [];
     for (let i = 0; i < ts_dates.length; i++) {
@@ -1140,6 +1501,9 @@ function splitAnomalyDataByStep(ts_dates, ts_data, date, time_res) {
         } else if (time_res === 'monthly') {
             const m = ts_dates[i].split('-')[1];
             this_date = parseInt(m, 10);
+        } else if (time_res === 'seasonal') {
+            const seas = getSeasonFromDate(ts_dates[i], seas_len);
+            this_date = seas.start.getMonth() + 1;
         } else {
             return null;
         }

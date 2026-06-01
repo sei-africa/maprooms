@@ -68,8 +68,8 @@ opt_map:
             en: Anomaly
             fr: Anomalie
         rawdata:
-            en: Yearly data
-            fr: Données annuelles
+            en: Selected year
+            fr: Année sélectionnée
 parameters:
     rainfall:
         TotRain:

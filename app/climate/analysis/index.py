@@ -11,7 +11,9 @@ from app.auth.index import login_required
 from .scripts.analysis_sp import climate_analysis_sp_data
 from .scripts.analysis_ts import (climate_analysis_ts_rawdata,
                                   climate_analysis_ts_anomaly,
-                                  climate_analysis_ts_climato)
+                                  climate_analysis_ts_climato,
+                                  climate_analysis_ts_proba,
+                                  climate_analysis_ts_season)
 
 climate_analysis = Blueprint(
     'climate_analysis',
@@ -80,6 +82,34 @@ def climate_analysis_climato():
         # print(params)
         return cache_data_functions(
                     climate_analysis_ts_climato,
+                    hash_params_ts_data,
+                    params
+                )
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_analysis.route('/climate_analysis_proba', methods=['POST'])
+def climate_analysis_proba():
+    params = request.get_json()
+    try:
+        print('----------- proba -----------')
+        print(params)
+        return cache_data_functions(
+                    climate_analysis_ts_proba,
+                    hash_params_ts_data,
+                    params
+                )
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_analysis.route('/climate_analysis_season', methods=['POST'])
+def climate_analysis_season():
+    params = request.get_json()
+    try:
+        print('----------- season -----------')
+        print(params)
+        return cache_data_functions(
+                    climate_analysis_ts_season,
                     hash_params_ts_data,
                     params
                 )

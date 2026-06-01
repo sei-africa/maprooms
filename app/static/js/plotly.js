@@ -214,7 +214,8 @@ function downloadPlotlyImageJPG(container) {
                 xanchor: 'center',
                 x: 0.5,
                 yanchor: 'top',
-                y: -0.1,
+                // y: -0.1,
+                y: -0.2,
             };
             print_layout.margin = { b: 100 };
         }
@@ -393,23 +394,38 @@ function purgePlotlyChartExpandModal(expandID) {
     });
 }
 
-function formatPlotlyHoverDate(time, time_res) {
+function formatPlotlyHoverDate(time, time_res, seas_len = null) {
     const ils = LANG_USER.list.map(l => l.code)
         .indexOf(LANG_USER.code);
     const localeS = LANG_USER.list[ils].locale;
-
     const date = new Date(time);
-    const month = date.toLocaleString(
-        localeS, { month: 'long' }
-    );
-    const year = date.getFullYear();
 
     if (time_res === 'monthly') {
+        const month = date.toLocaleString(
+            localeS, { month: 'long' }
+        );
+        const year = date.getFullYear();
         return `${month} ${year}`;
     } else if (time_res === 'dekadal') {
+        const mon = date.toLocaleString(
+            localeS, { month: 'long' }
+        );
+        const dyr = date.getFullYear();
         const day = date.getDate();
         const dk = day <= 10 ? 1 : (day >= 21 ? 3 : 2);
-        return `dekad-${dk} ${month} ${year}`;
+        return `dekad-${dk} ${mon} ${dyr}`;
+    } else if (time_res === 'seasonal') {
+        const seas = getSeasonFromDate(date, seas_len);
+        const mo1 = seas.start.toLocaleString(
+            localeS, { month: 'short' }
+        );
+        const yr1 = seas.start.getFullYear();
+        const mo2 = seas.end.toLocaleString(
+            localeS, { month: 'short' }
+        );
+        const yr2 = seas.end.getFullYear();
+
+        return `${mo1} ${yr1} - ${mo2} ${yr2}`;
     }
 
     return '';

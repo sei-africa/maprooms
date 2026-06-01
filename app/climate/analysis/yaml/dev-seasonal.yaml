@@ -39,12 +39,30 @@ opt_threshold:
         tmax: °C
         tmin: °C
 opt_season:
-    start:
-        en: Start month
-        fr: Mois de début
-    length:
-        en: Length
-        fr: Longueur
+    label_year:
+        start:
+            en: Start year
+            fr: Début année
+        end:
+            en: End year
+            fr: Fin année
+    season_ts:
+        start:
+            en: Season start month
+            fr: Mois début de saison
+        length:
+            en: Season length
+            fr: Longueur saison
+        unit:
+            en: months
+            fr: mois
+    season_map:
+        start:
+            en: Start month
+            fr: Mois de début
+        length:
+            en: Length
+            fr: Longueur
 opt_map:
     label_display:
         en: Display
@@ -57,8 +75,8 @@ opt_map:
             en: Anomaly
             fr: Anomalie
         rawdata:
-            en: Seasonal data
-            fr: Données saisonnières
+            en: Selected season
+            fr: Saison sélectionnée
     label_date:
         en: Date
         fr: Date
@@ -133,35 +151,7 @@ opt_climato:
         percPeriod:
             en: Trend in percentage of mean
             fr: Tendance en pourcentage de la moyenne
-opt_ts_raw:
-    label_date:
-        start:
-            en: Start
-            fr: Début
-        end:
-            en: End
-            fr: Fin
-    label_series:
-        en: Display
-        fr: Afficher
-    series:
-        one:
-            en: One serie
-            fr: Une série
-        years:
-            en: Each year
-            fr: Chaque année
-    start_mon:
-        en: Start month
-        fr: Début mois
 opt_ts_anom:
-    label_date:
-        start:
-            en: Start
-            fr: Début
-        end:
-            en: End
-            fr: Fin
     label_series:
         en: Display
         fr: Afficher
@@ -170,29 +160,47 @@ opt_ts_anom:
             en: One serie
             fr: Une série
         tstep:
-            en: By month
-            fr: Par mois
-    label_tstep:
-        en: Month
-        fr: Mois
-opt_ts_clim:
-    label_charts:
+            en: By season
+            fr: Par saison
+opt_ts_df:
+    label:
         en: Display
         fr: Afficher
-    charts:
-        one:
-            en: Selected variable
-            fr: Variable sélectionnée
-        multiple:
-            en: Multiple variables
-            fr: Plusieurs variables
-lines_ts:
-    color:
-        en: Select colors
-        fr: Sélectionner couleurs
-    width:
-        en: Width
-        fr: Largeur
+    select:
+        cdf: 
+            en: Cumulative Distribution Function (CDF)
+            fr: Fonction de Répartition (CDF)
+        pdf: 
+            en: Probability Density Function (PDF)
+            fr: Fonction de Densité de Probabilité (PDF)
+opt_ts_cdf:
+    label:
+        en: CDF Chart
+        fr: Graphique de CDF
     type:
-        en: Type
-        fr: Type
+        empirical:
+            en: Empirical
+            fr: Empirique
+        smoothed:
+            en: Smoothed
+            fr: Lissée
+        fitted:
+            en: Theoretical
+            fr: Théorique
+opt_ts_pdf:
+    label:
+        en: PDF Chart
+        fr: Graphique de PDF
+    type:
+        histogram:
+            en: Histogram
+            fr: Histogramme
+        density:
+            en: Density (KDE)
+            fr: Densité (KDE)
+        fitted:
+            en: Theoretical
+            fr: Théorique
+opt_js_data:
+    cdf: [empirical, smoothed, fitted]
+    pdf: [histogram, density, fitted]

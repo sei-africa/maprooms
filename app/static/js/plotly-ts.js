@@ -4,12 +4,20 @@ function preview_analysis_display_charts(tempRes) {
     preview_analysis_charts_anomaly(tempRes, 'div-chart-anom');
 }
 
+function preview_seasonal_display_charts(tempRes) {
+    preview_analysis_charts_season(tempRes, 'div-chart-season');
+    preview_analysis_charts_proba(tempRes, 'div-chart-proba');
+    preview_analysis_charts_anomaly(tempRes, 'div-chart-anom');
+}
+
 function analysis_query_format_date(date, temp_res) {
     if (temp_res === 'monthly') {
         const arr_mo = date.split('-');
         return arr_mo.slice(0, 2).join('-');
     } else if (temp_res === 'dekadal') {
         return formatDekadDate(date);
+    } else if (temp_res === 'seasonal') {
+        return date.slice(0, 4);
     } else {
         return false;
     }
@@ -29,6 +37,7 @@ function preview_analysis_query_temporal(
     query.endDate = analysis_query_format_date(
         date.end, temp_res
     );
+
     return query;
 }
 
@@ -43,11 +52,18 @@ function preview_analysis_query_anomaly(tempRes) {
     query.temporalRes = tempRes;
     query.dataset = DATA_SET.anomaly;
     query.variable = $(`#${tempRes}-map-variable`).val();
-    // query.anomaly = 'standardized';
     query.anomaly = 'difference';
     query.startYear = BASE_PERIOD.start_year;
     query.endYear = BASE_PERIOD.end_year;
     query.minYear = BASE_PERIOD.min_year;
+
+    if (tempRes === 'seasonal') {
+        const tstepId = `${tempRes}-map-date`;
+        query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
+        query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
+        query.fullYearTS = true;
+    }
+
     const dates = preview_analysis_query_temporal(
         query.dataset, tempRes, query.variable, 10
     );
@@ -77,7 +93,9 @@ function preview_analysis_display_anomaly(json, container) {
     divCont.empty();
 
     const xaxisHoverText = json.time.map((t) => {
-        return formatPlotlyHoverDate(t, json.info.time_res);
+        return formatPlotlyHoverDate(
+            t, json.info.time_res, json.info.seas_len
+        );
     });
 
     if (json.info.var.type === 'precip') {
@@ -450,6 +468,203 @@ function preview_analysis_display_climato(json, container) {
     );
 
     setPlotlyThemeColors(container);
+}
+
+///////
+
+function preview_analysis_query_proba(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.chartType = 'proba';
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.rawdata;
+    query.variable = $(`#${tempRes}-map-variable`).val();
+
+    if (tempRes === 'seasonal') {
+        const tstepId = `${tempRes}-map-date`;
+        query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
+        query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
+        query.fullYearTS = false;
+    }
+
+    const dates = preview_analysis_query_temporal(
+        query.dataset, tempRes, query.variable, 30
+    );
+
+    return Object.assign({}, query, dates);
+}
+
+function preview_analysis_charts_proba(tempRes, contID) {
+    const query = preview_analysis_query_proba(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_proba',
+        query,
+        preview_analysis_display_proba,
+        contID
+    );
+}
+
+function preview_analysis_display_proba(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    const theme = $('html').attr('data-bs-theme');
+
+    ////
+    const data = [{
+            x: json.cdf.smoothed.x,
+            y: json.cdf.smoothed.y,
+            mode: 'lines',
+            name: 'Smoothed CDF',
+            units: '%',
+            line: {
+                color: '#1E90FF',
+                width: 3
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        },
+        {
+            x: json.cdf.empirical.x,
+            y: json.cdf.empirical.y,
+            mode: 'lines+markers',
+            name: 'Empirical CDF',
+            units: '%',
+            line: {
+                color: 'red',
+                width: 3
+            },
+            marker: {
+                color: 'orange',
+                line: {
+                    color: 'red',
+                    width: 1
+                },
+                size: 6
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        }
+    ];
+
+    var layout = {
+        xaxis: {
+            range: json.xrange,
+            tickvals: json.yticks,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            unifiedhovertitle: {
+                text: json.info.var.name +
+                    ': %{x:.2f} ' +
+                    json.info.var.units
+            }
+        },
+        yaxis: {
+            range: [0, 100],
+            ticksuffix: '%',
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            }
+        },
+        showlegend: false,
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme)
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+    layout.margin.l = 40;
+
+    const config = {
+        displayModeBar: false,
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(
+        container,
+        data,
+        layout,
+        config
+    );
+
+    setPlotlyThemeColors(container);
+}
+
+///////
+
+function preview_analysis_query_season(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.chartType = 'season';
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.rawdata;
+    query.variable = $(`#${tempRes}-map-variable`).val();
+
+    if (tempRes === 'seasonal') {
+        const tstepId = `${tempRes}-map-date`;
+        query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
+        query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
+        query.fullYearTS = false;
+    }
+
+    const dates = preview_analysis_query_temporal(
+        query.dataset, tempRes, query.variable, 30
+    );
+
+    return Object.assign({}, query, dates);
+}
+
+function preview_analysis_charts_season(tempRes, contID) {
+    const query = preview_analysis_query_season(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_season',
+        query,
+        preview_analysis_display_season,
+        contID
+    );
+}
+
+function preview_analysis_display_season(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    $('<span>').text('season').appendTo(divCont);
+
 }
 
 ///////////////////
@@ -1018,6 +1233,11 @@ function expand_analysis_query_anomaly(tempRes) {
         $(`#${tempRes}-chart-anom-enddate-calendar`).val(),
         tempRes
     );
+    if (query.temporalRes === 'seasonal') {
+        query.seasStart = 1;
+        query.fullYearTS = true;
+        query.seasLength = parseInt($(`#${tempRes}-chart-anom-seaslen`).val(), 10);
+    }
 
     return Object.assign({}, query);
 }
@@ -1053,12 +1273,15 @@ function expand_analysis_format_anomaly(json) {
             this_date = parseInt(tstep_val, 10);
         } else if (time_res === 'dekadal') {
             this_date = tstep_val;
+        } else if (time_res === 'seasonal') {
+            this_date = parseInt(tstep_val, 10);
         } else {
             return null;
         }
 
         const res = splitAnomalyDataByStep(
-            jsc.time, jsc.values, this_date, time_res
+            jsc.time, jsc.values, this_date,
+            time_res, jsc.info.seas_len
         );
         if (res === null) {
             return null;
@@ -1084,7 +1307,9 @@ function expand_analysis_display_anomaly(json_input, container) {
     }
 
     const xaxisHoverText = json.time.map((t) => {
-        return formatPlotlyHoverDate(t, json.info.time_res);
+        return formatPlotlyHoverDate(
+            t, json.info.time_res, json.info.seas_len
+        );
     });
 
     if (json.info.var.type === 'precip') {
@@ -1175,4 +1400,296 @@ function expand_analysis_display_anomaly(json_input, container) {
     if (Plotly && Plotly.Plots) {
         Plotly.Plots.resize(document.getElementById(container));
     }
+}
+
+///////
+
+function expand_analysis_query_proba(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.chartType = 'proba';
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.rawdata;
+    query.variable = $(`#${tempRes}-chart-proba-variable`).val();
+
+    query.startDate = analysis_query_format_date(
+        $(`#${tempRes}-chart-proba-startdate-calendar`).val(),
+        tempRes
+    );
+    query.endDate = analysis_query_format_date(
+        $(`#${tempRes}-chart-proba-enddate-calendar`).val(),
+        tempRes
+    );
+
+    if (query.temporalRes === 'seasonal') {
+        query.fullYearTS = false;
+        query.seasStart = parseInt($(`#${tempRes}-chart-proba-startmon-calendar`).val(), 10);
+        query.seasLength = parseInt($(`#${tempRes}-chart-proba-seaslen`).val(), 10);
+    }
+
+    return Object.assign({}, query);
+}
+
+function expand_analysis_charts_proba(container_id, tempRes) {
+    const query = expand_analysis_query_proba(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_proba',
+        query,
+        expand_analysis_display_proba,
+        container_id,
+        'data_proba'
+    );
+}
+
+function expand_analysis_display_proba(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+    const theme = $('html').attr('data-bs-theme');
+
+    const plot_type = $(`#${json.info.time_res}-chart-proba-plot-type`).val();
+    let data;
+    let layout;
+    if (plot_type === 'cdf') {
+        data = [{
+                x: json.cdf.empirical.x,
+                y: json.cdf.empirical.y,
+                mode: 'lines+markers',
+                name: 'Empirical CDF',
+                units: '%',
+                line: {
+                    color: 'red',
+                    width: 3
+                },
+                marker: {
+                    color: 'orange',
+                    line: {
+                        color: 'red',
+                        width: 1
+                    },
+                    size: 6
+                },
+                visible: true,
+                hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+            },
+            {
+                x: json.cdf.smoothed.x,
+                y: json.cdf.smoothed.y,
+                mode: 'lines',
+                name: 'Smoothed CDF',
+                units: '%',
+                line: {
+                    color: '#1e90ff',
+                    width: 3
+                },
+                visible: true,
+                hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+            },
+            {
+                x: json.cdf.fitted.x,
+                y: json.cdf.fitted.y,
+                mode: 'lines',
+                name: 'Fitted CDF',
+                units: '%',
+                line: {
+                    color: '#c29ffa',
+                    width: 3
+                },
+                visible: false,
+                hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+            }
+        ];
+
+        layout = {
+            xaxis: {
+                range: json.xrange,
+                tickvals: json.yticks,
+                fixedrange: true,
+                showline: true,
+                showgrid: true,
+                gridwidth: 0.5,
+                gridcolor: 'lightgray',
+                minor: {
+                    showgrid: true,
+                    gridwidth: 0.3,
+                    gridcolor: 'lightgray',
+                    griddash: 'dot'
+                },
+                unifiedhovertitle: {
+                    text: json.info.var.name +
+                        ': %{x:.2f} ' +
+                        json.info.var.units
+                },
+                title: {
+                    text: json.info.labels.cdf.x
+                }
+            },
+            yaxis: {
+                range: [0, 100],
+                ticksuffix: '%',
+                fixedrange: true,
+                showline: true,
+                showgrid: true,
+                gridwidth: 0.5,
+                gridcolor: 'lightgray',
+                minor: {
+                    showgrid: true,
+                    gridwidth: 0.3,
+                    gridcolor: 'lightgray',
+                    griddash: 'dot'
+                },
+                title: {
+                    text: json.info.labels.cdf.y
+                }
+            },
+            showlegend: false,
+            hovermode: 'x unified',
+            hoverlabel: hoverlabelColors(theme)
+        };
+    } else {
+        const xlab = json.info.labels.pdf.x;
+        const ylab = json.info.labels.pdf.y;
+        data = [{
+                x: json.ts,
+                type: 'histogram',
+                histnorm: 'probability density',
+                name: 'Histogram',
+                visible: true,
+                nbinsx: Math.ceil(Math.log2(json.ts.length) + 1),
+                marker: {
+                    color: 'lightblue',
+                    line: {
+                        color: 'blue',
+                        width: 1
+                    }
+                },
+                opacity: 1,
+                hovertemplate: xlab + ': %{x:.2f}<br>' +
+                    ylab + ': %{y:.4f}<extra></extra>'
+            },
+            {
+                x: json.pdf.kde.x,
+                y: json.pdf.kde.y,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Kernel Density Estimation',
+                visible: true,
+                line: {
+                    color: '#1e90ff',
+                    width: 3
+                },
+                hovertemplate: xlab + ': %{x:.2f}<br>' +
+                    ylab + ': %{y:.4f}<extra></extra>'
+            },
+            {
+                x: json.pdf.fitted.x,
+                y: json.pdf.fitted.y,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Fitted PDF',
+                visible: true,
+                line: {
+                    color: '#c29ffa',
+                    width: 3
+                },
+                hovertemplate: xlab + ': %{x:.2f}<br>' +
+                    ylab + ': %{y:.4f}<extra></extra>'
+            }
+        ];
+
+        const ymax = Math.max(
+            ...json.pdf.kde.y,
+            ...json.pdf.fitted.y
+        );
+
+        layout = {
+            xaxis: {
+                range: json.xrange,
+                fixedrange: true,
+                showline: true,
+                showgrid: true,
+                gridwidth: 0.5,
+                gridcolor: 'lightgray',
+                minor: {
+                    showgrid: true,
+                    gridwidth: 0.3,
+                    gridcolor: 'lightgray',
+                    griddash: 'dot'
+                },
+                zeroline: false,
+                title: {
+                    text: xlab
+                }
+            },
+            yaxis: {
+                range: [0, ymax + 0.002],
+                fixedrange: true,
+                showline: true,
+                showgrid: true,
+                gridwidth: 0.5,
+                gridcolor: 'lightgray',
+                minor: {
+                    showgrid: true,
+                    gridwidth: 0.3,
+                    gridcolor: 'lightgray',
+                    griddash: 'dot'
+                },
+                zeroline: false,
+                title: {
+                    text: ylab
+                }
+            },
+            bargap: 0,
+            showlegend: false,
+            // hoverlabel: hoverlabelColors(theme)
+        };
+    }
+
+    layout.margin = { t: 10, b: 70, l: 70, r: 10 };
+    layout.print_legend = 'probability';
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(expand_layout, layout);
+
+    const container_plot = setProbaPlotContainer(json, container);
+
+    purgePlotlyChart(container_plot);
+    Plotly.newPlot(
+        container_plot,
+        data,
+        layout,
+        plotly_config
+    );
+
+    setPlotlyThemeColors(container_plot);
+
+    if ($(`#${json.info.time_res}-proba-plot-fitted`).is(':checked')) {
+        $(`#${container}-distr-div`).show();
+    } else {
+        $(`#${container}-distr-div`).hide();
+    }
+}
+
+///////
+
+function expand_analysis_query_season(tempRes) {
+
+}
+
+function expand_analysis_charts_season(container_id, tempRes) {
+
+}
+
+function expand_analysis_display_season(json_input, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
 }

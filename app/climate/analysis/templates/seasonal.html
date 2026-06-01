@@ -25,13 +25,22 @@
     </div>
     <div class="row justify-content-center">
         <div class="col-sm-4">
-            {{ fmacros.create_card_charts("div-chart-raw", pageText) }}
+            {{ fmacros.create_card_charts("div-chart-season", pageText) }}
+            {% call fmacros.create_modal_expand_charts("div-chart-season", pageText) %}
+            {{ fanalysis.create_expand_charts_season("seasonal", pageText) }}
+            {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-proba", pageText) }}
+            {% call fmacros.create_modal_expand_charts("div-chart-proba", pageText) %}
+            {{ fanalysis.create_expand_charts_proba("seasonal", pageText) }}
+            {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-anom", pageText) }}
+            {% call fmacros.create_modal_expand_charts("div-chart-anom", pageText) %}
+            {{ fanalysis.create_expand_charts_anom("seasonal", pageText, fmacros) }}
+            {% endcall %}
         </div>
     </div>
     {{ fmacros.create_modal_matplotlib(pageText) }}
@@ -42,6 +51,7 @@
 <script>
 const DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
 const THRESHOLD_DEF = JSON.parse('{{ pageText.opt_threshold | tojson }}');
+const PROBA_PLOT = JSON.parse('{{ pageText.opt_js_data | tojson }}');
 </script>
 <script type="text/javascript" src="{{ url_for('climate_analysis.static', filename='js/seasonal.js') }}"></script>
 {% endblock %}

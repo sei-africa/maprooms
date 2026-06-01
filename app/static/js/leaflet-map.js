@@ -1730,6 +1730,9 @@ function queryParamsAnalysisMap(time_res) {
             query.Date = date;
         } else if (time_res === 'dekadal') {
             query.Date = formatDekadDate(date);
+        } else if (time_res === 'seasonal') {
+            query.seasLength = Number($(`#${tstep_id}-length`).val());
+            query.Date = formatSeasonDate(date, query.seasLength);
         } else {
             return false;
         }
@@ -1756,24 +1759,75 @@ function queryParamsAnalysisMap(time_res) {
 
 function displayClimateAnalysisMap(time_res, options, map) {
     const query = queryParamsAnalysisMap(time_res);
+
     if (!query) {
         return false;
     }
-    const endpoint = createEndpoint('climate_analysis', 'climate_analysis_map');
-    ajaxLeafletMap(endpoint, query, displayRasterImage, options, map);
+
+    const endpoint = createEndpoint(
+        'climate_analysis',
+        'climate_analysis_map'
+    );
+
+    ajaxLeafletMap(
+        endpoint,
+        query,
+        displayRasterImage,
+        options,
+        map
+    );
+
+    updateAnalysisMapDate(time_res, query, map);
+
+    return true;
+}
+
+function updateAnalysisMapDate(time_res, query, map) {
+    let date = '';
 
     if (query.mapType === 'climatology') {
-        const tstep_id = `${time_res}-map-date`;
-        var date = $(`#${tstep_id}-calendar option:selected`).text();
-        if (date === '') {
-            setTimeout(() => {
-                var date = $(`#${tstep_id}-calendar option:selected`).text();
-                map.displayText_date.update(date);
-            }, 100);
-        } else {
+        date = displayClimatoDateMap(time_res);
+
+        if (date) {
             map.displayText_date.update(date);
+            return;
         }
-    } else {
-        map.displayText_date.update(query.Date);
+
+        setTimeout(() => {
+            const delayedDate = displayClimatoDateMap(time_res);
+            map.displayText_date.update(delayedDate);
+        }, 100);
+
+        return;
     }
+
+    date = displayTimeSeriesDateMap(query);
+    map.displayText_date.update(date);
+}
+
+function displayClimatoDateMap(time_res) {
+    const tstep_id = `${time_res}-map-date`;
+    let date;
+    if (time_res === 'seasonal') {
+        const mon = parseInt($(`#${tstep_id}-calendar`).val(), 10);
+        const len = parseInt($(`#${tstep_id}-length`).val(), 10);
+        date = defineSeasonMonths(mon, len, long = false);
+    } else {
+        date = $(`#${tstep_id}-calendar option:selected`).text();
+    }
+
+    return date;
+}
+
+function displayTimeSeriesDateMap(query) {
+    let date;
+    if (query.temporalRes === 'seasonal') {
+        // const m1 = parseInt(query.Date.slice(5, 7), 10);
+        // const m2 = parseInt(query.Date.slice(13, 15), 10);
+        date = query.Date;
+    } else {
+        date = query.Date;
+    }
+
+    return date;
 }

@@ -174,8 +174,6 @@
     display: flex;
     flex-direction: column;
     justify-content: end;
-
-    /*background-color: blue !important;*/
 }
 
 .modal-expand-charts-plotly {
@@ -185,16 +183,6 @@
     padding: 5px;
     border: 1px solid #d0d7de;
     border-radius: 0px 0px 10px 10px;
-    /*background-color: yellow !important;*/
-}
-
-/**/
-.modal-expand-charts .modal-content .row {
-    /*background-color: red !important;*/
-}
-
-.modal-expand-charts-plotly .plotly {
-    /*background-color: green !important;*/
 }
 
 /*-----------*/

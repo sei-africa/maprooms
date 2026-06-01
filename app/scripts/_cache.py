@@ -32,14 +32,14 @@ def cache_data_functions(function, hash_key, params):
     return json.dumps(cached_data)
 
 def hash_pamars_clim(params):
-    exclude = ['apiKey', 'user', 'httpMethod', 'webApp']
+    exclude = ['apiKey', 'user', 'httpMethod', 'webApp', 'colorbar']
     pars = {k: str(v) for k, v in params.items() if k not in exclude}
     return _hash_params(pars)
 
 def hash_pamars_anom(params):
     pars_keys = [
-        'analysis', 'anomaly', 'Date', 'startDate', 'endDate', 'seasStart', 'seasLength',
-         'dataset', 'temporalRes', 'variable', 'climFunction', 'fullYear',
+         'analysis', 'anomaly', 'Date', 'startDate', 'endDate', 'seasStart', 'seasLength',
+         'dataset', 'temporalRes', 'variable', 'climFunction', 'fullYear', 'fullYearTS',
          'climDate', 'daysWindow', 'startYear', 'endYear', 'minYear',
          'geomExtract', 'pointsSource', 'pointsFile', 'pointsList',
          'padLon', 'padLat', 'minLon', 'maxLon', 'minLat', 'maxLat',
@@ -53,7 +53,9 @@ def hash_params_ts_data(params):
     pars_keys = [
         'geomExtract', 'pointsSource', 'pointsList', 'shpSource', 'shpFile',
         'shpField', 'Poly', 'dataset', 'temporalRes', 'variable', 'startDate',
-        'endDate', 'startYear', 'endYear', 'minYear', 'anomaly', 'chartType'
+        'endDate', 'startYear', 'endYear', 'minYear', 'anomaly', 'chartType',
+        'seasStart', 'seasLength', 'fullYearTS', 'fullYear', 'climDate',
+        'climFunction'
     ]
     pars = {k: str(v) for k, v in params.items() if k in pars_keys}
     return _hash_params(pars)

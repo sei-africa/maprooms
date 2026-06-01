@@ -23,10 +23,10 @@
         <div class="container-fluid">
             <div class="row gx-1">
                 <div class="col-md-9">
-                    {{ pageText.opt_season.start }}
+                    {{ pageText.opt_season.season_map.start }}
                 </div>
                 <div class="col-md-3">
-                    {{ pageText.opt_season.length }}
+                    {{ pageText.opt_season.season_map.length }}
                 </div>
             </div>
             <div class="row gx-1">
@@ -338,17 +338,38 @@
         </select>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
+        {% if tempRes == 'seasonal'%}
+        <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
+        {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.start }}</legend>
+        {% endif %}
         <div id="{{ tempRes }}-chart-anom-startdate" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-anom-startdate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
+        {% if tempRes == 'seasonal'%}
+        <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
+        {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.end }}</legend>
+        {% endif %}
         <div id="{{ tempRes }}-chart-anom-enddate" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-anom-enddate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
+    {% if tempRes == 'seasonal'%}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.season_ts.length }}</legend>
+        <div class="row">
+            <div class="col-md-4">
+                <select id="{{ tempRes }}-chart-anom-seaslen" class="form-select {{ tempRes }}-anom-select2"></select>
+            </div>
+            <div class="col-md-6">
+                {{ pageText.opt_season.season_ts.unit }}
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_anomaly.label }}</legend>
         <select id="{{ tempRes }}-chart-anom-type" class="form-select {{ tempRes }}-anom-select2" style="width: 200px;">
@@ -366,7 +387,11 @@
         </select>
     </fieldset>
     <fieldset id="{{ tempRes }}-chart-anom-tstep-list" class="border border-secondary rounded-3 py-1" style="display: none;">
+        {% if tempRes == 'seasonal'%}
+        <legend class="legend-label">{{ pageText.opt_season.season_ts.start }}</legend>
+        {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_tstep }}</legend>
+        {% endif %}
         <div id="{{ tempRes }}-chart-anom-tstep" style="width: 160px;"></div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
@@ -400,6 +425,123 @@
         <button id="{{ tempRes }}-chart-clim-bp-open" type="button" class="btn btn-outline-secondary">{{ pageText.base_period_modal.button }}</button>
     </fieldset>
     {{ fmacros.baseline_period_dialog(tempRes ~ '-chart-clim-bp', pageText) }}
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_expand_charts_proba(tempRes, pageText) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-proba-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-chart-proba-variable" class="form-select {{ tempRes }}-proba-select2" style="width: 200px;">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
+        <div id="{{ tempRes }}-chart-proba-startdate" style="width: 6.5em">
+            <input id="{{ tempRes }}-chart-proba-startdate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
+        <div id="{{ tempRes }}-chart-proba-enddate" style="width: 6.5em">
+            <input id="{{ tempRes }}-chart-proba-enddate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    {% if tempRes == 'seasonal'%}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.season_ts.start }}</legend>
+        <div id="{{ tempRes }}-chart-proba-startmon" style="width: 160px;"></div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.season_ts.length }}</legend>
+        <div class="row">
+            <div class="col-md-4">
+                <select id="{{ tempRes }}-chart-proba-seaslen" class="form-select {{ tempRes }}-proba-select2"></select>
+            </div>
+            <div class="col-md-6">
+                {{ pageText.opt_season.season_ts.unit }}
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_df.label }}</legend>
+        <select id="{{ tempRes }}-chart-proba-plot-type" class="form-select {{ tempRes }}-proba-select2">
+            {% for key, value in pageText.opt_ts_df.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <!--  -->
+    <fieldset id="{{ tempRes }}-chart-proba-plot-cdf" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_ts_cdf.label }}</legend>
+        <div class="d-flex gap-3">
+            {% for key, value in pageText.opt_ts_cdf.type.items() %}
+            <label class="d-flex align-items-center">
+                <input type="checkbox" id="{{ tempRes }}-proba-plot-{{ key }}" class="{{ tempRes }}-proba-plot me-1" data-plot="cdf" value="{{ key }}" {% if ( key!='fitted' ) %} checked {% endif %}>
+                <span>{{ value }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </fieldset>
+    <!--  -->
+    <fieldset id="{{ tempRes }}-chart-proba-plot-pdf" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_ts_pdf.label }}</legend>
+        <div class="d-flex gap-3">
+            {% for key, value in pageText.opt_ts_pdf.type.items() %}
+            <label class="d-flex align-items-center">
+                <input type="checkbox" id="{{ tempRes }}-proba-plot-{{ key }}" class="{{ tempRes }}-proba-plot me-1" data-plot="pdf" value="{{ key }}" {% if ( key!='fitted' ) %} checked {% endif %}>
+                <span>{{ value }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </fieldset>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_expand_charts_season(tempRes, pageText) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-season-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-chart-season-variable" class="form-select {{ tempRes }}-season-select2" style="width: 200px;">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
+        <div id="{{ tempRes }}-chart-season-startdate" style="width: 6.5em">
+            <input id="{{ tempRes }}-chart-season-startdate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
+        <div id="{{ tempRes }}-chart-season-enddate" style="width: 6.5em">
+            <input id="{{ tempRes }}-chart-season-enddate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    {% if tempRes == 'seasonal'%}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.season_ts.start }}</legend>
+        <div id="{{ tempRes }}-chart-season-startmon" style="width: 160px;"></div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.season_ts.length }}</legend>
+        <div class="row">
+            <div class="col-md-4">
+                <select id="{{ tempRes }}-chart-season-seaslen" class="form-select {{ tempRes }}-season-select2"></select>
+            </div>
+            <div class="col-md-6">
+                {{ pageText.opt_season.season_ts.unit }}
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
+    <!--  -->
 </div>
 {% endmacro %}
 <!--  -->

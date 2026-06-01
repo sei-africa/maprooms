@@ -79,7 +79,8 @@ function setDateCalendar(
     variableID,
     dataset, tempRes,
     dispDate = null,
-    mapNavigation = true
+    mapNavigation = true,
+    dispYear = false
 ) {
     const variable = $(`#${variableID} option:selected`).val();
     const temp_cov = getTempCoverageCalendar(
@@ -96,10 +97,20 @@ function setDateCalendar(
         .addClass('form-control')
         .appendTo(divCont);
 
-    if (tempRes === 'monthly' || tempRes === 'seasonal') {
+    if (tempRes === 'monthly') {
         cl_type = 'year-month-picker';
         cl_format = 'YYYY-MM';
         cl_slice = 7;
+    } else if (tempRes === 'seasonal') {
+        if (dispYear) {
+            cl_type = 'year-month-picker';
+            cl_format = 'YYYY';
+            cl_slice = 7;
+        } else {
+            cl_type = 'year-month-picker';
+            cl_format = 'YYYY-MM';
+            cl_slice = 7;
+        }
     } else {
         cl_type = 'default';
         cl_format = 'YYYY-MM-DD';
@@ -147,7 +158,8 @@ function setDateCalendar(
                 }
 
                 // const this_date = calendar.getValue();
-                $('#input-time-navigation').val(this_date.slice(0, cl_slice));
+                $('#input-time-navigation')
+                    .val(this_date.slice(0, cl_slice));
             }
         }
     });
@@ -290,11 +302,17 @@ function setMonthsDaysCalendar(monthID, dayID, month0, day0, isStart) {
     day_id.val(day0);
 }
 
-function defineSeasonMonths(start, length) {
-    const months = getListOfMonthsCalendar().long;
+function defineSeasonMonths(start, length, long = true) {
     let end = (start + length - 1) % 12;
     if (end === 0) end = 12;
-    return `${months[start - 1]} -> ${months[end - 1]}`;
+    const months = getListOfMonthsCalendar();
+    let mon;
+    if (long) {
+        mon = months.long;
+    } else {
+        mon = months.short;
+    }
+    return `${mon[start - 1]} -> ${mon[end - 1]}`;
 }
 
 function getListOfMonthsCalendar() {
@@ -403,6 +421,27 @@ function formatDekadDate(date) {
     const d = Number(arr_dk[2]);
     const dk = d <= 10 ? 1 : (d >= 21 ? 3 : 2);
     return `${ym}-${dk}`;
+}
+
+function formatSeasonDate(date, length) {
+    let start = new Date(`${date}-16`);
+    let end = addDateMonths(start, length - 1);
+    start = formatDateToString(start);
+    start = start.slice(0, 7);
+    end = formatDateToString(end);
+    end = end.slice(0, 7);
+    return `${start}_${end}`;
+}
+
+function getSeasonFromDate(date, length) {
+    date = new Date(date);
+    const hm = Math.floor(length / 2);
+    const start = addDateMonths(date, -hm);
+    const end = addDateMonths(date, hm);
+    if (length % 2 === 0) {
+        end.setDate(end.getDate() - 16);
+    }
+    return { start: start, end: end };
 }
 
 function calendarFormatMonthlyStr(str_date) {

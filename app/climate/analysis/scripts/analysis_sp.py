@@ -42,6 +42,14 @@ def climate_analysis_sp_data(params):
 
     if data['status'] == -1: return data
 
+    if params['mapType'] == 'climatology':
+        if params['climFunction'] == 'trend':
+            ix = data['varid'].index('slope')
+            data['data'] = data['data'][ix, :, :, :]
+            data['longname'] = data['longname'][ix]
+            data['units'] = data['units'][ix]
+            data['varid'] = data['varid'][ix]
+
     if params['colorbar']['color_type'] == 'preset':
         map_png = create_imagePng(
             data,
@@ -90,9 +98,15 @@ def _parse_json_spatial_data(json_data, date_key):
     lon = np.array(jsd['Longitude'])
     data = np.array(jsd['Data'])
     data = np.where(data == jsd['Missing'], np.nan, data)
-    # jsd['Dimensions']
-    return {'status': 0, 'date': jsd[date_key],
-            'lon': lon, 'lat': lat, 'data': data,
-            'longname': jsd['VariableName'],
-            'units': jsd['VariableUnits']
-            }
+
+    return {
+        'status': 0,
+        'date': jsd[date_key],
+        'lon': lon,
+        'lat': lat,
+        'data': data,
+        'longname': jsd['VariableName'],
+        'units': jsd['VariableUnits'],
+        'varid': jsd['VariableVarId'],
+        'dimensions': jsd['Dimensions']
+    }

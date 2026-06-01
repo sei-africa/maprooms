@@ -1,60 +1,53 @@
 import json
 import numpy as np
 from datetime import datetime
+from dataclasses import asdict
 from app.dst_api.scripts import (download_climdata,
                                  extract_climdata,
                                  download_analysis,
                                  download_rawdata,
                                  is_climato_normals)
+from app.scripts.probabilities import (ecdf_ts, kde_ts,
+                                       ecdf_smooth_v1,
+                                       ecdf_smooth_v2,
+                                       fit_distributions,
+                                       select_best_distribution)
 from app.scripts.util import pretty
 
 def climate_analysis_ts_rawdata(params):
-    params = _create_params_ts_raw(params)
-    json_data = download_rawdata(params)
-    json_data = json.loads(json_data)
-    if json_data['status'] != 0: return json_data
-    json_data['data'] = json.loads(json_data['data'])
+    raw_ts = _download_ts_rawdata(params)
+    if raw_ts['status'] == -1: return raw_ts
 
-    time = json_data['data']['Dates']
-    time = _format_ts_dates(time, params['temporalRes'])
-    if time is None:
-        return {'status': -1, 'message': 'Unknown temporal resolution'}
-
-    miss = json_data['data']['Missing']
-    values = json_data['data']['Data'][0]['Values']
-    values = np.array(values)
-    values[values == miss] = np.nan
-
-    info = {
-        'geom': {
-            'name': json_data['data']['Data'][0]['Name'],
-            'lon': json_data['data']['Data'][0]['Longitude'],
-            'lat': json_data['data']['Data'][0]['Latitude']
-        },
-        'var':{
-            'name': json_data['data']['VariableName'],
-            'units': json_data['data']['VariableUnits'],
-            'type': params['variable']
-        },
-        'time_res': params['temporalRes']
-    }
+    time = raw_ts['data']['time']
+    values = raw_ts['data']['values']
+    info = raw_ts['data']['info']
 
     if ~np.all(np.isnan(values)):
         vmin = np.nanmin(values)
         vmax = np.nanmax(values)
         if params['variable'] == 'precip': vmin = 0
-        breaks = pretty(vmin, vmax, 7).tolist()
+        breaks = pretty(vmin, vmax, 14).tolist()
         ylim = [breaks[0], breaks[-1]]
-        ylim[1] = ylim[1] + (ylim[1] - ylim[0]) * 0.1
-        data = {'time': time, 'values': values.tolist(), 'info': info,
-                'yrange': ylim, 'yticks': breaks}
+        ylim[1] = ylim[1] + (ylim[1] - ylim[0]) * 0.01
+        data = {
+            'time': time,
+            'values': values.tolist(),
+            'info': info,
+            'yrange': ylim,
+            'yticks': breaks
+        }
+
         return {'status': 0, 'data': data}
     else:
         if params['geomExtract'] == 'points':
-            crd = f'point (Longitude: {info['geom']['lon']}, Latitude: {info['geom']['lat']})'
+            lon = info['geom']['lon']
+            lat = info['geom']['lat']
+            crd = f'point (Longitude: {lon}, Latitude: {lat})'
         else:
             crd = f'polygon ({info['geom']['name']})'
-        return {'status': -1, 'message': f'All data are missing for point {crd}'}
+
+        msg = f'All data are missing for point {crd}'
+        return {'status': -1, 'message': msg}
 
 def climate_analysis_ts_anomaly(params):
     params = _create_params_ts_anom(params)
@@ -66,12 +59,19 @@ def climate_analysis_ts_anomaly(params):
     time = json_data['data']['Dates']
     time = _format_ts_dates(time, params['temporalRes'])
     if time is None:
-        return {'status': -1, 'message': 'Unknown temporal resolution'}
+        return {
+            'status': -1,
+            'message': 'Unknown temporal resolution'
+        }
 
     miss = json_data['data']['Missing']
     values = json_data['data']['Data'][0]['Values']
     values = np.array(values)
     values[values == miss] = np.nan
+
+    seasL = None
+    if params['temporalRes'] == 'seasonal':
+        seasL = params['seasLength']
 
     info = {
         'geom': {
@@ -84,25 +84,36 @@ def climate_analysis_ts_anomaly(params):
             'units': json_data['data']['VariableUnits'],
             'type': params['variable']
         },
-        'time_res': params['temporalRes']
+        'time_res': params['temporalRes'],
+        'seas_len': seasL
     }
 
     if ~np.all(np.isnan(values)):
         vmin = np.nanmin(values)
         vmax = np.nanmax(values)
         val_max = np.maximum(np.abs(vmin), np.abs(vmax))
-        breaks = pretty(-val_max, val_max, 7).tolist()
+        breaks = pretty(-val_max, val_max, 14).tolist()
         ylim = np.array([breaks[0], breaks[-1]])
-        ylim = ylim + ((ylim[1] - ylim[0]) * 0.1) * np.array([-1, 1])
-        data = {'time': time, 'values': values.tolist(), 'info': info,
-                'yrange': ylim.tolist(), 'yticks': breaks}
+        ylim = ylim + ((ylim[1] - ylim[0]) * 0.01) * np.array([-1, 1])
+        data = {
+            'time': time,
+            'values': values.tolist(),
+            'info': info,
+            'yrange': ylim.tolist(),
+            'yticks': breaks
+        }
+
         return {'status': 0, 'data': data}
     else:
         if params['geomExtract'] == 'points':
-            crd = f'point (Longitude: {info['geom']['lon']}, Latitude: {info['geom']['lat']})'
+            lon = info['geom']['lon']
+            lat = info['geom']['lat']
+            crd = f'point (Longitude: {lon}, Latitude: {lat})'
         else:
             crd = f'polygon ({info['geom']['name']})'
-        return {'status': -1, 'message': f'Anomaly: All data are missing for {crd}'}
+
+        msg = f'Anomaly: All data are missing for {crd}'
+        return {'status': -1, 'message': msg}
 
 def climate_analysis_ts_climato(params):
     one_var = True
@@ -113,7 +124,6 @@ def climate_analysis_ts_climato(params):
     if one_var:
         params_mean = _create_params_ts_clim_mean(params)
         if clim_normal:
-            print('----------- eto mean --------------')
             data_mean = extract_climdata(params_mean)
         else:
             data_mean = download_climdata(params_mean)
@@ -123,7 +133,6 @@ def climate_analysis_ts_climato(params):
 
         params_perc = _create_params_ts_clim_perc(params)
         if clim_normal:
-            print('----------- eto perc --------------')
             data_perc = extract_climdata(params_perc)
         else:
             data_perc = download_climdata(params_perc)
@@ -137,7 +146,10 @@ def climate_analysis_ts_climato(params):
         time = data_mean['data']['Dates']
         time = _format_clim_dates(time, params['temporalRes'])
         if time is None:
-            return {'status': -1, 'message': 'Unknown temporal resolution'}
+            return {
+                'status': -1,
+                'message': 'Unknown temporal resolution'
+            }
 
         miss_mean = data_mean['data']['Missing']
         values_mean = data_mean['data']['Data'][0]['Values']
@@ -167,16 +179,26 @@ def climate_analysis_ts_climato(params):
 
         if ~np.all(np.isnan(values)):
             breaks, ylim = _get_axis_breaks(values)
-            data = {'time': time, 'values': values.tolist(),
-                    'info': info, 'chartType': params['chartType'],
-                    'yrange': ylim, 'yticks': breaks}
+            data = {
+                'time': time,
+                'values': values.tolist(),
+                'info': info,
+                'chartType': params['chartType'],
+                'yrange': ylim,
+                'yticks': breaks
+            }
+
             return {'status': 0, 'data': data}
         else:
             if params['geomExtract'] == 'points':
-                crd = f'point (Longitude: {info['geom']['lon']}, Latitude: {info['geom']['lat']})'
+                lon = info['geom']['lon']
+                lat = info['geom']['lat']
+                crd = f'point (Longitude: {lon}, Latitude: {lat})'
             else:
                 crd = f'polygon ({info['geom']['name']})'
-            return {'status': -1, 'message': f'Climatology: All data are missing for {crd}'}
+
+            msg = f'Climatology: All data are missing for {crd}'
+            return {'status': -1, 'message': msg}
     else:
         variables = ['precip', 'tmin', 'tmax']
         values = []
@@ -196,7 +218,10 @@ def climate_analysis_ts_climato(params):
             time = data_mean['data']['Dates']
             time = _format_clim_dates(time, params['temporalRes'])
             if time is None:
-                return {'status': -1, 'message': 'Unknown temporal resolution'}
+                return {
+                    'status': -1,
+                    'message': 'Unknown temporal resolution'
+                }
 
             info_var[var] = {
                 'name': data_mean['data']['VariableName'].split(', ')[1],
@@ -227,20 +252,190 @@ def climate_analysis_ts_climato(params):
         if ~np.all(np.isnan(values)):
             breaks1, ylim1 = _get_axis_breaks(values[0])
             breaks2, ylim2 = _get_axis_breaks(values[1:])
-            data = {'time': time, 'values': values.tolist(),
-                    'info': info, 'chartType': params['chartType'],
-                    'yrange1': ylim1, 'yticks1': breaks1,
-                    'yrange2': ylim2, 'yticks2': breaks2,
-                    }
+            data = {
+                'time': time,
+                'values': values.tolist(),
+                'info': info,
+                'chartType': params['chartType'],
+                'yrange1': ylim1,
+                'yticks1': breaks1,
+                'yrange2': ylim2,
+                'yticks2': breaks2
+            }
+
             return {'status': 0, 'data': data}
         else:
             if params['geomExtract'] == 'points':
-                crd = f'point (Longitude: {info['geom']['lon']}, Latitude: {info['geom']['lat']})'
+                lon = info['geom']['lon']
+                lat = info['geom']['lat']
+                crd = f'point (Longitude: {lon}, Latitude: {lat})'
             else:
                 crd = f'polygon ({info['geom']['name']})'
-            return {'status': -1, 'message': f'Climatology: All data are missing for {crd}'}
+
+            msg = f'Climatology: All data are missing for {crd}'
+            return {'status': -1, 'message': msg}
+
+def climate_analysis_ts_proba(params):
+    raw_ts = _download_ts_rawdata(params)
+    if raw_ts['status'] == -1: return raw_ts
+
+    time = raw_ts['data']['time']
+    values = raw_ts['data']['values']
+    info = raw_ts['data']['info']
+
+    if ~np.all(np.isnan(values)):
+        p_ecdf = ecdf_ts(values)
+        # s_ecdf = ecdf_smooth_v1(values, 1.0)
+        # s_ecdf = ecdf_smooth_v2(values, 1.0, False)
+        s_ecdf = ecdf_smooth_v2(values, 1.0, True)
+        kde = kde_ts(values, adj=1.0, n=512)
+
+        if params['variable'] == 'precip':
+            distr_list = (
+                'norm', 'snorm', 'lnorm', 'exp',
+                'gamma', 'weibull', 'gumbel'
+            )
+        else:
+            distr_list = ('norm',)
+
+        p_fits = fit_distributions(
+            p_ecdf['x'], distr=distr_list, method='mle'
+        )
+        p_sel, gof = select_best_distribution(
+            p_fits, p_ecdf['x'], gof_stat='ad'
+        )
+
+        vmin = np.nanmin(values)
+        vmax = np.nanmax(values)
+        if params['variable'] == 'precip': vmin = 0
+        breaks = pretty(vmin, vmax, 14).tolist()
+
+        xlim = [breaks[0], breaks[-1]]
+        ex1 = (xlim[1] - xlim[0]) * 0.01
+        xlim[1] = xlim[1] + ex1
+        ex5 = (xlim[1] - xlim[0]) * 0.05
+        xmin = xlim[0] - ex5
+        xmax = xlim[1] + ex5
+
+        fit_x = np.linspace(xmin, xmax, 512)
+        fit_y = p_sel.exceedance(fit_x)
+        fit_pdf = p_sel.pdf(fit_x)
+
+        cdf = {
+            'empirical': {
+                k: np.round(v, decimals=6).tolist()
+                for k, v in p_ecdf.items()
+            },
+            'smoothed': {
+                k: np.round(v, decimals=6).tolist()
+                for k, v in s_ecdf.items()
+            },
+            'fitted': {
+                'x': np.round(fit_x, decimals=6).tolist(),
+                'y': np.round(fit_y, decimals=6).tolist()
+            }
+        }
+
+        pdf = {
+            'kde': {
+                k: np.round(v, decimals=6).tolist()
+                for k, v in kde.items()
+            },
+            'fitted': {
+                'x': np.round(fit_x, decimals=6).tolist(),
+                'y': np.round(fit_pdf, decimals=6).tolist()
+            }
+        }
+
+        info['proba'] = asdict(p_sel)
+        xlabel = f"{info['var']['name']} ({info['var']['units']})"
+        info['labels'] = {
+            'cdf': {
+                'x': xlabel,
+                'y': 'Probability of exceeding'
+            },
+            'pdf': {
+                'x': xlabel,
+                'y': 'Density'
+            }
+        }
+
+        data = {
+            'ts': values.tolist(),
+            'cdf': cdf,
+            'pdf': pdf,
+            'info': info,
+            'xrange': xlim,
+            'xticks': breaks
+        }
+
+        return {'status': 0, 'data': data}
+    else:
+        if params['geomExtract'] == 'points':
+            lon = info['geom']['lon']
+            lat = info['geom']['lat']
+            crd = f'point (Longitude: {lon}, Latitude: {lat})'
+        else:
+            crd = f'polygon ({info['geom']['name']})'
+
+        msg = f'All data are missing for point {crd}'
+        return {'status': -1, 'message': msg}
+
+def climate_analysis_ts_season(params):
+    raw_ts = _download_ts_rawdata(params)
+    if raw_ts['status'] == -1: return raw_ts
+
+    time = raw_ts['data']['time']
+    values = raw_ts['data']['values']
+    info = raw_ts['data']['info']
+
+
+    return {'status': 0, 'data': 'test'}
 
 #####
+
+def _download_ts_rawdata(params):
+    params = _create_params_ts_raw(params)
+    json_data = download_rawdata(params)
+    json_data = json.loads(json_data)
+    if json_data['status'] != 0: return json_data
+    json_data['data'] = json.loads(json_data['data'])
+
+    time = json_data['data']['Dates']
+    time = _format_ts_dates(time, params['temporalRes'])
+    if time is None:
+        return {
+            'status': -1,
+            'message': 'Unknown temporal resolution'
+        }
+
+    miss = json_data['data']['Missing']
+    values = json_data['data']['Data'][0]['Values']
+    values = np.array(values)
+    values[values == miss] = np.nan
+
+    info = {
+        'geom': {
+            'name': json_data['data']['Data'][0]['Name'],
+            'lon': json_data['data']['Data'][0]['Longitude'],
+            'lat': json_data['data']['Data'][0]['Latitude']
+        },
+        'var':{
+            'name': json_data['data']['VariableName'],
+            'units': json_data['data']['VariableUnits'],
+            'type': params['variable']
+        },
+        'time_res': params['temporalRes']
+    }
+
+    return {
+        'status': 0,
+        'data': {
+            'time': time,
+            'values': values,
+            'info': info
+        }
+    }
 
 def _create_params_ts_raw(params):
     pars_0 = {'gridded': False, 'outFormat': 'JSON-Format',
@@ -306,6 +501,23 @@ def _format_ts_dates(dates_l, time_res):
                 for d in dk
             ]
         res = ['-'.join(l) for l in zip(y, m, dy)]
+    elif time_res == 'seasonal':
+        def _format_seasonal_date(date):
+            seas = date.split('_')
+            m1 = datetime.strptime(seas[0], '%Y-%m')
+            m2 = datetime.strptime(seas[1], '%Y-%m')
+            month = m2.month - m1.month
+            year = m2.year - m1.year
+            n_month = year * 12 + month + 1
+            mf = n_month // 2 + 1
+            yr = m1.year + (m1.month + mf - 1) // 12
+            mo = (m1.month + mf - 1) % 12
+            if mo == 0:
+                mo = 12
+            dy = 1 if n_month % 2 == 0 else 16
+            return f'{yr}-{mo:02}-{dy:02}'
+
+        res = [_format_seasonal_date(d) for d in dates_l]
     else:
         res = None
 
@@ -339,7 +551,7 @@ def _format_clim_dates(dates_l, time_res):
 def _get_axis_breaks(values):
     vmin = np.nanmin(values)
     vmax = np.nanmax(values)
-    breaks = pretty(vmin, vmax, 7).tolist()
+    breaks = pretty(vmin, vmax, 14).tolist()
     ylim = [breaks[0], breaks[-1]]
     ylim[1] = ylim[1] + (ylim[1] - ylim[0]) * 0.1
     return breaks, ylim
