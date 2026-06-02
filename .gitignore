@@ -5,6 +5,16 @@ run.py
 
 maprooms.egg-info
 
+maprooms.conf
+maprooms.ini
+maprooms.py
+maprooms.service
+
+dev-maprooms.conf
+dev-maprooms.ini
+dev-maprooms.py
+dev-maprooms.service
+
 *.yaml
 !dev-*.yaml
 
