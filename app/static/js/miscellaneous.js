@@ -1219,7 +1219,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
 function setProbaPlotContainer(data, container) {
     const divCont = $(`#${container}`);
     const divRow = $('<div>')
-        .addClass('row flex-nowrap')
+        .addClass('row flex-nowrap h-100')
         .appendTo(divCont);
 
     const cont_plot = `${container}-plot`;
@@ -1238,7 +1238,7 @@ function setProbaPlotContainer(data, container) {
         .addClass('col-md-4 m-2 p-2')
         .css({
             'width': '22%',
-            'height': '100%',
+            'height': '84%',
             'border': '1px solid #d0d7de'
         })
         .appendTo(divRow);
