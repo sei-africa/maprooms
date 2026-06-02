@@ -92,8 +92,8 @@ def climate_analysis_climato():
 def climate_analysis_proba():
     params = request.get_json()
     try:
-        print('----------- proba -----------')
-        print(params)
+        # print('----------- proba -----------')
+        # print(params)
         return cache_data_functions(
                     climate_analysis_ts_proba,
                     hash_params_ts_data,
@@ -106,8 +106,8 @@ def climate_analysis_proba():
 def climate_analysis_season():
     params = request.get_json()
     try:
-        print('----------- season -----------')
-        print(params)
+        # print('----------- season -----------')
+        # print(params)
         return cache_data_functions(
                     climate_analysis_ts_season,
                     hash_params_ts_data,

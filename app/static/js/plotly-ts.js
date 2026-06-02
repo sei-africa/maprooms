@@ -517,7 +517,6 @@ function preview_analysis_charts_proba(tempRes, contID) {
 function preview_analysis_display_proba(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
-
     const theme = $('html').attr('data-bs-theme');
 
     ////
@@ -528,8 +527,8 @@ function preview_analysis_display_proba(json, container) {
             name: 'Smoothed CDF',
             units: '%',
             line: {
-                color: '#1E90FF',
-                width: 3
+                color: '#1e90ff',
+                width: 4
             },
             hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
         },
@@ -663,8 +662,88 @@ function preview_analysis_display_season(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
 
-    $('<span>').text('season').appendTo(divCont);
+    const xdata = json.time;
+    const ydata = json.values;
+    const vname = json.info.var.name;
+    const vunit = json.info.var.units;
+    const xlim = [
+        Math.min(...xdata) - 1,
+        Math.max(...xdata) + 1
+    ];
 
+    // Regression line
+    const regX = xlim;
+    const areg = json.coeffs.slope;
+    const breg = json.coeffs.intercept;
+    const regY = regX.map(x => breg + areg * x);
+
+    const data = [{
+            x: xdata,
+            y: ydata,
+            type: 'scatter',
+            mode: 'lines',
+            name: vname,
+            units: vunit,
+            line: {
+                color: '#dc3545',
+                width: 3
+            },
+            hovertemplate: 'Year: %{x}<br>' +
+                `%{data.name}: %{y:.2f} %{data.units} <extra></extra>`
+        },
+        {
+            x: regX,
+            y: regY,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Trend line',
+            units: vunit,
+            line: {
+                color: '#0d6efd',
+                width: 4
+            }
+        }
+    ];
+
+    var layout = {
+        xaxis: {
+            range: xlim,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            gridcolor: 'lightgray'
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            gridcolor: 'lightgray'
+        },
+        showlegend: false
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+
+    const config = {
+        displayModeBar: false,
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(
+        container,
+        data,
+        layout,
+        config
+    );
+
+    setPlotlyThemeColors(container);
 }
 
 ///////////////////
@@ -1456,7 +1535,10 @@ function expand_analysis_display_proba(json, container) {
     divCont.empty();
     const theme = $('html').attr('data-bs-theme');
 
-    const plot_type = $(`#${json.info.time_res}-chart-proba-plot-type`).val();
+    const time_res = json.info.time_res;
+    const plot_type = $(`#${time_res}-chart-proba-plot-type`).val();
+    const fcheck = `${time_res}-proba-plot-${plot_type}-fitted`;
+    const isFitted = $(`#${fcheck}`).is(':checked');
     let data;
     let layout;
     if (plot_type === 'cdf') {
@@ -1504,7 +1586,7 @@ function expand_analysis_display_proba(json, container) {
                     color: '#c29ffa',
                     width: 3
                 },
-                visible: false,
+                visible: isFitted,
                 hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
             }
         ];
@@ -1535,6 +1617,8 @@ function expand_analysis_display_proba(json, container) {
             },
             yaxis: {
                 range: [0, 100],
+                ticks: 'outside',
+                ticklen: 8,
                 ticksuffix: '%',
                 fixedrange: true,
                 showline: true,
@@ -1564,7 +1648,8 @@ function expand_analysis_display_proba(json, container) {
                 histnorm: 'probability density',
                 name: 'Histogram',
                 visible: true,
-                nbinsx: Math.ceil(Math.log2(json.ts.length) + 1),
+                // nbinsx: Math.ceil(Math.log2(json.ts.length) + 1),
+                nbinsx: 10,
                 marker: {
                     color: 'lightblue',
                     line: {
@@ -1596,7 +1681,7 @@ function expand_analysis_display_proba(json, container) {
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Fitted PDF',
-                visible: true,
+                visible: isFitted,
                 line: {
                     color: '#c29ffa',
                     width: 3
@@ -1632,6 +1717,8 @@ function expand_analysis_display_proba(json, container) {
             },
             yaxis: {
                 range: [0, ymax + 0.002],
+                ticks: 'outside',
+                ticklen: 8,
                 fixedrange: true,
                 showline: true,
                 showgrid: true,
@@ -1671,7 +1758,7 @@ function expand_analysis_display_proba(json, container) {
 
     setPlotlyThemeColors(container_plot);
 
-    if ($(`#${json.info.time_res}-proba-plot-fitted`).is(':checked')) {
+    if (isFitted) {
         $(`#${container}-distr-div`).show();
     } else {
         $(`#${container}-distr-div`).hide();
@@ -1681,15 +1768,267 @@ function expand_analysis_display_proba(json, container) {
 ///////
 
 function expand_analysis_query_season(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
 
+    query.chartType = 'season';
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.rawdata;
+    query.variable = $(`#${tempRes}-chart-season-variable`).val();
+
+    query.startDate = analysis_query_format_date(
+        $(`#${tempRes}-chart-season-startdate-calendar`).val(),
+        tempRes
+    );
+    query.endDate = analysis_query_format_date(
+        $(`#${tempRes}-chart-season-enddate-calendar`).val(),
+        tempRes
+    );
+
+    if (query.temporalRes === 'seasonal') {
+        query.fullYearTS = false;
+        query.seasStart = parseInt($(`#${tempRes}-chart-season-startmon-calendar`).val(), 10);
+        query.seasLength = parseInt($(`#${tempRes}-chart-season-seaslen`).val(), 10);
+    }
+
+    return Object.assign({}, query);
 }
 
 function expand_analysis_charts_season(container_id, tempRes) {
+    const query = expand_analysis_query_season(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
 
+    ajaxDisplayChart(
+        '/climate_analysis_season',
+        query,
+        expand_analysis_display_season,
+        container_id,
+        'data_season'
+    );
 }
 
-function expand_analysis_display_season(json_input, container) {
+function expand_analysis_display_season(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
 
+    const xdata = json.time;
+    const ydata = json.values;
+    const timeres = json.info.time_res;
+    const vname = json.info.var.name;
+    const vunit = json.info.var.units;
+    const ylab = `${vname} (${vunit})`;
+    const xlim = [
+        Math.min(...xdata) - 1,
+        Math.max(...xdata) + 1
+    ];
+    const ylim = json.yrange;
+    const yticks = json.yticks;
+
+    // Regression line
+    const regX = xlim;
+    const areg = json.coeffs.slope;
+    const breg = json.coeffs.intercept;
+    const regY = regX.map(x => breg + areg * x);
+
+    function makeMainTrace(plotType) {
+        const base = {
+            x: xdata,
+            y: ydata,
+            name: vname,
+            units: vunit,
+            hovertemplate: 'Year: %{x}<br>' +
+                `%{data.name}: %{y:.2f} %{data.units} <extra></extra>`
+        };
+
+        if (plotType === 'line') {
+            return {
+                ...base,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    color: '#dc3545',
+                    width: 3
+                }
+            };
+        }
+
+        if (plotType === 'lpoint') {
+            return {
+                ...base,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: {
+                    color: '#dc3545',
+                    width: 3
+                },
+                marker: {
+                    color: '#fd7e14',
+                    line: {
+                        color: '#dc3545',
+                        width: 1
+                    },
+                    size: 8
+                }
+            };
+        }
+
+        return {
+            ...base,
+            type: 'bar',
+            marker: {
+                color: '#dc3545'
+            }
+        };
+    }
+
+    function makeTrendTrace() {
+        return {
+            x: regX,
+            y: regY,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Trend line',
+            units: vunit,
+            line: {
+                color: '#0d6efd',
+                width: 4
+            }
+        };
+    }
+
+    function makeReferenceTraces() {
+        const traces = [];
+
+        if ($(`.${timeres}-season-plot[value="mean"]`).is(':checked')) {
+            traces.push({
+                x: xlim,
+                y: [json.stats.mean, json.stats.mean],
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Mean',
+                line: {
+                    color: '#6610f2',
+                    width: 4
+                }
+            });
+        }
+
+        if ($(`.${timeres}-season-plot[value="median"]`).is(':checked')) {
+            traces.push({
+                x: xlim,
+                y: [json.stats.median, json.stats.median],
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Median',
+                line: {
+                    color: '#fd7e14',
+                    width: 4
+                }
+            });
+        }
+
+        if ($(`.${timeres}-season-plot[value="terciles"]`).is(':checked')) {
+            traces.push({
+                x: xlim,
+                y: [json.stats.tercile1, json.stats.tercile1],
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Lower tercile',
+                line: {
+                    color: '#198754',
+                    width: 4
+                }
+            });
+
+            traces.push({
+                x: xlim,
+                y: [json.stats.tercile2, json.stats.tercile2],
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Upper tercile',
+                line: {
+                    color: '#0a3622',
+                    width: 4
+                }
+            });
+        }
+
+        return traces;
+    }
+
+    function drawPlot() {
+        const plotType = $(`#${timeres}-chart-season-plot-type`).val();
+        const showTrend = $(`.${timeres}-season-plot[value="trend"]`).is(':checked');
+        const traces = [makeMainTrace(plotType)];
+
+        if (showTrend) {
+            traces.push(makeTrendTrace());
+        }
+
+        traces.push(...makeReferenceTraces());
+
+        var layout = {
+            xaxis: {
+                range: xlim,
+                tickformat: 'd',
+                dtick: 5,
+                fixedrange: true,
+                showline: true,
+                showgrid: true,
+                gridwidth: 0.5,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            yaxis: {
+                range: ylim,
+                tickvals: yticks,
+                ticks: 'outside',
+                ticklen: 8,
+                title: {
+                    text: ylab
+                },
+                fixedrange: true,
+                showline: true,
+                showgrid: true,
+                gridwidth: 0.5,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            showlegend: false,
+            bargap: 0.15
+        };
+
+        layout.margin = { t: 10, b: 60, l: 70, r: 10 };
+        layout.print_legend = 'seasonal';
+        layout = deepMerge(setPlotlyColors(), layout);
+        layout = deepMerge(expand_layout, layout);
+
+        purgePlotlyChart(container);
+        Plotly.react(
+            container,
+            traces,
+            layout,
+            plotly_config
+        );
+
+        setPlotlyThemeColors(container);
+    }
+
+    ////
+    drawPlot();
+
+    $(`#${timeres}-chart-season-plot-type`)
+        .off('change.chartTsSeason')
+        .on('change.chartTsSeason', drawPlot);
+
+    $(`.${timeres}-season-plot`)
+        .off('change.chartTsSeason')
+        .on('change.chartTsSeason', drawPlot);
 }

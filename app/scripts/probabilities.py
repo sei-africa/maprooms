@@ -568,7 +568,9 @@ def fit_distributions(
     fits = []
     for dm in distr:
         try:
-            fit = fit_distribution(x, dm, method=method, thres=thres, mge_stat=mge_stat)
+            fit = fit_distribution(
+                x, dm, method=method, thres=thres, mge_stat=mge_stat
+            )
             if fit is not None:
                 fits.append(fit)
         except Exception as exc:
@@ -676,7 +678,15 @@ def kde_ts(
     if len(arr) == 0:
         return None
 
-    grid, dens = _kde_density_grid(arr, adj=adj, n=n)
+    mn = float(np.min(arr))
+    mx = float(np.max(arr))
+    ex = (mx - mn) * 0.1
+    mn = mn - ex
+    mx = mx + ex
+
+    grid, dens = _kde_density_grid(
+        arr, adj=adj, xmin=mn, xmax=mx, n=n
+    )
     return {'x': grid, 'y': dens}
 
 ## DL CDF and PDF curve

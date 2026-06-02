@@ -12,6 +12,7 @@ from app.scripts.probabilities import (ecdf_ts, kde_ts,
                                        ecdf_smooth_v2,
                                        fit_distributions,
                                        select_best_distribution)
+from app.scripts.regression import linear_model
 from app.scripts.util import pretty
 
 def climate_analysis_ts_rawdata(params):
@@ -28,7 +29,8 @@ def climate_analysis_ts_rawdata(params):
         if params['variable'] == 'precip': vmin = 0
         breaks = pretty(vmin, vmax, 14).tolist()
         ylim = [breaks[0], breaks[-1]]
-        ylim[1] = ylim[1] + (ylim[1] - ylim[0]) * 0.01
+        ex = (ylim[1] - ylim[0]) * 0.01
+        ylim[1] = ylim[1] + ex
         data = {
             'time': time,
             'values': values.tolist(),
@@ -307,11 +309,11 @@ def climate_analysis_ts_proba(params):
 
         vmin = np.nanmin(values)
         vmax = np.nanmax(values)
-        if params['variable'] == 'precip': vmin = 0
         breaks = pretty(vmin, vmax, 14).tolist()
 
         xlim = [breaks[0], breaks[-1]]
         ex1 = (xlim[1] - xlim[0]) * 0.01
+        xlim[0] = xlim[0] - ex1
         xlim[1] = xlim[1] + ex1
         ex5 = (xlim[1] - xlim[0]) * 0.05
         xmin = xlim[0] - ex5
@@ -389,8 +391,50 @@ def climate_analysis_ts_season(params):
     values = raw_ts['data']['values']
     info = raw_ts['data']['info']
 
+    if ~np.all(np.isnan(values)):
+        vmin = np.nanmin(values)
+        vmax = np.nanmax(values)
+        breaks = pretty(vmin, vmax, 14).tolist()
+        ylim = [breaks[0], breaks[-1]]
+        ex = (ylim[1] - ylim[0]) * 0.01
+        ylim[1] = ylim[1] + ex
 
-    return {'status': 0, 'data': 'test'}
+        moy = np.nanmean(values)
+        med = np.nanmedian(values)
+        ter1 = np.nanquantile(values, 1/3)
+        ter2 = np.nanquantile(values, 2/3)
+
+        stats = {
+            'mean': float(np.round(moy, 2)),
+            'median': float(np.round(med, 2)),
+            'tercile1': float(np.round(ter1, 2)),
+            'tercile2': float(np.round(ter2, 2))
+        }
+
+        xyear = [int(t.split('-')[0]) for t in time]
+        mod_coef = linear_model(np.array(xyear), values)
+
+        data = {
+            'time': xyear,
+            'values': values.tolist(),
+            'stats': stats,
+            'coeffs': mod_coef,
+            'info': info,
+            'yrange': ylim,
+            'yticks': breaks
+        }
+
+        return {'status': 0, 'data': data}
+    else:
+        if params['geomExtract'] == 'points':
+            lon = info['geom']['lon']
+            lat = info['geom']['lat']
+            crd = f'point (Longitude: {lon}, Latitude: {lat})'
+        else:
+            crd = f'polygon ({info['geom']['name']})'
+
+        msg = f'All data are missing for point {crd}'
+        return {'status': -1, 'message': msg}
 
 #####
 

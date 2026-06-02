@@ -1482,8 +1482,36 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
     }
 
     // 
+    const contChart = `container-chart-${contID}`;
 
+    $(`#${tempRes}-chart-season-variable`)
+        .off('change.chartTsSeason')
+        .on('change.chartTsSeason', function() {
+            expand_analysis_charts_season(contChart, tempRes);
+        });
 
+    if (tempRes === 'seasonal') {
+        const sDId = `${tempRes}-chart-season`;
+        $(`#${sDId}-seaslen, #${sDId}-startmon-calendar`)
+            .off('change.chartTsSeason')
+            .on('change.chartTsSeason', function() {
+                expand_analysis_charts_season(contChart, tempRes);
+            });
+    }
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsSeason')
+        .on('click.chartTsSeason', function() {
+            expand_analysis_charts_season(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsSeason')
+        .on('click.chartTsSeason', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
 }
 
 //////////////

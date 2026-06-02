@@ -481,7 +481,7 @@
         <div class="d-flex gap-3">
             {% for key, value in pageText.opt_ts_cdf.type.items() %}
             <label class="d-flex align-items-center">
-                <input type="checkbox" id="{{ tempRes }}-proba-plot-{{ key }}" class="{{ tempRes }}-proba-plot me-1" data-plot="cdf" value="{{ key }}" {% if ( key!='fitted' ) %} checked {% endif %}>
+                <input type="checkbox" id="{{ tempRes }}-proba-plot-cdf-{{ key }}" class="{{ tempRes }}-proba-plot me-1" data-plot="cdf" value="{{ key }}" {% if ( key!='fitted' ) %} checked {% endif %}>
                 <span>{{ value }}</span>
             </label>
             {% endfor %}
@@ -493,7 +493,7 @@
         <div class="d-flex gap-3">
             {% for key, value in pageText.opt_ts_pdf.type.items() %}
             <label class="d-flex align-items-center">
-                <input type="checkbox" id="{{ tempRes }}-proba-plot-{{ key }}" class="{{ tempRes }}-proba-plot me-1" data-plot="pdf" value="{{ key }}" {% if ( key!='fitted' ) %} checked {% endif %}>
+                <input type="checkbox" id="{{ tempRes }}-proba-plot-pdf-{{ key }}" class="{{ tempRes }}-proba-plot me-1" data-plot="pdf" value="{{ key }}" {% if ( key!='fitted' ) %} checked {% endif %}>
                 <span>{{ value }}</span>
             </label>
             {% endfor %}
@@ -541,7 +541,26 @@
         </div>
     </fieldset>
     {% endif %}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_seasplot.label }}</legend>
+        <select id="{{ tempRes }}-chart-season-plot-type" class="form-select {{ tempRes }}-season-select2" style="width: 150px;">
+            {% for key, value in pageText.opt_ts_seasplot.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
     <!--  -->
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_seaslines.label }}</legend>
+        <div class="d-flex gap-3">
+            {% for key, value in pageText.opt_ts_seaslines.type.items() %}
+            <label class="d-flex align-items-center">
+                <input type="checkbox" id="{{ tempRes }}-season-plot-{{ key }}" class="{{ tempRes }}-season-plot me-1" value="{{ key }}">
+                <span>{{ value }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </fieldset>
 </div>
 {% endmacro %}
 <!--  -->

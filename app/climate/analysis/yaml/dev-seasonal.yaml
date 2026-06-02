@@ -204,3 +204,34 @@ opt_ts_pdf:
 opt_js_data:
     cdf: [empirical, smoothed, fitted]
     pdf: [histogram, density, fitted]
+opt_ts_seasplot:
+    label:
+        en: Plot type
+        fr: Type de graphique
+    select:
+        bar:
+            en: Bar
+            fr: Barre
+        line:
+            en: Line
+            fr: Ligne
+        lpoint:
+            en: Line + Points
+            fr: Ligne + Points
+opt_ts_seaslines:
+    label:
+        en: Display
+        fr: Afficher
+    type:
+        mean:
+            en: Mean
+            fr: Moyenne
+        median:
+            en: Median
+            fr: Médiane
+        terciles:
+            en: Terciles
+            fr: Terciles
+        trend:
+            en: Trend
+            fr: Tendance
