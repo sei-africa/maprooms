@@ -18,3 +18,4 @@ odc-geo
 Pillow
 matplotlib
 scipy
+statsmodels
