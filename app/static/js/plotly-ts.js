@@ -1537,11 +1537,17 @@ function expand_analysis_display_proba(json, container) {
 
     const time_res = json.info.time_res;
     const plot_type = $(`#${time_res}-chart-proba-plot-type`).val();
-    const fcheck = `${time_res}-proba-plot-${plot_type}-fitted`;
-    const isFitted = $(`#${fcheck}`).is(':checked');
+
     let data;
     let layout;
     if (plot_type === 'cdf') {
+        const c1 = `${time_res}-proba-plot-cdf-empirical`;
+        const cdfE = $(`#${c1}`).is(':checked');
+        const c2 = `${time_res}-proba-plot-cdf-smoothed`;
+        const cdfS = $(`#${c2}`).is(':checked');
+        const c3 = `${time_res}-proba-plot-cdf-fitted`;
+        const cdfF = $(`#${c3}`).is(':checked');
+
         data = [{
                 x: json.cdf.empirical.x,
                 y: json.cdf.empirical.y,
@@ -1560,7 +1566,7 @@ function expand_analysis_display_proba(json, container) {
                     },
                     size: 6
                 },
-                visible: true,
+                visible: cdfE,
                 hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
             },
             {
@@ -1573,7 +1579,7 @@ function expand_analysis_display_proba(json, container) {
                     color: '#1e90ff',
                     width: 3
                 },
-                visible: true,
+                visible: cdfS,
                 hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
             },
             {
@@ -1586,7 +1592,7 @@ function expand_analysis_display_proba(json, container) {
                     color: '#c29ffa',
                     width: 3
                 },
-                visible: isFitted,
+                visible: cdfF,
                 hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
             }
         ];
@@ -1640,6 +1646,13 @@ function expand_analysis_display_proba(json, container) {
             hoverlabel: hoverlabelColors(theme)
         };
     } else {
+        const p1 = `${time_res}-proba-plot-pdf-histogram`;
+        const pdfE = $(`#${p1}`).is(':checked');
+        const p2 = `${time_res}-proba-plot-pdf-density`;
+        const pdfS = $(`#${p2}`).is(':checked');
+        const p3 = `${time_res}-proba-plot-pdf-fitted`;
+        const pdfF = $(`#${p3}`).is(':checked');
+
         const xlab = json.info.labels.pdf.x;
         const ylab = json.info.labels.pdf.y;
         data = [{
@@ -1647,7 +1660,7 @@ function expand_analysis_display_proba(json, container) {
                 type: 'histogram',
                 histnorm: 'probability density',
                 name: 'Histogram',
-                visible: true,
+                visible: pdfE,
                 // nbinsx: Math.ceil(Math.log2(json.ts.length) + 1),
                 nbinsx: 10,
                 marker: {
@@ -1667,7 +1680,7 @@ function expand_analysis_display_proba(json, container) {
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Kernel Density Estimation',
-                visible: true,
+                visible: pdfS,
                 line: {
                     color: '#1e90ff',
                     width: 3
@@ -1681,7 +1694,7 @@ function expand_analysis_display_proba(json, container) {
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Fitted PDF',
-                visible: isFitted,
+                visible: pdfF,
                 line: {
                     color: '#c29ffa',
                     width: 3
@@ -1749,7 +1762,8 @@ function expand_analysis_display_proba(json, container) {
     const container_plot = setProbaPlotContainer(json, container);
 
     purgePlotlyChart(container_plot);
-    Plotly.newPlot(
+    // Plotly.newPlot(
+    Plotly.react(
         container_plot,
         data,
         layout,
@@ -1758,6 +1772,8 @@ function expand_analysis_display_proba(json, container) {
 
     setPlotlyThemeColors(container_plot);
 
+    const fcheck = `${time_res}-proba-plot-${plot_type}-fitted`;
+    const isFitted = $(`#${fcheck}`).is(':checked');
     if (isFitted) {
         $(`#${container}-distr-div`).show();
     } else {
