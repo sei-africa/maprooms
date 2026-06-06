@@ -181,7 +181,7 @@ function getDataSpatialResolution1(tempRes) {
     const maptype = $(`#${tempRes}-map-type option:selected`).val();
     const variable = $(`#${tempRes}-map-variable option:selected`).val();
     const dset = DATA_SET[maptype];
-    const pvar = DATA_SET.varid[variable];
+    const pvar = DATA_SET.varid[variable][0];
     const data = DATA_INFO[dset][tempRes][pvar];
     return data.spatial_resolution;
 }
@@ -446,7 +446,10 @@ function setAnalysisMapTypeDaily(time_res) {
                 `div-${tstepID}-climato-years`,
                 `${time_res}-map-climato`
             ],
-            [`div-${tstepID}-tseries-years`]
+            [
+                `div-${tstepID}-tseries-years`,
+                `${time_res}-map-anomaly`
+            ]
         );
 
         $('#input-time-navigation').val('').prop('disabled', true);
@@ -454,15 +457,25 @@ function setAnalysisMapTypeDaily(time_res) {
         $('#next-time-navigation').prop('disabled', true);
 
         return;
+    } else if (maptype === 'anomaly') {
+        setVisibility(
+            [
+                `div-${tstepID}-tseries-years`,
+                `div-${tstepID}-climato-years`,
+                `${time_res}-map-anomaly`
+            ],
+            [`${time_res}-map-climato`]
+        );
+    } else {
+        setVisibility(
+            [`div-${tstepID}-tseries-years`],
+            [
+                `div-${tstepID}-climato-years`,
+                `${time_res}-map-climato`,
+                `${time_res}-map-anomaly`
+            ]
+        );
     }
-
-    setVisibility(
-        [`div-${tstepID}-tseries-years`],
-        [
-            `div-${tstepID}-climato-years`,
-            `${time_res}-map-climato`
-        ]
-    );
 
     $('#input-time-navigation').prop('disabled', false);
     $('#prev-time-navigation').prop('disabled', false);
@@ -470,7 +483,7 @@ function setAnalysisMapTypeDaily(time_res) {
 
     const this_var = $(`#${time_res}-map-variable`).val();
     const dataset = DATA_SET[maptype];
-    const variable = DATA_SET.varid[this_var];
+    const variable = DATA_SET.varid[this_var][0];
     const year_cov = getTempCoverageYear(
         dataset, time_res, variable
     );
@@ -532,7 +545,7 @@ function setAnalysisParamsDefDaily(time_res) {
 
     const rules = {
         rainfall: {
-            numberOnly: ['NumWD', 'NumDD', 'RainInt', 'LongDS'],
+            numberOnly: ['NumWD', 'NumDD', 'RainInt', 'LongDS', 'LongWS'],
             numberAndSpell: ['NumDS', 'NumWS'],
             spellOnly: []
         },
@@ -624,7 +637,7 @@ async function setMapDatesNavInput(tempRes) {
 
         let variable = $(`#${tempRes}-map-variable`).val();
         if (tempRes === 'daily') {
-            variable = DATA_SET.varid[variable];
+            variable = DATA_SET.varid[variable][0];
         }
 
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
@@ -724,7 +737,7 @@ async function setMapDatesNavPrev(tempRes) {
 
         let variable = $(`#${tempRes}-map-variable`).val();
         if (tempRes === 'daily') {
-            variable = DATA_SET.varid[variable];
+            variable = DATA_SET.varid[variable][0];
         }
 
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
@@ -850,7 +863,7 @@ async function setMapDatesNavNext(tempRes) {
 
         let variable = $(`#${tempRes}-map-variable`).val();
         if (tempRes === 'daily') {
-            variable = DATA_SET.varid[variable];
+            variable = DATA_SET.varid[variable][0];
         }
 
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);

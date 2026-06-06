@@ -1,5 +1,9 @@
 datasets:
     ALL:
+        variables:
+            rainfall: precip
+            maximum_temperature: tmax
+            minimum_temperature: tmin
         daily:
             compute: False
             netcdf:
@@ -200,6 +204,8 @@ datasets:
                     input: dekadal
                     minfrac: 1
     MON:
+        variables:
+            rainfall: precip
         daily:
             compute: False
             netcdf:

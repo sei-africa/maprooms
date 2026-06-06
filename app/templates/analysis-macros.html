@@ -191,34 +191,7 @@
                 </div>
             </div>
         </div>
-    </fieldset>
-    <fieldset class="border border-secondary rounded-3">
-        <legend class="legend-label">{{ pageText.opt_season.label_year }}</legend>
-        <div id="div-{{ tstepID }}-climato-years" style="display: none;">
-            <div class="row gx-1">
-                <div class="col-md-3 d-flex justify-content-end align-items-center text-end">
-                    {{ pageText.opt_season.start_date }}
-                </div>
-                <div class="col-md-3">
-                    <input id="{{ tstepID }}-start-year" class="form-control text-center" type="text" value="{{ pageText.default_season.start_year }}">
-                </div>
-                <div class="col-md-3 d-flex justify-content-end align-items-center  text-end">
-                    {{ pageText.opt_season.end_date }}
-                </div>
-                <div class="col-md-3">
-                    <input id="{{ tstepID }}-end-year" class="form-control text-center" type="text" value="{{ pageText.default_season.end_year }}">
-                </div>
-            </div>
-            <div class="row gx-1 mt-1">
-                <div class="col-md-9 d-flex text-nowrap justify-content-end align-items-center text-end">
-                    {{ pageText.opt_season.min_year }}
-                </div>
-                <div class="col-md-3">
-                    <input id="{{ tstepID }}-min-year" class="form-control text-center" type="text" value="{{ pageText.default_season.min_year }}">
-                </div>
-            </div>
-        </div>
-        <div id="div-{{ tstepID }}-tseries-years" style="display: none;">
+        <div id="div-{{ tstepID }}-tseries-years" class="container-fluid px-0" style="display: none;">
             <div class="row gx-1 mt-1">
                 <div class="col-md-6 d-flex justify-content-end align-items-center text-end">
                     {{ pageText.opt_season.disp_year }}
@@ -227,6 +200,42 @@
                     <input id="{{ tstepID }}-tseries-year" class="form-control text-center" type="number" value="2024" min="1981" max="2026" step="1">
                 </div>
             </div>
+        </div>
+    </fieldset>
+    <fieldset id="div-{{ tstepID }}-climato-years" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_season.label_year }}</legend>
+        <div class="row gx-1">
+            <div class="col-md-3 d-flex justify-content-end align-items-center text-end">
+                {{ pageText.opt_season.start_date }}
+            </div>
+            <div class="col-md-3">
+                <input id="{{ tstepID }}-start-year" class="form-control text-center" type="text" value="{{ pageText.default_season.start_year }}">
+            </div>
+            <div class="col-md-3 d-flex justify-content-end align-items-center  text-end">
+                {{ pageText.opt_season.end_date }}
+            </div>
+            <div class="col-md-3">
+                <input id="{{ tstepID }}-end-year" class="form-control text-center" type="text" value="{{ pageText.default_season.end_year }}">
+            </div>
+        </div>
+        <div class="row gx-1 mt-1">
+            <div class="col-md-9 d-flex text-nowrap justify-content-end align-items-center text-end">
+                {{ pageText.opt_season.min_year }}
+            </div>
+            <div class="col-md-3">
+                <input id="{{ tstepID }}-min-year" class="form-control text-center" type="text" value="{{ pageText.default_season.min_year }}">
+            </div>
+        </div>
+        <!-- teto year for anom and raw -->
+    </fieldset>
+    <fieldset id="{{ tempRes }}-map-anomaly" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_anomaly.label }}</legend>
+        <div>
+            <select id="{{ tempRes }}-map-anomaly-type" class="form-select form-select2-nosearch" style="width:100%;">
+                {% for key, value in pageText.opt_anomaly.select.items() %}
+                <option value="{{key}}" {% if (key=='difference' ) %} selected {% endif %}>{{value}}</option>
+                {% endfor %}
+            </select>
         </div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3">

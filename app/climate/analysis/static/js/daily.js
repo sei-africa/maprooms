@@ -11,16 +11,16 @@ $(document).ready(function() {
     ////////////
     // initialize map
     const map_options = {};
-    // displayClimateAnalysisMap('daily', map_options, map);
+    displayClimateAnalysisMap('daily', map_options, map);
 
     // display map when offcanvas hidden
     $('#map-control-offcanvas-dataselect').on('hidden.bs.offcanvas', () => {
-        // displayClimateAnalysisMap('daily', map_options, map);
+        displayClimateAnalysisMap('daily', map_options, map);
     });
 
     // 
     $('#map-control-redraw').on('click', () => {
-        // displayClimateAnalysisMap('daily', map_options, map);
+        displayClimateAnalysisMap('daily', map_options, map);
     });
 
     ////////////

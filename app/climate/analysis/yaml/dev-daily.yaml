@@ -16,8 +16,8 @@ dataset:
     climatology: ALL
     anomaly: ALL
     varid:
-        rainfall: precip
-        temperature: tmax
+        rainfall: [precip]
+        temperature: [tmin, tmax]
 default_season:
     start_mon: 6
     start_day: 1
@@ -128,10 +128,18 @@ parameters:
                 en: days
                 fr: jours
             value: 21
+        LongWS:
+            select:
+                en: Longest wet spell
+                fr: Périodes pluvieuses plus longue
+            unit:
+                en: days
+                fr: jours
+            value: 10
     temperature:
         MeanTemp:
             select:
-                en: Mean Temperature
+                en: Mean temperature
                 fr: Temperature moyenne
             unit:
                 en: °C
@@ -194,7 +202,7 @@ parameters:
                 fr: °C-jours
             value: 100
 parameters_order:
-    rainfall: [TotRain, NumWD, NumDD, RainInt, NumDS, NumWS, LongDS]
+    rainfall: [TotRain, NumWD, NumDD, RainInt, NumDS, NumWS, LongDS, LongWS]
     temperature: [MeanTemp, MinTemp, MaxTemp, NumCD, NumHD, CDD, HDD, GDD]
 definition:
     rainfall:
@@ -236,7 +244,7 @@ definition:
             text:
                 en: °C
                 fr: °C
-            value: 10
+            value: 18
 label_statistics:
     params:
         en: Seasonal statistics
@@ -277,3 +285,17 @@ probabilities:
         frac:
             en: Fraction
             fr: Fraction
+opt_anomaly:
+    label:
+        en: Anomaly
+        fr: Anomalie
+    select:
+        difference:
+            en: Deviation from mean
+            fr: Écart par rapport à la moyenne
+        standardized:
+            en: Standardized anomaly
+            fr: Anomalie standardisée
+        percentage:
+            en: Percentage of mean
+            fr: Pourcentage de la moyenne
