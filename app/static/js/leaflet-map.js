@@ -1695,22 +1695,6 @@ function queryParamsAnalysisMap(time_res) {
         query.minFrac = 1.0;
         query.seasParams = $(`#${time_res}-map-parameters`).val();
 
-        // if (query.variable === 'temperature') {
-        //     if (query.seasParams === 'MinTemp') {
-        //         query.varNames = [DATA_SET.varid[query.variable][0]];
-        //     } else if (query.seasParams === 'MaxTemp') {
-        //         query.varNames = [DATA_SET.varid[query.variable][1]];
-        //     } else if (query.seasParams === 'NumCD') {
-        //         query.varNames = [DATA_SET.varid[query.variable][0]];
-        //     } else if (query.seasParams === 'NumHD') {
-        //         query.varNames = [DATA_SET.varid[query.variable][1]];
-        //     } else {
-        //         query.varNames = DATA_SET.varid[query.variable];
-        //     }
-        // } else {
-        //     query.varNames = DATA_SET.varid[query.variable];
-        // }
-
         query.startMonth = parseInt($(`#${tstep_id}-start-mon`).val(), 10);
         query.startDay = parseInt($(`#${tstep_id}-start-day`).val(), 10);
         query.endMonth = parseInt($(`#${tstep_id}-end-mon`).val(), 10);

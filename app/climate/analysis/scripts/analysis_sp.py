@@ -3,7 +3,8 @@ import numpy as np
 from app.dst_api.scripts import (download_climdata,
                                  download_analysis,
                                  download_rawdata,
-                                 download_analysis_dailydata)
+                                 download_analysis_dailydata,
+                                 download_analysis_dailyclim)
 from app.scripts.imagepng import create_imagePng
 from app.scripts.colorbar import matplotlib_invalid_colors
 
@@ -28,7 +29,9 @@ def climate_analysis_sp_data(params):
 
     if params['dailyAnalysis']:
         if params['mapType'] == 'climatology':
-            return {'status': -1, 'message': 'Test climatology'}
+            params = _create_params_sp_clim(params)
+            json_data = download_analysis_dailyclim(params)
+            data = _parse_json_spatial_data(json_data, 'Dates')
         elif params['mapType'] == 'rawdata':
             params = _create_params_sp_raw(params)
             json_data = download_analysis_dailydata(params)
@@ -85,30 +88,41 @@ def climate_analysis_sp_data(params):
     return {'status': 0, 'data': map_png}
 
 def _create_params_sp_clim(params):
-    pars = {'fullYear': False, 'geomExtract': 'original',
-            'outFormat': 'JSON-Format', 'webApp': True,
-            'httpMethod': 'POST'}
+    pars = {
+        'fullYear': False,
+        'geomExtract': 'original',
+        'outFormat': 'JSON-Format',
+        'webApp': True,
+        'finalOutput': True,
+        'httpMethod': 'POST'
+    }
     return pars | params
 
 def _create_params_sp_raw(params):
-    pars = {'geomExtract': 'original', 'outFormat': 'JSON-Format',
-            'gridded': True, 'webApp': True,
-            'finalOutput': True, 'httpMethod': 'POST'}
+    pars = {
+        'geomExtract': 'original',
+        'outFormat': 'JSON-Format',
+        'gridded': True,
+        'webApp': True,
+        'finalOutput': True,
+        'httpMethod': 'POST'
+    }
     return pars | params
 
 def _create_params_sp_anom(params):
-    pars = {'analysis': 'anomaly', 'geomExtract': 'original',
-            'outFormat': 'JSON-Format',
-            'climFunction': 'mean-stdev', 'fullYear': True,
-            'climDate': None, 'gridded': True, 'webApp': True,
-            'httpMethod': 'POST', 'outFormat_0': 'JSON-Format'}
+    pars = {
+        'analysis': 'anomaly',
+        'geomExtract': 'original',
+        'outFormat': 'JSON-Format',
+        'climFunction': 'mean-stdev',
+        'fullYear': True,
+        'climDate': None,
+        'gridded': True,
+        'webApp': True,
+        'httpMethod': 'POST',
+        'outFormat_0': 'JSON-Format'
+    }
     return pars | params
-
-# def _create_params_sp_raw_daily(params):
-#     pars = {'geomExtract': 'original', 'outFormat': 'JSON-Format',
-#             'gridded': True, 'webApp': True,
-#             'finalOutput': True, 'httpMethod': 'POST'}
-#     return pars | params
 
 def _parse_json_spatial_data(json_data, date_key):
     jsd = json.loads(json_data)
@@ -120,13 +134,13 @@ def _parse_json_spatial_data(json_data, date_key):
     data = np.where(data == jsd['Missing'], np.nan, data)
 
     return {
-        'status': 0,
-        'date': jsd[date_key],
-        'lon': lon,
-        'lat': lat,
-        'data': data,
-        'longname': jsd['VariableName'],
-        'units': jsd['VariableUnits'],
-        'varid': jsd['VariableVarId'],
-        'dimensions': jsd['Dimensions']
-    }
+            'status': 0,
+            'date': jsd[date_key],
+            'lon': lon,
+            'lat': lat,
+            'data': data,
+            'longname': jsd['VariableName'],
+            'units': jsd['VariableUnits'],
+            'varid': jsd['VariableVarId'],
+            'dimensions': jsd['Dimensions']
+        }
