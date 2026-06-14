@@ -1,13 +1,401 @@
 description:
-    en: test
-    fr: test
-# all about daily
+    en: |
+        <h4>Seasonal Climate Analysis</h4>
+        <p>
+        The Maproom explores historical daily precipitation and temperatures by calculating simple seasonal statistics and the history of extreme.
+        Rainfall time series and temperature time series (1981-2021) reconstructed from station observations, remote sensing and other proxies.
+        </p>
+    fr: |
+        <h4>Analyse Climatique Journalières</h4>
+        <p>
+        Le Maproom explore les précipitations et températures journalières en calculant de simple statistiques saisonniers et des extrêmes historiques.
+        Séries temporelles de précipitations et de température (1981-2021) reconstruites à partir de données in-situ et de données de télédétection et autres proxy.
+        </p>
 dataset:
-    rawdata:
-        dataset: ALL
-    dryday:
-        dataset: ALL
-    climatology:
-        dataset: ALL
-    anomaly:
-        dataset: ALL
+    rawdata: ALL
+    climatology: ALL
+    anomaly: ALL
+    varid:
+        rainfall: [precip]
+        temperature: [tmin, tmax]
+default_season:
+    start_mon: 6
+    start_day: 1
+    end_mon: 8
+    end_day: 31
+    start_year: 1981
+    end_year: 2024
+    min_year: 30
+variables:
+    label:
+        en: Variable
+        fr: Variable
+    select:
+        rainfall:
+            en: Rainfall
+            fr: Précipitation
+        temperature:
+            en: Temperature
+            fr: Température
+opt_season:
+    label_year:
+        start:
+            en: Start year
+            fr: Début année
+        end:
+            en: End year
+            fr: Fin année
+    label_season:
+        start:
+            en: Start season
+            fr: Début saison
+        end:
+            en: End season
+            fr: Fin saison
+opt_season_map:
+    label_season:
+        en: Season
+        fr: Saison
+    label_year:
+        en: Years
+        fr: Années
+    start_date:
+        en: Start
+        fr: Début
+    end_date:
+        en: End
+        fr: Fin
+    min_year:
+        en: Minimum number of years
+        fr: Nombre minimum d'années
+    disp_year:
+        en: Display year
+        fr: Afficher année
+opt_map:
+    label:
+        en: Display
+        fr: Afficher
+    select:
+        climatology:
+            en: Climatology
+            fr: Climatologie
+        anomaly:
+            en: Anomaly
+            fr: Anomalie
+        rawdata:
+            en: Selected year
+            fr: Année sélectionnée
+parameters:
+    rainfall:
+        TotRain:
+            select:
+                en: Total rainfall
+                fr: Cumul de précipitations
+            unit:
+                en: mm
+                fr: mm
+            value: 500
+        NumWD:
+            select:
+                en: Number of wet days
+                fr: Nombre des jours de pluies
+            unit:
+                en: days
+                fr: jours
+            value: 30
+        NumDD:
+            select:
+                en: Number of dry days
+                fr: Nombre des jours secs
+            unit:
+                en: days
+                fr: jours
+            value: 30
+        RainInt:
+            select:
+                en: Rainfall intensity
+                fr: Intensité des pluies
+            unit:
+                en: mm/day
+                fr: mm/jour
+            value: 10
+        NumDS:
+            select:
+                en: Number of dry spells
+                fr: Nombre de périodes sèches
+            unit:
+                en: spells
+                fr: périodes
+            value: 3
+        NumWS:
+            select:
+                en: Number of wet spells
+                fr: Nombre de périodes pluvieuses
+            unit:
+                en: spells
+                fr: périodes
+            value: 3
+        LongDS:
+            select:
+                en: Longest dry spell
+                fr: Périodes sèches plus longue
+            unit:
+                en: days
+                fr: jours
+            value: 21
+        LongWS:
+            select:
+                en: Longest wet spell
+                fr: Périodes pluvieuses plus longue
+            unit:
+                en: days
+                fr: jours
+            value: 10
+    temperature:
+        MeanTemp:
+            select:
+                en: Mean temperature
+                fr: Temperature moyenne
+            unit:
+                en: °C
+                fr: °C
+            value: 20
+        MinTemp:
+            select:
+                en: Minimum temperature
+                fr: Température minimale
+            unit:
+                en: °C
+                fr: °C
+            value: 10
+        MaxTemp:
+            select:
+                en: Maximum temperature
+                fr: Température maximale
+            unit:
+                en: °C
+                fr: °C
+            value: 30
+        NumCD:
+            select:
+                en: Number of cold days
+                fr: Nombre de jours froids
+            unit:
+                en: days
+                fr: jours
+            value: 30
+        NumHD:
+            select:
+                en: Number of hot days
+                fr: Nombre de jours chauds
+            unit:
+                en: days
+                fr: jours
+            value: 30
+        CDD:
+            select:
+                en: Chilling degree days
+                fr: Degrés-jours de refroidissement
+            unit:
+                en: °C-days
+                fr: °C-jours
+            value: 100
+        HDD:
+            select:
+                en: Heating degree days
+                fr: Degrés-jours de chauffage
+            unit:
+                en: °C-days
+                fr: °C-jours
+            value: 100
+        GDD:
+            select:
+                en: Growing degree days
+                fr: Degrés-jours de croissance
+            unit:
+                en: °C-days
+                fr: °C-jours
+            value: 100
+parameters_order:
+    rainfall: [TotRain, NumWD, NumDD, RainInt, NumDS, NumWS, LongDS, LongWS]
+    temperature: [MeanTemp, MinTemp, MaxTemp, NumCD, NumHD, CDD, HDD, GDD]
+definition:
+    rainfall:
+        number:
+            label:
+                en: Wet/Dry day definition
+                fr: Définition d'un jour pluvieux/sec
+            text:
+                en: Rainfall amount above/below
+                fr: Cumul de précipitations au-dessus/en-dessous de
+            unit: 
+                en: mm/day
+                fr: mm/jour
+            value: 1
+        spell:
+            label:
+                en: Wet/Dry spell definition
+                fr: Définition de périodes pluvieuses/sèches
+            text:
+                en: continuous wet/dry days
+                fr: jours pluvieux/secs de suite
+            value: 7
+    temperature:
+        number:
+            label:
+                en: Hot/Cold day definition
+                fr: Définition d'un jour chaud/froid
+            text:
+                en: Temperature above/below
+                fr: Température au-dessus/en-dessous de
+            unit: 
+                en: °C
+                fr: °C
+            value: 20
+        spell:
+            label:
+                en: Base temperature definition
+                fr: Définition de température de base
+            text:
+                en: °C
+                fr: °C
+            value: 18
+label_statistics:
+    params:
+        en: Seasonal statistics
+        fr: Statistique saisonnières
+    stats:
+        en: Yearly seasonal statistics
+        fr: Statistiques saisonnières annuelles
+seasonal_statistics:
+        mean:
+            en: Average
+            fr: Moyenne
+        median:
+            en: Median
+            fr: Médiane
+        stdev:
+            en: Standard deviation
+            fr: Écart type
+        cv:
+            en: Coefficient of variation
+            fr: Coefficient de variation
+        probExc:
+            en: Probability of exceeding
+            fr: Probabilité de dépassement
+        probNoExc:
+            en: Probability of non-exceeding
+            fr: Probabilité de non-dépassement
+probabilities:
+    thres:
+        en: Threshold
+        fr: Seuil
+    unit:
+        en: Probability units
+        fr: Unités de probabilité
+    select:
+        perc:
+            en: Percentage
+            fr: Pourcentage
+        frac:
+            en: Fraction
+            fr: Fraction
+opt_anomaly:
+    label:
+        en: Anomaly
+        fr: Anomalie
+    select:
+        difference:
+            en: Deviation from mean
+            fr: Écart par rapport à la moyenne
+        standardized:
+            en: Standardized anomaly
+            fr: Anomalie standardisée
+        percentage:
+            en: Percentage of mean
+            fr: Pourcentage de la moyenne
+
+opt_ts_anom:
+    label_series:
+        en: Display
+        fr: Afficher
+    series:
+        one:
+            en: One serie
+            fr: Une série
+        tstep:
+            en: By season
+            fr: Par saison
+opt_ts_df:
+    label:
+        en: Display
+        fr: Afficher
+    select:
+        cdf: 
+            en: Cumulative Distribution Function (CDF)
+            fr: Fonction de Répartition (CDF)
+        pdf: 
+            en: Probability Density Function (PDF)
+            fr: Fonction de Densité de Probabilité (PDF)
+opt_ts_cdf:
+    label:
+        en: CDF Chart
+        fr: Graphique de CDF
+    type:
+        empirical:
+            en: Empirical
+            fr: Empirique
+        smoothed:
+            en: Smoothed
+            fr: Lissée
+        fitted:
+            en: Theoretical
+            fr: Théorique
+opt_ts_pdf:
+    label:
+        en: PDF Chart
+        fr: Graphique de PDF
+    type:
+        histogram:
+            en: Histogram
+            fr: Histogramme
+        density:
+            en: Density (KDE)
+            fr: Densité (KDE)
+        fitted:
+            en: Theoretical
+            fr: Théorique
+opt_js_data:
+    cdf: [empirical, smoothed, fitted]
+    pdf: [histogram, density, fitted]
+opt_ts_seasplot:
+    label:
+        en: Plot type
+        fr: Type de graphique
+    select:
+        bar:
+            en: Bar
+            fr: Barre
+        line:
+            en: Line
+            fr: Ligne
+        lpoint:
+            en: Line + Points
+            fr: Ligne + Points
+opt_ts_seaslines:
+    label:
+        en: Display
+        fr: Afficher
+    type:
+        mean:
+            en: Mean
+            fr: Moyenne
+        median:
+            en: Median
+            fr: Médiane
+        terciles:
+            en: Terciles
+            fr: Terciles
+        trend:
+            en: Trend
+            fr: Tendance
