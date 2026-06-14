@@ -38,13 +38,17 @@ def hash_pamars_clim(params):
 
 def hash_pamars_anom(params):
     pars_keys = [
-         'analysis', 'anomaly', 'Date', 'startDate', 'endDate', 'seasStart', 'seasLength',
-         'dataset', 'temporalRes', 'variable', 'climFunction', 'fullYear', 'fullYearTS',
+         'analysis', 'anomaly', 'Date', 'startDate', 'endDate',
+         'seasStart', 'seasLength', 'dataset', 'temporalRes',
+         'variable', 'climFunction', 'fullYear', 'fullYearTS',
          'climDate', 'daysWindow', 'startYear', 'endYear', 'minYear',
          'geomExtract', 'pointsSource', 'pointsFile', 'pointsList',
          'padLon', 'padLat', 'minLon', 'maxLon', 'minLat', 'maxLat',
          'shpSource', 'shpFile', 'shpField', 'Poly', 'allPolygons',
-         'geojsonSource', 'geojsonFile', 'geojsonData', 'geojsonField', 'spatialAvg'
+         'geojsonSource', 'geojsonFile', 'geojsonData', 'geojsonField',
+         'spatialAvg', 'dailyAnalysis', 'minFrac', 'seasParams',
+         'startMonth', 'startDay', 'endMonth', 'endDay', 'defThres',
+         'defSpell', 'defTempBase', 'seasStats'
     ]
     pars = {k: str(v) for k, v in params.items() if k in pars_keys}
     return _hash_params(pars)
@@ -55,7 +59,8 @@ def hash_params_ts_data(params):
         'shpField', 'Poly', 'dataset', 'temporalRes', 'variable', 'startDate',
         'endDate', 'startYear', 'endYear', 'minYear', 'anomaly', 'chartType',
         'seasStart', 'seasLength', 'fullYearTS', 'fullYear', 'climDate',
-        'climFunction'
+        'climFunction', 'dailyAnalysis', 'minFrac', 'seasParams', 'startMonth',
+        'startDay', 'endMonth', 'endDay', 'defThres', 'defSpell', 'defTempBase'
     ]
     pars = {k: str(v) for k, v in params.items() if k in pars_keys}
     return _hash_params(pars)

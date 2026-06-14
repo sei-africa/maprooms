@@ -166,14 +166,14 @@
         </select>
     </fieldset>
     <fieldset class="border border-secondary rounded-3">
-        <legend class="legend-label">{{ pageText.opt_season.label_sesaon }}</legend>
+        <legend class="legend-label">{{ pageText.opt_season_map.label_season }}</legend>
         <div class="container-fluid px-0">
             <div class="row gx-1">
                 <div class="col-md-6 text-center">
-                    {{ pageText.opt_season.start_date }}
+                    {{ pageText.opt_season_map.start_date }}
                 </div>
                 <div class="col-md-6 text-center">
-                    {{ pageText.opt_season.end_date }}
+                    {{ pageText.opt_season_map.end_date }}
                 </div>
             </div>
             <div class="row gx-1">
@@ -194,7 +194,7 @@
         <div id="div-{{ tstepID }}-tseries-years" class="container-fluid px-0" style="display: none;">
             <div class="row gx-1 mt-1">
                 <div class="col-md-6 d-flex justify-content-end align-items-center text-end">
-                    {{ pageText.opt_season.disp_year }}
+                    {{ pageText.opt_season_map.disp_year }}
                 </div>
                 <div class="col-md-4">
                     <input id="{{ tstepID }}-tseries-year" class="form-control text-center" type="number" value="2024" min="1981" max="2026" step="1">
@@ -203,16 +203,16 @@
         </div>
     </fieldset>
     <fieldset id="div-{{ tstepID }}-climato-years" class="border border-secondary rounded-3" style="display: none;">
-        <legend class="legend-label">{{ pageText.opt_season.label_year }}</legend>
+        <legend class="legend-label">{{ pageText.opt_season_map.label_year }}</legend>
         <div class="row gx-1">
             <div class="col-md-3 d-flex justify-content-end align-items-center text-end">
-                {{ pageText.opt_season.start_date }}
+                {{ pageText.opt_season_map.start_date }}
             </div>
             <div class="col-md-3">
                 <input id="{{ tstepID }}-start-year" class="form-control text-center" type="text" value="{{ pageText.default_season.start_year }}">
             </div>
             <div class="col-md-3 d-flex justify-content-end align-items-center  text-end">
-                {{ pageText.opt_season.end_date }}
+                {{ pageText.opt_season_map.end_date }}
             </div>
             <div class="col-md-3">
                 <input id="{{ tstepID }}-end-year" class="form-control text-center" type="text" value="{{ pageText.default_season.end_year }}">
@@ -220,7 +220,7 @@
         </div>
         <div class="row gx-1 mt-1">
             <div class="col-md-9 d-flex text-nowrap justify-content-end align-items-center text-end">
-                {{ pageText.opt_season.min_year }}
+                {{ pageText.opt_season_map.min_year }}
             </div>
             <div class="col-md-3">
                 <input id="{{ tstepID }}-min-year" class="form-control text-center" type="text" value="{{ pageText.default_season.min_year }}">
@@ -271,27 +271,27 @@
             </div>
         </div>
     </fieldset>
-    <fieldset id="{{ tempRes }}-def-number" class="border border-secondary rounded-3" style="display: none;">
-        <legend id="{{ tempRes }}-def-number-thres-lab" class="legend-label">{{ pageText.definition.rainfall.number.label }}</legend>
+    <fieldset id="{{ tempRes }}-map-def-number" class="border border-secondary rounded-3" style="display: none;">
+        <legend id="{{ tempRes }}-map-def-number-thres-lab" class="legend-label">{{ pageText.definition.rainfall.number.label }}</legend>
         <div class="row gx-0 mt-1">
-            <div id="{{ tempRes }}-def-number-thres-txt" class="col-md-8 d-flex justify-content-end align-items-center text-end pe-1">
+            <div id="{{ tempRes }}-map-def-number-thres-txt" class="col-md-8 d-flex justify-content-end align-items-center text-end pe-1">
                 {{ pageText.definition.rainfall.number.text }}
             </div>
             <div class="col-md-2 d-flex align-items-center">
-                <input id="{{ tempRes }}-def-number-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.number.value }}">
+                <input id="{{ tempRes }}-map-def-number-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.number.value }}">
             </div>
-            <div id="{{ tempRes }}-def-number-thres-unit" class="col-md-2 d-flex justify-content-start align-items-center text-start ps-1">
+            <div id="{{ tempRes }}-map-def-number-thres-unit" class="col-md-2 d-flex justify-content-start align-items-center text-start ps-1">
                 {{ pageText.definition.rainfall.number.unit }}
             </div>
         </div>
     </fieldset>
-    <fieldset id="{{ tempRes }}-def-spell" class="border border-secondary rounded-3" style="display: none;">
-        <legend id="{{ tempRes }}-def-spell-thres-lab" class="legend-label">{{ pageText.definition.rainfall.spell.label }}</legend>
+    <fieldset id="{{ tempRes }}-map-def-spell" class="border border-secondary rounded-3" style="display: none;">
+        <legend id="{{ tempRes }}-map-def-spell-thres-lab" class="legend-label">{{ pageText.definition.rainfall.spell.label }}</legend>
         <div class="row gx-0 mt-1">
             <div class="col-md-2 d-flex align-items-center">
-                <input id="{{ tempRes }}-def-spell-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.spell.value }}">
+                <input id="{{ tempRes }}-map-def-spell-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.spell.value }}">
             </div>
-            <div id="{{ tempRes }}-def-spell-thres-txt" class="col-md-8 d-flex justify-content-start align-items-center text-start ps-2">
+            <div id="{{ tempRes }}-map-def-spell-thres-txt" class="col-md-8 d-flex justify-content-start align-items-center text-start ps-2">
                 {{ pageText.definition.rainfall.spell.text }}
             </div>
         </div>
@@ -340,14 +340,16 @@
 <div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-anom-control">
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.variables.label }}</legend>
-        <select id="{{ tempRes }}-chart-anom-variable" class="form-select {{ tempRes }}-anom-select2" style="width: 200px;">
+        <select id="{{ tempRes }}-anom-variable" class="form-select {{ tempRes }}-anom-select2" style="width: 200px;">
             {% for key, value in pageText.variables.select.items() %}
             <option value="{{key}}">{{value}}</option>
             {% endfor %}
         </select>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
-        {% if tempRes == 'seasonal'%}
+        {% if tempRes == 'seasonal' %}
+        <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
+        {% elif tempRes == 'daily' %}
         <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
         {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.start }}</legend>
@@ -358,6 +360,8 @@
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
         {% if tempRes == 'seasonal'%}
+        <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
+        {% elif tempRes == 'daily' %}
         <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
         {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.end }}</legend>
@@ -441,12 +445,48 @@
 <div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-proba-control">
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.variables.label }}</legend>
-        <select id="{{ tempRes }}-chart-proba-variable" class="form-select {{ tempRes }}-proba-select2" style="width: 200px;">
+        <select id="{{ tempRes }}-proba-variable" class="form-select {{ tempRes }}-proba-select2" style="width: 200px;">
             {% for key, value in pageText.variables.select.items() %}
             <option value="{{key}}">{{value}}</option>
             {% endfor %}
         </select>
     </fieldset>
+    {% if tempRes == 'daily'%}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.label_statistics.params }}</legend>
+        <!--  -->
+        <select id="{{ tempRes }}-proba-parameters" class="form-select {{ tempRes }}-proba-select2" style="width: 300px;">
+            {% for key, value in pageText.parameters.rainfall.items() %}
+            <option value="{{key}}">{{value.select}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-proba-def-number" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <legend id="{{ tempRes }}-proba-def-number-thres-lab" class="legend-label">{{ pageText.definition.rainfall.number.label }}</legend>
+        <div class="row w-auto">
+            <div id="{{ tempRes }}-proba-def-number-thres-txt" class="col-auto">
+                {{ pageText.definition.rainfall.number.text }}
+            </div>
+            <div class="col-auto me-0 pe-0">
+                <input id="{{ tempRes }}-proba-def-number-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.number.value }}" size="3">
+            </div>
+            <div id="{{ tempRes }}-proba-def-number-thres-unit" class="col-auto ms-0 ps-1">
+                {{ pageText.definition.rainfall.number.unit }}
+            </div>
+        </div>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-proba-def-spell" class="border border-secondary rounded-3" style="display: none;">
+        <legend id="{{ tempRes }}-proba-def-spell-thres-lab" class="legend-label">{{ pageText.definition.rainfall.spell.label }}</legend>
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <input id="{{ tempRes }}-proba-def-spell-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.spell.value }}" size="4">
+            </div>
+            <div id="{{ tempRes }}-proba-def-spell-thres-txt" class="col-auto ms-0 ps-1">
+                {{ pageText.definition.rainfall.spell.text }}
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
         <div id="{{ tempRes }}-chart-proba-startdate" style="width: 6.5em">
@@ -476,6 +516,33 @@
         </div>
     </fieldset>
     {% endif %}
+    <!--  -->
+    {% if tempRes == 'daily'%}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_season.start }}</legend>
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <select id="{{ tempRes }}-proba-start-mon" class="form-select {{ tempRes }}-proba-select2" style="width: 150px;"></select>
+            </div>
+            <div class="col-auto ms-0 ps-1">
+                <select id="{{ tempRes }}-proba-start-day" class="form-select {{ tempRes }}-proba-select2"></select>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_season.end }}</legend>
+        <!--  -->
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <select id="{{ tempRes }}-proba-end-mon" class="form-select {{ tempRes }}-proba-select2" style="width: 150px;"></select>
+            </div>
+            <div class="col-auto ms-0 ps-1">
+                <select id="{{ tempRes }}-proba-end-day" class="form-select {{ tempRes }}-proba-select2"></select>
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
+    <!--  -->
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_ts_df.label }}</legend>
         <select id="{{ tempRes }}-chart-proba-plot-type" class="form-select {{ tempRes }}-proba-select2">
@@ -515,12 +582,47 @@
 <div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-season-control">
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.variables.label }}</legend>
-        <select id="{{ tempRes }}-chart-season-variable" class="form-select {{ tempRes }}-season-select2" style="width: 200px;">
+        <select id="{{ tempRes }}-tseries-variable" class="form-select {{ tempRes }}-season-select2" style="width: 200px;">
             {% for key, value in pageText.variables.select.items() %}
             <option value="{{key}}">{{value}}</option>
             {% endfor %}
         </select>
     </fieldset>
+    {% if tempRes == 'daily'%}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.label_statistics.params }}</legend>
+        <select id="{{ tempRes }}-tseries-parameters" class="form-select {{ tempRes }}-season-select2" style="width: 300px;">
+            {% for key, value in pageText.parameters.rainfall.items() %}
+            <option value="{{key}}">{{value.select}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-tseries-def-number" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <legend id="{{ tempRes }}-tseries-def-number-thres-lab" class="legend-label">{{ pageText.definition.rainfall.number.label }}</legend>
+        <div class="row w-auto">
+            <div id="{{ tempRes }}-tseries-def-number-thres-txt" class="col-auto">
+                {{ pageText.definition.rainfall.number.text }}
+            </div>
+            <div class="col-auto me-0 pe-0">
+                <input id="{{ tempRes }}-tseries-def-number-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.number.value }}" size="3">
+            </div>
+            <div id="{{ tempRes }}-tseries-def-number-thres-unit" class="col-auto ms-0 ps-1">
+                {{ pageText.definition.rainfall.number.unit }}
+            </div>
+        </div>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-tseries-def-spell" class="border border-secondary rounded-3" style="display: none;">
+        <legend id="{{ tempRes }}-tseries-def-spell-thres-lab" class="legend-label">{{ pageText.definition.rainfall.spell.label }}</legend>
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <input id="{{ tempRes }}-tseries-def-spell-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.spell.value }}" size="4">
+            </div>
+            <div id="{{ tempRes }}-tseries-def-spell-thres-txt" class="col-auto ms-0 ps-1">
+                {{ pageText.definition.rainfall.spell.text }}
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
         <div id="{{ tempRes }}-chart-season-startdate" style="width: 6.5em">
@@ -550,6 +652,32 @@
         </div>
     </fieldset>
     {% endif %}
+    <!--  -->
+    {% if tempRes == 'daily'%}
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_season.start }}</legend>
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <select id="{{ tempRes }}-tseries-start-mon" class="form-select {{ tempRes }}-season-select2" style="width: 150px;"></select>
+            </div>
+            <div class="col-auto ms-0 ps-1">
+                <select id="{{ tempRes }}-tseries-start-day" class="form-select {{ tempRes }}-season-select2"></select>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_season.end }}</legend>
+        <!--  -->
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <select id="{{ tempRes }}-tseries-end-mon" class="form-select {{ tempRes }}-season-select2" style="width: 150px;"></select>
+            </div>
+            <div class="col-auto ms-0 ps-1">
+                <select id="{{ tempRes }}-tseries-end-day" class="form-select {{ tempRes }}-season-select2"></select>
+            </div>
+        </div>
+    </fieldset>
+    {% endif %}
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_ts_seasplot.label }}</legend>
         <select id="{{ tempRes }}-chart-season-plot-type" class="form-select {{ tempRes }}-season-select2" style="width: 150px;">
@@ -573,3 +701,97 @@
 </div>
 {% endmacro %}
 <!--  -->
+{% macro create_expand_charts_daily_anom(tempRes, pageText, fmacros) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-anom-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-anom-variable" class="form-select {{ tempRes }}-anom-select2" style="width: 200px;">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.label_statistics.params }}</legend>
+        <select id="{{ tempRes }}-anom-parameters" class="form-select {{ tempRes }}-anom-select2" style="width: 300px;">
+            {% for key, value in pageText.parameters.rainfall.items() %}
+            <option value="{{key}}">{{value.select}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-anom-def-number" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <legend id="{{ tempRes }}-anom-def-number-thres-lab" class="legend-label">{{ pageText.definition.rainfall.number.label }}</legend>
+        <div class="row w-auto">
+            <div id="{{ tempRes }}-anom-def-number-thres-txt" class="col-auto">
+                {{ pageText.definition.rainfall.number.text }}
+            </div>
+            <div class="col-auto me-0 pe-0">
+                <input id="{{ tempRes }}-anom-def-number-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.number.value }}" size="3">
+            </div>
+            <div id="{{ tempRes }}-anom-def-number-thres-unit" class="col-auto ms-0 ps-1">
+                {{ pageText.definition.rainfall.number.unit }}
+            </div>
+        </div>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-anom-def-spell" class="border border-secondary rounded-3" style="display: none;">
+        <legend id="{{ tempRes }}-anom-def-spell-thres-lab" class="legend-label">{{ pageText.definition.rainfall.spell.label }}</legend>
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <input id="{{ tempRes }}-anom-def-spell-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.spell.value }}" size="4">
+            </div>
+            <div id="{{ tempRes }}-anom-def-spell-thres-txt" class="col-auto ms-0 ps-1">
+                {{ pageText.definition.rainfall.spell.text }}
+            </div>
+        </div>
+    </fieldset>
+    <!--  -->
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
+        <div id="{{ tempRes }}-chart-anom-startdate" style="width: 6.5em">
+            <input id="{{ tempRes }}-chart-anom-startdate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
+        <div id="{{ tempRes }}-chart-anom-enddate" style="width: 6.5em">
+            <input id="{{ tempRes }}-chart-anom-enddate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_season.start }}</legend>
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <select id="{{ tempRes }}-anom-start-mon" class="form-select {{ tempRes }}-anom-select2" style="width: 150px;"></select>
+            </div>
+            <div class="col-auto ms-0 ps-1">
+                <select id="{{ tempRes }}-anom-start-day" class="form-select {{ tempRes }}-anom-select2"></select>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_season.end }}</legend>
+        <!--  -->
+        <div class="row w-auto">
+            <div class="col-auto me-0 pe-0">
+                <select id="{{ tempRes }}-anom-end-mon" class="form-select {{ tempRes }}-anom-select2" style="width: 150px;"></select>
+            </div>
+            <div class="col-auto ms-0 ps-1">
+                <select id="{{ tempRes }}-anom-end-day" class="form-select {{ tempRes }}-anom-select2"></select>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_anomaly.label }}</legend>
+        <select id="{{ tempRes }}-chart-anom-type" class="form-select {{ tempRes }}-anom-select2" style="width: 200px;">
+            {% for key, value in pageText.opt_anomaly.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.base_period_modal.label }}</legend>
+        <button id="{{ tempRes }}-chart-anom-bp-open" type="button" class="btn btn-outline-secondary">{{ pageText.base_period_modal.button }}</button>
+    </fieldset>
+    {{ fmacros.baseline_period_dialog(tempRes ~ '-chart-anom-bp', pageText) }}
+</div>
+{% endmacro %}

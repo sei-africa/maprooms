@@ -26,8 +26,12 @@ def list_yaml_maproom_items(app_dir, file):
     return [yl for yl in yaml_paths if len(yl) > 0]
 
 def pretty(low, high, n):
-    range = _nicenumber(high - low, False)
-    d = _nicenumber(range / (n - 1), True)
+    if low == high:
+        low = low - 1.0e-6
+        high = high + 1.0e-6
+
+    vrange = _nicenumber(high - low, False)
+    d = _nicenumber(vrange / (n - 1), True)
     miny = np.floor(low / d) * d
     maxy = np.ceil(high / d) * d
 

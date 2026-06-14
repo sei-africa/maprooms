@@ -112,9 +112,15 @@ function setDateCalendar(
             cl_slice = 7;
         }
     } else {
-        cl_type = 'default';
-        cl_format = 'YYYY-MM-DD';
-        cl_slice = 10;
+        if (dispYear) {
+            cl_type = 'year-month-picker';
+            cl_format = 'YYYY';
+            cl_slice = 7;
+        } else {
+            cl_type = 'default';
+            cl_format = 'YYYY-MM-DD';
+            cl_slice = 10;
+        }
     }
 
     if (dispDate === null) {
@@ -348,7 +354,13 @@ function getListOfDekadsCalendar() {
 }
 
 function getTempCoverageCalendar(dataset, tempres, variable) {
-    const info_var = DATA_INFO[dataset][tempres][variable];
+    let info_var;
+    if (DATA_SET.varid === undefined) {
+        info_var = DATA_INFO[dataset][tempres][variable];
+    } else {
+        const pvar = DATA_SET.varid[variable][0];
+        info_var = DATA_INFO[dataset][tempres][pvar];
+    }
     const temp_coverage = info_var['temporal_coverage'];
     if (tempres === 'daily') {
         start = temp_coverage.start;

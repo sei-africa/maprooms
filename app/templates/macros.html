@@ -30,7 +30,7 @@
     <div class="vertical-alignment-helper">
         <div class="modal-dialog modal-dialog-centered vertical-align-center">
             <div class="modal-content">
-                <div class="row m-2">
+                <div class="row m-1">
                     <div class="col-md-11 d-flex justify-content-start">
                         {{ caller() }}
                     </div>
@@ -38,7 +38,7 @@
                         <button type="button" class="btn btn-md position-absolute top-0 end-0 me-1 p-1" data-bs-dismiss="modal"><i class="bi bi-x-circle-fill"></i></button>
                     </div>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body mt-0 pt-0">
                     {{ toolbar_modal_expand_charts(divchartID, pageText) }}
                     <div id="modal-chart-{{ divchartID }}"></div>
                 </div>

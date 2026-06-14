@@ -169,29 +169,20 @@ function generateSequence01(length) {
 
 //////////////
 
-function getDataSpatialResolution0(tempRes) {
+function refreshSpatialAverage(tempRes) {
     const maptype = $(`#${tempRes}-map-type option:selected`).val();
     const variable = $(`#${tempRes}-map-variable option:selected`).val();
     const dset = DATA_SET[maptype];
-    const data = DATA_INFO[dset][tempRes][variable];
-    return data.spatial_resolution;
-}
+    let dataRes;
+    if (DATA_SET.varid === undefined) {
+        const data = DATA_INFO[dset][tempRes][variable];
+        dataRes = data.spatial_resolution;
+    } else {
+        const pvar = DATA_SET.varid[variable][0];
+        const data = DATA_INFO[dset][tempRes][pvar];
+        dataRes = data.spatial_resolution;
+    }
 
-function getDataSpatialResolution1(tempRes) {
-    const maptype = $(`#${tempRes}-map-type option:selected`).val();
-    const variable = $(`#${tempRes}-map-variable option:selected`).val();
-    const dset = DATA_SET[maptype];
-    const pvar = DATA_SET.varid[variable][0];
-    const data = DATA_INFO[dset][tempRes][pvar];
-    return data.spatial_resolution;
-}
-
-function refreshSpatialAverage(tempRes, id) {
-    const funRes = id === 0 ?
-        getDataSpatialResolution0 :
-        getDataSpatialResolution1;
-
-    const dataRes = funRes(tempRes);
     setSelectSpatialAverage(dataRes);
 }
 
@@ -205,7 +196,7 @@ function setOffCanvasMapControl(tempRes) {
     $(`#${tempRes}-map-variable`)
         .off(`change.${tempRes}Variable`)
         .on(`change.${tempRes}Variable`, function() {
-            refreshSpatialAverage(tempRes, 0);
+            refreshSpatialAverage(tempRes);
             setAnalysisThresholdDef(tempRes);
         });
 
@@ -280,7 +271,7 @@ function setOffCanvasMapControl(tempRes) {
                     adjustSelect2Height(`${tstep_id}-length`, true);
                 }
             }
-            refreshSpatialAverage(tempRes, 0);
+            refreshSpatialAverage(tempRes);
         });
 
     $(`#${tempRes}-map-variable`).trigger('change');
@@ -391,7 +382,7 @@ function setOffCanvasMapControlDaily(tempRes) {
         .on(`change.${tempRes}Variable`, function() {
             const this_var = $(this).val();
 
-            refreshSpatialAverage(tempRes, 1);
+            refreshSpatialAverage(tempRes);
             // 
             $(`#${tempRes}-map-parameters`).empty();
             for (const item of PARAMS_ORDER[this_var]) {
@@ -400,8 +391,10 @@ function setOffCanvasMapControlDaily(tempRes) {
                     .text(PARAMS_LIST[this_var][item].select)
                 );
             }
+            $(`#${tempRes}-map-parameters`)
+                .val(PARAMS_ORDER[this_var][0]);
 
-            setAnalysisParamsDefDaily(tempRes);
+            setAnalysisParamsDefDaily(tempRes, 'map');
             setAnalysisStatProbaDaily(tempRes);
             setAnalysisMapTypeDaily(tempRes);
         });
@@ -423,8 +416,13 @@ function setOffCanvasMapControlDaily(tempRes) {
     $(`#${tempRes}-map-parameters`)
         .off(`change.${tempRes}Parameters`)
         .on(`change.${tempRes}Parameters`, function() {
-            setAnalysisParamsDefDaily(tempRes);
+            setAnalysisParamsDefDaily(tempRes, 'map');
             setAnalysisStatProbaDaily(tempRes);
+
+            if (tempRes === 'daily') {
+                // preview_daily_display_charts(tempRes);
+                preview_seasonal_display_charts(tempRes);
+            }
         });
 
     $(`#${tstep_id}-tseries-year`)
@@ -434,6 +432,8 @@ function setOffCanvasMapControlDaily(tempRes) {
         });
 
     $(`#${tempRes}-map-variable`).trigger('change');
+    $(`#${tempRes}-map-parameters`).trigger('change');
+    $(`#${tempRes}-map-statistics`).trigger('change');
 }
 
 function setAnalysisMapTypeDaily(time_res) {
@@ -481,9 +481,8 @@ function setAnalysisMapTypeDaily(time_res) {
     $('#prev-time-navigation').prop('disabled', false);
     $('#next-time-navigation').prop('disabled', false);
 
-    const this_var = $(`#${time_res}-map-variable`).val();
     const dataset = DATA_SET[maptype];
-    const variable = DATA_SET.varid[this_var][0];
+    const variable = $(`#${time_res}-map-variable`).val();
     const year_cov = getTempCoverageYear(
         dataset, time_res, variable
     );
@@ -516,30 +515,31 @@ function setAnalysisStatProbaDaily(time_res) {
     );
 }
 
-function setAnalysisParamsDefDaily(time_res) {
-    const this_var = $(`#${time_res}-map-variable`).val();
-    const this_par = $(`#${time_res}-map-parameters`).val();
+function setAnalysisParamsDefDaily(time_res, type_p) {
+    const prefix = `#${time_res}-${type_p}`;
+    const this_var = $(`${prefix}-variable`).val();
+    const this_par = $(`${prefix}-parameters`).val();
 
     const var_def = PARAMS_DEF[this_var];
     if (!var_def) return false;
 
     function setNumberInputs() {
-        $(`#${time_res}-def-number-thres-lab`)
+        $(`${prefix}-def-number-thres-lab`)
             .text(var_def.number.label);
-        $(`#${time_res}-def-number-thres-txt`)
+        $(`${prefix}-def-number-thres-txt`)
             .text(var_def.number.text);
-        $(`#${time_res}-def-number-thres-val`)
+        $(`${prefix}-def-number-thres-val`)
             .val(var_def.number.value);
-        $(`#${time_res}-def-number-thres-unit`)
+        $(`${prefix}-def-number-thres-unit`)
             .text(var_def.number.unit);
     }
 
     function setSpellInputs() {
-        $(`#${time_res}-def-spell-thres-lab`)
+        $(`${prefix}-def-spell-thres-lab`)
             .text(var_def.spell.label);
-        $(`#${time_res}-def-spell-thres-val`)
+        $(`${prefix}-def-spell-thres-val`)
             .val(var_def.spell.value);
-        $(`#${time_res}-def-spell-thres-txt`)
+        $(`${prefix}-def-spell-thres-txt`)
             .text(var_def.spell.text);
     }
 
@@ -567,8 +567,8 @@ function setAnalysisParamsDefDaily(time_res) {
         rule.spellOnly.includes(this_par) ||
         rule.numberAndSpell.includes(this_par);
 
-    $(`#${time_res}-def-number`).toggle(showNumber);
-    $(`#${time_res}-def-spell`).toggle(showSpell);
+    $(`${prefix}-def-number`).toggle(showNumber);
+    $(`${prefix}-def-spell`).toggle(showSpell);
 
     if (showNumber) setNumberInputs();
     if (showSpell) setSpellInputs();
@@ -635,11 +635,7 @@ async function setMapDatesNavInput(tempRes) {
             return false;
         }
 
-        let variable = $(`#${tempRes}-map-variable`).val();
-        if (tempRes === 'daily') {
-            variable = DATA_SET.varid[variable][0];
-        }
-
+        const variable = $(`#${tempRes}-map-variable`).val();
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
@@ -735,11 +731,7 @@ async function setMapDatesNavPrev(tempRes) {
             return false;
         }
 
-        let variable = $(`#${tempRes}-map-variable`).val();
-        if (tempRes === 'daily') {
-            variable = DATA_SET.varid[variable][0];
-        }
-
+        const variable = $(`#${tempRes}-map-variable`).val();
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
@@ -861,11 +853,7 @@ async function setMapDatesNavNext(tempRes) {
             return false;
         }
 
-        let variable = $(`#${tempRes}-map-variable`).val();
-        if (tempRes === 'daily') {
-            variable = DATA_SET.varid[variable][0];
-        }
-
+        const variable = $(`#${tempRes}-map-variable`).val();
         const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
@@ -1105,7 +1093,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
 
     setDateCalendar(
         `${tempRes}-chart-anom-enddate`,
-        `${tempRes}-chart-anom-variable`,
+        `${tempRes}-anom-variable`,
         DATA_SET.anomaly,
         tempRes, disp_end,
         mapNavigation = false,
@@ -1115,7 +1103,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
     const start_date = $(`#${tempRes}-chart-anom-startdate-calendar`).val();
     let disp_start;
     if (start_date === '') {
-        const varTs = $(`#${tempRes}-chart-anom-variable`).val();
+        const varTs = $(`#${tempRes}-anom-variable`).val();
         const trange = getTemporalRangeCalendar(
             DATA_SET.anomaly,
             tempRes, varTs, 30
@@ -1131,7 +1119,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
 
     setDateCalendar(
         `${tempRes}-chart-anom-startdate`,
-        `${tempRes}-chart-anom-variable`,
+        `${tempRes}-anom-variable`,
         DATA_SET.anomaly,
         tempRes, disp_start,
         mapNavigation = false,
@@ -1178,7 +1166,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
             });
         });
 
-    $(`#${tempRes}-chart-anom-variable`)
+    $(`#${tempRes}-anom-variable`)
         .off('change.chartTsAnom')
         .on('change.chartTsAnom', function() {
             expand_analysis_charts_anomaly(contChart, tempRes);
@@ -1207,6 +1195,132 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
                 expand_analysis_charts_anomaly(contChart, tempRes);
             });
     }
+
+    // set base period
+    setBoxDialog(
+        `${tempRes}-chart-anom-bp`,
+        `${tempRes}-chart-anom-bp-open`
+    );
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsAnom')
+        .on('click.chartTsAnom', function() {
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsAnom')
+        .on('click.chartTsAnom', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setAnalysisExpandModalDailyAnom(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_anomaly,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    const end_date = $(`#${tempRes}-chart-anom-enddate-calendar`).val();
+    let disp_end;
+    if (end_date === '') {
+        disp_end = null;
+    } else {
+        if (end_date.length == 4) {
+            disp_end = `${end_date}-12`;
+        } else {
+            disp_end = end_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-anom-enddate`,
+        `${tempRes}-anom-variable`,
+        DATA_SET.anomaly, tempRes,
+        disp_end,
+        mapNavigation = false,
+        dispYear = true
+    );
+
+    const start_date = $(`#${tempRes}-chart-anom-startdate-calendar`).val();
+    let disp_start;
+    if (start_date === '') {
+        const varTs = $(`#${tempRes}-anom-variable`).val();
+        const trange = getTemporalRangeCalendar(
+            DATA_SET.anomaly,
+            tempRes, varTs, 30
+        );
+        disp_start = trange.start;
+    } else {
+        if (start_date.length == 4) {
+            disp_start = `${start_date}-01`;
+        } else {
+            disp_start = start_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-anom-startdate`,
+        `${tempRes}-anom-variable`,
+        DATA_SET.anomaly, tempRes,
+        disp_start,
+        mapNavigation = false,
+        dispYear = true
+    );
+
+    setMonthsDaysCalendar(
+        `${tempRes}-anom-start-mon`,
+        `${tempRes}-anom-start-day`,
+        SEASON_DEF.start_mon,
+        SEASON_DEF.start_day,
+        true
+    );
+
+    setMonthsDaysCalendar(
+        `${tempRes}-anom-end-mon`,
+        `${tempRes}-anom-end-day`,
+        SEASON_DEF.end_mon,
+        SEASON_DEF.end_day,
+        false
+    );
+
+    // 
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-anom-variable`)
+        .off('change.chartTsAnoma')
+        .on('change.chartTsAnoma', function() {
+            const this_var = $(this).val();
+            $(`#${tempRes}-anom-parameters`).empty();
+            for (const item of PARAMS_ORDER[this_var]) {
+                $(`#${tempRes}-anom-parameters`).append(
+                    $('<option>').val(item)
+                    .text(PARAMS_LIST[this_var][item].select)
+                );
+                setAnalysisParamsDefDaily(tempRes, 'anom');
+            }
+            // 
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    // 
+    $(`#${tempRes}-anom-parameters`)
+        .off(`change.chartTsAnoma`)
+        .on(`change.chartTsAnoma`, function() {
+            setAnalysisParamsDefDaily(tempRes, 'anom');
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-chart-anom-type`)
+        .off('change.chartTsAnoma')
+        .on('change.chartTsAnoma', function() {
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
 
     // set base period
     setBoxDialog(
@@ -1297,7 +1411,7 @@ function setAnalysisExpandModalProba(tempRes, contID) {
 
     setDateCalendar(
         `${tempRes}-chart-proba-enddate`,
-        `${tempRes}-chart-proba-variable`,
+        `${tempRes}-proba-variable`,
         DATA_SET.rawdata, tempRes,
         disp_end,
         mapNavigation = false,
@@ -1307,7 +1421,7 @@ function setAnalysisExpandModalProba(tempRes, contID) {
     const start_date = $(`#${tempRes}-chart-proba-startdate-calendar`).val();
     let disp_start;
     if (start_date === '') {
-        const varTs = $(`#${tempRes}-chart-proba-variable`).val();
+        const varTs = $(`#${tempRes}-proba-variable`).val();
         const trange = getTemporalRangeCalendar(
             DATA_SET.rawdata,
             tempRes, varTs, 30
@@ -1323,12 +1437,31 @@ function setAnalysisExpandModalProba(tempRes, contID) {
 
     setDateCalendar(
         `${tempRes}-chart-proba-startdate`,
-        `${tempRes}-chart-proba-variable`,
+        `${tempRes}-proba-variable`,
         DATA_SET.rawdata, tempRes,
         disp_start,
         mapNavigation = false,
         dispYear = true
     );
+
+    // 
+    if (tempRes === 'daily') {
+        setMonthsDaysCalendar(
+            `${tempRes}-proba-start-mon`,
+            `${tempRes}-proba-start-day`,
+            SEASON_DEF.start_mon,
+            SEASON_DEF.start_day,
+            true
+        );
+
+        setMonthsDaysCalendar(
+            `${tempRes}-proba-end-mon`,
+            `${tempRes}-proba-end-day`,
+            SEASON_DEF.end_mon,
+            SEASON_DEF.end_day,
+            false
+        );
+    }
 
     // 
     if (tempRes === 'seasonal') {
@@ -1351,12 +1484,35 @@ function setAnalysisExpandModalProba(tempRes, contID) {
     // 
     const contChart = `container-chart-${contID}`;
 
-    $(`#${tempRes}-chart-proba-variable`)
+    $(`#${tempRes}-proba-variable`)
         .off('change.chartTsProba')
         .on('change.chartTsProba', function() {
+            if (tempRes === 'daily') {
+                const this_var = $(this).val();
+                $(`#${tempRes}-proba-parameters`).empty();
+                for (const item of PARAMS_ORDER[this_var]) {
+                    $(`#${tempRes}-proba-parameters`).append(
+                        $('<option>').val(item)
+                        .text(PARAMS_LIST[this_var][item].select)
+                    );
+                }
+                setAnalysisParamsDefDaily(tempRes, 'proba');
+            }
+            // 
             expand_analysis_charts_proba(contChart, tempRes);
         });
 
+    // 
+    if (tempRes === 'daily') {
+        $(`#${tempRes}-proba-parameters`)
+            .off(`change.chartTsProba`)
+            .on(`change.chartTsProba`, function() {
+                setAnalysisParamsDefDaily(tempRes, 'proba');
+                expand_analysis_charts_proba(contChart, tempRes);
+            });
+    }
+
+    // 
     if (tempRes === 'seasonal') {
         const sDId = `${tempRes}-chart-proba`;
         $(`#${sDId}-seaslen, #${sDId}-startmon-calendar`)
@@ -1443,7 +1599,7 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
 
     setDateCalendar(
         `${tempRes}-chart-season-enddate`,
-        `${tempRes}-chart-season-variable`,
+        `${tempRes}-tseries-variable`,
         DATA_SET.rawdata, tempRes,
         disp_end,
         mapNavigation = false,
@@ -1453,7 +1609,7 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
     const start_date = $(`#${tempRes}-chart-season-startdate-calendar`).val();
     let disp_start;
     if (start_date === '') {
-        const varTs = $(`#${tempRes}-chart-season-variable`).val();
+        const varTs = $(`#${tempRes}-tseries-variable`).val();
         const trange = getTemporalRangeCalendar(
             DATA_SET.rawdata,
             tempRes, varTs, 30
@@ -1469,12 +1625,31 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
 
     setDateCalendar(
         `${tempRes}-chart-season-startdate`,
-        `${tempRes}-chart-season-variable`,
+        `${tempRes}-tseries-variable`,
         DATA_SET.rawdata, tempRes,
         disp_start,
         mapNavigation = false,
         dispYear = true
     );
+
+    // 
+    if (tempRes === 'daily') {
+        setMonthsDaysCalendar(
+            `${tempRes}-tseries-start-mon`,
+            `${tempRes}-tseries-start-day`,
+            SEASON_DEF.start_mon,
+            SEASON_DEF.start_day,
+            true
+        );
+
+        setMonthsDaysCalendar(
+            `${tempRes}-tseries-end-mon`,
+            `${tempRes}-tseries-end-day`,
+            SEASON_DEF.end_mon,
+            SEASON_DEF.end_day,
+            false
+        );
+    }
 
     // 
     if (tempRes === 'seasonal') {
@@ -1497,12 +1672,35 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
     // 
     const contChart = `container-chart-${contID}`;
 
-    $(`#${tempRes}-chart-season-variable`)
+    $(`#${tempRes}-tseries-variable`)
         .off('change.chartTsSeason')
         .on('change.chartTsSeason', function() {
+            if (tempRes === 'daily') {
+                const this_var = $(this).val();
+                $(`#${tempRes}-tseries-parameters`).empty();
+                for (const item of PARAMS_ORDER[this_var]) {
+                    $(`#${tempRes}-tseries-parameters`).append(
+                        $('<option>').val(item)
+                        .text(PARAMS_LIST[this_var][item].select)
+                    );
+                }
+                setAnalysisParamsDefDaily(tempRes, 'tseries');
+            }
+            // 
             expand_analysis_charts_season(contChart, tempRes);
         });
 
+    // 
+    if (tempRes === 'daily') {
+        $(`#${tempRes}-tseries-parameters`)
+            .off(`change.chartTsSeason`)
+            .on(`change.chartTsSeason`, function() {
+                setAnalysisParamsDefDaily(tempRes, 'tseries');
+                expand_analysis_charts_season(contChart, tempRes);
+            });
+    }
+
+    // 
     if (tempRes === 'seasonal') {
         const sDId = `${tempRes}-chart-season`;
         $(`#${sDId}-seaslen, #${sDId}-startmon-calendar`)
@@ -1526,6 +1724,76 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
             downloadPlotlyImageJPG(contChart);
         });
 }
+
+//////////////
+
+function parseExpandChartsControlJSON(tempRes, chartType) {
+    const controlID = `${tempRes}-${chartType}-control`;
+    const control = $(`#${controlID}`);
+    const result = {
+        tempRes: tempRes,
+        chartType: chartType,
+        controlID: controlID,
+        fieldsets: []
+    };
+
+    control.find('fieldset').each(function() {
+        const fieldset = $(this);
+        const item = {
+            id: fieldset.attr('id') || null,
+            label: fieldset.children('.legend-label').first().text().trim(),
+            controls: []
+        };
+
+        fieldset.find('select, input').each(function() {
+            const el = $(this);
+            const tagName = this.tagName.toLowerCase();
+            const type = (el.attr('type') || tagName).toLowerCase();
+            const controlData = {
+                id: el.attr('id') || null,
+                tag: tagName
+            };
+
+            if (tagName === 'select') {
+                controlData.text = el.find('option:selected').text().trim();
+            } else if (type === 'checkbox' || type === 'radio') {
+                if (!el.is(':checked')) {
+                    return;
+                }
+                controlData.checked = el.is(':checked');
+                controlData.text = el.closest('label').find('span').first().text().trim();
+            } else {
+                controlData.value = el.val();
+            }
+
+            item.controls.push(controlData);
+        });
+
+        result.fieldsets.push(item);
+    });
+
+    return result;
+}
+
+// function parseExpandChartsRawJSON(tempRes) {
+//     return parseExpandChartsControlJSON(tempRes, 'raw');
+// }
+
+// function parseExpandChartsAnomJSON(tempRes) {
+//     return parseExpandChartsControlJSON(tempRes, 'anom');
+// }
+
+// function parseExpandChartsClimJSON(tempRes) {
+//     return parseExpandChartsControlJSON(tempRes, 'clim');
+// }
+
+// function parseExpandChartsProbaJSON(tempRes) {
+//     return parseExpandChartsControlJSON(tempRes, 'proba');
+// }
+
+// function parseExpandChartsSeasonJSON(tempRes) {
+//     return parseExpandChartsControlJSON(tempRes, 'season');
+// }
 
 //////////////
 

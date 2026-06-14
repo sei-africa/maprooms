@@ -394,7 +394,11 @@ function purgePlotlyChartExpandModal(expandID) {
     });
 }
 
-function formatPlotlyHoverDate(time, time_res, seas_len = null) {
+function formatPlotlyHoverDate(
+    time, time_res,
+    seas_len = null,
+    seas_daily = null
+) {
     const ils = LANG_USER.list.map(l => l.code)
         .indexOf(LANG_USER.code);
     const localeS = LANG_USER.list[ils].locale;
@@ -426,7 +430,45 @@ function formatPlotlyHoverDate(time, time_res, seas_len = null) {
         const yr2 = seas.end.getFullYear();
 
         return `${mo1} ${yr1} - ${mo2} ${yr2}`;
+    } else if (time_res === 'daily') {
+        const yrm = date.getFullYear();
+        let days = seas_daily.split('_')
+            .map(d => d.split('-'));
+        const eqYear = days[0][0] === days[1][0];
+        days[0][0] = String(yrm);
+        days[1][0] = String(yrm);
+
+        if (!eqYear) {
+            const t1 = new Date(days[0].join('-'));
+            const t2 = new Date(days[1].join('-'));
+            const df1 = getDaysDifference(t1, date);
+            const df2 = getDaysDifference(t2, date);
+            if (df1 > df2) {
+                days[0][0] = String(yrm - 1);
+            } else {
+                days[1][0] = String(yrm + 1);
+            }
+        }
+
+        const dt1 = new Date(days[0].join('-'));
+        const m1 = dt1.toLocaleString(
+            localeS, { month: 'short' }
+        );
+        const dt2 = new Date(days[1].join('-'));
+        const m2 = dt2.toLocaleString(
+            localeS, { month: 'short' }
+        );
+
+        const s = `${days[0][2]} ${m1} ${days[0][0]}`;
+        const e = `${days[1][2]} ${m2} ${days[1][0]}`;
+        return `${s} - ${e}`;
     }
 
     return '';
+}
+
+function getDaysDifference(date1, date2) {
+    const timeDiff = Math.abs(date2 - date1);
+    const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    return daysDiff;
 }

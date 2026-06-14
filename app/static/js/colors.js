@@ -109,15 +109,8 @@ function getColorsPosition(colors) {
 }
 
 function plottyAddColorScales() {
-    // const endpoint = createEndpoint(
-    //     'misc',
-    //     'maproom_colors'
-    // );
-    // // const endpoint = '/maproom_colors';
-    // $.getJSON(endpoint, (json) => {
     $.getJSON('/maproom_colors', (json) => {
         for (const key in json) {
-            json[key]
             plotty.addColorScale(
                 key,
                 json[key].colors,

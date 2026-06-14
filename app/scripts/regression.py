@@ -3,6 +3,10 @@ import statsmodels.api as sm
 # from scipy.stats import linregress
 
 def linear_model(x, y):
+    if np.ptp(y) == 0:
+        eps = abs(y[0]) * 1e-6 if y[0] != 0 else 1e-6
+        y = y + np.random.normal(0, eps, size=y.shape)
+
     X = sm.add_constant(x)
     model = sm.OLS(y, X, missing='drop').fit()
     coeffs = {

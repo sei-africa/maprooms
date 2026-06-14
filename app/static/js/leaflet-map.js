@@ -1128,7 +1128,13 @@ function checkQueryPointOutside(query, time_res) {
     const lat = Number(point.lat);
     const p = query.variable;
     const d = query.dataset;
-    const bbox = DATA_INFO[d][time_res][p].spatial_coverage;
+    let bbox;
+    if (DATA_SET.varid === undefined) {
+        bbox = DATA_INFO[d][time_res][p].spatial_coverage;
+    } else {
+        const v = DATA_SET.varid[p][0];
+        bbox = DATA_INFO[d][time_res][v].spatial_coverage;
+    }
     const xlon = bbox.minlon > lon || bbox.maxlon < lon;
     const xlat = bbox.minlat > lat || bbox.maxlat < lat;
     if (xlon || xlat) {
@@ -1270,6 +1276,8 @@ function saveSpatialAverageSelect2() {
     maproomDB.saveData('sp_avg_select2', sp_avg);
 }
 
+let currentPlottyInstance = null;
+
 function colorbarSettings(json) {
     $('#map-colorbar-colors').on('change', function() {
         if ($(this).val() === 'user') {
@@ -1333,8 +1341,12 @@ function colorbarSettings(json) {
 
     ////
     $('#colorbar-color-preset-select').on('change', function() {
-        const pl = L.LeafletGeotiff.plotty({ colorScale: $(this).val() });
-        $('#colorbar-preview-preset').attr('src', pl.colorScaleData);
+        if (currentPlottyInstance && typeof currentPlottyInstance.destroy === 'function') {
+            currentPlottyInstance.destroy();
+        }
+
+        currentPlottyInstance = L.LeafletGeotiff.plotty({ colorScale: $(this).val() });
+        $('#colorbar-preview-preset').attr('src', currentPlottyInstance.colorScaleData);
     });
     $('#colorbar-color-preset-select').trigger('change');
 
@@ -1733,11 +1745,11 @@ function queryParamsAnalysisMap(time_res) {
                 query.probaUnit = $(`#${time_res}-map-climato-probaUnit`).val();
             }
 
-            query.defThres = Number($(`#${time_res}-def-number-thres-val`).val().trim());
+            query.defThres = Number($(`#${time_res}-map-def-number-thres-val`).val().trim());
             if (query.variable === 'rainfall') {
-                query.defSpell = parseInt($(`#${time_res}-def-spell-thres-val`).val().trim(), 10);
+                query.defSpell = parseInt($(`#${time_res}-map-def-spell-thres-val`).val().trim(), 10);
             } else {
-                query.defTempBase = Number($(`#${time_res}-def-spell-thres-val`).val().trim());
+                query.defTempBase = Number($(`#${time_res}-map-def-spell-thres-val`).val().trim());
             }
 
             query.startYear = parseInt($(`#${tstep_id}-start-year`).val().trim(), 10);
@@ -1774,11 +1786,11 @@ function queryParamsAnalysisMap(time_res) {
         } else if (time_res === 'daily') {
             query.Year = parseInt($(`#${tstep_id}-tseries-year`).val().trim(), 10);
             query.seasParams = $(`#${time_res}-map-parameters`).val();
-            query.defThres = Number($(`#${time_res}-def-number-thres-val`).val().trim());
+            query.defThres = Number($(`#${time_res}-map-def-number-thres-val`).val().trim());
             if (query.variable === 'rainfall') {
-                query.defSpell = parseInt($(`#${time_res}-def-spell-thres-val`).val().trim(), 10);
+                query.defSpell = parseInt($(`#${time_res}-map-def-spell-thres-val`).val().trim(), 10);
             } else {
-                query.defTempBase = Number($(`#${time_res}-def-spell-thres-val`).val().trim());
+                query.defTempBase = Number($(`#${time_res}-map-def-spell-thres-val`).val().trim());
             }
         } else {
             return false;

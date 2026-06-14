@@ -6,7 +6,9 @@ from app.dst_api.scripts import (download_climdata,
                                  extract_climdata,
                                  download_analysis,
                                  download_rawdata,
-                                 is_climato_normals)
+                                 is_climato_normals,
+                                 download_analysis_dailydata,
+                                 download_analysis_dailyanom)
 from app.scripts.probabilities import (ecdf_ts, kde_ts,
                                        ecdf_smooth_v1,
                                        ecdf_smooth_v2,
@@ -31,6 +33,7 @@ def climate_analysis_ts_rawdata(params):
         ylim = [breaks[0], breaks[-1]]
         ex = (ylim[1] - ylim[0]) * 0.01
         ylim[1] = ylim[1] + ex
+        values = np.where(np.isnan(values), None, values)
         data = {
             'time': time,
             'values': values.tolist(),
@@ -52,8 +55,16 @@ def climate_analysis_ts_rawdata(params):
         return {'status': -1, 'message': msg}
 
 def climate_analysis_ts_anomaly(params):
-    params = _create_params_ts_anom(params)
-    json_data = download_analysis(params)
+    if not 'dailyAnalysis' in params:
+        params['dailyAnalysis'] = False
+
+    if params['dailyAnalysis']:
+        params = _create_params_daily_anom(params)
+        json_data = download_analysis_dailyanom(params)
+    else:    
+        params = _create_params_ts_anom(params)
+        json_data = download_analysis(params)
+
     json_data = json.loads(json_data)
     if json_data['status'] != 0: return json_data
     json_data['data'] = json.loads(json_data['data'])
@@ -75,6 +86,10 @@ def climate_analysis_ts_anomaly(params):
     if params['temporalRes'] == 'seasonal':
         seasL = params['seasLength']
 
+    seasDaily = None
+    if params['dailyAnalysis']:
+        seasDaily = json_data['data']['Dates'][0]
+
     info = {
         'geom': {
             'name': json_data['data']['Data'][0]['Name'],
@@ -87,7 +102,8 @@ def climate_analysis_ts_anomaly(params):
             'type': params['variable']
         },
         'time_res': params['temporalRes'],
-        'seas_len': seasL
+        'seas_len': seasL,
+        'seas_daily': seasDaily
     }
 
     if ~np.all(np.isnan(values)):
@@ -97,6 +113,7 @@ def climate_analysis_ts_anomaly(params):
         breaks = pretty(-val_max, val_max, 14).tolist()
         ylim = np.array([breaks[0], breaks[-1]])
         ylim = ylim + ((ylim[1] - ylim[0]) * 0.01) * np.array([-1, 1])
+        values = np.where(np.isnan(values), None, values)
         data = {
             'time': time,
             'values': values.tolist(),
@@ -181,6 +198,7 @@ def climate_analysis_ts_climato(params):
 
         if ~np.all(np.isnan(values)):
             breaks, ylim = _get_axis_breaks(values)
+            values = np.where(np.isnan(values), None, values)
             data = {
                 'time': time,
                 'values': values.tolist(),
@@ -254,6 +272,7 @@ def climate_analysis_ts_climato(params):
         if ~np.all(np.isnan(values)):
             breaks1, ylim1 = _get_axis_breaks(values[0])
             breaks2, ylim2 = _get_axis_breaks(values[1:])
+            values = np.where(np.isnan(values), None, values)
             data = {
                 'time': time,
                 'values': values.tolist(),
@@ -292,13 +311,23 @@ def climate_analysis_ts_proba(params):
         s_ecdf = ecdf_smooth_v2(values, 1.0, True)
         kde = kde_ts(values, adj=1.0, n=512)
 
-        if params['variable'] == 'precip':
-            distr_list = (
-                'norm', 'snorm', 'lnorm', 'exp',
-                'gamma', 'weibull', 'gumbel'
-            )
-        else:
-            distr_list = ('norm',)
+        distr_positive = (
+            'norm', 'snorm', 'lnorm', 'exp',
+            'gamma', 'weibull', 'gumbel'
+        )
+
+        if params['temporalRes'] == 'seasonal':
+            if params['variable'] == 'precip':
+                distr_list = distr_positive
+            else:
+                distr_list = ('norm',)
+
+        if params['temporalRes'] == 'daily':
+            non_positive = ['MeanTemp', 'MinTemp', 'MaxTemp']
+            if params['seasParams'] in non_positive:
+                distr_list = ('norm',)
+            else:
+                distr_list = distr_positive
 
         p_fits = fit_distributions(
             p_ecdf['x'], distr=distr_list, method='mle'
@@ -362,6 +391,7 @@ def climate_analysis_ts_proba(params):
             }
         }
 
+        values = np.where(np.isnan(values), None, values)
         data = {
             'ts': values.tolist(),
             'cdf': cdf,
@@ -413,7 +443,7 @@ def climate_analysis_ts_season(params):
 
         xyear = [int(t.split('-')[0]) for t in time]
         mod_coef = linear_model(np.array(xyear), values)
-
+        values = np.where(np.isnan(values), None, values)
         data = {
             'time': xyear,
             'values': values.tolist(),
@@ -440,7 +470,11 @@ def climate_analysis_ts_season(params):
 
 def _download_ts_rawdata(params):
     params = _create_params_ts_raw(params)
-    json_data = download_rawdata(params)
+    if params['dailyAnalysis']:
+        json_data = download_analysis_dailydata(params)
+    else:
+        json_data = download_rawdata(params)
+
     json_data = json.loads(json_data)
     if json_data['status'] != 0: return json_data
     json_data['data'] = json.loads(json_data['data'])
@@ -482,8 +516,16 @@ def _download_ts_rawdata(params):
     }
 
 def _create_params_ts_raw(params):
-    pars_0 = {'gridded': False, 'outFormat': 'JSON-Format',
-              'webApp': True, 'finalOutput': True, 'httpMethod': 'POST'}
+    pars_0 = {
+        'gridded': False,
+        'outFormat': 'JSON-Format',
+        'webApp': True,
+        'finalOutput': True,
+        'httpMethod': 'POST',
+    }
+    if not 'dailyAnalysis' in params:
+        pars_0['dailyAnalysis'] = False
+
     if params['geomExtract'] == 'points':
         pars = pars_0 | {'padLon': 0, 'padLat': 0}
     else:
@@ -491,11 +533,34 @@ def _create_params_ts_raw(params):
     return pars | params
 
 def _create_params_ts_anom(params):
-    pars_0 = {'analysis': 'anomaly', 'climFunction': 'mean-stdev',
-              'fullYear': True, 'climDate': None,
-              'outFormat': 'JSON-Format', 'outFormat_0': 'JSON-Format',
-              'gridded': False, 'webApp': True, 'finalOutput': False,
-              'httpMethod': 'POST'}
+    pars_0 = {
+        'analysis': 'anomaly',
+        'climFunction': 'mean-stdev',
+        'fullYear': True,
+        'climDate': None,
+        'outFormat': 'JSON-Format',
+        'outFormat_0': 'JSON-Format',
+        'gridded': False,
+        'webApp': True,
+        'finalOutput': False,
+        'httpMethod': 'POST',
+    }
+    if params['geomExtract'] == 'points':
+        pars = pars_0 | {'padLon': 0, 'padLat': 0}
+    else:
+        pars = pars_0 | {'spatialAvg': True, 'allPolygons': False}
+    return pars | params
+
+def _create_params_daily_anom(params):
+    pars_0 = {
+        'seasStats': 'mean-stdev',
+        'outFormat': 'JSON-Format',
+        'outFormat_0': 'JSON-Format',
+        'gridded': False,
+        'webApp': True,
+        'finalOutput': False,
+        'httpMethod': 'POST',
+    }
     if params['geomExtract'] == 'points':
         pars = pars_0 | {'padLon': 0, 'padLat': 0}
     else:
@@ -503,9 +568,16 @@ def _create_params_ts_anom(params):
     return pars | params
 
 def _create_params_ts_clim_mean(params):
-    pars_0 = {'climFunction': 'mean', 'fullYear': True, 'climDate': None,
-              'outFormat': 'JSON-Format', 'gridded': False, 'webApp': True,
-              'finalOutput': True, 'httpMethod': 'POST'}
+    pars_0 = {
+        'climFunction': 'mean',
+        'fullYear': True,
+        'climDate': None,
+        'outFormat': 'JSON-Format',
+        'gridded': False,
+        'webApp': True,
+        'finalOutput': True,
+        'httpMethod': 'POST',
+    }
     if params['geomExtract'] == 'points':
         pars = pars_0 | {'padLon': 0, 'padLat': 0}
     else:
@@ -513,10 +585,17 @@ def _create_params_ts_clim_mean(params):
     return pars | params
 
 def _create_params_ts_clim_perc(params):
-    pars_0 = {'climFunction': 'percentile', 'precentileValue': [5., 50., 95.],
-              'fullYear': True, 'climDate': None,
-              'outFormat': 'JSON-Format', 'gridded': False, 'webApp': True,
-              'finalOutput': True, 'httpMethod': 'POST'}
+    pars_0 = {
+        'climFunction': 'percentile',
+        'precentileValue': [5.0, 50.0, 95.0],
+        'fullYear': True,
+        'climDate': None,
+        'outFormat': 'JSON-Format',
+        'gridded': False,
+        'webApp': True,
+        'finalOutput': True,
+        'httpMethod': 'POST',
+    }
     if params['geomExtract'] == 'points':
         pars = pars_0 | {'padLon': 0, 'padLat': 0}
     else:
@@ -562,6 +641,15 @@ def _format_ts_dates(dates_l, time_res):
             return f'{yr}-{mo:02}-{dy:02}'
 
         res = [_format_seasonal_date(d) for d in dates_l]
+    elif time_res == 'daily':
+        def _format_dailyseason_date(date):
+            seas = date.split('_')
+            d1 = datetime.strptime(seas[0], '%Y-%m-%d')
+            d2 = datetime.strptime(seas[1], '%Y-%m-%d')
+            m = d1 + (d2 - d1) / 2
+            return m.strftime('%Y-%m-%d')
+
+        res = [_format_dailyseason_date(d) for d in dates_l]
     else:
         res = None
 

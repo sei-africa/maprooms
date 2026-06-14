@@ -5,9 +5,11 @@ function preview_analysis_display_charts(tempRes) {
 }
 
 function preview_seasonal_display_charts(tempRes) {
-    preview_analysis_charts_season(tempRes, 'div-chart-season');
-    preview_analysis_charts_proba(tempRes, 'div-chart-proba');
-    preview_analysis_charts_anomaly(tempRes, 'div-chart-anom');
+    setTimeout(() => {
+        preview_analysis_charts_season(tempRes, 'div-chart-season');
+        preview_analysis_charts_proba(tempRes, 'div-chart-proba');
+        preview_analysis_charts_anomaly(tempRes, 'div-chart-anom');
+    }, 100);
 }
 
 function analysis_query_format_date(date, temp_res) {
@@ -17,6 +19,8 @@ function analysis_query_format_date(date, temp_res) {
     } else if (temp_res === 'dekadal') {
         return formatDekadDate(date);
     } else if (temp_res === 'seasonal') {
+        return date.slice(0, 4);
+    } else if (temp_res === 'daily') {
         return date.slice(0, 4);
     } else {
         return false;
@@ -57,16 +61,44 @@ function preview_analysis_query_anomaly(tempRes) {
     query.endYear = BASE_PERIOD.end_year;
     query.minYear = BASE_PERIOD.min_year;
 
+    const tstepId = `${tempRes}-map-date`;
     if (tempRes === 'seasonal') {
-        const tstepId = `${tempRes}-map-date`;
         query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
         query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
         query.fullYearTS = true;
+        query.dailyAnalysis = false;
+    }
+
+    // 
+    if (query.temporalRes === 'daily') {
+        query.dailyAnalysis = true;
+        query.minFrac = 1.0;
+
+        query.startMonth = parseInt($(`#${tstepId}-start-mon`).val(), 10);
+        query.startDay = parseInt($(`#${tstepId}-start-day`).val(), 10);
+        query.endMonth = parseInt($(`#${tstepId}-end-mon`).val(), 10);
+        query.endDay = parseInt($(`#${tstepId}-end-day`).val(), 10);
+
+        query.seasParams = $(`#${tempRes}-map-parameters`).val();
+        query.defThres = Number($(`#${tempRes}-map-def-number-thres-val`).val().trim());
+        if (query.variable === 'rainfall') {
+            query.defSpell = parseInt($(`#${tempRes}-map-def-spell-thres-val`).val().trim(), 10);
+        } else {
+            query.defTempBase = Number($(`#${tempRes}-map-def-spell-thres-val`).val().trim());
+        }
     }
 
     const dates = preview_analysis_query_temporal(
         query.dataset, tempRes, query.variable, 10
     );
+
+    // check if seasParams has not set yet
+    if (query.temporalRes === 'daily') {
+        const list_pars = PARAMS_ORDER[query.variable];
+        if (!list_pars.includes(query.seasParams)) {
+            query.seasParams = list_pars[0];
+        }
+    }
 
     return Object.assign({}, query, dates);
 }
@@ -94,7 +126,9 @@ function preview_analysis_display_anomaly(json, container) {
 
     const xaxisHoverText = json.time.map((t) => {
         return formatPlotlyHoverDate(
-            t, json.info.time_res, json.info.seas_len
+            t, json.info.time_res,
+            json.info.seas_len,
+            json.info.seas_daily
         );
     });
 
@@ -483,16 +517,44 @@ function preview_analysis_query_proba(tempRes) {
     query.dataset = DATA_SET.rawdata;
     query.variable = $(`#${tempRes}-map-variable`).val();
 
+    const tstepId = `${tempRes}-map-date`;
     if (tempRes === 'seasonal') {
-        const tstepId = `${tempRes}-map-date`;
         query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
         query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
         query.fullYearTS = false;
+        query.dailyAnalysis = false;
+    }
+
+    // 
+    if (query.temporalRes === 'daily') {
+        query.dailyAnalysis = true;
+        query.minFrac = 1.0;
+
+        query.startMonth = parseInt($(`#${tstepId}-start-mon`).val(), 10);
+        query.startDay = parseInt($(`#${tstepId}-start-day`).val(), 10);
+        query.endMonth = parseInt($(`#${tstepId}-end-mon`).val(), 10);
+        query.endDay = parseInt($(`#${tstepId}-end-day`).val(), 10);
+
+        query.seasParams = $(`#${tempRes}-map-parameters`).val();
+        query.defThres = Number($(`#${tempRes}-map-def-number-thres-val`).val().trim());
+        if (query.variable === 'rainfall') {
+            query.defSpell = parseInt($(`#${tempRes}-map-def-spell-thres-val`).val().trim(), 10);
+        } else {
+            query.defTempBase = Number($(`#${tempRes}-map-def-spell-thres-val`).val().trim());
+        }
     }
 
     const dates = preview_analysis_query_temporal(
         query.dataset, tempRes, query.variable, 30
     );
+
+    // check if seasParams has not set yet
+    if (query.temporalRes === 'daily') {
+        const list_pars = PARAMS_ORDER[query.variable];
+        if (!list_pars.includes(query.seasParams)) {
+            query.seasParams = list_pars[0];
+        }
+    }
 
     return Object.assign({}, query, dates);
 }
@@ -627,16 +689,44 @@ function preview_analysis_query_season(tempRes) {
     query.dataset = DATA_SET.rawdata;
     query.variable = $(`#${tempRes}-map-variable`).val();
 
+    const tstepId = `${tempRes}-map-date`;
     if (tempRes === 'seasonal') {
-        const tstepId = `${tempRes}-map-date`;
         query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
         query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
         query.fullYearTS = false;
+        query.dailyAnalysis = false;
+    }
+
+    // 
+    if (query.temporalRes === 'daily') {
+        query.dailyAnalysis = true;
+        query.minFrac = 1.0;
+
+        query.startMonth = parseInt($(`#${tstepId}-start-mon`).val(), 10);
+        query.startDay = parseInt($(`#${tstepId}-start-day`).val(), 10);
+        query.endMonth = parseInt($(`#${tstepId}-end-mon`).val(), 10);
+        query.endDay = parseInt($(`#${tstepId}-end-day`).val(), 10);
+
+        query.seasParams = $(`#${tempRes}-map-parameters`).val();
+        query.defThres = Number($(`#${tempRes}-map-def-number-thres-val`).val().trim());
+        if (query.variable === 'rainfall') {
+            query.defSpell = parseInt($(`#${tempRes}-map-def-spell-thres-val`).val().trim(), 10);
+        } else {
+            query.defTempBase = Number($(`#${tempRes}-map-def-spell-thres-val`).val().trim());
+        }
     }
 
     const dates = preview_analysis_query_temporal(
         query.dataset, tempRes, query.variable, 30
     );
+
+    // check if seasParams has not set yet
+    if (query.temporalRes === 'daily') {
+        const list_pars = PARAMS_ORDER[query.variable];
+        if (!list_pars.includes(query.seasParams)) {
+            query.seasParams = list_pars[0];
+        }
+    }
 
     return Object.assign({}, query, dates);
 }
@@ -728,6 +818,7 @@ function preview_analysis_display_season(json, container) {
         showlegend: false
     };
 
+    layout.margin = { t: 10, b: 30, l: 40, r: 10 };
     layout = deepMerge(setPlotlyColors(), layout);
     layout = deepMerge(preview_layout, layout);
 
@@ -1297,7 +1388,7 @@ function expand_analysis_query_anomaly(tempRes) {
 
     query.temporalRes = tempRes;
     query.dataset = DATA_SET.anomaly;
-    query.variable = $(`#${tempRes}-chart-anom-variable`).val();
+    query.variable = $(`#${tempRes}-anom-variable`).val();
     query.anomaly = $(`#${tempRes}-chart-anom-type`).val();
 
     query.startYear = parseInt($(`#${tempRes}-chart-anom-bp-start`).val().trim(), 10);
@@ -1312,10 +1403,30 @@ function expand_analysis_query_anomaly(tempRes) {
         $(`#${tempRes}-chart-anom-enddate-calendar`).val(),
         tempRes
     );
+
     if (query.temporalRes === 'seasonal') {
         query.seasStart = 1;
         query.fullYearTS = true;
         query.seasLength = parseInt($(`#${tempRes}-chart-anom-seaslen`).val(), 10);
+        query.dailyAnalysis = false;
+    }
+
+    if (query.temporalRes === 'daily') {
+        query.dailyAnalysis = true;
+        query.minFrac = 1.0;
+
+        query.startMonth = parseInt($(`#${tempRes}-anom-start-mon`).val(), 10);
+        query.startDay = parseInt($(`#${tempRes}-anom-start-day`).val(), 10);
+        query.endMonth = parseInt($(`#${tempRes}-anom-end-mon`).val(), 10);
+        query.endDay = parseInt($(`#${tempRes}-anom-end-day`).val(), 10);
+
+        query.seasParams = $(`#${tempRes}-anom-parameters`).val();
+        query.defThres = Number($(`#${tempRes}-anom-def-number-thres-val`).val().trim());
+        if (query.variable === 'rainfall') {
+            query.defSpell = parseInt($(`#${tempRes}-anom-def-spell-thres-val`).val().trim(), 10);
+        } else {
+            query.defTempBase = Number($(`#${tempRes}-anom-def-spell-thres-val`).val().trim());
+        }
     }
 
     return Object.assign({}, query);
@@ -1342,6 +1453,10 @@ function expand_analysis_charts_anomaly(container_id, tempRes) {
 function expand_analysis_format_anomaly(json) {
     let jsc = makeCopy(json);
     const time_res = jsc.info.time_res;
+    if (time_res === 'daily') {
+        jsc['chartType'] = 'one';
+        return jsc;
+    }
     const ts = $(`#${time_res}-chart-anom-series`).val();
     if (ts === 'tstep') {
         const tstep_id = `${time_res}-chart-anom-tstep`;
@@ -1387,7 +1502,9 @@ function expand_analysis_display_anomaly(json_input, container) {
 
     const xaxisHoverText = json.time.map((t) => {
         return formatPlotlyHoverDate(
-            t, json.info.time_res, json.info.seas_len
+            t, json.info.time_res,
+            json.info.seas_len,
+            json.info.seas_daily
         );
     });
 
@@ -1492,7 +1609,7 @@ function expand_analysis_query_proba(tempRes) {
     query.chartType = 'proba';
     query.temporalRes = tempRes;
     query.dataset = DATA_SET.rawdata;
-    query.variable = $(`#${tempRes}-chart-proba-variable`).val();
+    query.variable = $(`#${tempRes}-proba-variable`).val();
 
     query.startDate = analysis_query_format_date(
         $(`#${tempRes}-chart-proba-startdate-calendar`).val(),
@@ -1504,9 +1621,28 @@ function expand_analysis_query_proba(tempRes) {
     );
 
     if (query.temporalRes === 'seasonal') {
+        query.dailyAnalysis = false;
         query.fullYearTS = false;
         query.seasStart = parseInt($(`#${tempRes}-chart-proba-startmon-calendar`).val(), 10);
         query.seasLength = parseInt($(`#${tempRes}-chart-proba-seaslen`).val(), 10);
+    }
+
+    if (query.temporalRes === 'daily') {
+        query.dailyAnalysis = true;
+        query.minFrac = 1.0;
+
+        query.startMonth = parseInt($(`#${tempRes}-proba-start-mon`).val(), 10);
+        query.startDay = parseInt($(`#${tempRes}-proba-start-day`).val(), 10);
+        query.endMonth = parseInt($(`#${tempRes}-proba-end-mon`).val(), 10);
+        query.endDay = parseInt($(`#${tempRes}-proba-end-day`).val(), 10);
+
+        query.seasParams = $(`#${tempRes}-proba-parameters`).val();
+        query.defThres = Number($(`#${tempRes}-proba-def-number-thres-val`).val().trim());
+        if (query.variable === 'rainfall') {
+            query.defSpell = parseInt($(`#${tempRes}-proba-def-spell-thres-val`).val().trim(), 10);
+        } else {
+            query.defTempBase = Number($(`#${tempRes}-proba-def-spell-thres-val`).val().trim());
+        }
     }
 
     return Object.assign({}, query);
@@ -1792,7 +1928,7 @@ function expand_analysis_query_season(tempRes) {
     query.chartType = 'season';
     query.temporalRes = tempRes;
     query.dataset = DATA_SET.rawdata;
-    query.variable = $(`#${tempRes}-chart-season-variable`).val();
+    query.variable = $(`#${tempRes}-tseries-variable`).val();
 
     query.startDate = analysis_query_format_date(
         $(`#${tempRes}-chart-season-startdate-calendar`).val(),
@@ -1803,10 +1939,31 @@ function expand_analysis_query_season(tempRes) {
         tempRes
     );
 
+    // 
     if (query.temporalRes === 'seasonal') {
+        query.dailyAnalysis = false;
         query.fullYearTS = false;
         query.seasStart = parseInt($(`#${tempRes}-chart-season-startmon-calendar`).val(), 10);
         query.seasLength = parseInt($(`#${tempRes}-chart-season-seaslen`).val(), 10);
+    }
+
+    // 
+    if (query.temporalRes === 'daily') {
+        query.dailyAnalysis = true;
+        query.minFrac = 1.0;
+
+        query.startMonth = parseInt($(`#${tempRes}-tseries-start-mon`).val(), 10);
+        query.startDay = parseInt($(`#${tempRes}-tseries-start-day`).val(), 10);
+        query.endMonth = parseInt($(`#${tempRes}-tseries-end-mon`).val(), 10);
+        query.endDay = parseInt($(`#${tempRes}-tseries-end-day`).val(), 10);
+
+        query.seasParams = $(`#${tempRes}-tseries-parameters`).val();
+        query.defThres = Number($(`#${tempRes}-tseries-def-number-thres-val`).val().trim());
+        if (query.variable === 'rainfall') {
+            query.defSpell = parseInt($(`#${tempRes}-tseries-def-spell-thres-val`).val().trim(), 10);
+        } else {
+            query.defTempBase = Number($(`#${tempRes}-tseries-def-spell-thres-val`).val().trim());
+        }
     }
 
     return Object.assign({}, query);

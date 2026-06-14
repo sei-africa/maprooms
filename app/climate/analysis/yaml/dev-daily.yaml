@@ -38,7 +38,22 @@ variables:
             en: Temperature
             fr: Température
 opt_season:
-    label_sesaon:
+    label_year:
+        start:
+            en: Start year
+            fr: Début année
+        end:
+            en: End year
+            fr: Fin année
+    label_season:
+        start:
+            en: Start season
+            fr: Début saison
+        end:
+            en: End season
+            fr: Fin saison
+opt_season_map:
+    label_season:
         en: Season
         fr: Saison
     label_year:
@@ -299,3 +314,88 @@ opt_anomaly:
         percentage:
             en: Percentage of mean
             fr: Pourcentage de la moyenne
+
+opt_ts_anom:
+    label_series:
+        en: Display
+        fr: Afficher
+    series:
+        one:
+            en: One serie
+            fr: Une série
+        tstep:
+            en: By season
+            fr: Par saison
+opt_ts_df:
+    label:
+        en: Display
+        fr: Afficher
+    select:
+        cdf: 
+            en: Cumulative Distribution Function (CDF)
+            fr: Fonction de Répartition (CDF)
+        pdf: 
+            en: Probability Density Function (PDF)
+            fr: Fonction de Densité de Probabilité (PDF)
+opt_ts_cdf:
+    label:
+        en: CDF Chart
+        fr: Graphique de CDF
+    type:
+        empirical:
+            en: Empirical
+            fr: Empirique
+        smoothed:
+            en: Smoothed
+            fr: Lissée
+        fitted:
+            en: Theoretical
+            fr: Théorique
+opt_ts_pdf:
+    label:
+        en: PDF Chart
+        fr: Graphique de PDF
+    type:
+        histogram:
+            en: Histogram
+            fr: Histogramme
+        density:
+            en: Density (KDE)
+            fr: Densité (KDE)
+        fitted:
+            en: Theoretical
+            fr: Théorique
+opt_js_data:
+    cdf: [empirical, smoothed, fitted]
+    pdf: [histogram, density, fitted]
+opt_ts_seasplot:
+    label:
+        en: Plot type
+        fr: Type de graphique
+    select:
+        bar:
+            en: Bar
+            fr: Barre
+        line:
+            en: Line
+            fr: Ligne
+        lpoint:
+            en: Line + Points
+            fr: Ligne + Points
+opt_ts_seaslines:
+    label:
+        en: Display
+        fr: Afficher
+    type:
+        mean:
+            en: Mean
+            fr: Moyenne
+        median:
+            en: Median
+            fr: Médiane
+        terciles:
+            en: Terciles
+            fr: Terciles
+        trend:
+            en: Trend
+            fr: Tendance

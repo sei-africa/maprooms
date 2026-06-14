@@ -34,6 +34,7 @@ subdivision:
         file: ethiopa_river_sub_basins.shp
         type: shapefile
         field: sub_basin_
+        region: basin_name
         order: 3
         group: whatershed
         name:
@@ -43,15 +44,24 @@ subdivision:
         file: ethiopa_river_basins.shp
         type: shapefile
         field: basinname
+        region: basinname
         order: 4
         group: whatershed
         name:
             en: Basin
             fr: Bassin
 
-## default display
+## admin default display
 subdivision_sel: region
 
 ## Zoom and clip map to a region
 region_to_use: region
 region_subdivision: [zone, woreda]
+
+## basin default display
+# subdivision_sel: basins
+basin_sel: basins
+
+## Zoom and clip map to a basin
+basin_to_use: basins
+basin_subdivision: [sub_basins]
