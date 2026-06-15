@@ -52,15 +52,16 @@ subdivision:
             fr: Bassin
 
 ## admin default display
-subdivision_sel: region
+subdivision_sel:
+    climate: region
+    water: basins
+    agriculture: region
+    drm: region
+    health: region
 
 ## Zoom and clip map to a region
 region_to_use: region
 region_subdivision: [zone, woreda]
-
-## basin default display
-# subdivision_sel: basins
-basin_sel: basins
 
 ## Zoom and clip map to a basin
 basin_to_use: basins

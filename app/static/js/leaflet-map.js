@@ -9,6 +9,7 @@ function createLeafletTileLayer(container, options) {
             zoom: options.mapZoom,
             zoomControl: false
         });
+        map.maproom = getThisMaproom();
         MAP_BE = map;
 
         const meteo = `<a href="${options.metServiceURL}" target="_blank">${options.metServiceName}</a>`;
@@ -42,6 +43,7 @@ function createLeafletTileLayer(container, options) {
     } else {
         var map = MAP_BE;
         map.invalidateSize();
+        map.maproom = getThisMaproom();
     }
 
     // input to hold clicked points
@@ -1534,8 +1536,8 @@ function displayMapRegions(map = MAP_BE) {
             $('#map-display-subdivision').select2({
                 data: data
             });
-            $('#map-display-subdivision').val(LAYERS.subdivision_sel).trigger('change');
-            displaySubdivisionLayers([LAYERS.subdivision_sel], map);
+            $('#map-display-subdivision').val(LAYERS.subdivision_sel[map.maproom]).trigger('change');
+            displaySubdivisionLayers([LAYERS.subdivision_sel[map.maproom]], map);
 
             // 
             maproomDB.getData('leaflet_map', function(json) {

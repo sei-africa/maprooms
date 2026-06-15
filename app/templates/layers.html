@@ -16,7 +16,7 @@
         <legend class="legend-label">{{ pageText.layers.subdivision_label }}</legend>
         <select id="map-display-subdivision" class="form-select form-select2" multiple>
             {% for key, value in pageText.layers.subdivision.items() %}
-            <option value="{{key}}" {% if (key==pageText.layers.subdivision_sel) %} selected {% endif %}>{{value.name}}</option>
+            <option value="{{key}}" {% if (key==pageText.layers.subdivision_sel[urlArgs.maproom]) %} selected {% endif %}>{{value.name}}</option>
             {% endfor %}
         </select>
     </fieldset>

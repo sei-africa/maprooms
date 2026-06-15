@@ -15,7 +15,7 @@
             <div class="row">
                 <div class="col-sm-12 col-map-container">
                     <div id="div-map-container" class="div-map-container">
-                        {% call fmacros.create_map_control(pageText) %}
+                        {% call fmacros.create_map_control(pageText, urlArgs) %}
                         {{ fanalysis.create_map_control_inputs("dekadal", pageText) }}
                         {% endcall %}
                     </div>

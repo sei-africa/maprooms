@@ -349,12 +349,6 @@ function ajaxLeafletMap(endpoint, query, callback, options, map) {
 }
 
 function ajaxGetSubdivisions() {
-    // const endpoint = createEndpoint(
-    //     'misc',
-    //     'map_subdivisions_data'
-    // );
-    // // const endpoint = '/map_subdivisions_data';
-    // $.getJSON(endpoint, (json) => {
     $.getJSON('/map_subdivisions_data', (json) => {
         if (json.status !== 0) {
             flashMessage(json.message, 'error');
@@ -370,7 +364,7 @@ function ajaxGetSubdivisions() {
         }
 
         if (MAP_BE !== undefined) {
-            displaySubdivisionLayers([LAYERS.subdivision_sel]);
+            displaySubdivisionLayers([LAYERS.subdivision_sel[MAP_BE.maproom]]);
         }
     });
 }
@@ -452,4 +446,10 @@ function spinnerChartOptions() {
         className: 'spinnerChart',
         position: 'absolute',
     };
+}
+
+function getThisMaproom() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    return urlParams.get('maproom');
 }
