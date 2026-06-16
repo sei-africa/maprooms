@@ -1,14 +1,19 @@
 <div class="container">
+    {% set regClip = pageText.layers.region_clip %}
+    {% set regMap = pageText.layers.subdivision_map %}
+    {% set regD = regMap[urlArgs.maproom] %}
+    {% set regChoice = regClip[regD].choice %}
+    {% set regSelect = regClip[regD].select %}
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">{{ pageText.layers.region_label }}</legend>
         <select id="select-country-region" class="form-select form-select2-nosearch">
-            {% for key, value in pageText.layers.region_choice.items() %}
+            {% for key, value in regChoice.items() %}
             <option value="{{key}}">{{value}}</option>
             {% endfor %}
         </select>
     </fieldset>
     <fieldset id="select-region-container" class="border border-secondary rounded-3" style="display: none;">
-        <legend class="legend-label">{{ pageText.layers.region_select }}</legend>
+        <legend class="legend-label">{{ regSelect }}</legend>
         <select id="select-region-name" class="form-select form-select2-nosearch">
         </select>
     </fieldset>

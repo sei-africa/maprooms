@@ -825,7 +825,8 @@ function extractRegionSubdivisions(subdiv, dispRegion) {
 }
 
 function extractRegionSubdivisionsTurfjs(subdiv, dispRegion) {
-    var region = JSON.parse(SUBDIV_BE[LAYERS.region_to_use]);
+    const sub_clip = LAYERS.subdivision_clip[MAP_BE.maproom];
+    var region = JSON.parse(SUBDIV_BE[sub_clip]);
     region.features = region.features.filter(x => x.properties.field === dispRegion);
 
     var sub_filtered = {
@@ -1444,7 +1445,7 @@ function displayMapRegions(map = MAP_BE) {
         if ($(this).val() === 'region') {
             $('#select-region-container').show();
             // 
-            const region = LAYERS.region_to_use;
+            const region = LAYERS.subdivision_clip[map.maproom];
             const subdiv = JSON.parse(SUBDIV_BE[region]);
             const data_region = subdiv.features.map(x => {
                 return {
@@ -1470,13 +1471,15 @@ function displayMapRegions(map = MAP_BE) {
             $('#map-display-subdivision').select2({
                 data: data
             });
-            $('#map-display-subdivision').val(LAYERS.region_to_use).trigger('change');
+            const sub_clip = LAYERS.subdivision_clip[map.maproom];
+            $('#map-display-subdivision').val(sub_clip).trigger('change');
             const region_sel = $('#select-region-name').val();
-            displaySubdivisionLayers([LAYERS.region_to_use], map, region_sel);
+            displaySubdivisionLayers([sub_clip], map, region_sel);
 
             // 
             maproomDB.getData('leaflet_map', function(json) {
-                var region = JSON.parse(SUBDIV_BE[LAYERS.region_to_use]);
+                const sub_c = LAYERS.subdivision_clip[map.maproom];
+                var region = JSON.parse(SUBDIV_BE[sub_c]);
                 region.features = region.features.filter(x => x.properties.field === region_sel);
                 const bounds = json.data.bounds;
                 maskImageMapRegions(json.data, region).then(masked => {
@@ -1577,7 +1580,8 @@ function displayMapRegions(map = MAP_BE) {
 
         // 
         maproomDB.getData('leaflet_map', function(json) {
-            var region = JSON.parse(SUBDIV_BE[LAYERS.region_to_use]);
+            const sub_c = LAYERS.subdivision_clip[map.maproom];
+            var region = JSON.parse(SUBDIV_BE[sub_c]);
             region.features = region.features.filter(x => x.properties.field === region_sel);
             const bounds = json.data.bounds;
             maskImageMapRegions(json.data, region).then(masked => {

@@ -6,19 +6,32 @@ subdivision_group:
     whatershed:
         en: Watershed boundaries
         fr: Limites bassins versants
-region_choice:
-    country:
-        en: Country wide data
-        fr: Données à l'échelle nationale
-    region:
-        en: Administrative Region
-        fr: Région administrative
 region_label:
     en: Display on map
     fr: Afficher sur la carte
-region_select:
-    en: Select Region
-    fr: Sélectionner région
+region_clip:
+    administrative:
+        choice:
+            country:
+                en: Country wide data
+                fr: Données à l'échelle nationale
+            region:
+                en: Administrative region
+                fr: Région administrative
+        select:
+            en: Select region
+            fr: Sélectionner région
+    whatershed:
+        choice:
+            country:
+                en: Country wide data
+                fr: Données à l'échelle nationale
+            region:
+                en: National whatershed
+                fr: Bassin hydrographique national
+        select:
+            en: Select whatershed
+            fr: Sélectionner bassins versant
 extract_gridpoint:
     gridpoint:
         en: Grid Point
