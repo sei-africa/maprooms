@@ -39,7 +39,7 @@ def hash_pamars_clim(params):
 def hash_pamars_anom(params):
     pars_keys = [
          'analysis', 'anomaly', 'Date', 'startDate', 'endDate',
-         'seasStart', 'seasLength', 'dataset', 'temporalRes',
+         'Year', 'seasStart', 'seasLength', 'dataset', 'temporalRes',
          'variable', 'climFunction', 'fullYear', 'fullYearTS',
          'climDate', 'daysWindow', 'startYear', 'endYear', 'minYear',
          'geomExtract', 'pointsSource', 'pointsFile', 'pointsList',

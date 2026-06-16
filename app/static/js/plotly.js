@@ -394,6 +394,28 @@ function purgePlotlyChartExpandModal(expandID) {
     });
 }
 
+function xaxisPlotlyLabelYears(time) {
+    const nYears = new Set(
+        time.map(d => new Date(d).getFullYear())
+    ).size;
+    // every year
+    let dtick = 'M12';
+    // every 2 years
+    if (nYears > 10) {
+        dtick = 'M24';
+    }
+    // every 5 years
+    if (nYears > 20) {
+        dtick = 'M60';
+    }
+    // every 10 years
+    if (nYears > 60) {
+        dtick = 'M120';
+    }
+
+    return dtick;
+}
+
 function formatPlotlyHoverDate(
     time, time_res,
     seas_len = null,

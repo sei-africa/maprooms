@@ -4,7 +4,8 @@ from app.dst_api.scripts import (download_climdata,
                                  download_analysis,
                                  download_rawdata,
                                  download_analysis_dailydata,
-                                 download_analysis_dailyclim)
+                                 download_analysis_dailyclim,
+                                 download_analysis_dailyanom)
 from app.scripts.imagepng import create_imagePng
 from app.scripts.colorbar import matplotlib_invalid_colors
 
@@ -37,7 +38,9 @@ def climate_analysis_sp_data(params):
             json_data = download_analysis_dailydata(params)
             data = _parse_json_spatial_data(json_data, 'Date')
         elif params['mapType'] == 'anomaly':
-            return {'status': -1, 'message': 'Test anomaly'}
+            params = _create_params_sp_anom(params)
+            json_data = download_analysis_dailyanom(params)
+            data = _parse_json_spatial_data(json_data, 'Date')
         else:
             return {'status': -1, 'message': 'Unknown map data'}
     else:
@@ -115,6 +118,7 @@ def _create_params_sp_anom(params):
         'geomExtract': 'original',
         'outFormat': 'JSON-Format',
         'climFunction': 'mean-stdev',
+        'seasStats': 'mean-stdev',
         'fullYear': True,
         'climDate': None,
         'gridded': True,

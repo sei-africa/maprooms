@@ -61,6 +61,7 @@ function preview_analysis_query_anomaly(tempRes) {
     query.endYear = BASE_PERIOD.end_year;
     query.minYear = BASE_PERIOD.min_year;
 
+    let ts_len = 10;
     const tstepId = `${tempRes}-map-date`;
     if (tempRes === 'seasonal') {
         query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
@@ -73,6 +74,7 @@ function preview_analysis_query_anomaly(tempRes) {
     if (query.temporalRes === 'daily') {
         query.dailyAnalysis = true;
         query.minFrac = 1.0;
+        ts_len = 30;
 
         query.startMonth = parseInt($(`#${tstepId}-start-mon`).val(), 10);
         query.startDay = parseInt($(`#${tstepId}-start-day`).val(), 10);
@@ -89,7 +91,7 @@ function preview_analysis_query_anomaly(tempRes) {
     }
 
     const dates = preview_analysis_query_temporal(
-        query.dataset, tempRes, query.variable, 10
+        query.dataset, tempRes, query.variable, ts_len
     );
 
     // check if seasParams has not set yet
@@ -177,7 +179,8 @@ function preview_analysis_display_anomaly(json, container) {
         xaxis: {
             type: 'date',
             tickformat: '%Y',
-            dtick: 'M12',
+            tickangle: 0,
+            dtick: xaxisPlotlyLabelYears(json.time),
             showline: true,
             showgrid: true,
             gridwidth: 0.3,
@@ -994,6 +997,8 @@ function expand_analysis_display_rawdata(json_input, container) {
                     gridwidth: 0.3,
                     griddash: 'dot',
                     autotickangles: 'auto',
+                    ticks: 'outside',
+                    ticklen: 8,
                 },
                 yaxis: {
                     tickfont: { color: '#17becf' },
@@ -1222,6 +1227,8 @@ function expand_analysis_display_climato(json, container) {
                 tickformat: '%b',
                 dtick: 'M1',
                 ticklabelmode: 'period',
+                ticks: 'outside',
+                ticklen: 8,
                 showline: true,
                 showgrid: true,
                 gridwidth: 0.3,
@@ -1328,6 +1335,8 @@ function expand_analysis_display_climato(json, container) {
                 tickformat: '%b',
                 dtick: 'M1',
                 ticklabelmode: 'period',
+                ticks: 'outside',
+                ticklen: 8,
                 showline: true,
                 showgrid: true,
                 gridwidth: 0.3,
@@ -1556,8 +1565,8 @@ function expand_analysis_display_anomaly(json_input, container) {
             gridwidth: 0.3,
             griddash: 'dot',
             rangeslider: plotly_rangeslider,
-            // ticks: 'outside',
-            // ticklen: 8,
+            ticks: 'outside',
+            ticklen: 8,
         },
         yaxis: {
             range: json.yrange,
@@ -1737,6 +1746,8 @@ function expand_analysis_display_proba(json, container) {
             xaxis: {
                 range: json.xrange,
                 tickvals: json.yticks,
+                ticks: 'outside',
+                ticklen: 8,
                 fixedrange: true,
                 showline: true,
                 showgrid: true,
@@ -2152,6 +2163,8 @@ function expand_analysis_display_season(json, container) {
                 range: xlim,
                 tickformat: 'd',
                 dtick: 5,
+                ticks: 'outside',
+                ticklen: 8,
                 fixedrange: true,
                 showline: true,
                 showgrid: true,
