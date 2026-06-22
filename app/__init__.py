@@ -68,10 +68,14 @@ cache.init_app(app)
 # csrf = CSRFProtect(app)
 
 from app.auth.scripts.sqlite import initUsersTable
+from app.misc.scripts.sqlite import initENSOTables
+
 try:
     ret = initUsersTable()
     if ret['status'] == -1:
         flash(ret['message'], 'error')
+
+    initENSOTables()
 except Exception as e:
     flash(str(e), 'error')
 

@@ -9,12 +9,12 @@ from app.dst_api.scripts import (download_climdata,
                                  is_climato_normals,
                                  download_analysis_dailydata,
                                  download_analysis_dailyanom)
-from app.scripts.probabilities import (ecdf_ts, kde_ts,
-                                       ecdf_smooth_v1,
-                                       ecdf_smooth_v2,
-                                       fit_distributions,
-                                       select_best_distribution)
-from app.scripts.regression import linear_model
+from app.misc.scripts.probabilities import (ecdf_ts, kde_ts,
+                                            ecdf_smooth_v1,
+                                            ecdf_smooth_v2,
+                                            fit_distributions,
+                                            select_best_distribution)
+from app.misc.scripts.regression import linear_model
 from app.scripts.util import pretty
 
 def climate_analysis_ts_rawdata(params):

@@ -50,8 +50,6 @@ $(document).ready(function() {
 
     // change plotly language
     setPlotlyLanguage();
-
-
 });
 
 var maproomDB = (function() {

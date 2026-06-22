@@ -14,6 +14,7 @@ from .scripts.analysis_ts import (climate_analysis_ts_rawdata,
                                   climate_analysis_ts_climato,
                                   climate_analysis_ts_proba,
                                   climate_analysis_ts_season)
+from .scripts.analysis_enso import climate_analysis_enso_alert_dial
 
 climate_analysis = Blueprint(
     'climate_analysis',
@@ -39,8 +40,6 @@ def before_request():
 def climate_analysis_map():
     params = request.get_json()
     try:
-        # print('----------- map -----------')
-        # print(params)
         map_data = climate_analysis_sp_data(params)
         return json.dumps(map_data)
     except Exception as e:
@@ -50,8 +49,6 @@ def climate_analysis_map():
 def climate_analysis_rawdata():
     params = request.get_json()
     try:
-        # print('----------- rawdata -----------')
-        # print(params)
         return cache_data_functions(
                     climate_analysis_ts_rawdata,
                     hash_params_ts_data,
@@ -64,8 +61,6 @@ def climate_analysis_rawdata():
 def climate_analysis_anomaly():
     params = request.get_json()
     try:
-        # print('----------- anomaly -----------')
-        # print(params)
         return cache_data_functions(
                     climate_analysis_ts_anomaly,
                     hash_params_ts_data,
@@ -78,8 +73,6 @@ def climate_analysis_anomaly():
 def climate_analysis_climato():
     params = request.get_json()
     try:
-        # print('----------- climato -----------')
-        # print(params)
         return cache_data_functions(
                     climate_analysis_ts_climato,
                     hash_params_ts_data,
@@ -92,8 +85,6 @@ def climate_analysis_climato():
 def climate_analysis_proba():
     params = request.get_json()
     try:
-        # print('----------- proba -----------')
-        # print(params)
         return cache_data_functions(
                     climate_analysis_ts_proba,
                     hash_params_ts_data,
@@ -106,12 +97,18 @@ def climate_analysis_proba():
 def climate_analysis_season():
     params = request.get_json()
     try:
-        # print('----------- season -----------')
-        # print(params)
         return cache_data_functions(
                     climate_analysis_ts_season,
                     hash_params_ts_data,
                     params
                 )
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_analysis.route('/climate_analysis_enso_alert', methods=['POST'])
+def climate_analysis_enso_alert():
+    params = request.get_json()
+    try:
+        return climate_analysis_enso_alert_dial(params)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})

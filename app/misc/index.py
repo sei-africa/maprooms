@@ -1,13 +1,20 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, send_file
 from flask import current_app as app
 import json
 import os
+import io
+from pypdf import PdfReader, PdfWriter
 from app.scripts._colors import COLORS_MAPROOM
 from app.scripts.subdivision import get_subdivisions_data
 from app.scripts.colorbar import matplotlib_invalid_colors
 from app.scripts.imagepng import raster_colorbar_imagePng
 
-misc = Blueprint('misc', __name__)
+misc = Blueprint(
+    'misc',
+    __name__,
+    static_folder='static',
+    static_url_path='/static/misc',
+)
 
 @misc.route('/map_subdivisions_data')
 def map_subdivisions_data():
@@ -42,3 +49,40 @@ def preview_user_colobar():
             }
         )
 
+@misc.route('/enso_system_alert')
+def enso_system_alert():
+    pdf_file = 'apcc_enso_alert_criteria.pdf'
+    pdf_path = os.path.join(misc.root_path, 'static', 'pdfs', pdf_file)
+
+    reader = PdfReader(pdf_path)
+    writer = PdfWriter()
+
+    for page in reader.pages:
+        writer.add_page(page)
+
+    # Custom browser tab title
+    writer.add_metadata({
+        '/Title': 'ENSO Alert System'
+    })
+
+    pdf_buffer = io.BytesIO()
+    writer.write(pdf_buffer)
+    pdf_buffer.seek(0)
+
+    return send_file(
+        pdf_buffer,
+        mimetype='application/pdf',
+        as_attachment=False,
+        download_name='enso_system_alert.pdf'
+    )
+
+# @misc.route('/enso_system_alert')
+# def enso_system_alert():
+#     pdf_file = 'apcc_enso_alert_criteria.pdf'
+#     pdf_path = os.path.join(misc.root_path, 'static', 'pdfs', pdf_file)
+#     return send_file(
+#         pdf_path,
+#         mimetype='application/pdf',
+#         as_attachment=False,
+#         download_name='enso_system_alert.pdf'
+#     )

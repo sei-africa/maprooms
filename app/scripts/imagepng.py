@@ -10,6 +10,19 @@ from ._colors import COLORS_MAPROOM
 
 plt.switch_backend('Agg')
 
+def render_image_png(plt):
+    img = io.BytesIO()
+    plt.savefig(
+        img,
+        format='png',
+        bbox_inches=None,
+        transparent=True
+    )
+    img.seek(0)
+    img_png = base64.b64encode(img.getvalue()).decode()
+    plt.close('all')
+    return 'data:image/png;base64,' + img_png
+
 def create_imagePng(data,
                     breaks=None,
                     colors=None,
@@ -94,19 +107,8 @@ def create_imagePng(data,
     bbox = plt.axis('off')
     bounds = [[bbox[3].item(), bbox[0].item()],
               [bbox[2].item(), bbox[1].item()]]
-
-    img = io.BytesIO()
-    plt.savefig(
-        img,
-        format='png',
-        bbox_inches=None,
-        transparent=True
-    )
-    img.seek(0)
-    img_png = base64.b64encode(img.getvalue()).decode()
-    img_png = 'data:image/png;base64,' + img_png
+    img_png = render_image_png(plt)
     img_out = {'png': img_png, 'bounds': bounds}
-    plt.close('all')
 
     ##### colorbar
     ckeys = format_ColorScale(breaks, colors, colors_ext)
@@ -132,18 +134,7 @@ def create_imagePng(data,
         extendrect=True,
         orientation='horizontal'
     )
-
-    cbar = io.BytesIO()
-    plt.savefig(
-        cbar,
-        format='png',
-        bbox_inches=None,
-        transparent=True
-    )
-    cbar.seek(0)
-    cbar_png = base64.b64encode(cbar.getvalue()).decode()
-    ckeys['png'] = 'data:image/png;base64,' + cbar_png
-    plt.close('all')
+    ckeys['png'] = render_image_png(plt)
 
     return {'data': img_out, 'ckeys': ckeys}
 
@@ -171,14 +162,4 @@ def raster_colorbar_imagePng(colors_list, n = 100):
         orientation='horizontal'
     )
 
-    cbar = io.BytesIO()
-    plt.savefig(
-        cbar,
-        format='png',
-        bbox_inches=None,
-        transparent=True
-    )
-    cbar.seek(0)
-    cbar_png = base64.b64encode(cbar.getvalue()).decode()
-
-    return 'data:image/png;base64,' + cbar_png
+    return render_image_png(plt)

@@ -2,16 +2,45 @@
 {% block title %} {{metInfo.pageTitle}} {% endblock %}
 {% block head %}
 {{ super() }}
-<!-- block head -->
 <!-- <style> </style> -->
 {% endblock %}
 {% block content %}
+<!--  -->
 <div class="container-fluid" id="container-page">
-    {{ fmacros.tmp_placeholder_image(urlArgs) }}
-    <!--  -->
+    <div class="row">
+        <div class="col-sm-4">
+            {{ fmacros.create_card_information(pageText.description, pageText.instruction) }}
+        </div>
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-12 col-map-container">
+                    <div id="div-map-container" class="div-map-container">
+                        {% call fmacros.create_map_control(pageText, urlArgs) %}
+                        <div>Test</div>
+                        {% endcall %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-sm-4">
+            {{ fmacros.create_card_charts("div-chart-raw", pageText) }}
+        </div>
+        <div class="col-sm-4">
+            {{ fmacros.create_card_charts("div-chart-clim", pageText) }}
+        </div>
+        <div class="col-sm-4">
+            {{ fmacros.create_card_charts("div-chart-anom", pageText) }}
+        </div>
+    </div>
+    {{ fmacros.create_modal_matplotlib(pageText) }}
 </div>
 {% endblock %}
 {% block javascript %}
 {% include "block-js.html" %}
-<!--  -->
+<script>
+const DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
+</script>
+<script type="text/javascript" src="{{ url_for('climate_monitoring.static', filename='js/monthly.js') }}"></script>
 {% endblock %}

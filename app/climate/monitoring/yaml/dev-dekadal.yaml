@@ -1,11 +1,17 @@
 description:
-    en: test
-    fr: test
-# all about dekadal
+    en: |
+        <h4>Dekadal Climate Monitoring</h4>
+        <p>
+        Rainfall and temperature time series (from 1981) reconstructed from station observations and remote sensing proxies. 
+        This interface allows users to view rainfall, maximum and minimum temperature climatologies and anomalies.
+        </p>
+    fr: |
+        <h4>Suivi Climatique Décadaire</h4>
+        <p>
+        Séries temporelles (à partir de 1981) de précipitations et de température reconstruites à partir de données in-situ et de données de télédétection.
+        Cette interface permet à l'utilisateur de visualiser les climatologies et les anomalies de précipitations et températures. Les climatologies sont définies par la période 1991-2020.
+        </p>
 dataset:
-    rawdata:
-        dataset: MON
-    climatology:
-        dataset: MON
-    anomaly:
-        dataset: MON
+    rawdata: ALL
+    climatology: ALL
+    anomaly: ALL

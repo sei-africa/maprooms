@@ -19,3 +19,9 @@ Pillow
 matplotlib
 scipy
 statsmodels
+requests
+bs4
+lxml
+pypdf
+pyarrow
+fastparquet
