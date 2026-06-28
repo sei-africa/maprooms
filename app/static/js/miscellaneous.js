@@ -101,6 +101,48 @@ function adjustSelect2Height(select_id, input_group = true) {
 
 //////////////
 
+function ensoDatasetTempCoverage(dataset) {
+    const requests = [];
+
+    function traverse(obj, parent) {
+        for (const key in obj) {
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+
+                // Found an object containing a table key
+                if (obj[key].table) {
+                    const table = obj[key].table;
+
+                    const req = $.ajax({
+                        type: 'POST',
+                        url: '/enso_temporal_coverage',
+                        dataType: 'json',
+                        data: JSON.stringify({
+                            parent: parent,
+                            table: table
+                        }),
+                        contentType: 'application/json'
+                    }).then((coverage) => {
+                        obj[key].coverage = coverage;
+                    });
+
+                    requests.push(req);
+                }
+
+                traverse(obj[key], parent);
+            }
+        }
+    }
+
+    // Start traversal from each top-level parent
+    for (const parent in dataset) {
+        traverse(dataset[parent], parent);
+    }
+
+    return Promise.all(requests).then(() => dataset);
+}
+
+//////////////
+
 function makeCopy(obj) {
     const js = JSON.stringify(obj);
     return JSON.parse(js);
@@ -263,7 +305,12 @@ function setOffCanvasMapControl(tempRes) {
                 setDateCalendar(
                     `${tempRes}-map-date`,
                     `${tempRes}-map-variable`,
-                    dataset, tempRes
+                    dataset, tempRes,
+                    dispDate = null,
+                    mapNavigation = true,
+                    dispYear = false,
+                    isStart = null,
+                    ensoData = false
                 );
 
                 if (tempRes === 'seasonal') {
@@ -929,7 +976,9 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
         `${tempRes}-chart-raw-variable`,
         DATA_SET.rawdata,
         tempRes, disp_end,
-        mapNavigation = false
+        mapNavigation = false,
+        dispYear = false,
+        isStart = false
     );
 
     const start_date = $(`#${tempRes}-chart-raw-startdate-calendar`).val();
@@ -950,7 +999,9 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
         `${tempRes}-chart-raw-variable`,
         DATA_SET.rawdata,
         tempRes, disp_start,
-        mapNavigation = false
+        mapNavigation = false,
+        dispYear = false,
+        isStart = true
     );
 
     const tstepID = `${tempRes}-chart-raw-startmonth`;
@@ -1097,7 +1148,8 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         DATA_SET.anomaly,
         tempRes, disp_end,
         mapNavigation = false,
-        dispYear = disp_year
+        dispYear = disp_year,
+        isStart = false
     );
 
     const start_date = $(`#${tempRes}-chart-anom-startdate-calendar`).val();
@@ -1123,7 +1175,8 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         DATA_SET.anomaly,
         tempRes, disp_start,
         mapNavigation = false,
-        dispYear = disp_year
+        dispYear = disp_year,
+        isStart = true
     );
 
     // 
@@ -1244,7 +1297,8 @@ function setAnalysisExpandModalDailyAnom(tempRes, contID) {
         DATA_SET.anomaly, tempRes,
         disp_end,
         mapNavigation = false,
-        dispYear = true
+        dispYear = true,
+        isStart = false
     );
 
     const start_date = $(`#${tempRes}-chart-anom-startdate-calendar`).val();
@@ -1270,7 +1324,8 @@ function setAnalysisExpandModalDailyAnom(tempRes, contID) {
         DATA_SET.anomaly, tempRes,
         disp_start,
         mapNavigation = false,
-        dispYear = true
+        dispYear = true,
+        isStart = true
     );
 
     setMonthsDaysCalendar(
@@ -1415,7 +1470,8 @@ function setAnalysisExpandModalProba(tempRes, contID) {
         DATA_SET.rawdata, tempRes,
         disp_end,
         mapNavigation = false,
-        dispYear = true
+        dispYear = true,
+        isStart = false
     );
 
     const start_date = $(`#${tempRes}-chart-proba-startdate-calendar`).val();
@@ -1441,7 +1497,8 @@ function setAnalysisExpandModalProba(tempRes, contID) {
         DATA_SET.rawdata, tempRes,
         disp_start,
         mapNavigation = false,
-        dispYear = true
+        dispYear = true,
+        isStart = true
     );
 
     // 
@@ -1603,7 +1660,8 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
         DATA_SET.rawdata, tempRes,
         disp_end,
         mapNavigation = false,
-        dispYear = true
+        dispYear = true,
+        isStart = false
     );
 
     const start_date = $(`#${tempRes}-chart-season-startdate-calendar`).val();
@@ -1629,7 +1687,8 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
         DATA_SET.rawdata, tempRes,
         disp_start,
         mapNavigation = false,
-        dispYear = true
+        dispYear = true,
+        isStart = true
     );
 
     // 
@@ -1725,6 +1784,354 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
         });
 }
 
+function setAnalysisExpandModalEnso(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_enso,
+        tempRes
+    );
+
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-enso-indices`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            setAnalysisDateCalendarEnso(tempRes);
+            setAnalysisVisibilityEnso(tempRes);
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-tempres`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            setAnalysisDateCalendarEnso(tempRes);
+            setAnalysisVisibilityEnso(tempRes);
+            setAnalysisAnomaliesEnso(contChart, tempRes);
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-sstweek`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            setAnalysisDateCalendarEnso(tempRes);
+            setAnalysisAnomaliesEnso(contChart, tempRes);
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-sstmonth`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            setAnalysisDateCalendarEnso(tempRes);
+            setAnalysisAnomaliesEnso(contChart, tempRes);
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    // 
+    $(`#${tempRes}-oni-indices`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-iod-sst`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-ninotype`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-ninoregion`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-disp-image-enso`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            const this_image = $(this).val();
+            if (this_image === 'image') {
+                $(`#${tempRes}-disp-lastval-enso-opt`).show();
+            } else {
+                $(`#${tempRes}-disp-lastval-enso-opt`).hide();
+            }
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-disp-lastval-enso`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.ensoIndices')
+        .on('click.ensoIndices', function() {
+            const ensoIdx = $(`#${tempRes}-enso-indices`).val();
+            if (['oni', 'anom', 'iod'].includes(ensoIdx)) {
+                expand_analysis_charts_enso(contChart, tempRes);
+            }
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.ensoIndices')
+        .on('click.ensoIndices', function() {
+            const ensoIdx = $(`#${tempRes}-enso-indices`).val();
+            if (['proba', 'strength'].includes(ensoIdx)) {
+                downloadImageSrcPNG(contChart);
+            } else {
+                const ensoImg = $(`#${tempRes}-disp-image-enso`).val();
+                if (ensoImg === 'image') {
+                    downloadImageSrcPNG(contChart);
+                } else {
+                    downloadPlotlyImageJPG(contChart);
+                }
+            }
+
+        });
+}
+
+//////
+
+function getTempCoverageCalendarEnso(tempRes, ensoPars) {
+    let temp_cov;
+    if (ensoPars.ensoIdx === 'oni') {
+        temp_cov = DATA_ENSO[ensoPars.ensoIdx][ensoPars.oni].coverage;
+    } else if (ensoPars.ensoIdx === 'iod') {
+        temp_cov = DATA_ENSO[ensoPars.ensoIdx][ensoPars.iod].coverage;
+    } else if (ensoPars.ensoIdx === 'anom') {
+        if (ensoPars.ensoTRes === 'weekly') {
+            temp_cov = DATA_ENSO[ensoPars.ensoIdx][ensoPars.ensoTRes][ensoPars.week].coverage;
+        } else {
+            tcov = DATA_ENSO[ensoPars.ensoIdx][ensoPars.ensoTRes][ensoPars.month].coverage;
+            temp_cov = makeCopy(tcov);
+            temp_cov.start = `${temp_cov.start}-16`;
+            temp_cov.end = `${temp_cov.end}-16`;
+        }
+    } else {
+        temp_cov = null;
+    }
+    return temp_cov;
+}
+
+function setAnalysisDateCalendarEnso(tempRes) {
+    const ensoIdx = $(`#${tempRes}-enso-indices`).val();
+    if (['proba', 'strength'].includes(ensoIdx)) {
+        return false;
+    }
+
+    let ensoTRes;
+    if (['oni', 'iod'].includes(ensoIdx)) {
+        ensoTRes = 'monthly';
+    } else {
+        ensoTRes = $(`#${tempRes}-anom-tempres`).val();
+    }
+
+    let ensoPars = { ensoIdx: ensoIdx };
+    ensoPars.ensoTRes = ensoTRes;
+    ensoPars.oni = $(`#${tempRes}-oni-indices`).val();
+    ensoPars.iod = $(`#${tempRes}-iod-sst`).val();
+    ensoPars.week = $(`#${tempRes}-anom-sstweek`).val();
+    ensoPars.month = $(`#${tempRes}-anom-sstmonth`).val();
+    const temp_cov = getTempCoverageCalendarEnso(tempRes, ensoPars);
+
+    setDateCalendar(
+        `${tempRes}-chart-enso-enddate`,
+        temp_cov, null, ensoTRes,
+        temp_cov.end,
+        mapNavigation = false,
+        dispYear = false,
+        isStart = false,
+        ensoData = true
+    );
+
+    let disp_start;
+    let te;
+    if (ensoTRes === 'weekly') {
+        te = addDateYears(temp_cov.end, -5);
+        disp_start = formatDateToString(te, true);
+    } else {
+        te = addDateYears(temp_cov.end, -30);
+        disp_start = formatDateToString(te, false);
+    }
+    setDateCalendar(
+        `${tempRes}-chart-enso-startdate`,
+        temp_cov, null, ensoTRes,
+        // temp_cov.start,
+        disp_start,
+        mapNavigation = false,
+        dispYear = false,
+        isStart = true,
+        ensoData = true
+    );
+}
+
+function setAnalysisVisibilityEnso(time_res) {
+    const ensoIdx = $(`#${time_res}-enso-indices`).val();
+
+    if (['proba', 'strength'].includes(ensoIdx)) {
+        setVisibility(
+            [],
+            [
+                `${time_res}-oni-indices-opt`,
+                `${time_res}-anom-tempres-opt`,
+                `${time_res}-iod-sst-opt`,
+                `${time_res}-anom-sstweek-opt`,
+                `${time_res}-anom-sstmonth-opt`,
+                `${time_res}-anom-ninoregion-opt`,
+                `${time_res}-anom-ninotype-opt`,
+                `${time_res}-enso-startdate-opt`,
+                `${time_res}-enso-enddate-opt`,
+                `${time_res}-disp-image-enso-opt`,
+                `${time_res}-disp-lastval-enso-opt`
+            ]
+        );
+    } else if (ensoIdx === 'oni') {
+        setVisibility(
+            [
+                `${time_res}-oni-indices-opt`,
+                `${time_res}-enso-startdate-opt`,
+                `${time_res}-enso-enddate-opt`,
+                `${time_res}-disp-image-enso-opt`,
+                `${time_res}-disp-lastval-enso-opt`
+            ],
+            [
+                `${time_res}-anom-tempres-opt`,
+                `${time_res}-iod-sst-opt`,
+                `${time_res}-anom-sstweek-opt`,
+                `${time_res}-anom-sstmonth-opt`,
+                `${time_res}-anom-ninoregion-opt`,
+                `${time_res}-anom-ninotype-opt`
+            ]
+        );
+    } else if (ensoIdx === 'iod') {
+        setVisibility(
+            [
+                `${time_res}-iod-sst-opt`,
+                `${time_res}-enso-startdate-opt`,
+                `${time_res}-enso-enddate-opt`,
+                `${time_res}-disp-image-enso-opt`,
+                `${time_res}-disp-lastval-enso-opt`
+            ],
+            [
+                `${time_res}-oni-indices-opt`,
+                `${time_res}-anom-tempres-opt`,
+                `${time_res}-anom-sstweek-opt`,
+                `${time_res}-anom-sstmonth-opt`,
+                `${time_res}-anom-ninoregion-opt`,
+                `${time_res}-anom-ninotype-opt`
+            ]
+        );
+    } else {
+        const ensoTRes = $(`#${time_res}-anom-tempres`).val();
+        if (ensoTRes === 'weekly') {
+            setVisibility(
+                [
+                    `${time_res}-anom-tempres-opt`,
+                    `${time_res}-anom-sstweek-opt`,
+                    `${time_res}-anom-ninoregion-opt`,
+                    `${time_res}-anom-ninotype-opt`,
+                    `${time_res}-enso-startdate-opt`,
+                    `${time_res}-enso-enddate-opt`,
+                    `${time_res}-disp-image-enso-opt`,
+                    `${time_res}-disp-lastval-enso-opt`
+                ],
+                [
+                    `${time_res}-oni-indices-opt`,
+                    `${time_res}-iod-sst-opt`,
+                    `${time_res}-anom-sstmonth-opt`
+                ]
+            );
+        } else {
+            setVisibility(
+                [
+                    `${time_res}-anom-tempres-opt`,
+                    `${time_res}-anom-sstmonth-opt`,
+                    `${time_res}-anom-ninoregion-opt`,
+                    `${time_res}-anom-ninotype-opt`,
+                    `${time_res}-enso-startdate-opt`,
+                    `${time_res}-enso-enddate-opt`,
+                    `${time_res}-disp-image-enso-opt`,
+                    `${time_res}-disp-lastval-enso-opt`
+                ],
+                [
+                    `${time_res}-oni-indices-opt`,
+                    `${time_res}-iod-sst-opt`,
+                    `${time_res}-anom-sstweek-opt`
+                ]
+            );
+        }
+    }
+
+    if (['oni', 'iod', 'anom'].includes(ensoIdx)) {
+        const ensoImg = $(`#${time_res}-disp-image-enso`).val();
+        if (ensoImg === 'image') {
+            $(`#${time_res}-disp-lastval-enso-opt`).show();
+        } else {
+            $(`#${time_res}-disp-lastval-enso-opt`).hide();
+        }
+    }
+}
+
+function setAnalysisAnomaliesEnso(contChart, tempRes) {
+    const ensoTRes = $(`#${tempRes}-anom-tempres`).val();
+    let anom_list;
+    if (ensoTRes === 'weekly') {
+        const sst_wk = $(`#${tempRes}-anom-sstweek`).val();
+        anom_list = DATA_ENSO.anom.weekly[sst_wk].anomaly;
+    } else {
+        const sst_mo = $(`#${tempRes}-anom-sstmonth`).val();
+        anom_list = DATA_ENSO.anom.monthly[sst_mo].anomaly;
+    }
+
+    const anom_type = anom_list.map(x => x.split('_')[0]);
+    const anom_reg = anom_list.map(x => x.split('_')[1]);
+    const anom_grp = anom_type.reduce((acc, key, i) => {
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+        acc[key].push(anom_reg[i]);
+        return acc;
+    }, {});
+    const anom_select = anom_type.filter(function(item, pos) {
+        return anom_type.indexOf(item) == pos;
+    });
+
+    $(`#${tempRes}-anom-ninotype`).empty();
+    for (const m of anom_select) {
+        $(`#${tempRes}-anom-ninotype`).append(
+            $('<option>')
+            .text(ANOM_ENSO[m])
+            .val(m)
+        );
+    }
+
+    $(`#${tempRes}-anom-ninotype`)
+        .off('change.ensoIndices')
+        .on('change.ensoIndices', function() {
+            $(`#${tempRes}-anom-ninoregion`).empty();
+            const v = $(`#${tempRes}-anom-ninotype`).val();
+            const grp = anom_grp[v];
+            for (const r of grp) {
+                $(`#${tempRes}-anom-ninoregion`).append(
+                    $('<option>')
+                    .text(REGION_ENSO[r])
+                    .val(r)
+                );
+            }
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+    $(`#${tempRes}-anom-ninotype`).trigger('change');
+}
+
 //////////////
 
 function parseExpandChartsControlJSON(tempRes, chartType) {
@@ -1774,26 +2181,6 @@ function parseExpandChartsControlJSON(tempRes, chartType) {
 
     return result;
 }
-
-// function parseExpandChartsRawJSON(tempRes) {
-//     return parseExpandChartsControlJSON(tempRes, 'raw');
-// }
-
-// function parseExpandChartsAnomJSON(tempRes) {
-//     return parseExpandChartsControlJSON(tempRes, 'anom');
-// }
-
-// function parseExpandChartsClimJSON(tempRes) {
-//     return parseExpandChartsControlJSON(tempRes, 'clim');
-// }
-
-// function parseExpandChartsProbaJSON(tempRes) {
-//     return parseExpandChartsControlJSON(tempRes, 'proba');
-// }
-
-// function parseExpandChartsSeasonJSON(tempRes) {
-//     return parseExpandChartsControlJSON(tempRes, 'season');
-// }
 
 //////////////
 

@@ -4,7 +4,7 @@ from .sqlite import (tableLastRecords,
                      readPandasDataFrame,
                      readENSOMonthlyDataFrame)
 from .enso import (monthly_sst_products,
-                   table_monthly_sst_products)
+                   table_sst_products)
 
 def _nino34_monthly_sst_mean(table, name):
     df = readENSOMonthlyDataFrame(
@@ -67,7 +67,7 @@ def anomaly_nino34_monthly_sst_all(lastrows=4):
     return tmp
 
 def anomaly_nino34_monthly_sst(sst_product, lastrows=2, compute=False):
-    table = table_monthly_sst_products(sst_product)
+    table = table_sst_products(sst_product, 'monthly')
 
     if compute:
         clim = readPandasDataFrame(

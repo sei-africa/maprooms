@@ -33,6 +33,8 @@ def _executeSQLCmd(sqlCmd, args = None, commit = False):
         res = None
     else:
         tmp = sqlCmd.split(' ')
+        tmp = [re.sub('\n', '', t) for t in tmp]
+        tmp = [t for t in tmp if t != '']
         tmp = tmp[0].strip().lower()
         if tmp == 'select':
             res = _convert2json(cursor)
@@ -55,9 +57,16 @@ def _format_query_columns(columns):
     if columns == '*':
         return columns
     elif type(columns) is str:
-        return columns
+        if columns.startswith('"') and columns.endswith('"'):
+            return columns
+        else:
+            return f'"{columns}"'
     elif type(columns) is list:
-        return ', '.join(columns)
+        col_formated = [
+            c if c.startswith('"') and c.endswith('"') else f'"{c}"'
+            for c in columns
+        ]
+        return ', '.join(col_formated)
     else:
         raise ValueError('Unknown columns format')
 
@@ -145,6 +154,38 @@ def readENSOMonthlyDataFrame(table, columns='*', start=None, end=None, month=Non
                 SELECT {columns} FROM "{table}"
                 WHERE (year * 100 + month) <= {end}
                 ORDER BY year, month
+            """
+        else:
+            query = f'SELECT {columns} FROM "{table}"'
+
+    conn = connection()
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+    return df
+
+def readENSOWeeklyDataFrame(table, columns='*', start=None, end=None, week=None):
+    columns = _format_query_columns(columns)
+
+    if week:
+        query = f"""
+            SELECT {columns} FROM "{table}"
+            WHERE week = "{week}"
+        """
+    else:
+        if start and end:
+            query = f"""
+                SELECT {columns} FROM "{table}"
+                WHERE week BETWEEN "{start}" AND "{end}"
+            """
+        elif start:
+            query = f"""
+                SELECT {columns} FROM "{table}"
+                WHERE week >= "{start}"
+            """
+        elif end:
+            query = f"""
+                SELECT {columns} FROM "{table}"
+                WHERE week <= "{end}"
             """
         else:
             query = f'SELECT {columns} FROM "{table}"'
@@ -379,4 +420,52 @@ def initENSOTables():
         _table_enso_probabilities(table)
 
     _dir_enso_probabilities()
+
+def getDataTemporalCoverage(table, enso_type):
+    if enso_type == 'oni':
+        sqlCmd = f"""
+            SELECT
+                MIN(start_month) AS start,
+                MAX(start_month) AS end
+            FROM "{table}"
+        """
+        res = _executeSQLCmd(sqlCmd)
+        return res[0]
+    elif enso_type == 'iod':
+        sqlCmd = f"""
+            SELECT
+                MIN(year * 100 + month) AS t0,
+                MAX(year * 100 + month) AS t1
+            FROM "{table}"
+        """
+        res = _executeSQLCmd(sqlCmd)
+        return _format_out_yyyymm(res[0])
+    elif enso_type == 'anom':
+        tmp = table.split('_')
+        if tmp[-1] == 'weekly':
+            sqlCmd = f"""
+                SELECT
+                    MIN(week) AS start,
+                    MAX(week) AS end
+                FROM "{table}"
+            """
+            res = _executeSQLCmd(sqlCmd)
+            return res[0]
+        else:
+            sqlCmd = f"""
+                SELECT
+                    MIN(year * 100 + month) AS t0,
+                    MAX(year * 100 + month) AS t1
+                FROM "{table}"
+            """
+            res = _executeSQLCmd(sqlCmd)
+            return _format_out_yyyymm(res[0])
+    else:
+        return {'start': None, 'end': None}
+
+def _format_out_yyyymm(ym):
+    return {
+            'start': f'{ym['t0'] // 100:04d}-{ym['t0'] % 100:02d}',
+            'end': f'{ym['t1'] // 100:04d}-{ym['t1'] % 100:02d}'
+        }
 

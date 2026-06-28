@@ -1,3 +1,5 @@
+display_iod: true
+
 description:
     en: |
         <h4>Climate Teleconnections</h4>
@@ -30,3 +32,38 @@ variables:
         temperature:
             en: Temperature
             fr: Température
+opt_enso:
+    label:
+        en: Index type
+        fr: Type d'indice
+    select:
+        proba:
+            en: ENSO Probabilities
+            fr: ENSO Probabilités
+        strength:
+            en: ENSO Strength Probabilities
+            fr: ENSO Intensité Probabilités
+        oni:
+            en: ENSO Indices
+            fr: ENSO Indices
+        enso:
+            en: ENSO Anomalies
+            fr: ENSO Anomalies
+        iod:
+            en: IOD Index
+            fr: IOD Indice
+disp_image:
+    label:
+        en: Display
+        fr: Afficher
+    select:
+        inter:
+            en: Interactive Chart
+            fr: Graphique Interactif
+        image:
+            en: PNG Image
+            fr: Image PNG
+disp_lastVal:
+    en: Display last value
+    fr: Afficher la dernière valeur
+

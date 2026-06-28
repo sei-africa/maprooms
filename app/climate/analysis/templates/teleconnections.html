@@ -29,7 +29,9 @@
     <div class="row justify-content-center">
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-enso", pageText) }}
-            <!-- call expand card -->
+            {% call fmacros.create_modal_expand_charts("div-chart-enso", pageText) %}
+            {{ fanalysis.create_expand_charts_enso("seasonal", pageText) }}
+            {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-proba", pageText) }}
@@ -47,6 +49,9 @@
 {% include "block-js.html" %}
 <script>
 const DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
+let DATA_ENSO = JSON.parse('{{ pageText.dataset_enso | tojson }}');
+const ANOM_ENSO = JSON.parse('{{ pageText.opt_anom_nino_type.select | tojson }}');
+const REGION_ENSO = JSON.parse('{{ pageText.opt_anom_nino_region.select | tojson }}');
 </script>
 <script type="text/javascript" src="{{ url_for('climate_analysis.static', filename='js/teleconnections.js') }}"></script>
 {% endblock %}

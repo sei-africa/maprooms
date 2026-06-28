@@ -6,6 +6,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
 from .sqlite import (readENSOMonthlyDataFrame,
+                     readENSOWeeklyDataFrame,
                      readCPCONIDataFrame)
 
 def date_nth_weekday(month, year, weekday='Thursday', n=2):
@@ -526,8 +527,19 @@ def monthly_sst_products():
         {'table': 'enso_ersstv5_cpc_monthly', 'name': 'ersstv5_cpc'}
     ]
 
-def table_monthly_sst_products(sst_product):
-    sst_products_list = monthly_sst_products()
+def weekly_sst_products():
+    return [
+        {'table': 'enso_oisstv21_cpc_weekly', 'name': 'oisstv21_cpc'}
+    ]
+
+def table_sst_products(sst_product, time_res):
+    if time_res == 'weekly':
+        sst_products_list = weekly_sst_products()
+    elif time_res == 'monthly':
+        sst_products_list = monthly_sst_products()
+    else:
+        raise ValueError(f'Unknown SST temporal resolution')
+
     table = next(
         (
             item['table']
@@ -542,8 +554,13 @@ def table_monthly_sst_products(sst_product):
 
     return table
 
+def read_enso_data_weekly(sst_product, columns='*', start=None, end=None, week=None):
+    table = table_sst_products(sst_product, 'weekly')
+    df = readENSOWeeklyDataFrame(table, columns, start, end, week)
+    return df
+
 def read_enso_data_monthly(sst_product, columns='*', start=None, end=None, month=None):
-    table = table_monthly_sst_products(sst_product)
+    table = table_sst_products(sst_product, 'monthly')
     df = readENSOMonthlyDataFrame(table, columns, start, end, month)
     return df
 
@@ -558,3 +575,13 @@ def read_enso_oni_cpc(oni_type, start=None, end=None, month=None):
     df = readCPCONIDataFrame(table, start, end, month)
     return df
 
+def read_iod_data_monthly(sst_product, columns='*', start=None, end=None, month=None):
+    if sst_product == 'ersstv5_ncei':
+        table = 'iod_ersstv5_ncei_monthly'
+    elif sst_product == 'ersstv6_ncei':
+        table = 'iod_ersstv6_ncei_monthly'
+    else:
+        raise ValueError('Unknown IOD table')
+
+    df = readENSOMonthlyDataFrame(table, columns, start, end, month)
+    return df

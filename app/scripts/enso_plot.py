@@ -65,7 +65,7 @@ def plot_enso_probabilities(proba, figsize=(10, 6)):
         frameon=True,
         fontsize=12,
     )
-    return render_image_png(plt)
+    return render_image_png(plt, False, 'tight', 'white')
 
 def plot_enso_strength_probabilities(proba, figsize=(12, 7)):
     df = proba['table_proba'].copy()
@@ -175,7 +175,7 @@ def plot_enso_strength_probabilities(proba, figsize=(12, 7)):
         frameon=True,
         fontsize=10,
     )
-    return render_image_png(plt)
+    return render_image_png(plt, False, 'tight', 'white')
 
 def plot_enso_oni(
     oni,
@@ -185,6 +185,7 @@ def plot_enso_oni(
     ytick=0.4,
     ylab='Relative Niño3.4 index (°C)',
     figsize=(11, 6),
+    dispLastValue=False
 ):
     df = oni.copy()
     df.dropna(inplace=True)
@@ -197,19 +198,93 @@ def plot_enso_oni(
     v_e = df[col].iloc[-1]
     label_e = f'Latest seasonal value to {y_e} {s_e}: {v_e:+.2f}°C'
 
+    return _plot_enso_data(
+            df, col, thres,
+            ymax, ytick, ylab,
+            dispLastValue, label_e,
+            figsize
+        )
+
+def plot_enso_weekly(
+    enso_df,
+    col='anom',
+    thres=0.8,
+    ymax=2.4,
+    ytick=0.4,
+    ylab='Niño3.4 index (°C)',
+    figsize=(11, 6),
+    dispLastValue=False
+):
+    df = enso_df.copy()
+    df.dropna(inplace=True)
+    df['date'] = pd.to_datetime(df['week'], format='%Y-%m-%d')
+
+    d_e = df['date'].iloc[-1]
+    d_e = d_e.strftime('%d %b %Y')
+    v_e = df[col].iloc[-1]
+    label_e = f'Latest weekly value to {d_e}: {v_e:+.2f}°C'
+
+    return _plot_enso_data(
+            df, col, thres,
+            ymax, ytick, ylab,
+            dispLastValue, label_e,
+            figsize
+        )
+
+def plot_enso_monthly(
+    enso_df,
+    col='anom',
+    thres=0.8,
+    ymax=2.4,
+    ytick=0.4,
+    ylab='Niño3.4 index (°C)',
+    figsize=(11, 6),
+    dispLastValue=False
+):
+    df = enso_df.copy()
+    df.dropna(inplace=True)
+    df['day'] = 1
+    df['date'] = pd.to_datetime(df[['year', 'month', 'day']])
+
+    d_e = df['date'].iloc[-1]
+    d_e = d_e.strftime('%B %Y')
+    v_e = df[col].iloc[-1]
+    label_e = f'Latest monthly value to {d_e}: {v_e:+.2f}°C'
+
+    return _plot_enso_data(
+            df, col, thres,
+            ymax, ytick, ylab,
+            dispLastValue, label_e,
+            figsize
+        )
+
+def _plot_enso_data(
+    df, col, thres,
+    ymax, ytick, ylab,
+    disp_last_value, label_e,
+    figsize
+):
     fig, ax = plt.subplots(figsize=figsize)
-    ax.axhspan(thres, ymax, color='mistyrose', zorder=0)
-    ax.axhspan(-ymax, -thres, color='lavender', zorder=0)
+    ax.axhspan(thres, ymax + 1, color='mistyrose', zorder=0)
+    ax.axhspan(-ymax - 1, -thres, color='lavender', zorder=0)
     ax.axhline(thres, color='red', linestyle='--', linewidth=1)
     ax.axhline(-thres, color='blue', linestyle='--', linewidth=1)
     ax.axhline(0, color='gray', linewidth=0.7)
 
     ax.plot(df['date'], df[col], color='black', linewidth=1, label=label_e)
 
-    xmin = df['date'].iloc[0] - pd.DateOffset(months=6)
-    xmax = df['date'].iloc[-1] + pd.DateOffset(months=6)
+    xlim = _set_xaxis_limit(df['date'])
+    xmin = df['date'].iloc[0] - pd.DateOffset(months=xlim)
+    xmax = df['date'].iloc[-1] + pd.DateOffset(months=xlim)
 
     yup = np.arange(0, ymax + ytick, ytick)
+    if len(yup) > 8:
+        ithres = yup <= thres
+        yup1 = yup[ithres]
+        yup2 = yup[~ithres]
+        yup2 = yup2[1::2]
+        yup = np.concatenate((yup1, yup2))
+
     ylow = -1 * np.flip(yup[1:])
     yticks = np.concatenate((ylow, yup))
 
@@ -221,7 +296,25 @@ def plot_enso_oni(
     ax.grid(True, which='major', color='lightgray', linewidth=0.8)
     ax.grid(True, which='minor', color='gainsboro', linestyle=':', linewidth=0.5)
 
-    ax.legend(
-        loc='upper right', frameon=True, framealpha=1, edgecolor='black', fancybox=False
-    )
-    return render_image_png(plt)
+    if disp_last_value:
+        ax.legend(
+            loc='upper right', frameon=True, framealpha=1, edgecolor='black', fancybox=False
+        )
+    return render_image_png(plt, False, 'tight', 'white')
+
+def _set_xaxis_limit(date):
+    drange = date.max() - date.min()
+    dt = drange / pd.Timedelta(days=1)
+    if dt <= 720:
+        ret = 0
+    elif dt > 720 and dt <= 1825:
+        ret = 1
+    elif dt > 1825 and dt <= 3650:
+        ret = 2
+    elif dt > 3650 and dt <= 7300:
+        ret = 3
+    elif dt > 7300 and dt <= 10950:
+        ret = 4
+    else:
+        ret = 6
+    return ret

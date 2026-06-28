@@ -12,6 +12,13 @@ function preview_seasonal_display_charts(tempRes) {
     }, 100);
 }
 
+function preview_seasonal_teleconnections(tempRes) {
+    preview_analysis_enso_alert(tempRes, 'div-chart-enso');
+
+}
+
+///////////////////
+
 function analysis_query_format_date(date, temp_res) {
     if (temp_res === 'monthly') {
         const arr_mo = date.split('-');
@@ -64,7 +71,13 @@ function preview_analysis_query_anomaly(tempRes) {
     let ts_len = 10;
     const tstepId = `${tempRes}-map-date`;
     if (tempRes === 'seasonal') {
-        query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
+        const map_type = $(`#${tempRes}-map-type`).val();
+        const seas_start = $(`#${tstepId}-calendar`).val();
+        if (map_type === 'climatology') {
+            query.seasStart = parseInt(seas_start, 10);
+        } else {
+            query.seasStart = parseInt(seas_start.slice(5, 7), 10);
+        }
         query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
         query.fullYearTS = true;
         query.dailyAnalysis = false;
@@ -522,7 +535,13 @@ function preview_analysis_query_proba(tempRes) {
 
     const tstepId = `${tempRes}-map-date`;
     if (tempRes === 'seasonal') {
-        query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
+        const map_type = $(`#${tempRes}-map-type`).val();
+        const seas_start = $(`#${tstepId}-calendar`).val();
+        if (map_type === 'climatology') {
+            query.seasStart = parseInt(seas_start, 10);
+        } else {
+            query.seasStart = parseInt(seas_start.slice(5, 7), 10);
+        }
         query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
         query.fullYearTS = false;
         query.dailyAnalysis = false;
@@ -694,7 +713,13 @@ function preview_analysis_query_season(tempRes) {
 
     const tstepId = `${tempRes}-map-date`;
     if (tempRes === 'seasonal') {
-        query.seasStart = parseInt($(`#${tstepId}-calendar`).val(), 10);
+        const map_type = $(`#${tempRes}-map-type`).val();
+        const seas_start = $(`#${tstepId}-calendar`).val();
+        if (map_type === 'climatology') {
+            query.seasStart = parseInt(seas_start, 10);
+        } else {
+            query.seasStart = parseInt(seas_start.slice(5, 7), 10);
+        }
         query.seasLength = parseInt($(`#${tstepId}-length`).val(), 10);
         query.fullYearTS = false;
         query.dailyAnalysis = false;
@@ -838,6 +863,35 @@ function preview_analysis_display_season(json, container) {
     );
 
     setPlotlyThemeColors(container);
+}
+
+///////
+
+function preview_analysis_enso_alert(tempRes, contID) {
+    let query = new Object();
+    query.theme = $('html').attr('data-bs-theme');
+    ajaxDisplayChart(
+        '/climate_analysis_enso_alert',
+        query,
+        preview_analysis_display_enso_alert,
+        contID
+    );
+}
+
+function preview_analysis_display_enso_alert(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    const img = $('<img>', {
+        id: 'enso-alert-system',
+        src: json.png
+    }).appendTo(divCont);
+
+    img.css({
+        'width': '100%',
+        'height': '100%',
+        'object-fit': 'cover'
+    });
 }
 
 ///////////////////
@@ -2217,4 +2271,281 @@ function expand_analysis_display_season(json, container) {
     $(`.${timeres}-season-plot`)
         .off('change.chartTsSeason')
         .on('change.chartTsSeason', drawPlot);
+}
+
+///////
+
+function expand_analysis_query_enso(tempRes) {
+    let query = new Object();
+    query.chartType = 'enso';
+    query.temporalRes = tempRes;
+    query.ensoIndices = $(`#${tempRes}-enso-indices`).val();
+    query.sreenW = screen.width;
+    query.sreenH = screen.height;
+
+    if (query.ensoIndices === 'oni') {
+        query.oniType = $(`#${tempRes}-oni-indices`).val();
+    }
+    if (query.ensoIndices === 'iod') {
+        query.sstProd = $(`#${tempRes}-iod-sst`).val();
+    }
+    if (query.ensoIndices === 'anom') {
+        query.timeRes = $(`#${tempRes}-anom-tempres`).val();
+
+        if (query.timeRes == 'weekly') {
+            query.sstProd = $(`#${tempRes}-anom-sstweek`).val();
+        } else {
+            query.sstProd = $(`#${tempRes}-anom-sstmonth`).val();
+        }
+        query.anomType = $(`#${tempRes}-anom-ninotype`).val();
+        query.ninoRegion = $(`#${tempRes}-anom-ninoregion`).val();
+    }
+
+    if (['oni', 'iod', 'anom'].includes(query.ensoIndices)) {
+        query.startDate = $(`#${tempRes}-chart-enso-startdate-calendar`).val();
+        query.endDate = $(`#${tempRes}-chart-enso-enddate-calendar`).val();
+        const ensoImg = $(`#${tempRes}-disp-image-enso`).val();
+        query.imgPNG = ensoImg == 'image';
+        if (ensoImg == 'image') {
+            query.dispLastValue = $(`#${tempRes}-disp-lastval-enso`).prop('checked');
+        } else {
+            query.dispLastValue = false;
+        }
+    } else {
+        query.imgPNG = true;
+    }
+
+    return query;
+}
+
+function expand_analysis_charts_enso(container_id, tempRes) {
+    const query = expand_analysis_query_enso(tempRes);
+    if (!query) {
+        return false;
+    }
+
+    // storename not used yet
+    // will be used to choose 
+    // between line or bar plot
+    let storename = null;
+    if (!query.imgPNG) {
+        if (['oni', 'iod', 'anom'].includes(query.ensoIndices)) {
+            storename = 'ts_enso';
+        }
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_enso',
+        query,
+        expand_analysis_display_enso,
+        container_id,
+        storename
+    );
+}
+
+function expand_analysis_display_enso(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    if (json.imgPNG) {
+        var img = $('<img>', {
+            id: `enso-${json.ensoIndices}`,
+            src: json.png
+        }).appendTo(divCont);
+
+        img.css({
+            'width': '100%',
+            'height': '100%',
+            'object-fit': 'cover'
+        });
+        showRangeselector(container, false);
+    } else {
+        let xaxisHoverText;
+        if (json.time_res === 'seasonal-enso') {
+            xaxisHoverText = json.time.map((t) => {
+                return formatPlotlyHoverDateEnso(
+                    t, json.time, json.year, json.season
+                );
+            });
+        } else {
+            xaxisHoverText = json.time.map((t) => {
+                return formatPlotlyHoverDate(t, json.time_res);
+            });
+        }
+
+        // 
+        let yup = [];
+        for (let y = 0; y < json.ymax + json.ytick; y += json.ytick) {
+            yup.push(Number(y.toFixed(10)));
+        }
+        if (yup.length > 8) {
+            const yup1 = yup.filter(y => y <= json.thres);
+            let yup2 = yup.filter(y => y > json.thres);
+            yup2 = yup2.filter((_, i) => i % 2 === 1);
+            yup = yup1.concat(yup2);
+        }
+        const ylow = yup.slice(1).reverse().map(y => -y);
+        const yticks = ylow.concat(yup);
+
+        // 
+        const x = json.time.map(d => new Date(d));
+        const xlim = json.time_res === 'weekly' ? 0 : 1;
+        const xmin = addDateMonths(new Date(Math.min(...x)), -xlim);
+        const xmax = addDateMonths(new Date(Math.max(...x)), xlim);
+
+        //
+        const pwidth = Math.floor(screen.width * 0.7672);
+        // const pheight = Math.floor(screen.height * 0.49389);
+        //// .modal-expand-charts-plotly (height: 60vh)
+        //// const pheight = Math.floor(window.innerHeight * 0.6);
+        const pheight = Math.floor(window.innerHeight * 0.585);
+
+        // 
+        const data = [{
+            x: json.time,
+            y: json.values,
+            name: json.name,
+            units: json.units,
+            type: 'scatter',
+            mode: 'lines',
+            line: { color: 'black', width: 1.5 },
+            customdata: xaxisHoverText,
+            hovertemplate: 'Date: %{customdata}<br> %{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        }];
+
+        var enso_rangeslider = {
+            visible: true,
+            thickness: 0.04,
+            borderwidth: 1,
+            bordercolor: 'gray',
+            bgcolor: 'lightgray'
+        };
+
+        var enso_config = {
+            responsive: true,
+            displaylogo: false,
+            displayModeBar: false,
+        };
+
+        var layout = {
+            width: pwidth,
+            height: pheight,
+            autosize: true,
+            margin: { t: 10, b: 50, l: 80, r: 20 },
+            paper_bgcolor: 'white',
+            plot_bgcolor: 'white',
+
+            xaxis: {
+                type: 'date',
+                range: [xmin, xmax],
+                rangeslider: enso_rangeslider,
+                showgrid: true,
+                ticks: 'outside',
+                ticklen: 6,
+                gridcolor: 'lightgray',
+                showline: true,
+                linecolor: 'black',
+                linewidth: 1,
+                mirror: true,
+            },
+            yaxis: {
+                range: [-json.ymax, json.ymax],
+                tickvals: yticks,
+                ticks: 'outside',
+                ticklen: 6,
+                fixedrange: true,
+                showgrid: true,
+                gridcolor: 'lightgray',
+                showline: true,
+                linecolor: 'black',
+                linewidth: 1,
+                mirror: true,
+                title: {
+                    text: json.ylab,
+                    font: { size: 13 }
+                }
+            },
+            // 
+            shapes: [{
+                    type: 'rect',
+                    xref: 'x',
+                    yref: 'y',
+                    x0: xmin,
+                    x1: xmax,
+                    y0: json.thres,
+                    y1: json.ymax,
+                    fillcolor: 'mistyrose',
+                    line: { width: 0 },
+                    layer: 'below'
+                },
+                {
+                    type: 'rect',
+                    xref: 'x',
+                    yref: 'y',
+                    x0: xmin,
+                    x1: xmax,
+                    y0: -json.ymax,
+                    y1: -json.thres,
+                    fillcolor: 'lavender',
+                    line: { width: 0 },
+                    layer: 'below'
+                },
+                {
+                    type: 'line',
+                    xref: 'x',
+                    yref: 'y',
+                    x0: xmin,
+                    x1: xmax,
+                    y0: json.thres,
+                    y1: json.thres,
+                    line: {
+                        color: 'red',
+                        width: 1,
+                        dash: 'dash'
+                    }
+                },
+                {
+                    type: 'line',
+                    xref: 'x',
+                    yref: 'y',
+                    x0: xmin,
+                    x1: xmax,
+                    y0: -json.thres,
+                    y1: -json.thres,
+                    line: {
+                        color: 'blue',
+                        width: 1,
+                        dash: 'dash'
+                    }
+                },
+                {
+                    type: 'line',
+                    xref: 'x',
+                    yref: 'y',
+                    x0: xmin,
+                    x1: xmax,
+                    y0: 0,
+                    y1: 0,
+                    line: {
+                        color: 'gray',
+                        width: 0.7
+                    }
+                }
+            ]
+        };
+
+        purgePlotlyChart(container);
+
+        Plotly.react(
+            container,
+            data,
+            layout,
+            enso_config
+        );
+
+        //// add range selector
+        const last_date = new Date(json.time[json.time.length - 1]);
+        const ranges = ['1Y', '5Y', '10Y', '15Y', '20Y', '30Y', 'ALL'];
+        addRangeselector(container, ranges, last_date)
+    }
 }

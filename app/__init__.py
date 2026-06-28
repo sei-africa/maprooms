@@ -12,6 +12,10 @@ app.config.from_object('config')
 CORS(app)
 jsglue = JSGlue(app)
 
+# Enable the loop controls extension
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
+
+
 ####
 from app.auth.index import auth
 from app.dst_api.index import dst_api

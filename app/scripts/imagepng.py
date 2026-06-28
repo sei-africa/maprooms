@@ -10,24 +10,45 @@ from ._colors import COLORS_MAPROOM
 
 plt.switch_backend('Agg')
 
-def render_image_png(plt):
+def render_image_png(
+    plt,
+    transparent=True,
+    bbox_inches=None,
+    facecolor=None
+):
     img = io.BytesIO()
-    plt.savefig(
-        img,
-        format='png',
-        bbox_inches=None,
-        transparent=True
-    )
+    if not transparent: 
+        if facecolor is None:
+            facecolor = 'white'
+        plt.savefig(
+            img,
+            format='png',
+            dpi=120,
+            bbox_inches=bbox_inches,
+            facecolor=facecolor,
+            transparent=transparent
+        )
+    else:
+        # for leaflet map
+        plt.savefig(
+            img,
+            format='png',
+            bbox_inches=None,
+            transparent=transparent
+        )
+
     img.seek(0)
     img_png = base64.b64encode(img.getvalue()).decode()
     plt.close('all')
     return 'data:image/png;base64,' + img_png
 
-def create_imagePng(data,
-                    breaks=None,
-                    colors=None,
-                    color_name='rainbow',
-                    colors_ext=None):
+def create_imagePng(
+    data,
+    breaks=None,
+    colors=None,
+    color_name='rainbow',
+    colors_ext=None
+):
     lon, lat = np.meshgrid(data['lon'], data['lat'])
     data = np.squeeze(data['data'])
 

@@ -484,9 +484,29 @@ function formatPlotlyHoverDate(
         const s = `${days[0][2]} ${m1} ${days[0][0]}`;
         const e = `${days[1][2]} ${m2} ${days[1][0]}`;
         return `${s} - ${e}`;
+    } else if (time_res === 'weekly') {
+        const weekr = getWeekRange(date);
+        const ws = new Date(weekr.start);
+        const mw = ws.toLocaleString(
+            localeS, { month: 'long' }
+        );
+        const yw = ws.getFullYear();
+        const dw = ws.getDate();
+        return `${JS_TEXT.week_prefix} ${dw} ${mw} ${yw}`;
     }
 
     return '';
+}
+
+function formatPlotlyHoverDateEnso(
+    time, time_list, year_list, seas_list
+) {
+    const it = time_list.indexOf(time);
+    if (it === -1) {
+        return '';
+    } else {
+        return `${seas_list[it]} ${year_list[it]}`;
+    }
 }
 
 function getDaysDifference(date1, date2) {

@@ -217,36 +217,46 @@ def read_enso_probabilities(issue_date=None):
         GLOBAL_CONFIG['data_dir'], 'cpc_enso_proba'
     )
     proba_dir = os.path.join(enso_dir, 'proba')
-    strength_dir = os.path.join(enso_dir, 'strength')
 
     msg_p = 'NOAA CPC ENSO Probabilities'
-    msg_s = 'NOAA CPC ENSO Strength Probabilities'
-
     if issue_date is None:
         e_proba = tableLastRecords(
             'cpc_enso_probabilities', '*', 'issued', 1
         )
-        e_strength = tableLastRecords(
-            'cpc_enso_strengths', '*', 'issued', 1
-        )
-        if e_proba[0]['issued'] != e_strength[0]['issued']:
-            raise ValueError(f'Different issue dates for {msg_p} and {msg_s}') 
     else:
         e_proba = readProbaTable(
             issue_date, 'cpc_enso_probabilities'
         )
         if len(e_proba) == 0:
             raise ValueError(f'No issue date: {issue_date} for {msg_p}')
+
+    p_path = os.path.join(proba_dir, e_proba[0]['file'])
+    t_proba = date.fromisoformat(e_proba[0]['issued'])
+    d_proba = pd.read_parquet(p_path, engine='fastparquet')
+
+    return {
+            'issued_date': t_proba,
+            'table_proba': d_proba
+        }
+
+def read_enso_strengths(issue_date=None):
+    # issue_date='2026-06-11'
+    enso_dir = os.path.join(
+        GLOBAL_CONFIG['data_dir'], 'cpc_enso_proba'
+    )
+    strength_dir = os.path.join(enso_dir, 'strength')
+    msg_s = 'NOAA CPC ENSO Strength Probabilities'
+
+    if issue_date is None:
+        e_strength = tableLastRecords(
+            'cpc_enso_strengths', '*', 'issued', 1
+        )
+    else:
         e_strength = readProbaTable(
             issue_date, 'cpc_enso_strengths'
         )
         if len(e_strength) == 0:
             raise ValueError(f'No issue date: {issue_date} for {msg_s}')
-
-    p_path = os.path.join(proba_dir, e_proba[0]['file'])
-    t_proba = date.fromisoformat(e_proba[0]['issued'])
-    d_proba = pd.read_parquet(p_path, engine='fastparquet')
-    proba = {'issued_date': t_proba,'table_proba': d_proba}
 
     s_path = os.path.join(strength_dir, e_strength[0]['file'])
     js_file = 'strength_probabilities_class.json'
@@ -255,14 +265,27 @@ def read_enso_probabilities(issue_date=None):
     d_strength = pd.read_parquet(s_path, engine='fastparquet')
     with open(js_path, 'r', encoding='utf-8') as f:
         h_strength = json.load(f)
-    strength = {
-        'issued_date': t_strength,
-        'header_info': h_strength,
-        'table_proba': d_strength
-    }
+
+    return {
+            'issued_date': t_strength,
+            'header_info': h_strength,
+            'table_proba': d_strength
+        }
+
+def read_enso_probabilities_all(issue_date=None):
+    # issue_date='2026-06-11'
+    proba = read_enso_probabilities(issue_date)
+    strength = read_enso_strengths(issue_date)
+
+    t_proba = proba['issued_date'].strftime('%Y%m%d')
+    t_strength = strength['issued_date'].strftime('%Y%m%d')
+
+    if t_proba != t_strength:
+        msg_p = 'NOAA CPC ENSO Probabilities'
+        msg_s = 'NOAA CPC ENSO Strength Probabilities'
+        raise ValueError(f'Different issue dates for {msg_p} and {msg_s}') 
 
     return {
             'probabilities': proba,
             'strengths': strength
         }
-

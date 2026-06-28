@@ -34,3 +34,6 @@ colorbar_brk_length:
 colorbar_brk_invalid:
     en: Invalid breaks
     fr: Subdivision invalide
+week_prefix:
+    en: Week of
+    fr: Semaine du

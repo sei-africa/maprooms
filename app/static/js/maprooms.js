@@ -451,3 +451,13 @@ function getThisMaproom() {
     const urlParams = new URLSearchParams(queryString);
     return urlParams.get('maproom');
 }
+
+function downloadImageSrcPNG(contChart) {
+    const img_png = $(`#${contChart}`).find('img').attr('src');
+    const downLink = document.createElement('a');
+    downLink.href = img_png;
+    downLink.download = 'this_image.png';
+    document.body.appendChild(downLink);
+    downLink.click();
+    document.body.removeChild(downLink);
+}

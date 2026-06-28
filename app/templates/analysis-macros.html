@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="row gx-1">
-                <div id="{{ tstepID }}" class="col-md-9">
+                <div id="{{ tstepID }}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Date" class="col-md-9">
                     <input id="{{ tstepID }}-calendar" type="text" class="form-control">
                 </div>
                 <div id="div-{{ tstepID }}-length" class="col-md-3">
@@ -41,7 +41,7 @@
         <div id="{{ tempRes }}-season-months" class="d-flex justify-content-center">
         </div>
         {% else %}
-        <div id="{{ tstepID }}">
+        <div id="{{ tstepID }}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Date">
             <input id="{{ tstepID }}-calendar" type="text" class="form-control">
         </div>
         {% endif %}
@@ -226,7 +226,6 @@
                 <input id="{{ tstepID }}-min-year" class="form-control text-center" type="text" value="{{ pageText.default_season.min_year }}">
             </div>
         </div>
-        <!-- teto year for anom and raw -->
     </fieldset>
     <fieldset id="{{ tempRes }}-map-anomaly" class="border border-secondary rounded-3" style="display: none;">
         <legend class="legend-label">{{ pageText.opt_anomaly.label }}</legend>
@@ -311,13 +310,13 @@
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_ts_raw.label_date.start }}</legend>
-        <div id="{{ tempRes }}-chart-raw-startdate" style="width: 8.0em">
+        <div id="{{ tempRes }}-chart-raw-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 8.0em">
             <input id="{{ tempRes }}-chart-raw-startdate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_ts_raw.label_date.end }}</legend>
-        <div id="{{ tempRes }}-chart-raw-enddate" style="width: 8.0em">
+        <div id="{{ tempRes }}-chart-raw-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 8.0em">
             <input id="{{ tempRes }}-chart-raw-enddate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
@@ -354,7 +353,7 @@
         {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.start }}</legend>
         {% endif %}
-        <div id="{{ tempRes }}-chart-anom-startdate" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-anom-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-anom-startdate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
@@ -366,7 +365,7 @@
         {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.end }}</legend>
         {% endif %}
-        <div id="{{ tempRes }}-chart-anom-enddate" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-anom-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-anom-enddate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
@@ -489,13 +488,13 @@
     {% endif %}
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
-        <div id="{{ tempRes }}-chart-proba-startdate" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-proba-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-proba-startdate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
-        <div id="{{ tempRes }}-chart-proba-enddate" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-proba-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-proba-enddate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
@@ -625,13 +624,13 @@
     {% endif %}
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
-        <div id="{{ tempRes }}-chart-season-startdate" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-season-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-season-startdate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
-        <div id="{{ tempRes }}-chart-season-enddate" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-season-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-season-enddate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
@@ -747,13 +746,13 @@
     <!--  -->
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
-        <div id="{{ tempRes }}-chart-anom-startdate" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-anom-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-anom-startdate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
-        <div id="{{ tempRes }}-chart-anom-enddate" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-anom-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 6.5em">
             <input id="{{ tempRes }}-chart-anom-enddate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
@@ -793,5 +792,117 @@
         <button id="{{ tempRes }}-chart-anom-bp-open" type="button" class="btn btn-outline-secondary">{{ pageText.base_period_modal.button }}</button>
     </fieldset>
     {{ fmacros.baseline_period_dialog(tempRes ~ '-chart-anom-bp', pageText) }}
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_expand_charts_enso(tempRes, pageText) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-enso-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_enso.label }}</legend>
+        <select id="{{ tempRes }}-enso-indices" class="form-select {{ tempRes }}-enso-select2" style="width: 250px;">
+            {% for key, value in pageText.opt_enso.select.items() %}
+            {% if key=='iod' and not pageText.display_iod %}
+            {% continue %}
+            {% endif %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-oni-indices-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!--  -->
+        <legend class="legend-label">{{ pageText.opt_oni.label }}</legend>
+        <select id="{{ tempRes }}-oni-indices" class="form-select {{ tempRes }}-enso-select2" style="width: 250px;">
+            {% for key, value in pageText.opt_oni.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-anom-tempres-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!-- -->
+        <legend class="legend-label">{{ pageText.opt_anom_tempres.label }}</legend>
+        <select id="{{ tempRes }}-anom-tempres" class="form-select {{ tempRes }}-enso-select2" style="width: 150px;">
+            {% for key, value in pageText.opt_anom_tempres.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-iod-sst-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!-- -->
+        <legend class="legend-label">{{ pageText.opt_iod_sst.label }}</legend>
+        <select id="{{ tempRes }}-iod-sst" class="form-select {{ tempRes }}-enso-select2" style="width: 200px;">
+            {% for key, value in pageText.opt_iod_sst.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-anom-sstweek-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!-- -->
+        <legend class="legend-label">{{ pageText.opt_anom_sst_weekly.label }}</legend>
+        <select id="{{ tempRes }}-anom-sstweek" class="form-select {{ tempRes }}-enso-select2" style="width: 200px;">
+            {% for key, value in pageText.opt_anom_sst_weekly.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-anom-sstmonth-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!-- -->
+        <legend class="legend-label">{{ pageText.opt_anom_sst_monthly.label }}</legend>
+        <select id="{{ tempRes }}-anom-sstmonth" class="form-select {{ tempRes }}-enso-select2" style="width: 200px;">
+            {% for key, value in pageText.opt_anom_sst_monthly.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-anom-ninotype-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!-- -->
+        <legend class="legend-label">{{ pageText.opt_anom_nino_type.label }}</legend>
+        <select id="{{ tempRes }}-anom-ninotype" class="form-select {{ tempRes }}-enso-select2" style="width: 220px;">
+            {% for key, value in pageText.opt_anom_nino_type.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-anom-ninoregion-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!-- -->
+        <legend class="legend-label">{{ pageText.opt_anom_nino_region.label }}</legend>
+        <select id="{{ tempRes }}-anom-ninoregion" class="form-select {{ tempRes }}-enso-select2" style="width: 100px;">
+            {% for key, value in pageText.opt_anom_nino_region.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-enso-startdate-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!-- -->
+        <legend class="legend-label">{{ pageText.opt_label_date.start }}</legend>
+        <div id="{{ tempRes }}-chart-enso-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 8.0em">
+            <input id="{{ tempRes }}-chart-enso-startdate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-enso-enddate-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!-- -->
+        <legend class="legend-label">{{ pageText.opt_label_date.end }}</legend>
+        <div id="{{ tempRes }}-chart-enso-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 8.0em">
+            <input id="{{ tempRes }}-chart-enso-enddate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-disp-image-enso-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!--  -->
+        <legend class="legend-label">{{ pageText.disp_image.label }}</legend>
+        <select id="{{ tempRes }}-disp-image-enso" class="form-select {{ tempRes }}-enso-select2" style="width: 200px;">
+            {% for key, value in pageText.disp_image.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-disp-lastval-enso-opt" class="border border-secondary rounded-3 py-1" style="display: none;">
+        <!--  -->
+        <legend class="legend-label">&nbsp;</legend>
+        <div>
+            <label class="d-flex align-items-center">
+                <input type="checkbox" id="{{ tempRes }}-disp-lastval-enso" class="me-1">
+                <span>{{ pageText.disp_lastVal }}</span>
+            </label>
+        </div>
+    </fieldset>
 </div>
 {% endmacro %}

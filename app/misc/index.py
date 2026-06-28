@@ -8,6 +8,7 @@ from app.scripts._colors import COLORS_MAPROOM
 from app.scripts.subdivision import get_subdivisions_data
 from app.scripts.colorbar import matplotlib_invalid_colors
 from app.scripts.imagepng import raster_colorbar_imagePng
+from .scripts.sqlite import getDataTemporalCoverage
 
 misc = Blueprint(
     'misc',
@@ -86,3 +87,9 @@ def enso_system_alert():
 #         as_attachment=False,
 #         download_name='enso_system_alert.pdf'
 #     )
+
+@misc.route('/enso_temporal_coverage', methods=['POST'])
+def enso_temporal_coverage():
+    params = request.get_json()
+    obj = getDataTemporalCoverage(params['table'], params['parent'])
+    return json.dumps(obj)

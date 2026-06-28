@@ -80,12 +80,19 @@ function setDateCalendar(
     dataset, tempRes,
     dispDate = null,
     mapNavigation = true,
-    dispYear = false
+    dispYear = false,
+    isStart = null,
+    ensoData = false
 ) {
-    const variable = $(`#${variableID} option:selected`).val();
-    const temp_cov = getTempCoverageCalendar(
-        dataset, tempRes, variable
-    );
+    let temp_cov;
+    if (ensoData) {
+        temp_cov = variableID;
+    } else {
+        const variable = $(`#${variableID} option:selected`).val();
+        temp_cov = getTempCoverageCalendar(
+            dataset, tempRes, variable
+        );
+    }
 
     let divCont = $(`#${divContainerID}`);
     divCont.empty();
@@ -97,7 +104,11 @@ function setDateCalendar(
         .addClass('form-control')
         .appendTo(divCont);
 
-    if (tempRes === 'monthly') {
+    if (tempRes === 'weekly') {
+        cl_type = 'default';
+        cl_format = 'YYYY-MM-DD';
+        cl_slice = 10;
+    } else if (tempRes === 'monthly') {
         cl_type = 'year-month-picker';
         cl_format = 'YYYY-MM';
         cl_slice = 7;
@@ -123,8 +134,34 @@ function setDateCalendar(
         }
     }
 
+    // 
+    let tooltipText;
+    const tStart = temp_cov.start.slice(0, cl_slice);
+    const tEnd = temp_cov.end.slice(0, cl_slice);
+    if (isStart === null) {
+        tooltipText = `Start: ${tStart} - End: ${tEnd}`;
+    } else {
+        if (isStart) {
+            tooltipText = `Start: ${tStart}`;
+        } else {
+            tooltipText = `End: ${tEnd}`;
+        }
+    }
+
+    let tooltipInstance = bootstrap.Tooltip.getInstance(divCont[0]);
+    if (tooltipInstance) {
+        tooltipInstance._config.title = tooltipText;
+        tooltipInstance.setContent();
+    }
+
+    // 
     if (dispDate === null) {
-        dispDate = temp_cov.end;
+        if (tempRes === 'seasonal' && !dispYear) {
+            const disp_d = addDateYears(temp_cov.end, -1);
+            dispDate = formatDateToString(disp_d);
+        } else {
+            dispDate = temp_cov.end;
+        }
     }
     const months = getListOfMonthsCalendar();
 
@@ -468,7 +505,7 @@ function calendarFormatSeasonalStr(str_date) {
     return `${str_date}-16`;
 }
 
-function formatDateToString(date) {
+function formatDateToString(date, isDay = true) {
     const dd = new Date(date);
     const year = dd.getFullYear();
     const month = (dd.getMonth() + 1)
@@ -477,7 +514,21 @@ function formatDateToString(date) {
     const day = dd.getDate()
         .toString()
         .padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    if (isDay) {
+        return `${year}-${month}-${day}`;
+    } else {
+        return `${year}-${month}`;
+    }
+}
+
+function addDateYears(date, n) {
+    const result = new Date(date);
+    const expectedDay = result.getDate();
+    result.setFullYear(result.getFullYear() + n);
+    if (result.getDate() !== expectedDay) {
+        result.setDate(0);
+    }
+    return result;
 }
 
 function addDateMonths(date, n) {
@@ -513,4 +564,29 @@ function addDateDekads(date, n) {
     const dekadIndex = remainder % 3;
     const newDay = [1, 11, 21][dekadIndex];
     return new Date(year, month, newDay);
+}
+
+function getWeekRange(date) {
+    const dt = new Date(date);
+
+    // Convert Sunday (0) to 7
+    const day = dt.getDay() === 0 ? 7 : dt.getDay();
+
+    // Monday
+    const start = new Date(dt);
+    start.setDate(dt.getDate() - day + 1);
+
+    // Sunday
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+
+    const format = d =>
+        d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+
+    return {
+        start: format(start),
+        end: format(end)
+    };
 }

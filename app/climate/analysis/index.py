@@ -14,7 +14,8 @@ from .scripts.analysis_ts import (climate_analysis_ts_rawdata,
                                   climate_analysis_ts_climato,
                                   climate_analysis_ts_proba,
                                   climate_analysis_ts_season)
-from .scripts.analysis_enso import climate_analysis_enso_alert_dial
+from .scripts.analysis_enso import (climate_analysis_enso_alert_dial,
+                                    climate_analysis_enso_charts)
 
 climate_analysis = Blueprint(
     'climate_analysis',
@@ -109,6 +110,16 @@ def climate_analysis_season():
 def climate_analysis_enso_alert():
     params = request.get_json()
     try:
-        return climate_analysis_enso_alert_dial(params)
+        obj = climate_analysis_enso_alert_dial(params)
+        return json.dumps(obj)
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_analysis.route('/climate_analysis_enso', methods=['POST'])
+def climate_analysis_enso():
+    params = request.get_json()
+    try:
+        obj = climate_analysis_enso_charts(params)
+        return json.dumps(obj)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})
