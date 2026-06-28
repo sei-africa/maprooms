@@ -21,6 +21,35 @@ dataset:
     varid:
         rainfall: [precip]
         temperature: [tmin, tmax]
+dataset_enso:
+    oni:
+      oni:
+        table: enso_oni_cpc
+      roni:
+        table: enso_roni_cpc
+    anom:
+      weekly:
+        oisstv21_cpc:
+          table: enso_oisstv21_cpc_weekly
+          anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino1+2, ranom_nino3, ranom_nino4, ranom_nino3.4]
+      monthly:
+        oisstv21_cpc:
+          table: enso_oisstv21_cpc_monthly
+          anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino1+2, ranom_nino3, ranom_nino4, ranom_nino3.4]
+        ersstv5_cpc:
+          table: enso_ersstv5_cpc_monthly
+          anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino3.4]
+        ersstv5_ncei:
+          table: enso_ersstv5_ncei_monthly
+          anomaly: [anom_nino3, anom_nino4, anom_nino3.4, anom_nino1+2]
+        ersstv6_ncei:
+          table: enso_ersstv6_ncei_monthly
+          anomaly: [anom_nino3, anom_nino4, anom_nino3.4, anom_nino1+2]
+    iod:
+      ersstv5_ncei:
+        table: iod_ersstv5_ncei_monthly
+      ersstv6_ncei:
+        table: iod_ersstv6_ncei_monthly
 variables:
     label:
         en: Variable
@@ -46,12 +75,83 @@ opt_enso:
         oni:
             en: ENSO Indices
             fr: ENSO Indices
-        enso:
+        anom:
             en: ENSO Anomalies
             fr: ENSO Anomalies
         iod:
             en: IOD Index
             fr: IOD Indice
+opt_oni:
+    label:
+        en: ENSO Indices
+        fr: ENSO Indices
+    select:
+        oni:
+            en: Oceanic Niño Index
+            fr: Oceanic Niño Index
+        roni:
+            en: Relative Oceanic Niño Index
+            fr: Relative Oceanic Niño Index
+opt_anom_tempres:
+    label:
+        en: Temporal Resolution
+        fr: Résolution Temporelle
+    select:
+        weekly:
+            en: Weekly
+            fr: Hebdomadaire
+        monthly:
+            en: Monthly
+            fr: Mensuelle
+opt_iod_sst:
+    label:
+        en: SST Products
+        fr: Produits TSM
+    select:
+        ersstv5_ncei: NOAA NCEI ERSSTv5
+        ersstv6_ncei: NOAA NCEI ERSSTv6
+opt_anom_sst_weekly:
+    label:
+        en: SST Products
+        fr: Produits TSM
+    select:
+        oisstv21_cpc: NOAA CPC OISSTv2.1
+opt_anom_sst_monthly:
+    label:
+        en: SST Products
+        fr: Produits TSM
+    select:
+        oisstv21_cpc: NOAA CPC OISSTv2.1
+        ersstv5_cpc: NOAA CPC ERSSTv5
+        ersstv5_ncei: NOAA NCEI ERSSTv5
+        ersstv6_ncei: NOAA NCEI ERSSTv6
+opt_anom_nino_region:
+    label:
+        en: Niño Region
+        fr: Région Niño
+    select:
+        'nino1+2': Niño 1+2
+        'nino3': Niño 3
+        'nino3.4': Niño 3.4
+        'nino4': Niño 4
+opt_anom_nino_type:
+    label:
+        en: Anomalies
+        fr: Anomalies
+    select:
+        anom:
+            en: SST Anomalies
+            fr: Anomalies TSM
+        ranom:
+            en: Relative SST Anomalies
+            fr: Anomalies Relatives TSM
+opt_label_date:
+    start:
+        en: Start
+        fr: Début
+    end:
+        en: End
+        fr: Fin
 disp_image:
     label:
         en: Display
@@ -66,4 +166,3 @@ disp_image:
 disp_lastVal:
     en: Display last value
     fr: Afficher la dernière valeur
-
