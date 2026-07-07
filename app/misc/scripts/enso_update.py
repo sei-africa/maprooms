@@ -32,7 +32,6 @@ def update_enso_oni_cpc(oni_type='roni'):
         )
         _insert_data_into_table(oni, table_name, starts, last)
 
-
 def update_enso_oisstv21_cpc(time_res='weekly'):
     if time_res == 'weekly':
         table_name = 'enso_oisstv21_cpc_weekly'
@@ -161,6 +160,31 @@ def update_iod_ersst_ncei(ersst_version=5):
             'day': 1
         })
         _insert_data_into_table(iod, table_name, starts, last)
+
+def update_nao_cpc_cdas_monthly():
+    table_name = 'nao_cdas_cpc_monthly'
+    end_date = tableLastRecords(
+        table_name,
+        ['year', 'month'],
+        ['year', 'month'],
+        1
+    )
+
+    if len(end_date) == 0:
+        nao = get_nao_cpc_cdas_monthly()
+        writeDataToTable(nao, table_name)
+    else:
+        nao = get_nao_cpc_cdas_monthly(lastrows=5)
+        last = pd.to_datetime(
+            f"{end_date[0]['year']}-{end_date[0]['month']}",
+            format='%Y-%m'
+        )
+        starts = pd.to_datetime({
+            'year': nao['year'],
+            'month': nao['month'],
+            'day': 1
+        })
+        _insert_data_into_table(nao, table_name, starts, last)
 
 def _insert_data_into_table(data, table_name, starts, last):
     new_df = data[starts > last]

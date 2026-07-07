@@ -353,6 +353,18 @@ def _table_enso_ersstv5_cpc_monthly(table):
     """
     _executeSQLCmd(sqlCmd)
 
+def _table_nao_cpc_cdas_monthly(table):
+    _check_table_name(table)
+    sqlCmd = f"""
+        CREATE TABLE IF NOT EXISTS "{table}" (
+            year integer,
+            month integer,
+            nao real,
+            primary key (year, month)
+        )
+    """
+    _executeSQLCmd(sqlCmd)
+
 def _table_enso_probabilities(table):
     _check_table_name(table)
     sqlCmd = f"""
@@ -411,6 +423,10 @@ def initENSOTables():
     if not _check_table_exist(table):
         _table_iod_ersst_ncei_monthly(table)
 
+    table = 'nao_cdas_cpc_monthly'
+    if not _check_table_exist(table):
+        _table_nao_cpc_cdas_monthly(table)
+
     table = 'cpc_enso_probabilities'
     if not _check_table_exist(table):
         _table_enso_probabilities(table)
@@ -431,7 +447,7 @@ def getDataTemporalCoverage(table, enso_type):
         """
         res = _executeSQLCmd(sqlCmd)
         return res[0]
-    elif enso_type == 'iod':
+    elif enso_type in ['iod', 'nao']:
         sqlCmd = f"""
             SELECT
                 MIN(year * 100 + month) AS t0,

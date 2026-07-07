@@ -6,6 +6,7 @@ from app.misc.scripts.enso_update import (read_enso_probabilities,
                                           read_enso_probabilities_all)
 from app.misc.scripts.enso import (read_enso_oni_cpc,
                                    read_iod_data_monthly,
+                                   read_nao_data_monthly, 
                                    read_enso_data_monthly,
                                    read_enso_data_weekly,
                                    enso_alert_classification)
@@ -153,7 +154,8 @@ def climate_analysis_enso_charts(params):
                 ytick=ytick,
                 ylab=ylab,
                 figsize=(figW, figH),
-                dispLastValue=params['dispLastValue']
+                dispLastValue=params['dispLastValue'],
+                varUnits='°C'
             )
             data = {
                 'png': img_png,
@@ -173,6 +175,53 @@ def climate_analysis_enso_charts(params):
                 'time_res': 'monthly',
                 'name': 'IOD',
                 'units': '°C',
+                'imgPNG': params['imgPNG']
+            }
+    elif params['ensoIndices'] == 'nao':
+        nao = read_nao_data_monthly(
+            columns='*',
+            start=params['startDate'],
+            end=params['endDate']
+        )
+
+        ylab = 'North Atlantic Oscillation'
+        thres = 0.5
+        ytick = 0.5
+        ymax = np.array([nao['nao'].min(), nao['nao'].max()])
+        ymax = np.max(np.abs(ymax)) + ytick/2
+
+        if params['imgPNG']:
+            figW = sW * 1.5873
+            figH = sH * 1.0143
+            img_png = plot_enso_monthly(
+                nao,
+                col='nao',
+                thres=thres,
+                ymax=ymax,
+                ytick=ytick,
+                ylab=ylab,
+                figsize=(figW, figH),
+                dispLastValue=params['dispLastValue'],
+                varUnits=''
+            )
+            data = {
+                'png': img_png,
+                'imgPNG': params['imgPNG']
+            }
+        else:
+            nao['day'] = 16
+            nao['time'] = pd.to_datetime(nao[['year', 'month', 'day']])
+            nao['time'] = nao['time'].dt.strftime('%Y-%m-%d')
+            data = {
+                'time': nao['time'].tolist(),
+                'values': nao['nao'].tolist(),
+                'ylab': ylab,
+                'thres': thres,
+                'ymax': ymax, 
+                'ytick': ytick,
+                'time_res': 'monthly',
+                'name': 'NAO',
+                'units': '',
                 'imgPNG': params['imgPNG']
             }
     elif params['ensoIndices'] == 'anom':
@@ -232,7 +281,8 @@ def climate_analysis_enso_charts(params):
                 ytick=ytick,
                 ylab=ylab,
                 figsize=(figW, figH),
-                dispLastValue=params['dispLastValue']
+                dispLastValue=params['dispLastValue'],
+                varUnits='°C'
             )
             data = {
                 'png': img_png,

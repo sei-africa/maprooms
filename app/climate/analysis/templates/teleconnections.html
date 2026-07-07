@@ -18,8 +18,7 @@
                 <div class="col-sm-12 col-map-container">
                     <div id="div-map-container" class="div-map-container">
                         {% call fmacros.create_map_control(pageText, urlArgs) %}
-                        <!-- call create_map_control -->
-                        <div>Test</div>
+                        {{ fanalysis.create_map_control_enso("seasonal", pageText) }}
                         {% endcall %}
                     </div>
                 </div>
@@ -32,10 +31,6 @@
             {% call fmacros.create_modal_expand_charts("div-chart-enso", pageText) %}
             {{ fanalysis.create_expand_charts_enso("seasonal", pageText) }}
             {% endcall %}
-        </div>
-        <div class="col-sm-4">
-            {{ fmacros.create_card_charts("div-chart-proba", pageText) }}
-            <!-- call expand card -->
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-anom", pageText) }}
@@ -52,6 +47,8 @@ const DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
 let DATA_ENSO = JSON.parse('{{ pageText.dataset_enso | tojson }}');
 const ANOM_ENSO = JSON.parse('{{ pageText.opt_anom_nino_type.select | tojson }}');
 const REGION_ENSO = JSON.parse('{{ pageText.opt_anom_nino_region.select | tojson }}');
+const CLIMATE_VAR = JSON.parse('{{ pageText.clim_variables | tojson }}');
+const TERCILES_VAR = JSON.parse('{{ pageText.opt_variables_analysis | tojson }}');
 </script>
 <script type="text/javascript" src="{{ url_for('climate_analysis.static', filename='js/teleconnections.js') }}"></script>
 {% endblock %}

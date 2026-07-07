@@ -213,7 +213,8 @@ def plot_enso_weekly(
     ytick=0.4,
     ylab='Niño3.4 index (°C)',
     figsize=(11, 6),
-    dispLastValue=False
+    dispLastValue=False,
+    varUnits='°C'
 ):
     df = enso_df.copy()
     df.dropna(inplace=True)
@@ -222,7 +223,7 @@ def plot_enso_weekly(
     d_e = df['date'].iloc[-1]
     d_e = d_e.strftime('%d %b %Y')
     v_e = df[col].iloc[-1]
-    label_e = f'Latest weekly value to {d_e}: {v_e:+.2f}°C'
+    label_e = f'Latest weekly value to {d_e}: {v_e:+.2f}{varUnits}'
 
     return _plot_enso_data(
             df, col, thres,
@@ -239,7 +240,8 @@ def plot_enso_monthly(
     ytick=0.4,
     ylab='Niño3.4 index (°C)',
     figsize=(11, 6),
-    dispLastValue=False
+    dispLastValue=False,
+    varUnits='°C'
 ):
     df = enso_df.copy()
     df.dropna(inplace=True)
@@ -249,7 +251,7 @@ def plot_enso_monthly(
     d_e = df['date'].iloc[-1]
     d_e = d_e.strftime('%B %Y')
     v_e = df[col].iloc[-1]
-    label_e = f'Latest monthly value to {d_e}: {v_e:+.2f}°C'
+    label_e = f'Latest monthly value to {d_e}: {v_e:+.2f}{varUnits}'
 
     return _plot_enso_data(
             df, col, thres,

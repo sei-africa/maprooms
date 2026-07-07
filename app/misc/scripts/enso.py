@@ -167,7 +167,7 @@ def format_oni_table_df(tables, table_nb, roni=True):
     
     return anom.dropna(subset=['anom'])
 
-def format_sst_data_numeric(data):
+def format_df_data_numeric(data):
     df = data.copy()
     df = df.apply(pd.to_numeric, errors='coerce')
     df = df.dropna(subset=['year', 'month'])
@@ -269,7 +269,7 @@ def get_enso_oisstv21_cpc(time_res='weekly', lastrows=None):
             ranom = partial_read_fwf(url, lastrows, names=names)
         else:
             ranom = pd.read_fwf(url, skiprows=1, names=names)
-        ranom = format_sst_data_numeric(ranom)
+        ranom = format_df_data_numeric(ranom)
 
         # Monthly
         file = 'sstoi.indices'
@@ -281,7 +281,7 @@ def get_enso_oisstv21_cpc(time_res='weekly', lastrows=None):
             anom = partial_read_fwf(url, lastrows, names=names)
         else:
             anom = pd.read_fwf(url, skiprows=1, names=names)
-        anom = format_sst_data_numeric(anom)
+        anom = format_df_data_numeric(anom)
         return pd.merge(ranom, anom, on=['year', 'month'], how='outer')
     else:
         raise ValueError('Unknown time resolution "time_res"')
@@ -295,7 +295,7 @@ def get_enso_ersstv5_cpc_monthly(lastrows=None):
         sst = partial_read_fwf(url, lastrows, names=names)
     else:
         sst = pd.read_fwf(url, skiprows=1, names=names)
-    sst = format_sst_data_numeric(sst)
+    sst = format_df_data_numeric(sst)
 
     url = 'https://www.cpc.ncep.noaa.gov/data/indices/Rnino34.ascii.txt'
     names = ['year', 'month', 'ranom_nino3.4']
@@ -303,7 +303,7 @@ def get_enso_ersstv5_cpc_monthly(lastrows=None):
         rsst = partial_read_fwf(url, lastrows, names=names)
     else:
         rsst = pd.read_fwf(url, skiprows=1, names=names)
-    rsst = format_sst_data_numeric(rsst)
+    rsst = format_df_data_numeric(rsst)
 
     return pd.merge(sst, rsst, on=['year', 'month'], how='outer')
 
@@ -333,7 +333,7 @@ def get_enso_ersst_ncei(ersst_version=5, lastrows=None):
         ssta = partial_read_fwf(url_ssta, lastrows, names=names_ssta)
     else:
         ssta = pd.read_fwf(url_ssta, names=names_ssta)
-    ssta = format_sst_data_numeric(ssta)
+    ssta = format_df_data_numeric(ssta)
 
     names_sst = ['year', 'month', 'sst_nino3', 'sst_nino4',
                  'sst_nino3.4', 'sst_nino1+2']
@@ -342,7 +342,7 @@ def get_enso_ersst_ncei(ersst_version=5, lastrows=None):
         sst = partial_read_fwf(url_sst, lastrows, names=names_sst)
     else:
         sst = pd.read_fwf(url_sst, names=names_sst)
-    sst = format_sst_data_numeric(sst)
+    sst = format_df_data_numeric(sst)
 
     return pd.merge(ssta, sst, on=['year', 'month'], how='outer')
 
@@ -368,7 +368,33 @@ def get_iod_ersst_ncei(ersst_version=5, lastrows=None):
     else:
         iod = pd.read_fwf(url, skiprows=1, names=names)
 
-    return format_sst_data_numeric(iod)
+    return format_df_data_numeric(iod)
+
+def get_nao_cpc_cdas_monthly(lastrows=None):
+    # Period: 1950 - present
+
+    url = 'https://cpc.ncep.noaa.gov/products/precip/CWlink/pna/norm.nao.monthly.b5001.current.ascii.table'
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    months_dict = {v: i + 1 for i, v in enumerate(months)}
+    names = ['year'] + months
+    if lastrows:
+        nao = partial_read_fwf(url, lastrows, names=names)
+    else:
+        nao = pd.read_fwf(url, skiprows=1, names=names)
+
+    nao = (
+        nao.melt(
+            id_vars='year',
+            var_name='month',
+            value_name='nao'
+        )
+        .assign(month=lambda x: x['month'].map(months_dict))
+        .sort_values(['year', 'month'])
+        .reset_index(drop=True)
+    )
+    nao = nao.dropna(subset=['nao'])
+
+    return format_df_data_numeric(nao)
 
 def climatology_sst(
     sst, start=1991, end=2020,
@@ -557,12 +583,12 @@ def table_sst_products(sst_product, time_res):
 def read_enso_data_weekly(sst_product, columns='*', start=None, end=None, week=None):
     table = table_sst_products(sst_product, 'weekly')
     df = readENSOWeeklyDataFrame(table, columns, start, end, week)
-    return df
+    return df.dropna()
 
 def read_enso_data_monthly(sst_product, columns='*', start=None, end=None, month=None):
     table = table_sst_products(sst_product, 'monthly')
     df = readENSOMonthlyDataFrame(table, columns, start, end, month)
-    return df
+    return df.dropna()
 
 def read_enso_oni_cpc(oni_type, start=None, end=None, month=None):
     if oni_type == 'oni':
@@ -573,7 +599,7 @@ def read_enso_oni_cpc(oni_type, start=None, end=None, month=None):
         raise ValueError('Unknown ONI type')
 
     df = readCPCONIDataFrame(table, start, end, month)
-    return df
+    return df.dropna()
 
 def read_iod_data_monthly(sst_product, columns='*', start=None, end=None, month=None):
     if sst_product == 'ersstv5_ncei':
@@ -584,4 +610,9 @@ def read_iod_data_monthly(sst_product, columns='*', start=None, end=None, month=
         raise ValueError('Unknown IOD table')
 
     df = readENSOMonthlyDataFrame(table, columns, start, end, month)
-    return df
+    return df.dropna()
+
+def read_nao_data_monthly(columns='*', start=None, end=None, month=None):
+    table = 'nao_cdas_cpc_monthly'
+    df = readENSOMonthlyDataFrame(table, columns, start, end, month)
+    return df.dropna()

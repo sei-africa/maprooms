@@ -36,6 +36,11 @@ def hash_pamars_clim(params):
     pars = {k: str(v) for k, v in params.items() if k not in exclude}
     return _hash_params(pars)
 
+def hash_pamars_telecon(params):
+    exclude = ['timeSeries', 'mapType', 'colorbar']
+    pars = {k: str(v) for k, v in params.items() if k not in exclude}
+    return _hash_params(pars)
+
 def hash_pamars_anom(params):
     pars_keys = [
          'analysis', 'anomaly', 'Date', 'startDate', 'endDate',

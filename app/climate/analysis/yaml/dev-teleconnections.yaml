@@ -1,5 +1,3 @@
-display_iod: true
-
 description:
     en: |
         <h4>Climate Teleconnections</h4>
@@ -15,41 +13,15 @@ description:
         <br>
         Séries temporelles de précipitations et de température (1981-2026) reconstruites à partir de données in-situ et de données de télédétection et autres proxy.
         </p>
+
 dataset:
     rainfall: ALL
     temperature: ALL
     varid:
         rainfall: [precip]
         temperature: [tmin, tmax]
-dataset_enso:
-    oni:
-      oni:
-        table: enso_oni_cpc
-      roni:
-        table: enso_roni_cpc
-    anom:
-      weekly:
-        oisstv21_cpc:
-          table: enso_oisstv21_cpc_weekly
-          anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino1+2, ranom_nino3, ranom_nino4, ranom_nino3.4]
-      monthly:
-        oisstv21_cpc:
-          table: enso_oisstv21_cpc_monthly
-          anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino1+2, ranom_nino3, ranom_nino4, ranom_nino3.4]
-        ersstv5_cpc:
-          table: enso_ersstv5_cpc_monthly
-          anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino3.4]
-        ersstv5_ncei:
-          table: enso_ersstv5_ncei_monthly
-          anomaly: [anom_nino3, anom_nino4, anom_nino3.4, anom_nino1+2]
-        ersstv6_ncei:
-          table: enso_ersstv6_ncei_monthly
-          anomaly: [anom_nino3, anom_nino4, anom_nino3.4, anom_nino1+2]
-    iod:
-      ersstv5_ncei:
-        table: iod_ersstv5_ncei_monthly
-      ersstv6_ncei:
-        table: iod_ersstv6_ncei_monthly
+    timeres: dekadal
+
 variables:
     label:
         en: Variable
@@ -61,6 +33,54 @@ variables:
         temperature:
             en: Temperature
             fr: Température
+clim_variables:
+    rainfall:
+        precip:
+            en: Total rainfall
+            fr: Cumul de précipitation
+    temperature:
+        tmax:
+            en: Maximum temperature
+            fr: Température maximale
+        tmean:
+            en: Mean temperature
+            fr: Température moyenne
+        tmin:
+            en: Minimum temperature
+            fr: Température minimale
+
+dataset_enso:
+    oni:
+        oni:
+            table: enso_oni_cpc
+        roni:
+            table: enso_roni_cpc
+    anom:
+        weekly:
+            oisstv21_cpc:
+                table: enso_oisstv21_cpc_weekly
+                anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino1+2, ranom_nino3, ranom_nino4, ranom_nino3.4]
+        monthly:
+            oisstv21_cpc:
+                table: enso_oisstv21_cpc_monthly
+                anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino1+2, ranom_nino3, ranom_nino4, ranom_nino3.4]
+            ersstv5_cpc:
+                table: enso_ersstv5_cpc_monthly
+                anomaly: [anom_nino1+2, anom_nino3, anom_nino4, anom_nino3.4, ranom_nino3.4]
+            ersstv5_ncei:
+                table: enso_ersstv5_ncei_monthly
+                anomaly: [anom_nino3, anom_nino4, anom_nino3.4, anom_nino1+2]
+            ersstv6_ncei:
+                table: enso_ersstv6_ncei_monthly
+                anomaly: [anom_nino3, anom_nino4, anom_nino3.4, anom_nino1+2]
+    iod:
+        ersstv5_ncei:
+            table: iod_ersstv5_ncei_monthly
+        ersstv6_ncei:
+            table: iod_ersstv6_ncei_monthly
+    nao:
+        cdas_cpc:
+            table: nao_cdas_cpc_monthly
 opt_enso:
     label:
         en: Index type
@@ -81,6 +101,9 @@ opt_enso:
         iod:
             en: IOD Index
             fr: IOD Indice
+        nao:
+            en: NAO Index
+            fr: NAO Indice
 opt_oni:
     label:
         en: ENSO Indices
@@ -166,3 +189,98 @@ disp_image:
 disp_lastVal:
     en: Display last value
     fr: Afficher la dernière valeur
+
+opt_terciles_analysis:
+    label:
+        en: Historical probability
+        fr: Probabilité historique
+    select:
+        enso:
+            en: Terciles conditioned on ENSO
+            fr: Terciles conditionnés par ENSO
+        iod:
+            en: Terciles conditioned on IOD
+            fr: Terciles conditionnés par IOD
+        nao:
+            en: Terciles conditioned on NAO
+            fr: Terciles conditionnés par NAO
+opt_variables_analysis:
+    phases:
+        enso:
+            label:
+                en: ENSO State
+                fr: Phase ENSO
+            select:
+                lanina:
+                    en: La Niña
+                    fr: La Niña
+                neutral:
+                    en: Neutral
+                    fr: Neutre
+                elnino:
+                    en: El Niño
+                    fr: El Niño
+        iod:
+            label:
+                en: IOD Phase
+                fr: Phase IOD
+            select:
+                negative:
+                    en: Negative
+                    fr: Negative
+                neutral:
+                    en: Neutral
+                    fr: Neutre
+                positive:
+                    en: Positive
+                    fr: Positive
+        nao:
+            label:
+                en: NAO Phase
+                fr: Phase NAO
+            select:
+                negative:
+                    en: Negative
+                    fr: Negative
+                neutral:
+                    en: Neutral
+                    fr: Neutre
+                positive:
+                    en: Positive
+                    fr: Positive
+    terciles:
+        label:
+            en: Tercile
+            fr: Tercile
+        select:
+            rainfall:
+                dry:
+                    en: Dry
+                    fr: Sèche
+                normal:
+                    en: Normal
+                    fr: Normale
+                wet:
+                    en: Wet
+                    fr: Humide
+            temperature:
+                cold:
+                    en: Cold
+                    fr: Froide
+                normal:
+                    en: Normal
+                    fr: Normale
+                hot:
+                    en: Hot
+                    fr: Chaude
+opt_season:
+    label:
+        en: Date
+        fr: Date
+    season:
+        start:
+            en: Start month
+            fr: Mois de début
+        length:
+            en: Length
+            fr: Longueur

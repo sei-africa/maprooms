@@ -233,8 +233,10 @@ def load_maproom_page_text(item_dirs, page_type):
 
     base_period = parse_config_yaml_file(app_dir, 'base-period.yaml')
     base_period_lab = parse_config_yaml_file(app_dir, 'base-period-label.yaml')
-
     out = out | base_period | base_period_lab
+
+    teleconnections = parse_config_yaml_file(app_dir, 'disp-teleconnections.yaml')
+    out = out | teleconnections
 
     if page_type in ['page', 'user']:
         nav_path = item_dirs[:-1]

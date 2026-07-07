@@ -1,0 +1,139 @@
+import numpy as np
+from app.scripts.colorbar import matplotlib_invalid_colors
+from app.scripts.imagepng import create_imagePng
+from app.dst_api.scripts import aggregate_seasonal_xrdata
+from app.misc.scripts.telecon_seasonal import (
+    telecon_oni_seasonal,
+    telecon_iod_seasonal,
+    telecon_nao_seasonal
+)
+from app.misc.scripts.telecon_proba import *
+from app.scripts._cache import cache, hash_pamars_telecon
+
+def climate_teleconnections_sp(params):
+    if params['colorbar']['color_type'] == 'user':
+        user_col = matplotlib_invalid_colors(
+            params['colorbar']['color_cbar']
+        )
+        if user_col is not None:
+            wrng_col = ', '.join(user_col)
+            msg = f'Matplotlib invalid colors: {wrng_col}'
+            return {'status': -1, 'message': msg}
+        if params['colorbar']['color_add_ext']:
+            ext_col = matplotlib_invalid_colors(
+                params['colorbar']['color_ext'],
+                transparent=True
+            )
+            if ext_col is not None:
+                wrng_col = ', '.join(ext_col)
+                msg = f'Matplotlib invalid colors extensions: {wrng_col}'
+                return {'status': -1, 'message': msg}
+
+    cache_key = hash_pamars_telecon(params)
+    cached_data = cache.get(cache_key)
+    if cached_data is None:
+        cached_data = _conditional_probability_sp(params)
+        cache.set(cache_key, cached_data)
+
+    if params['colorbar']['color_type'] == 'preset':
+        map_png = create_imagePng(
+            cached_data,
+            breaks=params['colorbar']['break_cbar'],
+            color_name=params['colorbar']['color_cbar'],
+            colors_ext=params['colorbar']['color_ext']
+        )
+    else:
+        map_png = create_imagePng(
+            cached_data,
+            breaks=params['colorbar']['break_cbar'],
+            colors=params['colorbar']['color_cbar'],
+            colors_ext=params['colorbar']['color_ext']
+        )
+
+    map_png['date'] = cached_data['proba']
+    # map_png['ckeys']['title'] = f"{cached_data['longname']} ({cached_data['units']})"
+    map_png['ckeys']['title'] = f"{cached_data['longname']}: {cached_data['proba']}"
+
+    return {'status': 0, 'data': map_png}
+
+def _conditional_probability_sp(params):
+    seas = aggregate_seasonal_xrdata(params)
+    if seas['status'] == -1:
+        return seas_data
+    data_seas = seas['data']
+
+    info_class = map_telecon_classes(params)
+
+    clim_ter = classify_climvar_terciles(
+        data_seas, info_class['terciles']['labels'], 'iq'
+    )
+
+    year1 = clim_ter['year'].values.min()
+    year2 = clim_ter['year'].values.max()
+    start_date = f'{year1 - 1}-01'
+    end_date = f'{year2 + 1}-12'
+
+    if params['ensoIndices'] == 'iod':
+        sst_prod = 'ersstv5_ncei'
+        # sst_prod = 'ersstv6_ncei'
+
+        df_seas = telecon_iod_seasonal(
+            params, sst_prod,
+            start_date, end_date,
+            params['fullSeas']
+        )
+
+    if params['ensoIndices'] == 'nao':
+        df_seas = telecon_nao_seasonal(
+            params,
+            start_date, end_date,
+            params['fullSeas']
+        )
+
+    if params['ensoIndices'] == 'enso':
+        # sst_prod = 'oisstv21_cpc'
+        # sst_prod = 'ersstv5_cpc'
+        sst_prod = 'ersstv5_ncei'
+        # sst_prod = 'ersstv6_ncei'
+
+        df_seas = telecon_oni_seasonal(
+            params, sst_prod,
+            start_date, end_date,
+            params['fullSeas']
+        )
+
+    if params['fullSeas']:
+        t_index = classify_telecon_index(
+            df_seas, info_class['telecon']['threshold']
+        )
+        t_index = lagged_telecon_filter(t_index, params['seasStart'])
+    else:
+        t_index = classify_telecon_index(
+            df_seas, info_class['telecon']['threshold']
+        )
+
+    ter = info_class['terciles']['values'][params['climTercile']]
+    idx = info_class['telecon']['values'][params['ensoTercile']]
+    proba = telecon_conditional_probability(
+        ds_terciles=clim_ter,
+        df_indices=t_index,
+        target_tercile=ter,
+        target_index=idx
+    )
+    vter = info_class['terciles']['classes'][ter]
+    vidx = info_class['telecon']['classes'][idx]
+    tele = params['ensoIndices'].upper()
+    cond_proba = f'P(Tercile = {vter} | {tele} phase = {vidx})'
+
+    mask = np.isnan(data_seas['seas_var'].values[0, :, :])
+    data = np.ma.masked_array(proba.values, mask = mask)
+
+    return {
+            'proba': cond_proba,
+            'lon': proba['lon'].values,
+            'lat': proba['lat'].values,
+            'data': data,
+            'longname': proba.attrs['long_name'],
+            'units': proba.attrs['units'],
+            'varid': proba.name
+        }

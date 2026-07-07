@@ -25,3 +25,4 @@ lxml
 pypdf
 pyarrow
 fastparquet
+bottleneck

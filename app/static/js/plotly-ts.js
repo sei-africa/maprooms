@@ -2289,6 +2289,10 @@ function expand_analysis_query_enso(tempRes) {
     if (query.ensoIndices === 'iod') {
         query.sstProd = $(`#${tempRes}-iod-sst`).val();
     }
+    if (query.ensoIndices === 'nao') {
+        // not used
+        query.sstProd = $(`#${tempRes}-nao-cdas`).val();
+    }
     if (query.ensoIndices === 'anom') {
         query.timeRes = $(`#${tempRes}-anom-tempres`).val();
 
@@ -2301,7 +2305,7 @@ function expand_analysis_query_enso(tempRes) {
         query.ninoRegion = $(`#${tempRes}-anom-ninoregion`).val();
     }
 
-    if (['oni', 'iod', 'anom'].includes(query.ensoIndices)) {
+    if (['oni', 'iod', 'nao', 'anom'].includes(query.ensoIndices)) {
         query.startDate = $(`#${tempRes}-chart-enso-startdate-calendar`).val();
         query.endDate = $(`#${tempRes}-chart-enso-enddate-calendar`).val();
         const ensoImg = $(`#${tempRes}-disp-image-enso`).val();
@@ -2329,7 +2333,7 @@ function expand_analysis_charts_enso(container_id, tempRes) {
     // between line or bar plot
     let storename = null;
     if (!query.imgPNG) {
-        if (['oni', 'iod', 'anom'].includes(query.ensoIndices)) {
+        if (['oni', 'iod', 'nao', 'anom'].includes(query.ensoIndices)) {
             storename = 'ts_enso';
         }
     }

@@ -125,9 +125,16 @@ def create_imagePng(
     pm.set_norm(norm)
     pm.cmap.set_under(colors_ext[0])
     pm.cmap.set_over(colors_ext[1])
-    bbox = plt.axis('off')
-    bounds = [[bbox[3].item(), bbox[0].item()],
-              [bbox[2].item(), bbox[1].item()]]
+
+    # bbox = plt.axis('off')
+    # bounds = [[bbox[3].item(), bbox[0].item()],
+    #           [bbox[2].item(), bbox[1].item()]]
+    x_min, x_max = ax.get_xlim()
+    y_min, y_max = ax.get_ylim()
+    bounds = [[y_max.item(), x_min.item()],
+              [y_min.item(), x_max.item()]]
+    ax.axis('off')
+
     img_png = render_image_png(plt)
     img_out = {'png': img_png, 'bounds': bounds}
 

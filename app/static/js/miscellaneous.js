@@ -625,6 +625,93 @@ function setAnalysisParamsDefDaily(time_res, type_p) {
 
 //////////////
 
+function setOffCanvasMapControlEnso(tempRes) {
+    const tstep_id = `${tempRes}-map-date`;
+
+    setNamesCalendar(
+        `${tempRes}-map-date`, tempRes
+    );
+    setAnalysisSeasonLength(tempRes);
+    setClimateSeasonMonthsEnso(tempRes);
+    adjustSelect2Height(`${tstep_id}-length`, false);
+
+    $(`#${tempRes}-map-variable`)
+        .off('change.tercileEnso')
+        .on('change.tercileEnso', function() {
+            setClimateVariableEnso(tempRes, $(this).val());
+            setClimateTercilesEnso(tempRes, $(this).val());
+        });
+
+    $(`#${tempRes}-tercile-analysis`)
+        .off('change.tercileEnso')
+        .on('change.tercileEnso', function() {
+            setClimatePhasesEnso(tempRes, $(this).val());
+        });
+
+    $(`#${tstep_id}-length`)
+        .off('change.tercileEnso')
+        .on('change.tercileEnso', function() {
+            setClimateSeasonMonthsEnso(tempRes);
+        });
+}
+
+function setClimateSeasonMonthsEnso(tempRes) {
+    const tstepID = `${tempRes}-map-date`;
+    const this_len = parseInt($(`#${tstepID}-length`).val(), 10);
+    const this_mon = parseInt($(`#${tstepID}-calendar`).val(), 10);
+    if (!Number.isFinite(this_mon) || !Number.isFinite(this_len)) return;
+    const seas_mon = defineSeasonMonths(this_mon, this_len);
+    $(`#${tempRes}-season-months`).text(seas_mon);
+}
+
+function setClimateTercilesEnso(tempRes, variable) {
+    const sel_opts = TERCILES_VAR.terciles.select[variable];
+
+    $(`#${tempRes}-climate-tercile-select`).empty();
+    for (const [k, v] of Object.entries(sel_opts)) {
+        $(`#${tempRes}-climate-tercile-select`).append(
+            $('<option>').text(v).val(k)
+        );
+    }
+}
+
+function setClimatePhasesEnso(tempRes, teleIndex) {
+    const this_lab = TERCILES_VAR.phases[teleIndex].label;
+    const sel_opts = TERCILES_VAR.phases[teleIndex].select;
+
+    $(`#${tempRes}-enso-phases-label`).text(this_lab);
+    $(`#${tempRes}-enso-phases-select`).empty();
+    for (const [k, v] of Object.entries(sel_opts)) {
+        $(`#${tempRes}-enso-phases-select`).append(
+            $('<option>').text(v).val(k)
+        );
+    }
+}
+
+function setClimateVariableEnso(tempRes, variable) {
+    const clim_var = CLIMATE_VAR[variable];
+
+    $(`#${tempRes}-map-clim-variable`).empty();
+    for (const [k, v] of Object.entries(clim_var)) {
+        $(`#${tempRes}-map-clim-variable`).append(
+            $('<option>').text(v).val(k)
+        );
+    }
+}
+
+function setClimateSeasLenEnso(tempRes) {
+    const seasLenId = $(`#${tempRes}-season-length`);
+
+    for (let l = 2; l <= 12; l++) {
+        seasLenId.append(
+            $('<option>').text(l).val(l)
+        );
+    }
+    seasLenId.val(3);
+}
+
+//////////////
+
 async function setMapDatesNavInput(tempRes) {
     const this_date = $('#input-time-navigation').val().trim();
     if (this_date === '') {
@@ -1875,7 +1962,7 @@ function setAnalysisExpandModalEnso(tempRes, contID) {
         .off('click.ensoIndices')
         .on('click.ensoIndices', function() {
             const ensoIdx = $(`#${tempRes}-enso-indices`).val();
-            if (['oni', 'anom', 'iod'].includes(ensoIdx)) {
+            if (['oni', 'anom', 'iod', 'nao'].includes(ensoIdx)) {
                 expand_analysis_charts_enso(contChart, tempRes);
             }
         });
@@ -1907,6 +1994,8 @@ function getTempCoverageCalendarEnso(tempRes, ensoPars) {
         temp_cov = DATA_ENSO[ensoPars.ensoIdx][ensoPars.oni].coverage;
     } else if (ensoPars.ensoIdx === 'iod') {
         temp_cov = DATA_ENSO[ensoPars.ensoIdx][ensoPars.iod].coverage;
+    } else if (ensoPars.ensoIdx === 'nao') {
+        temp_cov = DATA_ENSO[ensoPars.ensoIdx][ensoPars.nao].coverage;
     } else if (ensoPars.ensoIdx === 'anom') {
         if (ensoPars.ensoTRes === 'weekly') {
             temp_cov = DATA_ENSO[ensoPars.ensoIdx][ensoPars.ensoTRes][ensoPars.week].coverage;
@@ -1929,7 +2018,7 @@ function setAnalysisDateCalendarEnso(tempRes) {
     }
 
     let ensoTRes;
-    if (['oni', 'iod'].includes(ensoIdx)) {
+    if (['oni', 'iod', 'nao'].includes(ensoIdx)) {
         ensoTRes = 'monthly';
     } else {
         ensoTRes = $(`#${tempRes}-anom-tempres`).val();
@@ -1939,6 +2028,7 @@ function setAnalysisDateCalendarEnso(tempRes) {
     ensoPars.ensoTRes = ensoTRes;
     ensoPars.oni = $(`#${tempRes}-oni-indices`).val();
     ensoPars.iod = $(`#${tempRes}-iod-sst`).val();
+    ensoPars.nao = $(`#${tempRes}-nao-cdas`).val();
     ensoPars.week = $(`#${tempRes}-anom-sstweek`).val();
     ensoPars.month = $(`#${tempRes}-anom-sstmonth`).val();
     const temp_cov = getTempCoverageCalendarEnso(tempRes, ensoPars);
@@ -2030,6 +2120,24 @@ function setAnalysisVisibilityEnso(time_res) {
                 `${time_res}-anom-ninotype-opt`
             ]
         );
+    } else if (ensoIdx === 'nao') {
+        setVisibility(
+            [
+                `${time_res}-enso-startdate-opt`,
+                `${time_res}-enso-enddate-opt`,
+                `${time_res}-disp-image-enso-opt`,
+                `${time_res}-disp-lastval-enso-opt`
+            ],
+            [
+                `${time_res}-iod-sst-opt`,
+                `${time_res}-oni-indices-opt`,
+                `${time_res}-anom-tempres-opt`,
+                `${time_res}-anom-sstweek-opt`,
+                `${time_res}-anom-sstmonth-opt`,
+                `${time_res}-anom-ninoregion-opt`,
+                `${time_res}-anom-ninotype-opt`
+            ]
+        );
     } else {
         const ensoTRes = $(`#${time_res}-anom-tempres`).val();
         if (ensoTRes === 'weekly') {
@@ -2071,7 +2179,7 @@ function setAnalysisVisibilityEnso(time_res) {
         }
     }
 
-    if (['oni', 'iod', 'anom'].includes(ensoIdx)) {
+    if (['oni', 'iod', 'nao', 'anom'].includes(ensoIdx)) {
         const ensoImg = $(`#${time_res}-disp-image-enso`).val();
         if (ensoImg === 'image') {
             $(`#${time_res}-disp-lastval-enso-opt`).show();

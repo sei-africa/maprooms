@@ -21,5 +21,8 @@ def main():
     print(f'{sep}\n Updating NOAA NCEI Monthly Indian Ocean Dipole (IOD) computed with ERSST v6')
     update_iod_ersst_ncei(6)
 
+    print(f'{sep}\n Updating NOAA CPC Monthly North Atlantic Oscillation (NAO)')
+    update_nao_cpc_cdas_monthly()
+
 if __name__ == '__main__':
     main()

@@ -1,5 +1,5 @@
 ## preset colorbar list
-colorbar_color_list: ['tim_colors', precipitation_1,
+colorbar_color_list: [tim_colors, precipitation_1, tercile_enso, 
                 'rainbow', 'turbo', 'viridis', 'inferno',
                 'jet', 'plasma', 'magma', 'plasma',
                 'hsv', 'hot', 'cool', 'spring', 'summer',
