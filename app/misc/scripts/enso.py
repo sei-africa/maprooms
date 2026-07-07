@@ -492,13 +492,13 @@ def enso_alert_classification(proba, strength, oni, ssta):
     )
 
     el_alert = (
-        ((np.sum(ssta >= 0.5) == 2) and oni >= 0.5) and
+        ((np.sum(ssta >= 0.5) >= 2) and oni >= 0.5) and
         ((np.sum(pred_oni[:2] >= 0.5) >= 2) or 
         (np.min(el_probs[:3]) >= 60))
     )
 
     el_nino = (
-        ((np.sum(ssta >= 0.5) == 2) and oni >= 0.5) and
+        ((np.sum(ssta >= 0.5) >= 2) and oni >= 0.5) and
         (np.sum(pred_oni[:3] >= 0.5) >= 3)
     )
 
@@ -509,13 +509,13 @@ def enso_alert_classification(proba, strength, oni, ssta):
     )
 
     la_alert = (
-        ((np.sum(ssta <= -0.5) == 2) and oni <= -0.5) and
+        ((np.sum(ssta <= -0.5) >= 2) and oni <= -0.5) and
         ((np.sum(pred_oni[:2] <= -0.5) >= 2) or
         (np.min(la_probs[:3]) >= 60))
     )
 
     la_nina = (
-        ((np.sum(ssta <= -0.5) == 2) and oni <= -0.5) and
+        ((np.sum(ssta <= -0.5) >= 2) and oni <= -0.5) and
         (np.sum(pred_oni[:3] <= -0.5) >= 3)
     )
 

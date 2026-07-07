@@ -32,7 +32,7 @@ def climate_analysis_enso_alert_dial(params):
         fcst['probabilities'],
         fcst['strengths'],
         oni_df['anom'].round(1).to_numpy(),
-        anom_df['anom_nino3.4'].round(1).to_numpy()[0:2]
+        anom_df['anom_nino3.4'].round(1).to_numpy()
     )
 
     img_png = draw_dial_image(
