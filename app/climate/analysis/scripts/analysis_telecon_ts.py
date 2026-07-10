@@ -94,8 +94,8 @@ def _get_teleconnections_ts(params, xr_seas):
 
     if params['teleconIndex'] == 'enso':
         # sst_prod = 'oisstv21_cpc'
-        # sst_prod = 'ersstv5_cpc'
-        sst_prod = 'ersstv5_ncei'
+        sst_prod = 'ersstv5_cpc'
+        # sst_prod = 'ersstv5_ncei'
         # sst_prod = 'ersstv6_ncei'
 
         df_seas = telecon_oni_seasonal(

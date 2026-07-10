@@ -94,8 +94,8 @@ def _conditional_probability_sp(params):
 
     if params['teleconIndex'] == 'enso':
         # sst_prod = 'oisstv21_cpc'
-        # sst_prod = 'ersstv5_cpc'
-        sst_prod = 'ersstv5_ncei'
+        sst_prod = 'ersstv5_cpc'
+        # sst_prod = 'ersstv5_ncei'
         # sst_prod = 'ersstv6_ncei'
 
         df_seas = telecon_oni_seasonal(
