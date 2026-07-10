@@ -425,6 +425,7 @@ function setOffCanvasMapControlDaily(tempRes) {
     $(`#${tempRes}-map-type`)
         .off(`change.${tempRes}MapType`)
         .on(`change.${tempRes}MapType`, function() {
+            refreshSpatialAverage(tempRes, datasetFromVariable = false);
             setAnalysisMapTypeDaily(tempRes);
         });
 
@@ -607,6 +608,7 @@ function setOffCanvasMapControlTelecon(tempRes) {
     setAnalysisSeasonLengthMap(tempRes);
     setClimateSeasonMonthsTelecon(tempRes);
     adjustSelect2Height(`${tempRes}-map-date-length`, false);
+    refreshSpatialAverage(tempRes, datasetFromVariable = true);
 
     $(`#${tempRes}-map-variable`)
         .off('change.tercileTelecon')

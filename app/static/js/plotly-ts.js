@@ -1010,6 +1010,7 @@ function preview_telecon_display_tseries(json, container) {
         yaxis: {
             range: json.yrange,
             tickvals: json.yticks,
+            tickformat: '.1f',
             showgrid: true,
             gridwidth: 0.3,
             griddash: 'dot',
@@ -1020,7 +1021,7 @@ function preview_telecon_display_tseries(json, container) {
         showlegend: false
     };
 
-    layout.margin = { t: 10, b: 30, l: 40, r: 10 };
+    layout.margin = { t: 10, b: 30, l: 50, r: 10 };
     layout = deepMerge(setPlotlyColors(), layout);
     layout = deepMerge(preview_layout, layout);
 
