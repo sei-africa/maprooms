@@ -205,6 +205,12 @@ function downloadPlotlyImageJPG(container) {
         }
     }
 
+    if ('chart_type' in plot_layout) {
+        if (plot_layout['chart_type'] === 'telecon-proba') {
+            gd.data[3].line.color = 'black';
+        }
+    }
+
     if ('print_legend' in plot_layout) {
         print_layout.showlegend = true;
         const len = gd.data.map(x => x.name.length);

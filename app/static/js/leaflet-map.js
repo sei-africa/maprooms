@@ -432,6 +432,22 @@ function displayRasterImage(json, options, map = MAP_BE) {
     displayMapRegions(map);
 }
 
+function isStoredLeafletMapValid(json, map = MAP_BE) {
+    if (!json || !json.data || !json.data.png || !json.data.bounds) {
+        return false;
+    }
+
+    if (json._maproom !== map.maproom) {
+        return false;
+    }
+
+    if (json._pathname !== window.location.pathname) {
+        return false;
+    }
+
+    return true;
+}
+
 function createRasterImage(image, bounds, options) {
     switch (options.type) {
         case 'pixels':
@@ -1478,6 +1494,9 @@ function displayMapRegions(map = MAP_BE) {
 
             // 
             maproomDB.getData('leaflet_map', function(json) {
+                if (!isStoredLeafletMapValid(json, map)) {
+                    return;
+                }
                 const sub_c = LAYERS.subdivision_clip[map.maproom];
                 var region = JSON.parse(SUBDIV_BE[sub_c]);
                 region.features = region.features.filter(x => x.properties.field === region_sel);
@@ -1544,6 +1563,9 @@ function displayMapRegions(map = MAP_BE) {
 
             // 
             maproomDB.getData('leaflet_map', function(json) {
+                if (!isStoredLeafletMapValid(json, map)) {
+                    return;
+                }
                 const options = {};
                 leafletRasterImage(json.data.png, json.data.bounds, options, map);
             });
@@ -1580,6 +1602,9 @@ function displayMapRegions(map = MAP_BE) {
 
         // 
         maproomDB.getData('leaflet_map', function(json) {
+            if (!isStoredLeafletMapValid(json, map)) {
+                return;
+            }
             const sub_c = LAYERS.subdivision_clip[map.maproom];
             var region = JSON.parse(SUBDIV_BE[sub_c]);
             region.features = region.features.filter(x => x.properties.field === region_sel);

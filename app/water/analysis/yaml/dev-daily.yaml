@@ -18,11 +18,7 @@ dataset:
     varid:
         rainfall: [precip]
         temperature: [tmin, tmax]
-default_season:
-    start_mon: 6
-    start_day: 1
-    end_mon: 8
-    end_day: 31
+years_range:
     start_year: 1981
     end_year: 2024
     min_year: 30

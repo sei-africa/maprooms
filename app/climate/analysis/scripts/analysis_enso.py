@@ -49,7 +49,7 @@ def climate_analysis_enso_alert_dial(params):
 def climate_analysis_enso_charts(params):
     sW = int(params['sreenW'])/120
     sH = int(params['sreenH'])/120
-    if params['ensoIndices'] == 'proba':
+    if params['teleconIndex'] == 'proba':
         proba = read_enso_probabilities()
         issue_date = proba['issued_date'].strftime('%Y-%m')
         # figsize=(15, 6)
@@ -62,7 +62,7 @@ def climate_analysis_enso_charts(params):
             'png': img_png,
             'imgPNG': params['imgPNG']
         }
-    elif params['ensoIndices'] == 'strength':
+    elif params['teleconIndex'] == 'strength':
         strength = read_enso_strengths()
         issue_date = strength['issued_date'].strftime('%Y-%m')
         # figsize=(14, 6)
@@ -74,7 +74,7 @@ def climate_analysis_enso_charts(params):
             'png': img_png,
             'imgPNG': params['imgPNG']
         }
-    elif params['ensoIndices'] == 'oni':
+    elif params['teleconIndex'] == 'oni':
         oni = read_enso_oni_cpc(
             params['oniType'],
             start=params['startDate'],
@@ -129,7 +129,7 @@ def climate_analysis_enso_charts(params):
                 'units': '°C',
                 'imgPNG': params['imgPNG']
             }
-    elif params['ensoIndices'] == 'iod':
+    elif params['teleconIndex'] == 'iod':
         iod = read_iod_data_monthly(
             params['sstProd'],
             columns=['year', 'month', 'diff'],
@@ -177,7 +177,7 @@ def climate_analysis_enso_charts(params):
                 'units': '°C',
                 'imgPNG': params['imgPNG']
             }
-    elif params['ensoIndices'] == 'nao':
+    elif params['teleconIndex'] == 'nao':
         nao = read_nao_data_monthly(
             columns='*',
             start=params['startDate'],
@@ -224,7 +224,7 @@ def climate_analysis_enso_charts(params):
                 'units': '',
                 'imgPNG': params['imgPNG']
             }
-    elif params['ensoIndices'] == 'anom':
+    elif params['teleconIndex'] == 'anom':
         anom = f"{params['anomType']}_{params['ninoRegion']}"
         nino_reg = {
             'nino1+2': 'Niño 1+2',
@@ -304,5 +304,5 @@ def climate_analysis_enso_charts(params):
     else:
         return {'status': -1, 'data': 'Unknown chart type'}
 
-    data['ensoIndices'] = params['ensoIndices']
+    data['teleconIndex'] = params['teleconIndex']
     return {'status': 0, 'data': data}

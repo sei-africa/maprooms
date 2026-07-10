@@ -8,7 +8,7 @@ from app.misc.scripts.telecon_seasonal import (
     telecon_nao_seasonal
 )
 from app.misc.scripts.telecon_proba import *
-from app.scripts._cache import cache, hash_pamars_telecon
+from app.scripts._cache import cache, hash_pamars_telecon_map
 
 def climate_teleconnections_sp(params):
     if params['colorbar']['color_type'] == 'user':
@@ -29,10 +29,12 @@ def climate_teleconnections_sp(params):
                 msg = f'Matplotlib invalid colors extensions: {wrng_col}'
                 return {'status': -1, 'message': msg}
 
-    cache_key = hash_pamars_telecon(params)
+    cache_key = hash_pamars_telecon_map(params)
     cached_data = cache.get(cache_key)
     if cached_data is None:
         cached_data = _conditional_probability_sp(params)
+        if cached_data['status'] == -1:
+            return cached_data
         cache.set(cache_key, cached_data)
 
     if params['colorbar']['color_type'] == 'preset':
@@ -73,7 +75,7 @@ def _conditional_probability_sp(params):
     start_date = f'{year1 - 1}-01'
     end_date = f'{year2 + 1}-12'
 
-    if params['ensoIndices'] == 'iod':
+    if params['teleconIndex'] == 'iod':
         sst_prod = 'ersstv5_ncei'
         # sst_prod = 'ersstv6_ncei'
 
@@ -83,14 +85,14 @@ def _conditional_probability_sp(params):
             params['fullSeas']
         )
 
-    if params['ensoIndices'] == 'nao':
+    if params['teleconIndex'] == 'nao':
         df_seas = telecon_nao_seasonal(
             params,
             start_date, end_date,
             params['fullSeas']
         )
 
-    if params['ensoIndices'] == 'enso':
+    if params['teleconIndex'] == 'enso':
         # sst_prod = 'oisstv21_cpc'
         # sst_prod = 'ersstv5_cpc'
         sst_prod = 'ersstv5_ncei'
@@ -122,13 +124,14 @@ def _conditional_probability_sp(params):
     )
     vter = info_class['terciles']['classes'][ter]
     vidx = info_class['telecon']['classes'][idx]
-    tele = params['ensoIndices'].upper()
+    tele = params['teleconIndex'].upper()
     cond_proba = f'P(Tercile = {vter} | {tele} phase = {vidx})'
 
     mask = np.isnan(data_seas['seas_var'].values[0, :, :])
     data = np.ma.masked_array(proba.values, mask = mask)
 
     return {
+            'status': 0,
             'proba': cond_proba,
             'lon': proba['lon'].values,
             'lat': proba['lat'].values,

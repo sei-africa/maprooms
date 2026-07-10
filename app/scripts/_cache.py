@@ -36,8 +36,13 @@ def hash_pamars_clim(params):
     pars = {k: str(v) for k, v in params.items() if k not in exclude}
     return _hash_params(pars)
 
-def hash_pamars_telecon(params):
-    exclude = ['timeSeries', 'mapType', 'colorbar']
+def hash_pamars_telecon_map(params):
+    exclude = ['mapType', 'colorbar']
+    pars = {k: str(v) for k, v in params.items() if k not in exclude}
+    return _hash_params(pars)
+
+def hash_pamars_telecon_ts(params):
+    exclude = ['']
     pars = {k: str(v) for k, v in params.items() if k not in exclude}
     return _hash_params(pars)
 

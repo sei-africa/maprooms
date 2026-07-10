@@ -277,6 +277,13 @@ opt_season:
     label:
         en: Date
         fr: Date
+    label_year:
+        start:
+            en: Start year
+            fr: Début année
+        end:
+            en: End year
+            fr: Fin année
     season:
         start:
             en: Start month
@@ -284,3 +291,20 @@ opt_season:
         length:
             en: Length
             fr: Longueur
+        unit:
+            en: months
+            fr: mois
+opt_index_telecon:
+    label:
+        en: Teleconnections
+        fr: Téléconnexions
+    select:
+        enso:
+            en: ENSO - Oceanic Niño Index (ONI)
+            fr: ENSO - Oceanic Niño Index (ONI)
+        iod:
+            en: Indian Ocean Dipole (IOD)
+            fr: Indian Ocean Dipole (IOD)
+        nao:
+            en: North Atlantic Oscillation (NAO)
+            fr: North Atlantic Oscillation (NAO)

@@ -55,7 +55,6 @@ const DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
 const PARAMS_LIST = JSON.parse('{{ pageText.parameters | tojson }}');
 const PARAMS_ORDER = JSON.parse('{{ pageText.parameters_order | tojson }}');
 const PARAMS_DEF = JSON.parse('{{ pageText.definition | tojson }}');
-const SEASON_DEF = JSON.parse('{{ pageText.default_season | tojson }}');
 const PROBA_PLOT = JSON.parse('{{ pageText.opt_js_data | tojson }}');
 </script>
 <script type="text/javascript" src="{{ url_for('climate_analysis.static', filename='js/daily.js') }}"></script>

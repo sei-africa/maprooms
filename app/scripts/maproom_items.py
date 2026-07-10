@@ -237,6 +237,8 @@ def load_maproom_page_text(item_dirs, page_type):
 
     teleconnections = parse_config_yaml_file(app_dir, 'disp-teleconnections.yaml')
     out = out | teleconnections
+    season_definition = parse_config_yaml_file(app_dir, 'season-definition.yaml')
+    out = out | season_definition
 
     if page_type in ['page', 'user']:
         nav_path = item_dirs[:-1]

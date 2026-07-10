@@ -48,17 +48,17 @@ def map_telecon_classes(params):
     clim_terciles = {i: v for i, v in enumerate(clim_labels)}
     clim_values = {v: i for i, v in enumerate(clim_values)}
 
-    if params['ensoIndices'] == 'iod':
+    if params['teleconIndex'] == 'iod':
         tele_thres = [-0.35, 0.35]
         tele_labels = ('Negative', 'Neutral', 'Positive') 
         tele_values = ('negative', 'neutral', 'positive')
 
-    if params['ensoIndices'] == 'nao':
+    if params['teleconIndex'] == 'nao':
         tele_thres = [-0.45, 0.45]
         tele_labels = ('Negative', 'Neutral', 'Positive')
         tele_values = ('negative', 'neutral', 'positive')
 
-    if params['ensoIndices'] == 'enso':
+    if params['teleconIndex'] == 'enso':
         tele_thres = [-0.45, 0.45]
         tele_labels = ('La Niña', 'Neutral', 'El Niño')
         tele_values = ('lanina', 'neutral', 'elnino')

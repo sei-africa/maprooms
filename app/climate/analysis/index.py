@@ -2,21 +2,30 @@ from flask import Blueprint, render_template, request, session
 from flask import current_app as app
 import json
 import config
+from threading import Lock
 
 from app.scripts._global import GLOBAL_CONFIG
-from app.scripts._cache import (cache_data_functions,
-                                hash_params_ts_data)
+from app.scripts._cache import (
+    cache_data_functions,
+    hash_params_ts_data,
+    hash_pamars_telecon_ts
+)
 from app.auth.index import login_required
 
 from .scripts.analysis_sp import climate_analysis_sp_data
-from .scripts.analysis_ts import (climate_analysis_ts_rawdata,
-                                  climate_analysis_ts_anomaly,
-                                  climate_analysis_ts_climato,
-                                  climate_analysis_ts_proba,
-                                  climate_analysis_ts_season)
-from .scripts.analysis_enso import (climate_analysis_enso_alert_dial,
-                                    climate_analysis_enso_charts)
-from .scripts.analysis_sp_enso import climate_teleconnections_sp
+from .scripts.analysis_ts import (
+    climate_analysis_ts_rawdata,
+    climate_analysis_ts_anomaly,
+    climate_analysis_ts_climato,
+    climate_analysis_ts_proba,
+    climate_analysis_ts_season
+)
+from .scripts.analysis_enso import (
+    climate_analysis_enso_alert_dial,
+    climate_analysis_enso_charts
+)
+from .scripts.analysis_telecon_sp import climate_teleconnections_sp
+from .scripts.analysis_telecon_ts import climate_teleconnections_ts
 
 climate_analysis = Blueprint(
     'climate_analysis',
@@ -25,6 +34,8 @@ climate_analysis = Blueprint(
     static_folder='static',
     static_url_path='/static/climate_analysis',
 )
+
+matplotlib_render_lock = Lock()
 
 dataUser = dict()
 @climate_analysis.before_request
@@ -47,11 +58,12 @@ def climate_analysis_map():
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})
 
-@climate_analysis.route('/climate_analysis_map_enso', methods=['POST'])
-def climate_analysis_map_enso():
+@climate_analysis.route('/climate_analysis_telecon_map', methods=['POST'])
+def climate_analysis_telecon_map():
     params = request.get_json()
     try:
-        map_data = climate_teleconnections_sp(params)
+        with matplotlib_render_lock:
+            map_data = climate_teleconnections_sp(params)
         return json.dumps(map_data)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})
@@ -120,7 +132,8 @@ def climate_analysis_season():
 def climate_analysis_enso_alert():
     params = request.get_json()
     try:
-        obj = climate_analysis_enso_alert_dial(params)
+        with matplotlib_render_lock:
+            obj = climate_analysis_enso_alert_dial(params)
         return json.dumps(obj)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})
@@ -131,5 +144,17 @@ def climate_analysis_enso():
     try:
         obj = climate_analysis_enso_charts(params)
         return json.dumps(obj)
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_analysis.route('/climate_analysis_telecon_ts', methods=['POST'])
+def climate_analysis_telecon_ts():
+    params = request.get_json()
+    try:
+        return cache_data_functions(
+                    climate_teleconnections_ts,
+                    hash_pamars_telecon_ts,
+                    params
+                )
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})

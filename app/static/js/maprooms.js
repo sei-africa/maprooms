@@ -318,7 +318,7 @@ function displayAjaxError(jqXHR, textStatus, errorThrown) {
 
 function ajaxLeafletMap(endpoint, query, callback, options, map) {
     const spin_opts = spinnerMapOptions();
-    $.ajax({
+    return $.ajax({
         type: 'POST',
         url: endpoint,
         dataType: 'json',
@@ -329,6 +329,9 @@ function ajaxLeafletMap(endpoint, query, callback, options, map) {
                 flashMessage(json.message, 'error');
                 return false;
             }
+            json.data._maproom = getThisMaproom();
+            json.data._endpoint = endpoint;
+            json.data._pathname = window.location.pathname;
             maproomDB.clearData('leaflet_map');
             maproomDB.saveData('leaflet_map', json.data);
 

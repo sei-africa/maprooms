@@ -249,8 +249,9 @@ function setNamesCalendar(
                 .val(m + 1)
             );
         }
-        select.val('1');
-        var int_value = months[0];
+        select.val(SEASON_DEF.months.start);
+        const imon = parseInt(SEASON_DEF.months.start, 10);
+        var int_value = months[imon - 1];
     } else if (tempRes === 'dekadal') {
         const dekads = getListOfDekadsCalendar();
         for (let d = 0; d < dekads.length; d++) {

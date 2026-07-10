@@ -13,8 +13,8 @@ function preview_seasonal_display_charts(tempRes) {
 }
 
 function preview_seasonal_teleconnections(tempRes) {
-    preview_analysis_enso_alert(tempRes, 'div-chart-enso');
-
+    preview_analysis_telecon_tseries(tempRes, 'div-chart-tseries');
+    preview_analysis_telecon_proba(tempRes, 'div-chart-proba');
 }
 
 ///////////////////
@@ -891,6 +891,260 @@ function preview_analysis_display_enso_alert(json, container) {
         'width': '100%',
         'height': '100%',
         'object-fit': 'cover'
+    });
+}
+
+///////
+
+function preview_analysis_query_telecon(tempRes, cType) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.chartType = `telecon-${cType}`;
+    query.temporalRes = tempRes;
+    query.minFrac = 0.95;
+
+    query.variable = $(`#${tempRes}-map-variable`).val();
+    query.climVariable = $(`#${tempRes}-map-clim-variable`).val();
+
+    query.dataset = DATA_SET[query.variable];
+    query.inputData = DATA_SET.timeres;
+
+    query.teleconIndex = $(`#${tempRes}-tercile-analysis`).val();
+
+    const dates = preview_analysis_query_temporal(
+        query.dataset, tempRes, query.variable, 30
+    );
+    query.startYear = parseInt(dates.startDate, 10);
+    query.endYear = parseInt(dates.endDate, 10);
+
+    query.seasStart = parseInt($(`#${tempRes}-map-date-calendar`).val(), 10);
+    query.seasLength = parseInt($(`#${tempRes}-map-date-length`).val(), 10);
+
+    // query.timeSeries = true;
+
+    return query;
+}
+
+function preview_analysis_telecon_tseries(tempRes, contID) {
+    const query = preview_analysis_query_telecon(tempRes, 'tseries');
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_telecon_ts',
+        query,
+        preview_telecon_display_tseries,
+        contID
+    );
+}
+
+function preview_telecon_display_tseries(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+    const theme = $('html').attr('data-bs-theme');
+
+    const barcol = ['blue', 'gray', 'red'];
+    const barColors = json.classes.map(c => barcol[c]);
+    const xdata = json.time;
+    const ydata = json.values;
+    const xlim_terc = [Math.min(...xdata) - 1, Math.max(...xdata) + 1];
+    const xlim_data = [Math.min(...xdata) - 0.5, Math.max(...xdata) + 0.5];
+    const xticks = Math.ceil(Math.min(...xdata) / 5) * 5;
+
+    const data = [{
+            x: xdata,
+            y: ydata,
+            name: json.info.var.name,
+            units: json.info.var.units,
+            type: 'bar',
+            marker: {
+                color: barColors
+            },
+            width: 0.7,
+            hovertemplate: 'Year: %{x}<br>' +
+                `%{data.name}: %{y:.2f} %{data.units} <extra></extra>`
+        },
+        {
+            x: xlim_terc,
+            y: [json.terciles[0], json.terciles[0]],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Tercile 1',
+            line: {
+                color: 'purple',
+                width: 4
+            },
+            hovertemplate: `Tercile 1: %{y:.1f}<extra></extra>`
+        },
+        {
+            x: xlim_terc,
+            y: [json.terciles[1], json.terciles[1]],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Tercile 2',
+            line: {
+                color: 'green',
+                width: 4
+            },
+            hovertemplate: `Tercile 2: %{y:.1f}<extra></extra>`
+        }
+    ];
+
+    var layout = {
+        xaxis: {
+            range: xlim_data,
+            tickmode: 'linear',
+            dtick: 5,
+            tick0: xticks,
+            showgrid: false,
+            showline: true,
+            linecolor: plotly_themecolors[theme].fontcolor
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            gridcolor: 'lightgray',
+            showline: true,
+            linecolor: plotly_themecolors[theme].fontcolor
+        },
+        showlegend: false
+    };
+
+    layout.margin = { t: 10, b: 30, l: 40, r: 10 };
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+
+    const config = {
+        displayModeBar: false,
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(container, data, layout, config);
+    setPlotlyThemeColors(container);
+
+    $('#btn-theme-toggle').on('click', () => {
+        const thm = $('html').attr('data-bs-theme');
+        const update = {
+            'xaxis.linecolor': plotly_themecolors[thm].fontcolor,
+            'yaxis.linecolor': plotly_themecolors[thm].fontcolor
+        };
+        Plotly.relayout(container, update);
+    });
+}
+
+///////
+
+function preview_analysis_telecon_proba(tempRes, contID) {
+    const query = preview_analysis_query_telecon(tempRes, 'proba');
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_telecon_ts',
+        query,
+        preview_telecon_display_proba,
+        contID
+    );
+}
+
+function preview_telecon_display_proba(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+    const theme = $('html').attr('data-bs-theme');
+    const col_allyears = plotly_themecolors[theme].fontcolor;
+    const linecol = ['blue', 'gray', 'red', col_allyears];
+
+    const data = Object.entries(json.values)
+        .map(([key, secdf], i) => ({
+            x: secdf.x,
+            y: secdf.y,
+            type: 'scatter',
+            mode: 'lines',
+            name: json.info.classes[key],
+            units: '%',
+            line: {
+                color: linecol[i],
+                width: 3
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        }));
+
+    var layout = {
+        xaxis: {
+            range: json.xrange,
+            tickvals: json.yticks,
+            tickformat: '.1f',
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            unifiedhovertitle: {
+                text: json.info.var.name +
+                    ': %{x:.2f} ' +
+                    json.info.var.units
+            }
+        },
+        yaxis: {
+            range: [0, 100],
+            ticksuffix: '%',
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            }
+        },
+        showlegend: false,
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme)
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+    layout.margin.l = 40;
+
+    const config = {
+        displayModeBar: false,
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(container, data, layout, config);
+    setPlotlyThemeColors(container);
+
+    $('#btn-theme-toggle').on('click', () => {
+        const gd = document.getElementById(container);
+        const thm = $('html').attr('data-bs-theme');
+        const update = {
+            'line.color': plotly_themecolors[thm].fontcolor
+        };
+        // Apply update to CDF index 3
+        Plotly.restyle(gd, update, [3]);
     });
 }
 
@@ -2279,21 +2533,21 @@ function expand_analysis_query_enso(tempRes) {
     let query = new Object();
     query.chartType = 'enso';
     query.temporalRes = tempRes;
-    query.ensoIndices = $(`#${tempRes}-enso-indices`).val();
+    query.teleconIndex = $(`#${tempRes}-enso-indices`).val();
     query.sreenW = screen.width;
     query.sreenH = screen.height;
 
-    if (query.ensoIndices === 'oni') {
+    if (query.teleconIndex === 'oni') {
         query.oniType = $(`#${tempRes}-oni-indices`).val();
     }
-    if (query.ensoIndices === 'iod') {
+    if (query.teleconIndex === 'iod') {
         query.sstProd = $(`#${tempRes}-iod-sst`).val();
     }
-    if (query.ensoIndices === 'nao') {
+    if (query.teleconIndex === 'nao') {
         // not used
         query.sstProd = $(`#${tempRes}-nao-cdas`).val();
     }
-    if (query.ensoIndices === 'anom') {
+    if (query.teleconIndex === 'anom') {
         query.timeRes = $(`#${tempRes}-anom-tempres`).val();
 
         if (query.timeRes == 'weekly') {
@@ -2305,7 +2559,7 @@ function expand_analysis_query_enso(tempRes) {
         query.ninoRegion = $(`#${tempRes}-anom-ninoregion`).val();
     }
 
-    if (['oni', 'iod', 'nao', 'anom'].includes(query.ensoIndices)) {
+    if (['oni', 'iod', 'nao', 'anom'].includes(query.teleconIndex)) {
         query.startDate = $(`#${tempRes}-chart-enso-startdate-calendar`).val();
         query.endDate = $(`#${tempRes}-chart-enso-enddate-calendar`).val();
         const ensoImg = $(`#${tempRes}-disp-image-enso`).val();
@@ -2332,11 +2586,11 @@ function expand_analysis_charts_enso(container_id, tempRes) {
     // will be used to choose 
     // between line or bar plot
     let storename = null;
-    if (!query.imgPNG) {
-        if (['oni', 'iod', 'nao', 'anom'].includes(query.ensoIndices)) {
-            storename = 'ts_enso';
-        }
-    }
+    // if (!query.imgPNG) {
+    //     if (['oni', 'iod', 'nao', 'anom'].includes(query.teleconIndex)) {
+    //         storename = 'ts_enso';
+    //     }
+    // }
 
     ajaxDisplayChart(
         '/climate_analysis_enso',
@@ -2353,7 +2607,7 @@ function expand_analysis_display_enso(json, container) {
 
     if (json.imgPNG) {
         var img = $('<img>', {
-            id: `enso-${json.ensoIndices}`,
+            id: `enso-${json.teleconIndex}`,
             src: json.png
         }).appendTo(divCont);
 
@@ -2552,4 +2806,283 @@ function expand_analysis_display_enso(json, container) {
         const ranges = ['1Y', '5Y', '10Y', '15Y', '20Y', '30Y', 'ALL'];
         addRangeselector(container, ranges, last_date)
     }
+}
+
+///////
+
+function expand_analysis_query_telecon(tempRes, cType) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.chartType = `telecon-${cType}`;
+    query.temporalRes = tempRes;
+    query.minFrac = 0.95;
+
+    query.variable = $(`#${tempRes}-${cType}-variable`).val();
+    query.climVariable = $(`#${tempRes}-${cType}-clim-variable`).val();
+
+    query.dataset = DATA_SET[query.variable];
+    query.inputData = DATA_SET.timeres;
+
+    query.teleconIndex = $(`#${tempRes}-${cType}-index-telecon`).val();
+
+    query.startYear = parseInt($(`#${tempRes}-${cType}-startdate-calendar`).val(), 10);
+    query.endYear = parseInt($(`#${tempRes}-${cType}-enddate-calendar`).val(), 10);
+    query.seasStart = parseInt($(`#${tempRes}-${cType}-startmon-calendar`).val(), 10);
+    query.seasLength = parseInt($(`#${tempRes}-${cType}-seaslen`).val(), 10);
+
+    return query;
+}
+
+///////
+
+function expand_analysis_telecon_tseries(container_id, tempRes) {
+    const query = expand_analysis_query_telecon(tempRes, 'tseries');
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_telecon_ts',
+        query,
+        expand_telecon_display_tseries,
+        container_id
+    );
+}
+
+function expand_telecon_display_tseries(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    const theme = $('html').attr('data-bs-theme');
+
+    const barcol = ['blue', 'gray', 'red'];
+    const barColors = json.classes.map(c => barcol[c]);
+
+    const xdata = json.time;
+    const ydata = json.values;
+    const xlim_terc = [Math.min(...xdata) - 1, Math.max(...xdata) + 1];
+    const xlim_data = [Math.min(...xdata) - 0.5, Math.max(...xdata) + 0.5];
+    const xticks = Math.ceil(Math.min(...xdata) / 5) * 5;
+
+    const ylab = `${json.info.var.name} (${json.info.var.units})`;
+
+    const data = [{
+            x: xdata,
+            y: ydata,
+            name: json.info.var.name,
+            units: json.info.var.units,
+            type: 'bar',
+            marker: {
+                color: barColors
+            },
+            width: 0.7,
+            hovertemplate: `%{data.name}: %{y:.2f} %{data.units} <extra></extra>`,
+            showlegend: false
+        },
+        // Legend only: classes
+        ...Object.entries(json.info.classes).map(([key, name]) => ({
+            x: [null],
+            y: [null],
+            type: 'bar',
+            name: name,
+            marker: {
+                color: barcol[Number(key)]
+            },
+            showlegend: true
+        })),
+        {
+            x: xlim_terc,
+            y: [json.terciles[0], json.terciles[0]],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Tercile 1',
+            line: {
+                color: 'purple',
+                width: 4
+            },
+            hovertemplate: 'Tercile 1: %{y:.1f}<extra></extra>'
+        },
+        {
+            x: xlim_terc,
+            y: [json.terciles[1], json.terciles[1]],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Tercile 2',
+            line: {
+                color: 'green',
+                width: 4
+            },
+            hovertemplate: 'Tercile 2: %{y:.1f}<extra></extra>'
+        }
+    ];
+
+    var layout = {
+        xaxis: {
+            range: xlim_data,
+            tickformat: 'd',
+            dtick: 5,
+            ticks: 'outside',
+            ticklen: 8,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            griddash: 'dot'
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            tickformat: '.1f',
+            ticks: 'outside',
+            ticklen: 8,
+            title: {
+                text: ylab
+            },
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            griddash: 'dot'
+        },
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme),
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(expand_layout, layout);
+    layout.margin.l = 80;
+    layout.print_legend = 'telecon';
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(container, data, layout, plotly_config);
+    setPlotlyThemeColors(container);
+}
+
+///////
+
+function expand_analysis_telecon_proba(container_id, tempRes) {
+    const query = expand_analysis_query_telecon(tempRes, 'proba');
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_telecon_ts',
+        query,
+        expand_telecon_display_proba,
+        container_id
+    );
+}
+
+function expand_telecon_display_proba(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    const theme = $('html').attr('data-bs-theme');
+    const col_allyears = plotly_themecolors[theme].fontcolor;
+    const linecol = ['blue', 'gray', 'red', col_allyears];
+
+    const xlab = `${json.info.var.name} (${json.info.var.units})`;
+    const ylab = 'Probability of exceeding';
+
+    const data = Object.entries(json.values)
+        .map(([key, secdf], i) => ({
+            x: secdf.x,
+            y: secdf.y,
+            type: 'scatter',
+            mode: 'lines',
+            name: json.info.classes[key],
+            units: '%',
+            line: {
+                color: linecol[i],
+                width: 3
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        }));
+
+    var layout = {
+        xaxis: {
+            range: json.xrange,
+            tickvals: json.yticks,
+            tickformat: '.1f',
+            ticks: 'outside',
+            ticklen: 8,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            unifiedhovertitle: {
+                text: json.info.var.name +
+                    ': %{x:.2f} ' +
+                    json.info.var.units
+            },
+            title: {
+                text: xlab
+            }
+        },
+        yaxis: {
+            range: [0, 100],
+            ticksuffix: '%',
+            ticks: 'outside',
+            ticklen: 8,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            title: {
+                text: ylab
+            }
+        },
+        margin: { l: 80, r: 190, t: 10, b: 70 },
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme)
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+    layout.print_legend = 'telecon';
+    layout.chart_type = 'telecon-proba';
+
+    const config = {
+        displayModeBar: false,
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(container, data, layout, config);
+    setPlotlyThemeColors(container);
+
+    $('#btn-theme-toggle').on('click', () => {
+        const gd = document.getElementById(container);
+        const thm = $('html').attr('data-bs-theme');
+        const update = {
+            'line.color': plotly_themecolors[thm].fontcolor
+        };
+        // Apply update to CDF index 3
+        Plotly.restyle(gd, update, [3]);
+    });
 }

@@ -1,6 +1,6 @@
 description:
     en: |
-        <h4>Seasonal Climate Analysis</h4>
+        <h4>Daily Climate Analysis</h4>
         <p>
         The Maproom explores historical daily precipitation and temperatures by calculating simple seasonal statistics and the history of extreme.
         Rainfall time series and temperature time series (1981-2021) reconstructed from station observations, remote sensing and other proxies.
@@ -18,11 +18,7 @@ dataset:
     varid:
         rainfall: [precip]
         temperature: [tmin, tmax]
-default_season:
-    start_mon: 6
-    start_day: 1
-    end_mon: 8
-    end_day: 31
+years_range:
     start_year: 1981
     end_year: 2024
     min_year: 30

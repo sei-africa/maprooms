@@ -211,10 +211,16 @@ function generateSequence01(length) {
 
 //////////////
 
-function refreshSpatialAverage(tempRes) {
-    const maptype = $(`#${tempRes}-map-type option:selected`).val();
+function refreshSpatialAverage(tempRes, datasetFromVariable = false) {
     const variable = $(`#${tempRes}-map-variable option:selected`).val();
-    const dset = DATA_SET[maptype];
+
+    if (datasetFromVariable) {
+        var dset = DATA_SET[variable];
+    } else {
+        const maptype = $(`#${tempRes}-map-type option:selected`).val();
+        var dset = DATA_SET[maptype];
+    }
+
     let dataRes;
     if (DATA_SET.varid === undefined) {
         const data = DATA_INFO[dset][tempRes][variable];
@@ -231,14 +237,12 @@ function refreshSpatialAverage(tempRes) {
 //////////////
 
 function setOffCanvasMapControl(tempRes) {
-    const tstep_id = `${tempRes}-map-date`;
-
-    setAnalysisSeasonLength(tempRes);
+    setAnalysisSeasonLengthMap(tempRes);
 
     $(`#${tempRes}-map-variable`)
         .off(`change.${tempRes}Variable`)
         .on(`change.${tempRes}Variable`, function() {
-            refreshSpatialAverage(tempRes);
+            refreshSpatialAverage(tempRes, datasetFromVariable = false);
             setAnalysisThresholdDef(tempRes);
         });
 
@@ -249,7 +253,7 @@ function setOffCanvasMapControl(tempRes) {
         });
 
     if (tempRes === 'seasonal') {
-        $(`#${tstep_id}-length`)
+        $(`#${tempRes}-map-date-length`)
             .off(`change.${tempRes}SeasonLength`)
             .on(`change.${tempRes}SeasonLength`, function() {
                 const map_type = $(`#${tempRes}-map-type`).val();
@@ -260,86 +264,13 @@ function setOffCanvasMapControl(tempRes) {
     $(`#${tempRes}-map-type`)
         .off(`change.${tempRes}MapType`)
         .on(`change.${tempRes}MapType`, function() {
-            const map_type = $(this).val();
-            if (map_type === 'climatology') {
-                setNamesCalendar(
-                    `${tempRes}-map-date`, tempRes
-                );
-                setVisibility(
-                    [
-                        `${tempRes}-map-climato`,
-                        `div-${tempRes}-base-period`
-                    ],
-                    [`${tempRes}-map-anomaly`]
-                );
-
-                setAnalysisClimatoFun(tempRes);
-
-                if (tempRes === 'seasonal') {
-                    setAnalysisSeasonMonths(tempRes, map_type);
-                    adjustSelect2Height(`${tstep_id}-length`, false);
-                }
-            } else {
-                const dataset = map_type === 'anomaly' ?
-                    DATA_SET.anomaly : DATA_SET.rawdata;
-
-                if (map_type === 'anomaly') {
-                    setVisibility(
-                        [
-                            `${tempRes}-map-anomaly`,
-                            `div-${tempRes}-base-period`
-                        ],
-                        [`${tempRes}-map-climato`]
-                    );
-                } else {
-                    setVisibility(
-                        [],
-                        [
-                            `${tempRes}-map-anomaly`,
-                            `div-${tempRes}-base-period`,
-                            `${tempRes}-map-climato`
-                        ]
-                    );
-                }
-
-                setDateCalendar(
-                    `${tempRes}-map-date`,
-                    `${tempRes}-map-variable`,
-                    dataset, tempRes,
-                    dispDate = null,
-                    mapNavigation = true,
-                    dispYear = false,
-                    isStart = null,
-                    ensoData = false
-                );
-
-                if (tempRes === 'seasonal') {
-                    setAnalysisSeasonMonths(tempRes, map_type);
-                    adjustSelect2Height(`${tstep_id}-length`, true);
-                }
-            }
-            refreshSpatialAverage(tempRes);
+            setAnalysisDateCalendarVisibility(tempRes, $(this).val());
+            refreshSpatialAverage(tempRes, datasetFromVariable = false);
         });
 
     $(`#${tempRes}-map-variable`).trigger('change');
     $(`#${tempRes}-map-type`).trigger('change');
     $(`#${tempRes}-map-climato-func`).trigger('change');
-}
-
-function setAnalysisSeasonLength(tempRes) {
-    if (tempRes !== 'seasonal') return;
-
-    const tstepID = `${tempRes}-map-date`;
-    const seasLenId = $(`#${tstepID}-length`);
-
-    if (seasLenId.children().length === 0) {
-        for (let l = 2; l <= 12; l++) {
-            seasLenId.append(
-                $('<option>').text(l).val(l)
-            );
-        }
-        seasLenId.val(3);
-    }
 }
 
 function setAnalysisSeasonMonths(tempRes, mapType) {
@@ -404,32 +335,77 @@ function setAnalysisThresholdDef(tempRes) {
     }
 }
 
+function setAnalysisDateCalendarVisibility(tempRes, mapType) {
+    if (mapType === 'climatology') {
+        setNamesCalendar(
+            `${tempRes}-map-date`, tempRes
+        );
+        setVisibility(
+            [
+                `${tempRes}-map-climato`,
+                `div-${tempRes}-base-period`
+            ],
+            [`${tempRes}-map-anomaly`]
+        );
+
+        setAnalysisClimatoFun(tempRes);
+
+        if (tempRes === 'seasonal') {
+            setAnalysisSeasonMonths(tempRes, mapType);
+            adjustSelect2Height(`${tempRes}-map-date-length`, false);
+        }
+    } else {
+        const dataset = mapType === 'anomaly' ?
+            DATA_SET.anomaly : DATA_SET.rawdata;
+
+        if (mapType === 'anomaly') {
+            setVisibility(
+                [
+                    `${tempRes}-map-anomaly`,
+                    `div-${tempRes}-base-period`
+                ],
+                [`${tempRes}-map-climato`]
+            );
+        } else {
+            setVisibility(
+                [],
+                [
+                    `${tempRes}-map-anomaly`,
+                    `div-${tempRes}-base-period`,
+                    `${tempRes}-map-climato`
+                ]
+            );
+        }
+
+        setDateCalendar(
+            `${tempRes}-map-date`,
+            `${tempRes}-map-variable`,
+            dataset, tempRes,
+            dispDate = null,
+            mapNavigation = true,
+            dispYear = false,
+            isStart = null,
+            ensoData = false
+        );
+
+        if (tempRes === 'seasonal') {
+            setAnalysisSeasonMonths(tempRes, mapType);
+            adjustSelect2Height(`${tempRes}-map-date-length`, true);
+        }
+    }
+}
+
 //////////////
 
 function setOffCanvasMapControlDaily(tempRes) {
-    const tstep_id = `${tempRes}-map-date`;
-    setMonthsDaysCalendar(
-        `${tstep_id}-start-mon`,
-        `${tstep_id}-start-day`,
-        SEASON_DEF.start_mon,
-        SEASON_DEF.start_day,
-        true
-    );
-
-    setMonthsDaysCalendar(
-        `${tstep_id}-end-mon`,
-        `${tstep_id}-end-day`,
-        SEASON_DEF.end_mon,
-        SEASON_DEF.end_day,
-        false
-    );
+    setAnalysisDateCalendarMonDay(tempRes, 'map-date');
 
     $(`#${tempRes}-map-variable`)
         .off(`change.${tempRes}Variable`)
         .on(`change.${tempRes}Variable`, function() {
             const this_var = $(this).val();
 
-            refreshSpatialAverage(tempRes);
+            refreshSpatialAverage(tempRes, datasetFromVariable = false);
             // 
             $(`#${tempRes}-map-parameters`).empty();
             for (const item of PARAMS_ORDER[this_var]) {
@@ -467,12 +443,11 @@ function setOffCanvasMapControlDaily(tempRes) {
             setAnalysisStatProbaDaily(tempRes);
 
             if (tempRes === 'daily') {
-                // preview_daily_display_charts(tempRes);
                 preview_seasonal_display_charts(tempRes);
             }
         });
 
-    $(`#${tstep_id}-tseries-year`)
+    $(`#${tempRes}-map-date-tseries-year`)
         .on('input', function() {
             const this_year = $(this).val();
             $('#input-time-navigation').val(this_year);
@@ -625,37 +600,45 @@ function setAnalysisParamsDefDaily(time_res, type_p) {
 
 //////////////
 
-function setOffCanvasMapControlEnso(tempRes) {
-    const tstep_id = `${tempRes}-map-date`;
-
+function setOffCanvasMapControlTelecon(tempRes) {
     setNamesCalendar(
         `${tempRes}-map-date`, tempRes
     );
-    setAnalysisSeasonLength(tempRes);
-    setClimateSeasonMonthsEnso(tempRes);
-    adjustSelect2Height(`${tstep_id}-length`, false);
+    setAnalysisSeasonLengthMap(tempRes);
+    setClimateSeasonMonthsTelecon(tempRes);
+    adjustSelect2Height(`${tempRes}-map-date-length`, false);
 
     $(`#${tempRes}-map-variable`)
-        .off('change.tercileEnso')
-        .on('change.tercileEnso', function() {
-            setClimateVariableEnso(tempRes, $(this).val());
-            setClimateTercilesEnso(tempRes, $(this).val());
+        .off('change.tercileTelecon')
+        .on('change.tercileTelecon', function() {
+            setClimateVariableTelecon(
+                tempRes, $(this).val(), 'map-clim-variable'
+            );
+            setClimateTercilesTelecon(tempRes, $(this).val());
+            refreshSpatialAverage(tempRes, datasetFromVariable = true);
         });
 
     $(`#${tempRes}-tercile-analysis`)
-        .off('change.tercileEnso')
-        .on('change.tercileEnso', function() {
-            setClimatePhasesEnso(tempRes, $(this).val());
+        .off('change.tercileTelecon')
+        .on('change.tercileTelecon', function() {
+            setClimatePhasesTelecon(tempRes, $(this).val());
         });
 
-    $(`#${tstep_id}-length`)
-        .off('change.tercileEnso')
-        .on('change.tercileEnso', function() {
-            setClimateSeasonMonthsEnso(tempRes);
+    $(`#${tempRes}-map-date-length`)
+        .off('change.tercileTelecon')
+        .on('change.tercileTelecon', function() {
+            setClimateSeasonMonthsTelecon(tempRes);
         });
+
+    $(`#${tempRes}-map-clim-variable`)
+        .off('change.tercileTelecon')
+        .on('change.tercileTelecon', function() {
+            preview_seasonal_teleconnections(tempRes);
+        });
+    $(`#${tempRes}-map-clim-variable`).trigger('change');
 }
 
-function setClimateSeasonMonthsEnso(tempRes) {
+function setClimateSeasonMonthsTelecon(tempRes) {
     const tstepID = `${tempRes}-map-date`;
     const this_len = parseInt($(`#${tstepID}-length`).val(), 10);
     const this_mon = parseInt($(`#${tstepID}-calendar`).val(), 10);
@@ -664,7 +647,7 @@ function setClimateSeasonMonthsEnso(tempRes) {
     $(`#${tempRes}-season-months`).text(seas_mon);
 }
 
-function setClimateTercilesEnso(tempRes, variable) {
+function setClimateTercilesTelecon(tempRes, variable) {
     const sel_opts = TERCILES_VAR.terciles.select[variable];
 
     $(`#${tempRes}-climate-tercile-select`).empty();
@@ -675,7 +658,7 @@ function setClimateTercilesEnso(tempRes, variable) {
     }
 }
 
-function setClimatePhasesEnso(tempRes, teleIndex) {
+function setClimatePhasesTelecon(tempRes, teleIndex) {
     const this_lab = TERCILES_VAR.phases[teleIndex].label;
     const sel_opts = TERCILES_VAR.phases[teleIndex].select;
 
@@ -688,26 +671,15 @@ function setClimatePhasesEnso(tempRes, teleIndex) {
     }
 }
 
-function setClimateVariableEnso(tempRes, variable) {
+function setClimateVariableTelecon(tempRes, variable, idsuffix) {
     const clim_var = CLIMATE_VAR[variable];
 
-    $(`#${tempRes}-map-clim-variable`).empty();
+    $(`#${tempRes}-${idsuffix}`).empty();
     for (const [k, v] of Object.entries(clim_var)) {
-        $(`#${tempRes}-map-clim-variable`).append(
+        $(`#${tempRes}-${idsuffix}`).append(
             $('<option>').text(v).val(k)
         );
     }
-}
-
-function setClimateSeasLenEnso(tempRes) {
-    const seasLenId = $(`#${tempRes}-season-length`);
-
-    for (let l = 2; l <= 12; l++) {
-        seasLenId.append(
-            $('<option>').text(l).val(l)
-        );
-    }
-    seasLenId.val(3);
 }
 
 //////////////
@@ -1050,50 +1022,10 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
     );
     purgePlotlyChartExpandModal(contID);
 
-    const end_date = $(`#${tempRes}-chart-raw-enddate-calendar`).val();
-    let disp_end;
-    if (end_date === '') {
-        disp_end = null;
-    } else {
-        disp_end = end_date;
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-raw-enddate`,
-        `${tempRes}-chart-raw-variable`,
-        DATA_SET.rawdata,
-        tempRes, disp_end,
-        mapNavigation = false,
-        dispYear = false,
-        isStart = false
-    );
-
-    const start_date = $(`#${tempRes}-chart-raw-startdate-calendar`).val();
-    let disp_start;
-    if (start_date === '') {
-        const varTs = $(`#${tempRes}-chart-raw-variable`).val();
-        const trange = getTemporalRangeCalendar(
-            DATA_SET.rawdata,
-            tempRes, varTs, 5
-        );
-        disp_start = trange.start;
-    } else {
-        disp_start = start_date;
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-raw-startdate`,
-        `${tempRes}-chart-raw-variable`,
-        DATA_SET.rawdata,
-        tempRes, disp_start,
-        mapNavigation = false,
-        dispYear = false,
-        isStart = true
-    );
-
-    const tstepID = `${tempRes}-chart-raw-startmonth`;
+    setAnalysisDateCalendarRaw(tempRes);
     setNamesCalendar(
-        tstepID, 'monthly',
+        `${tempRes}-chart-raw-startmonth`,
+        'monthly',
         $(`#${tempRes}-raw-control`),
         mapNavigation = false
     );
@@ -1125,7 +1057,7 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
             expand_analysis_charts_rawdata(contChart, tempRes);
         });
 
-    $(`#${tstepID}-calendar`)
+    $(`#${tempRes}-chart-raw-startmonth-calendar`)
         .off('change.chartTsRaw')
         .on('change.chartTsRaw', function() {
             maproomDB.getData('ts_rawdata', function(data) {
@@ -1216,74 +1148,23 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
     if (tempRes === 'seasonal') {
         disp_year = true;
     }
-
-    const end_date = $(`#${tempRes}-chart-anom-enddate-calendar`).val();
-    let disp_end;
-    if (end_date === '') {
-        disp_end = null;
-    } else {
-        if (end_date.length == 4) {
-            disp_end = `${end_date}-12`;
-        } else {
-            disp_end = end_date;
-        }
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-anom-enddate`,
-        `${tempRes}-anom-variable`,
-        DATA_SET.anomaly,
-        tempRes, disp_end,
-        mapNavigation = false,
-        dispYear = disp_year,
-        isStart = false
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-anom',
+        'anom', disp_year, 'anomaly'
     );
-
-    const start_date = $(`#${tempRes}-chart-anom-startdate-calendar`).val();
-    let disp_start;
-    if (start_date === '') {
-        const varTs = $(`#${tempRes}-anom-variable`).val();
-        const trange = getTemporalRangeCalendar(
-            DATA_SET.anomaly,
-            tempRes, varTs, 30
-        );
-        disp_start = trange.start;
-    } else {
-        if (start_date.length == 4) {
-            disp_start = `${start_date}-01`;
-        } else {
-            disp_start = start_date;
-        }
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-anom-startdate`,
-        `${tempRes}-anom-variable`,
-        DATA_SET.anomaly,
-        tempRes, disp_start,
-        mapNavigation = false,
-        dispYear = disp_year,
-        isStart = true
+    setNamesCalendar(
+        `${tempRes}-chart-anom-tstep`,
+        tempRes,
+        $(`#${tempRes}-anom-control`),
+        mapNavigation = false
     );
 
     // 
     if (tempRes === 'seasonal') {
-        const seasLenId = $(`#${tempRes}-chart-anom-seaslen`);
-        for (let l = 2; l <= 12; l++) {
-            seasLenId.append(
-                $('<option>').text(l).val(l)
-            );
-        }
-        seasLenId.val(3);
+        setClimateSeasonLengthExpand(
+            tempRes, 'chart-anom-seaslen'
+        );
     }
-
-    // 
-    const tstepID = `${tempRes}-chart-anom-tstep`;
-    setNamesCalendar(
-        tstepID, tempRes,
-        $(`#${tempRes}-anom-control`),
-        mapNavigation = false
-    );
 
     //
     const contChart = `container-chart-${contID}`;
@@ -1319,7 +1200,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
             expand_analysis_charts_anomaly(contChart, tempRes);
         });
 
-    $(`#${tstepID}-calendar`)
+    $(`#${tempRes}-chart-anom-tstep-calendar`)
         .off('change.chartTsAnom')
         .on('change.chartTsAnom', function() {
             maproomDB.getData('ts_anomaly', function(data) {
@@ -1366,70 +1247,11 @@ function setAnalysisExpandModalDailyAnom(tempRes, contID) {
     );
     purgePlotlyChartExpandModal(contID);
 
-    const end_date = $(`#${tempRes}-chart-anom-enddate-calendar`).val();
-    let disp_end;
-    if (end_date === '') {
-        disp_end = null;
-    } else {
-        if (end_date.length == 4) {
-            disp_end = `${end_date}-12`;
-        } else {
-            disp_end = end_date;
-        }
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-anom-enddate`,
-        `${tempRes}-anom-variable`,
-        DATA_SET.anomaly, tempRes,
-        disp_end,
-        mapNavigation = false,
-        dispYear = true,
-        isStart = false
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-anom',
+        'anom', true, 'anomaly'
     );
-
-    const start_date = $(`#${tempRes}-chart-anom-startdate-calendar`).val();
-    let disp_start;
-    if (start_date === '') {
-        const varTs = $(`#${tempRes}-anom-variable`).val();
-        const trange = getTemporalRangeCalendar(
-            DATA_SET.anomaly,
-            tempRes, varTs, 30
-        );
-        disp_start = trange.start;
-    } else {
-        if (start_date.length == 4) {
-            disp_start = `${start_date}-01`;
-        } else {
-            disp_start = start_date;
-        }
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-anom-startdate`,
-        `${tempRes}-anom-variable`,
-        DATA_SET.anomaly, tempRes,
-        disp_start,
-        mapNavigation = false,
-        dispYear = true,
-        isStart = true
-    );
-
-    setMonthsDaysCalendar(
-        `${tempRes}-anom-start-mon`,
-        `${tempRes}-anom-start-day`,
-        SEASON_DEF.start_mon,
-        SEASON_DEF.start_day,
-        true
-    );
-
-    setMonthsDaysCalendar(
-        `${tempRes}-anom-end-mon`,
-        `${tempRes}-anom-end-day`,
-        SEASON_DEF.end_mon,
-        SEASON_DEF.end_day,
-        false
-    );
+    setAnalysisDateCalendarMonDay(tempRes, 'anom');
 
     // 
     const contChart = `container-chart-${contID}`;
@@ -1539,90 +1361,17 @@ function setAnalysisExpandModalProba(tempRes, contID) {
     );
     purgePlotlyChartExpandModal(contID);
 
-    const end_date = $(`#${tempRes}-chart-proba-enddate-calendar`).val();
-    let disp_end;
-    if (end_date === '') {
-        disp_end = null;
-    } else {
-        if (end_date.length == 4) {
-            disp_end = `${end_date}-12`;
-        } else {
-            disp_end = end_date;
-        }
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-proba-enddate`,
-        `${tempRes}-proba-variable`,
-        DATA_SET.rawdata, tempRes,
-        disp_end,
-        mapNavigation = false,
-        dispYear = true,
-        isStart = false
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-proba',
+        'proba', true, 'rawdata'
     );
-
-    const start_date = $(`#${tempRes}-chart-proba-startdate-calendar`).val();
-    let disp_start;
-    if (start_date === '') {
-        const varTs = $(`#${tempRes}-proba-variable`).val();
-        const trange = getTemporalRangeCalendar(
-            DATA_SET.rawdata,
-            tempRes, varTs, 30
-        );
-        disp_start = trange.start;
-    } else {
-        if (start_date.length == 4) {
-            disp_start = `${start_date}-01`;
-        } else {
-            disp_start = start_date;
-        }
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-proba-startdate`,
-        `${tempRes}-proba-variable`,
-        DATA_SET.rawdata, tempRes,
-        disp_start,
-        mapNavigation = false,
-        dispYear = true,
-        isStart = true
-    );
-
-    // 
     if (tempRes === 'daily') {
-        setMonthsDaysCalendar(
-            `${tempRes}-proba-start-mon`,
-            `${tempRes}-proba-start-day`,
-            SEASON_DEF.start_mon,
-            SEASON_DEF.start_day,
-            true
-        );
-
-        setMonthsDaysCalendar(
-            `${tempRes}-proba-end-mon`,
-            `${tempRes}-proba-end-day`,
-            SEASON_DEF.end_mon,
-            SEASON_DEF.end_day,
-            false
-        );
+        setAnalysisDateCalendarMonDay(tempRes, 'proba');
     }
-
-    // 
     if (tempRes === 'seasonal') {
-        const sDId = `${tempRes}-chart-proba`;
-        setNamesCalendar(
-            `${sDId}-startmon`, tempRes,
-            $(`#${tempRes}-proba-control`),
-            mapNavigation = false
+        setClimateSeasonStartLengthExpand(
+            tempRes, 'chart-proba', 'proba'
         );
-
-        const seasLenId = $(`#${sDId}-seaslen`);
-        for (let l = 2; l <= 12; l++) {
-            seasLenId.append(
-                $('<option>').text(l).val(l)
-            );
-        }
-        seasLenId.val(3);
     }
 
     // 
@@ -1729,90 +1478,17 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
     );
     purgePlotlyChartExpandModal(contID);
 
-    const end_date = $(`#${tempRes}-chart-season-enddate-calendar`).val();
-    let disp_end;
-    if (end_date === '') {
-        disp_end = null;
-    } else {
-        if (end_date.length == 4) {
-            disp_end = `${end_date}-12`;
-        } else {
-            disp_end = end_date;
-        }
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-season-enddate`,
-        `${tempRes}-tseries-variable`,
-        DATA_SET.rawdata, tempRes,
-        disp_end,
-        mapNavigation = false,
-        dispYear = true,
-        isStart = false
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-season',
+        'tseries', true, 'rawdata'
     );
-
-    const start_date = $(`#${tempRes}-chart-season-startdate-calendar`).val();
-    let disp_start;
-    if (start_date === '') {
-        const varTs = $(`#${tempRes}-tseries-variable`).val();
-        const trange = getTemporalRangeCalendar(
-            DATA_SET.rawdata,
-            tempRes, varTs, 30
-        );
-        disp_start = trange.start;
-    } else {
-        if (start_date.length == 4) {
-            disp_start = `${start_date}-01`;
-        } else {
-            disp_start = start_date;
-        }
-    }
-
-    setDateCalendar(
-        `${tempRes}-chart-season-startdate`,
-        `${tempRes}-tseries-variable`,
-        DATA_SET.rawdata, tempRes,
-        disp_start,
-        mapNavigation = false,
-        dispYear = true,
-        isStart = true
-    );
-
-    // 
     if (tempRes === 'daily') {
-        setMonthsDaysCalendar(
-            `${tempRes}-tseries-start-mon`,
-            `${tempRes}-tseries-start-day`,
-            SEASON_DEF.start_mon,
-            SEASON_DEF.start_day,
-            true
-        );
-
-        setMonthsDaysCalendar(
-            `${tempRes}-tseries-end-mon`,
-            `${tempRes}-tseries-end-day`,
-            SEASON_DEF.end_mon,
-            SEASON_DEF.end_day,
-            false
-        );
+        setAnalysisDateCalendarMonDay(tempRes, 'tseries');
     }
-
-    // 
     if (tempRes === 'seasonal') {
-        const tstepID = `${tempRes}-chart-season-startmon`;
-        setNamesCalendar(
-            tstepID, tempRes,
-            $(`#${tempRes}-season-control`),
-            mapNavigation = false
+        setClimateSeasonStartLengthExpand(
+            tempRes, 'chart-season', 'season'
         );
-
-        const seasLenId = $(`#${tempRes}-chart-season-seaslen`);
-        for (let l = 2; l <= 12; l++) {
-            seasLenId.append(
-                $('<option>').text(l).val(l)
-            );
-        }
-        seasLenId.val(3);
     }
 
     // 
@@ -1882,16 +1558,16 @@ function setAnalysisExpandModalEnso(tempRes, contID) {
     const contChart = `container-chart-${contID}`;
 
     $(`#${tempRes}-enso-indices`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             setAnalysisDateCalendarEnso(tempRes);
             setAnalysisVisibilityEnso(tempRes);
             expand_analysis_charts_enso(contChart, tempRes);
         });
 
     $(`#${tempRes}-anom-tempres`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             setAnalysisDateCalendarEnso(tempRes);
             setAnalysisVisibilityEnso(tempRes);
             setAnalysisAnomaliesEnso(contChart, tempRes);
@@ -1899,16 +1575,16 @@ function setAnalysisExpandModalEnso(tempRes, contID) {
         });
 
     $(`#${tempRes}-anom-sstweek`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             setAnalysisDateCalendarEnso(tempRes);
             setAnalysisAnomaliesEnso(contChart, tempRes);
             expand_analysis_charts_enso(contChart, tempRes);
         });
 
     $(`#${tempRes}-anom-sstmonth`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             setAnalysisDateCalendarEnso(tempRes);
             setAnalysisAnomaliesEnso(contChart, tempRes);
             expand_analysis_charts_enso(contChart, tempRes);
@@ -1916,32 +1592,32 @@ function setAnalysisExpandModalEnso(tempRes, contID) {
 
     // 
     $(`#${tempRes}-oni-indices`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             expand_analysis_charts_enso(contChart, tempRes);
         });
 
     $(`#${tempRes}-iod-sst`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             expand_analysis_charts_enso(contChart, tempRes);
         });
 
     $(`#${tempRes}-anom-ninotype`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             expand_analysis_charts_enso(contChart, tempRes);
         });
 
     $(`#${tempRes}-anom-ninoregion`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             expand_analysis_charts_enso(contChart, tempRes);
         });
 
     $(`#${tempRes}-disp-image-enso`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             const this_image = $(this).val();
             if (this_image === 'image') {
                 $(`#${tempRes}-disp-lastval-enso-opt`).show();
@@ -1952,15 +1628,15 @@ function setAnalysisExpandModalEnso(tempRes, contID) {
         });
 
     $(`#${tempRes}-disp-lastval-enso`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             expand_analysis_charts_enso(contChart, tempRes);
         });
 
     // update chart
     $(`#plotly-replot-${contID}`)
-        .off('click.ensoIndices')
-        .on('click.ensoIndices', function() {
+        .off('click.teleconIndex')
+        .on('click.teleconIndex', function() {
             const ensoIdx = $(`#${tempRes}-enso-indices`).val();
             if (['oni', 'anom', 'iod', 'nao'].includes(ensoIdx)) {
                 expand_analysis_charts_enso(contChart, tempRes);
@@ -1969,8 +1645,8 @@ function setAnalysisExpandModalEnso(tempRes, contID) {
 
     // download chart
     $(`#plotly-download-${contID}`)
-        .off('click.ensoIndices')
-        .on('click.ensoIndices', function() {
+        .off('click.teleconIndex')
+        .on('click.teleconIndex', function() {
             const ensoIdx = $(`#${tempRes}-enso-indices`).val();
             if (['proba', 'strength'].includes(ensoIdx)) {
                 downloadImageSrcPNG(contChart);
@@ -1983,6 +1659,69 @@ function setAnalysisExpandModalEnso(tempRes, contID) {
                 }
             }
 
+        });
+}
+
+function setAnalysisExpandModalTelecon(tempRes, contID, cType) {
+    const expandFunction = {
+        'tseries': expand_analysis_telecon_tseries,
+        'proba': expand_analysis_telecon_proba
+    };
+
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expandFunction[cType],
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    const this_var = $(`#${tempRes}-${cType}-variable`).val();
+    setAnalysisDateCalendarSeasonal(
+        tempRes, cType, cType, true, this_var
+    );
+    setClimateSeasonStartLengthExpand(
+        tempRes, cType, `${cType}-telecon`
+    );
+
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-${cType}-variable`)
+        .off(`change.${cType}Telecon`)
+        .on(`change.${cType}Telecon`, function() {
+            setClimateVariableTelecon(
+                tempRes, $(this).val(), `${cType}-clim-variable`
+            );
+            setAnalysisDateCalendarSeasonal(
+                tempRes, cType, cType, true, $(this).val()
+            );
+            expandFunction[cType](contChart, tempRes);
+        });
+
+    $(`#${tempRes}-${cType}-clim-variable`)
+        .off(`change.${cType}Telecon`)
+        .on(`change.${cType}Telecon`, function() {
+            expandFunction[cType](contChart, tempRes);
+        });
+
+    $(`#${tempRes}-${cType}-index-telecon`)
+        .off(`change.${cType}Telecon`)
+        .on(`change.${cType}Telecon`, function() {
+            expandFunction[cType](contChart, tempRes);
+        });
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off(`click.${cType}Telecon`)
+        .on(`click.${cType}Telecon`, function() {
+            expandFunction[cType](contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off(`click.${cType}Telecon`)
+        .on(`click.${cType}Telecon`, function() {
+            downloadPlotlyImageJPG(contChart);
         });
 }
 
@@ -2011,58 +1750,7 @@ function getTempCoverageCalendarEnso(tempRes, ensoPars) {
     return temp_cov;
 }
 
-function setAnalysisDateCalendarEnso(tempRes) {
-    const ensoIdx = $(`#${tempRes}-enso-indices`).val();
-    if (['proba', 'strength'].includes(ensoIdx)) {
-        return false;
-    }
-
-    let ensoTRes;
-    if (['oni', 'iod', 'nao'].includes(ensoIdx)) {
-        ensoTRes = 'monthly';
-    } else {
-        ensoTRes = $(`#${tempRes}-anom-tempres`).val();
-    }
-
-    let ensoPars = { ensoIdx: ensoIdx };
-    ensoPars.ensoTRes = ensoTRes;
-    ensoPars.oni = $(`#${tempRes}-oni-indices`).val();
-    ensoPars.iod = $(`#${tempRes}-iod-sst`).val();
-    ensoPars.nao = $(`#${tempRes}-nao-cdas`).val();
-    ensoPars.week = $(`#${tempRes}-anom-sstweek`).val();
-    ensoPars.month = $(`#${tempRes}-anom-sstmonth`).val();
-    const temp_cov = getTempCoverageCalendarEnso(tempRes, ensoPars);
-
-    setDateCalendar(
-        `${tempRes}-chart-enso-enddate`,
-        temp_cov, null, ensoTRes,
-        temp_cov.end,
-        mapNavigation = false,
-        dispYear = false,
-        isStart = false,
-        ensoData = true
-    );
-
-    let disp_start;
-    let te;
-    if (ensoTRes === 'weekly') {
-        te = addDateYears(temp_cov.end, -5);
-        disp_start = formatDateToString(te, true);
-    } else {
-        te = addDateYears(temp_cov.end, -30);
-        disp_start = formatDateToString(te, false);
-    }
-    setDateCalendar(
-        `${tempRes}-chart-enso-startdate`,
-        temp_cov, null, ensoTRes,
-        // temp_cov.start,
-        disp_start,
-        mapNavigation = false,
-        dispYear = false,
-        isStart = true,
-        ensoData = true
-    );
-}
+//////
 
 function setAnalysisVisibilityEnso(time_res) {
     const ensoIdx = $(`#${time_res}-enso-indices`).val();
@@ -2223,8 +1911,8 @@ function setAnalysisAnomaliesEnso(contChart, tempRes) {
     }
 
     $(`#${tempRes}-anom-ninotype`)
-        .off('change.ensoIndices')
-        .on('change.ensoIndices', function() {
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
             $(`#${tempRes}-anom-ninoregion`).empty();
             const v = $(`#${tempRes}-anom-ninotype`).val();
             const grp = anom_grp[v];
@@ -2238,6 +1926,213 @@ function setAnalysisAnomaliesEnso(contChart, tempRes) {
             expand_analysis_charts_enso(contChart, tempRes);
         });
     $(`#${tempRes}-anom-ninotype`).trigger('change');
+}
+
+//////////////
+
+function setAnalysisDateCalendarEnso(tempRes) {
+    const ensoIdx = $(`#${tempRes}-enso-indices`).val();
+    if (['proba', 'strength'].includes(ensoIdx)) {
+        return false;
+    }
+
+    let ensoTRes;
+    if (['oni', 'iod', 'nao'].includes(ensoIdx)) {
+        ensoTRes = 'monthly';
+    } else {
+        ensoTRes = $(`#${tempRes}-anom-tempres`).val();
+    }
+
+    let ensoPars = { ensoIdx: ensoIdx };
+    ensoPars.ensoTRes = ensoTRes;
+    ensoPars.oni = $(`#${tempRes}-oni-indices`).val();
+    ensoPars.iod = $(`#${tempRes}-iod-sst`).val();
+    ensoPars.nao = $(`#${tempRes}-nao-cdas`).val();
+    ensoPars.week = $(`#${tempRes}-anom-sstweek`).val();
+    ensoPars.month = $(`#${tempRes}-anom-sstmonth`).val();
+    const temp_cov = getTempCoverageCalendarEnso(tempRes, ensoPars);
+
+    setDateCalendar(
+        `${tempRes}-chart-enso-enddate`,
+        temp_cov, null, ensoTRes,
+        temp_cov.end,
+        mapNavigation = false,
+        dispYear = false,
+        isStart = false,
+        ensoData = true
+    );
+
+    let disp_start;
+    let te;
+    if (ensoTRes === 'weekly') {
+        te = addDateYears(temp_cov.end, -5);
+        disp_start = formatDateToString(te, true);
+    } else {
+        te = addDateYears(temp_cov.end, -30);
+        disp_start = formatDateToString(te, false);
+    }
+    setDateCalendar(
+        `${tempRes}-chart-enso-startdate`,
+        temp_cov, null, ensoTRes,
+        // temp_cov.start,
+        disp_start,
+        mapNavigation = false,
+        dispYear = false,
+        isStart = true,
+        ensoData = true
+    );
+}
+
+function setAnalysisDateCalendarSeasonal(tempRes, chType, pltVar, dYear, dSet) {
+    const end_date = $(`#${tempRes}-${chType}-enddate-calendar`).val();
+    let disp_end;
+    if (end_date === '') {
+        disp_end = null;
+    } else {
+        if (end_date.length == 4) {
+            disp_end = `${end_date}-12`;
+        } else {
+            disp_end = end_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-${chType}-enddate`,
+        `${tempRes}-${pltVar}-variable`,
+        DATA_SET[dSet], tempRes,
+        disp_end,
+        mapNavigation = false,
+        dispYear = dYear,
+        isStart = false
+    );
+
+    const start_date = $(`#${tempRes}-${chType}-startdate-calendar`).val();
+    let disp_start;
+    if (start_date === '') {
+        const varTs = $(`#${tempRes}-${pltVar}-variable`).val();
+        const trange = getTemporalRangeCalendar(
+            DATA_SET[dSet],
+            tempRes, varTs, 30
+        );
+        disp_start = trange.start;
+    } else {
+        if (start_date.length == 4) {
+            disp_start = `${start_date}-01`;
+        } else {
+            disp_start = start_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-${chType}-startdate`,
+        `${tempRes}-${pltVar}-variable`,
+        DATA_SET[dSet], tempRes,
+        disp_start,
+        mapNavigation = false,
+        dispYear = dYear,
+        isStart = true
+    );
+}
+
+function setAnalysisDateCalendarMonDay(tempRes, chType) {
+    setMonthsDaysCalendar(
+        `${tempRes}-${chType}-start-mon`,
+        `${tempRes}-${chType}-start-day`,
+        SEASON_DEF.days.start_mon,
+        SEASON_DEF.days.start_day,
+        true
+    );
+
+    setMonthsDaysCalendar(
+        `${tempRes}-${chType}-end-mon`,
+        `${tempRes}-${chType}-end-day`,
+        SEASON_DEF.days.end_mon,
+        SEASON_DEF.days.end_day,
+        false
+    );
+}
+
+function setAnalysisDateCalendarRaw(tempRes) {
+    const end_date = $(`#${tempRes}-chart-raw-enddate-calendar`).val();
+    let disp_end;
+    if (end_date === '') {
+        disp_end = null;
+    } else {
+        disp_end = end_date;
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-raw-enddate`,
+        `${tempRes}-chart-raw-variable`,
+        DATA_SET.rawdata,
+        tempRes, disp_end,
+        mapNavigation = false,
+        dispYear = false,
+        isStart = false
+    );
+
+    const start_date = $(`#${tempRes}-chart-raw-startdate-calendar`).val();
+    let disp_start;
+    if (start_date === '') {
+        const varTs = $(`#${tempRes}-chart-raw-variable`).val();
+        const trange = getTemporalRangeCalendar(
+            DATA_SET.rawdata,
+            tempRes, varTs, 5
+        );
+        disp_start = trange.start;
+    } else {
+        disp_start = start_date;
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-raw-startdate`,
+        `${tempRes}-chart-raw-variable`,
+        DATA_SET.rawdata,
+        tempRes, disp_start,
+        mapNavigation = false,
+        dispYear = false,
+        isStart = true
+    );
+}
+
+//////////////
+
+function setClimateSeasonStartLengthExpand(tempRes, cType, boxCtrl) {
+    setNamesCalendar(
+        `${tempRes}-${cType}-startmon`,
+        tempRes,
+        $(`#${tempRes}-${boxCtrl}-control`),
+        mapNavigation = false
+    );
+
+    setClimateSeasonLengthExpand(tempRes, `${cType}-seaslen`);
+}
+
+function setClimateSeasonLengthExpand(tempRes, idSuffix) {
+    const seasLenId = $(`#${tempRes}-${idSuffix}`);
+
+    for (let l = 2; l <= 12; l++) {
+        seasLenId.append(
+            $('<option>').text(l).val(l)
+        );
+    }
+    seasLenId.val(SEASON_DEF.months.length);
+}
+
+function setAnalysisSeasonLengthMap(tempRes) {
+    if (tempRes !== 'seasonal') return;
+
+    const tstepID = `${tempRes}-map-date`;
+    const seasLenId = $(`#${tstepID}-length`);
+
+    if (seasLenId.children().length === 0) {
+        for (let l = 2; l <= 12; l++) {
+            seasLenId.append(
+                $('<option>').text(l).val(l)
+            );
+        }
+        seasLenId.val(SEASON_DEF.months.length);
+    }
 }
 
 //////////////

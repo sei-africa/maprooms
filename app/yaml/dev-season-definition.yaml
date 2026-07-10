@@ -1,0 +1,9 @@
+default_season:
+    days:
+        start_mon: 6
+        start_day: 1
+        end_mon: 8
+        end_day: 31
+    months:
+        start: 6
+        length: 3

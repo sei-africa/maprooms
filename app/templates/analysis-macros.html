@@ -209,13 +209,13 @@
                 {{ pageText.opt_season_map.start_date }}
             </div>
             <div class="col-md-3">
-                <input id="{{ tstepID }}-start-year" class="form-control text-center" type="text" value="{{ pageText.default_season.start_year }}">
+                <input id="{{ tstepID }}-start-year" class="form-control text-center" type="text" value="{{ pageText.years_range.start_year }}">
             </div>
             <div class="col-md-3 d-flex justify-content-end align-items-center  text-end">
                 {{ pageText.opt_season_map.end_date }}
             </div>
             <div class="col-md-3">
-                <input id="{{ tstepID }}-end-year" class="form-control text-center" type="text" value="{{ pageText.default_season.end_year }}">
+                <input id="{{ tstepID }}-end-year" class="form-control text-center" type="text" value="{{ pageText.years_range.end_year }}">
             </div>
         </div>
         <div class="row gx-1 mt-1">
@@ -223,7 +223,7 @@
                 {{ pageText.opt_season_map.min_year }}
             </div>
             <div class="col-md-3">
-                <input id="{{ tstepID }}-min-year" class="form-control text-center" type="text" value="{{ pageText.default_season.min_year }}">
+                <input id="{{ tstepID }}-min-year" class="form-control text-center" type="text" value="{{ pageText.years_range.min_year }}">
             </div>
         </div>
     </fieldset>
@@ -298,7 +298,7 @@
 </div>
 {% endmacro %}
 <!--  -->
-{% macro create_map_control_enso(tempRes, pageText) %}
+{% macro create_map_control_telecon_sp(tempRes, pageText) %}
 <div class="container">
     <div style="display: none;">
         <input id="{{ tempRes }}-map-type" type="text" value="climatology">
@@ -473,7 +473,7 @@
         {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.start }}</legend>
         {% endif %}
-        <div id="{{ tempRes }}-chart-anom-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-anom-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 8.0em">
             <input id="{{ tempRes }}-chart-anom-startdate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
@@ -485,7 +485,7 @@
         {% else %}
         <legend class="legend-label">{{ pageText.opt_ts_anom.label_date.end }}</legend>
         {% endif %}
-        <div id="{{ tempRes }}-chart-anom-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 6.5em">
+        <div id="{{ tempRes }}-chart-anom-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 8.0em">
             <input id="{{ tempRes }}-chart-anom-enddate-calendar" type="text" class="form-control">
         </div>
     </fieldset>
@@ -1033,6 +1033,70 @@
                 <input type="checkbox" id="{{ tempRes }}-disp-lastval-enso" class="me-1">
                 <span>{{ pageText.disp_lastVal }}</span>
             </label>
+        </div>
+    </fieldset>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_expand_charts_telecon(tempRes, pageText, chartTelecon) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-{{ chartTelecon }}-telecon-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-{{ chartTelecon }}-variable" class="form-select {{ tempRes }}-{{ chartTelecon }}-select2" style="width: 150px;">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">&nbsp;</legend>
+        <select id="{{ tempRes }}-{{ chartTelecon }}-clim-variable" class="form-select {{ tempRes }}-{{ chartTelecon }}-select2" style="width: 220px;">
+            {% for key, value in pageText.clim_variables.rainfall.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_index_telecon.label }}</legend>
+        <select id="{{ tempRes }}-{{ chartTelecon }}-index-telecon" class="form-select {{ tempRes }}-{{ chartTelecon }}-select2" style="width: 300px;">
+            {% for key, value in pageText.opt_index_telecon.select.items() %}
+            <!--  -->
+            {% if key=='iod' and not pageText.display_iod %}
+            {% continue %}
+            {% endif %}
+            <!--  -->
+            {% if key=='nao' and not pageText.display_nao %}
+            {% continue %}
+            {% endif %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_year.start }}</legend>
+        <div id="{{ tempRes }}-{{ chartTelecon }}-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 6.5em">
+            <input id="{{ tempRes }}-{{ chartTelecon }}-startdate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.label_year.end }}</legend>
+        <div id="{{ tempRes }}-{{ chartTelecon }}-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 6.5em">
+            <input id="{{ tempRes }}-{{ chartTelecon }}-enddate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.season.start }}</legend>
+        <div id="{{ tempRes }}-{{ chartTelecon }}-startmon" style="width: 160px;"></div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_season.season.length }}</legend>
+        <div class="row">
+            <div class="col-md-4">
+                <select id="{{ tempRes }}-{{ chartTelecon }}-seaslen" class="form-select {{ tempRes }}-{{ chartTelecon }}-select2"></select>
+            </div>
+            <div class="col-md-6">
+                {{ pageText.opt_season.season.unit }}
+            </div>
         </div>
     </fieldset>
 </div>

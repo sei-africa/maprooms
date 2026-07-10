@@ -6,7 +6,7 @@ $(document).ready(function() {
     $('#colorbar-color-preset-select').val('tercile_enso');
 
     // offcanvas map controls
-    setOffCanvasMapControlEnso('seasonal');
+    setOffCanvasMapControlTelecon('seasonal');
 
     ////////////
     // Modal Expand Charts
@@ -19,51 +19,76 @@ $(document).ready(function() {
         setAnalysisExpandModalEnso('seasonal', 'div-chart-enso');
     });
 
+    $('.seasonal-tseries-select2').select2({
+        minimumResultsForSearch: -1,
+        dropdownParent: $('#seasonal-tseries-telecon-control')
+    });
+    $('#btn-div-chart-tseries').on('click', () => {
+        setAnalysisExpandModalTelecon('seasonal', 'div-chart-tseries', 'tseries');
+    });
+
+    $('.seasonal-proba-select2').select2({
+        minimumResultsForSearch: -1,
+        dropdownParent: $('#seasonal-proba-telecon-control')
+    });
+    $('#btn-div-chart-proba').on('click', () => {
+        setAnalysisExpandModalTelecon('seasonal', 'div-chart-proba', 'proba');
+    });
+
     ////////////
     // initialize map
     const map_options = {};
-    displayClimateAnalysisMapEnso('seasonal', map_options, map);
+    const initialMapRequest = displayClimateAnalysisMapTelecon('seasonal', map_options, map);
+
+    // ENSO dial
+    ensoRenderDialChart(initialMapRequest);
 
     // display map when offcanvas hidden
     $('#map-control-offcanvas-dataselect').on('hidden.bs.offcanvas', () => {
-        displayClimateAnalysisMapEnso('seasonal', map_options, map);
+        displayClimateAnalysisMapTelecon('seasonal', map_options, map);
     });
 
-    // 
+    // redraw map
     $('#map-control-redraw').on('click', () => {
-        displayClimateAnalysisMapEnso('seasonal', map_options, map);
+        displayClimateAnalysisMapTelecon('seasonal', map_options, map);
     });
 
     ////////////
     $('#input-time-navigation').on('blur', async () => {
         const ret = await setMapDatesNavInput('seasonal');
         if (ret) {
-            displayClimateAnalysisMapEnso('seasonal', map_options, map);
+            displayClimateAnalysisMapTelecon('seasonal', map_options, map);
         }
     });
 
     $('#prev-time-navigation').on('click', async () => {
         const ret = await setMapDatesNavPrev('seasonal');
         if (ret) {
-            displayClimateAnalysisMapEnso('seasonal', map_options, map);
+            displayClimateAnalysisMapTelecon('seasonal', map_options, map);
         }
     });
 
     $('#next-time-navigation').on('click', async () => {
         const ret = await setMapDatesNavNext('seasonal');
         if (ret) {
-            displayClimateAnalysisMapEnso('seasonal', map_options, map);
+            displayClimateAnalysisMapTelecon('seasonal', map_options, map);
         }
     });
 
     ///////////
-    preview_seasonal_teleconnections('seasonal');
-    $('#btn-theme-toggle').on('click', () => {
-        preview_seasonal_teleconnections('seasonal');
+    // display preview time series on click on map, or select polygon
+    mapClickLayersSpatialAverage(preview_seasonal_teleconnections, 'seasonal', map);
+
+    $('#select-country-region').on('change', () => {
+        mapClickLayersSpatialAverage(preview_seasonal_teleconnections, 'seasonal', map);
+    });
+
+    $('#select-region-name').on('change', () => {
+        mapClickLayersSpatialAverage(preview_seasonal_teleconnections, 'seasonal', map);
     });
 
     ///////////
-    // enso def
+    // display pdf enso def
     $('<a>', {
         href: '/enso_system_alert',
         target: '_blank',
@@ -78,3 +103,17 @@ ensoDatasetTempCoverage(DATA_ENSO)
     .catch((err) => {
         console.error(err);
     });
+
+function ensoRenderDialChart(init_map) {
+    if (init_map && init_map.always) {
+        init_map.always(() => {
+            preview_analysis_enso_alert('seasonal', 'div-chart-enso');
+        });
+    } else {
+        preview_analysis_enso_alert('seasonal', 'div-chart-enso');
+    }
+
+    $('#btn-theme-toggle').on('click', () => {
+        preview_analysis_enso_alert('seasonal', 'div-chart-enso');
+    });
+}

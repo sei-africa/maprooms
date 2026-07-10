@@ -139,7 +139,7 @@ function displayClimateAnalysisMap(time_res, options, map) {
         'climate_analysis_map'
     );
 
-    ajaxLeafletMap(
+    const request = ajaxLeafletMap(
         endpoint,
         query,
         displayRasterImage,
@@ -149,16 +149,25 @@ function displayClimateAnalysisMap(time_res, options, map) {
 
     updateAnalysisMapDate(time_res, query, map);
 
-    return true;
+    return request;
 }
 
 ////////////
 
-function queryParamsAnalysisMapEnso(time_res) {
+function queryParamsAnalysisMapTelecon(time_res) {
     let query = new Object();
+
     query.temporalRes = time_res;
+    query.geomExtract = 'original';
+    query.minFrac = 0.95;
+    query.fullSeas = true;
+    query.mapType = 'climatology';
+
     query.variable = $(`#${time_res}-map-variable`).val();
     query.climVariable = $(`#${time_res}-map-clim-variable`).val();
+
+    query.dataset = DATA_SET[query.variable];
+    query.inputData = DATA_SET.timeres;
 
     const tstep_id = `${time_res}-map-date`;
     query.seasStart = parseInt($(`#${tstep_id}-calendar`).val(), 10);
@@ -169,17 +178,9 @@ function queryParamsAnalysisMapEnso(time_res) {
     query.endYear = parseInt($(`#${bp_id}-end`).val().trim(), 10);
     query.minYear = parseInt($(`#${bp_id}-min`).val().trim(), 10);
 
-    query.ensoIndices = $(`#${time_res}-tercile-analysis`).val();
+    query.teleconIndex = $(`#${time_res}-tercile-analysis`).val();
     query.ensoTercile = $(`#${time_res}-enso-phases-select`).val();
     query.climTercile = $(`#${time_res}-climate-tercile-select`).val();
-
-    query.dataset = DATA_SET[query.variable];
-    query.inputData = DATA_SET.timeres;
-    query.timeSeries = false;
-    query.minFrac = 0.95;
-    query.fullSeas = true;
-
-    query.mapType = 'climatology';
 
     const colorbar = colorbarGetData();
     if (!colorbar) {
@@ -190,8 +191,8 @@ function queryParamsAnalysisMapEnso(time_res) {
     return query;
 }
 
-function displayClimateAnalysisMapEnso(time_res, options, map) {
-    const query = queryParamsAnalysisMapEnso(time_res);
+function displayClimateAnalysisMapTelecon(time_res, options, map) {
+    const query = queryParamsAnalysisMapTelecon(time_res);
 
     if (!query) {
         return false;
@@ -199,10 +200,10 @@ function displayClimateAnalysisMapEnso(time_res, options, map) {
 
     const endpoint = createEndpoint(
         'climate_analysis',
-        'climate_analysis_map_enso'
+        'climate_analysis_telecon_map'
     );
 
-    ajaxLeafletMap(
+    const request = ajaxLeafletMap(
         endpoint,
         query,
         displayRasterImage,
@@ -212,7 +213,7 @@ function displayClimateAnalysisMapEnso(time_res, options, map) {
 
     updateAnalysisMapDate(time_res, query, map);
 
-    return true;
+    return request;
 }
 
 ////////////
