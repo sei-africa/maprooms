@@ -7,8 +7,7 @@ from threading import Lock
 from app.scripts._global import GLOBAL_CONFIG
 from app.scripts._cache import (
     cache_data_functions,
-    hash_params_ts_data,
-    hash_pamars_telecon_ts
+    hash_params_ts_data
 )
 from app.auth.index import login_required
 
@@ -151,10 +150,7 @@ def climate_analysis_enso():
 def climate_analysis_telecon_ts():
     params = request.get_json()
     try:
-        return cache_data_functions(
-                    climate_teleconnections_ts,
-                    hash_pamars_telecon_ts,
-                    params
-                )
+        obj = climate_teleconnections_ts(params)
+        return json.dumps(obj)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})

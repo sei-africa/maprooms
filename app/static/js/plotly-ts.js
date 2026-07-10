@@ -2953,6 +2953,11 @@ function expand_telecon_display_tseries(json, container) {
             gridcolor: 'lightgray',
             griddash: 'dot'
         },
+        legend: {
+            title: {
+                text: json.info.legend_title
+            }
+        },
         hovermode: 'x unified',
         hoverlabel: hoverlabelColors(theme),
     };
@@ -3057,6 +3062,11 @@ function expand_telecon_display_proba(json, container) {
             },
             title: {
                 text: ylab
+            }
+        },
+        legend: {
+            title: {
+                text: json.info.legend_title
             }
         },
         margin: { l: 80, r: 190, t: 10, b: 70 },

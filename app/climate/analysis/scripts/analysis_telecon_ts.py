@@ -15,9 +15,12 @@ from app.misc.scripts.probabilities import ecdf_smooth_v1, ecdf_smooth_v2
 def climate_teleconnections_ts(params):
     params = _create_params_ts(params)
     seas = aggregate_seasonal_xrdata(params)
-    if seas['status'] == -1:
-        return seas
 
+    var_units = seas['data']['seas_var'].units
+    if params['variable'] == 'temperature':
+        if var_units in ['C', 'degC']:
+            var_units = '°C'
+    info_t = _get_info_teleconnections(params)
     info = {
         'geom': {
             'name': seas['data']['name'].values[0].item(),
@@ -25,10 +28,11 @@ def climate_teleconnections_ts(params):
             'lat': seas['data']['lat'].values[0].item()
         },
         'var':{
-            'name': _get_clim_var_longname(params),
-            'units': seas['data']['seas_var'].units,
+            'name': info_t['name'],
+            'units': var_units,
             'type': params['variable']
         },
+        'legend_title': info_t['legend'],
         'time_res': params['temporalRes']
     }
 
@@ -49,15 +53,25 @@ def climate_teleconnections_ts(params):
         xg[3] = xs
         data_seas['info']['classes'][3] = 'All Years'
 
-        # # s_ecdf = ecdf_smooth_v1(xs, 1.0)
-        # # s_ecdf = ecdf_smooth_v2(xs, 1.0, False)
-        # s_ecdf = ecdf_smooth_v2(xs, 1.0, True)
+        xmn = np.min(xs)
+        xmx = np.max(xs)
+        ex = 0.05 * (xmx - xmn)
+        xmin = float(xmn - ex)
+        xmax = float(xmx + ex)
 
         s_ecdf = {}
         for c in xg:
-            xt = ecdf_smooth_v2(xg[c], 1.0, True)
-            xt['x'] = [round(v, 1) for v in xt['x'].tolist()]
-            xt['y'] = [round(v, 3) for v in xt['y'].tolist()]
+            xt = ecdf_smooth_v1(
+                xg[c], xmin=xmin, xmax=xmax,
+                adj=1.0, n=512
+            )
+            # xt = ecdf_smooth_v2(
+            #     xg[c], xmin=xmin, xmax=xmax,
+            #     adj=1.0, extend=True, n=512
+            # )
+
+            xt['x'] = [round(v, 4) for v in xt['x'].tolist()]
+            xt['y'] = [round(v, 4) for v in xt['y'].tolist()]
             s_ecdf[c] = xt
 
         data['values'] = s_ecdf
@@ -157,9 +171,12 @@ def _create_params_ts(params):
 
     return pars | params
 
-def _get_clim_var_longname(params):
+def _get_info_teleconnections(params):
     app_dir = GLOBAL_CONFIG['app_dir']
     telecon_dir = os.path.join(app_dir, 'climate', 'analysis')
     tmp = parse_config_yaml_file(telecon_dir, 'teleconnections.yaml')
-    tmp = tmp['clim_variables']
-    return tmp[params['variable']][params['climVariable']]
+    tmp_n = tmp['clim_variables']
+    name = tmp_n[params['variable']][params['climVariable']]
+    tmp_l = tmp['opt_variables_analysis']
+    legend = tmp_l['phases'][params['teleconIndex']]['label']
+    return {'name': name, 'legend': legend}

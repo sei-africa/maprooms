@@ -2,18 +2,22 @@ import json
 import numpy as np
 from datetime import datetime
 from dataclasses import asdict
-from app.dst_api.scripts import (download_climdata,
-                                 extract_climdata,
-                                 download_analysis,
-                                 download_rawdata,
-                                 is_climato_normals,
-                                 download_analysis_dailydata,
-                                 download_analysis_dailyanom)
-from app.misc.scripts.probabilities import (ecdf_ts, kde_ts,
-                                            ecdf_smooth_v1,
-                                            ecdf_smooth_v2,
-                                            fit_distributions,
-                                            select_best_distribution)
+from app.dst_api.scripts import (
+    download_climdata,
+    extract_climdata,
+    download_analysis,
+    download_rawdata,
+    is_climato_normals,
+    download_analysis_dailydata,
+    download_analysis_dailyanom
+)
+from app.misc.scripts.probabilities import (
+    ecdf_ts, kde_ts,
+    ecdf_smooth_v1,
+    ecdf_smooth_v2,
+    fit_distributions,
+    select_best_distribution
+)
 from app.misc.scripts.regression import linear_model
 from app.scripts.util import pretty
 
@@ -306,9 +310,9 @@ def climate_analysis_ts_proba(params):
 
     if ~np.all(np.isnan(values)):
         p_ecdf = ecdf_ts(values)
-        # s_ecdf = ecdf_smooth_v1(values, 1.0)
-        # s_ecdf = ecdf_smooth_v2(values, 1.0, False)
-        s_ecdf = ecdf_smooth_v2(values, 1.0, True)
+        s_ecdf = ecdf_smooth_v2(
+            values, adj=1.0, extend=True, n=512
+        )
         kde = kde_ts(values, adj=1.0, n=512)
 
         distr_positive = (

@@ -606,7 +606,9 @@ def select_best_distribution(
 ## Empirical and smoothed probability-of-exceedance curves
 # ---------------------------------------------------------------------
 
-def ecdf_ts(x: Sequence[float]) -> dict[str, np.ndarray] | None:
+def ecdf_ts(
+    x: Sequence[float]
+) -> dict[str, np.ndarray] | None:
     """Empirical ECDF probability of exceeding: y = 100 * (1 - F(x))."""
     arr = _as_clean_array(x)
     if len(arr) == 0:
@@ -614,7 +616,13 @@ def ecdf_ts(x: Sequence[float]) -> dict[str, np.ndarray] | None:
     sx, ecdf = empirical_cdf_values(arr)
     return {'x': sx, 'y': 100.0 * (1.0 - ecdf)}
 
-def _kde_density_grid(x: np.ndarray, adj: float = 1.0, xmin: float | None = None, xmax: float | None = None, n: int = 512):
+def _kde_density_grid(
+    x: np.ndarray,
+    adj: float = 1.0,
+    xmin: float | None = None,
+    xmax: float | None = None,
+    n: int = 512
+):
     if len(np.unique(x)) < 2:
         raise ValueError('At least two unique values are needed for KDE smoothing.')
     kde = stats.gaussian_kde(x)
@@ -627,28 +635,64 @@ def _kde_density_grid(x: np.ndarray, adj: float = 1.0, xmin: float | None = None
     dens = kde(grid)
     return grid, dens
 
-def ecdf_smooth_v1(x: Sequence[float], adj: float = 1.0, n: int = 512) -> dict[str, np.ndarray] | None:
-    """Smoothed ECDF version 1 using a KDE and normalized cumulative density."""
+def ecdf_smooth_v1(
+    x: Sequence[float],
+    adj: float = 1.0,
+    xmin: float | None = None,
+    xmax: float | None = None,
+    n: int = 512
+) -> dict[str, np.ndarray] | None:
+    """Smoothed ECDF version 1 using
+    a KDE and normalized cumulative density.
+    """
     arr = _as_clean_array(x)
     if len(arr) == 0:
         return None
-    ex = 0.05 * (np.max(arr) - np.min(arr))
-    grid, dens = _kde_density_grid(arr, adj=adj, xmin=float(np.min(arr) - ex), xmax=float(np.max(arr) + ex), n=n)
+
+    mn = np.min(arr)
+    mx = np.max(arr)
+    ex = 0.05 * (mx - mn)
+    if xmin is None:
+        xmin = float(mn - ex)
+    if xmax is None:
+        xmax = float(mx + ex)
+
+    grid, dens = _kde_density_grid(
+        arr, adj=adj, xmin=xmin, xmax=xmax, n=n
+    )
     cdf = np.cumsum(dens) / np.sum(dens)
-    return {'x': grid, 'y': 100.0 * (1.0 - cdf)}
+    return {
+            'x': grid,
+            'y': 100.0 * (1.0 - cdf)
+        }
 
 def ecdf_smooth_v2(
     x: Sequence[float],
     adj: float = 1.0,
+    xmin: float | None = None,
+    xmax: float | None = None,
     extend: bool = False,
     n: int = 512,
 ) -> dict[str, np.ndarray] | None:
-    """Smoothed ECDF version 2 using trapezoidal integration of a KDE."""
+    """Smoothed ECDF version 2
+    using trapezoidal integration of a KDE.
+    """
     arr = _as_clean_array(x)
     if len(arr) == 0:
         return None
 
-    grid, dens = _kde_density_grid(arr, adj=adj, n=n)
+    mn = np.min(arr)
+    mx = np.max(arr)
+    ex = 0.05 * (mx - mn)
+    if xmin is None:
+        xmin = float(mn - ex)
+    if xmax is None:
+        xmax = float(mx + ex)
+
+    grid, dens = _kde_density_grid(
+        arr, adj=adj, xmin=xmin, xmax=xmax, n=n
+    )
+
     dx = np.diff(grid)
     dx = np.r_[dx[0], dx, dx[-1]]
     left = np.r_[0.0, dens]
@@ -664,7 +708,10 @@ def ecdf_smooth_v2(
         xout = grid
         y = cdf_ext[:-1]
 
-    return {'x': xout, 'y': 100.0 * (1.0 - y)}
+    return {
+            'x': xout,
+            'y': 100.0 * (1.0 - y)
+        }
 
 ## Kernel density estimate
 # ---------------------------------------------------------------------
@@ -672,20 +719,24 @@ def ecdf_smooth_v2(
 def kde_ts(
     x: Sequence[float],
     adj: float = 1.0,
+    xmin: float | None = None,
+    xmax: float | None = None,
     n: int = 512,
 ) -> dict[str, np.ndarray] | None:
     arr = _as_clean_array(x)
     if len(arr) == 0:
         return None
 
-    mn = float(np.min(arr))
-    mx = float(np.max(arr))
-    ex = (mx - mn) * 0.1
-    mn = mn - ex
-    mx = mx + ex
+    mn = np.min(arr)
+    mx = np.max(arr)
+    ex = 0.01 * (mx - mn)
+    if xmin is None:
+        xmin = float(mn - ex)
+    if xmax is None:
+        xmax = float(mx + ex)
 
     grid, dens = _kde_density_grid(
-        arr, adj=adj, xmin=mn, xmax=mx, n=n
+        arr, adj=adj, xmin=xmin, xmax=xmax, n=n
     )
     return {'x': grid, 'y': dens}
 
