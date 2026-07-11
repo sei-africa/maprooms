@@ -520,3 +520,13 @@ function getDaysDifference(date1, date2) {
     const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
     return daysDiff;
 }
+
+function createTicksMinor(tickvals) {
+    const x = tickvals.slice(0, -1)
+        .map((v, i) => v + (tickvals[i + 1] - v) / 2);
+    const dx = x[1] - x[0];
+    const xlow = Math.min(...tickvals) - dx / 2;
+    const xup = Math.max(...tickvals) + dx / 2;
+    const xTicks = [xlow, ...x, xup];
+    return xTicks;
+}

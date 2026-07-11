@@ -1095,6 +1095,7 @@ function preview_telecon_display_proba(json, container) {
             gridwidth: 0.5,
             gridcolor: 'lightgray',
             minor: {
+                tickvals: createTicksMinor(json.yticks),
                 showgrid: true,
                 gridwidth: 0.3,
                 gridcolor: 'lightgray',
@@ -3001,6 +3002,7 @@ function expand_telecon_display_proba(json, container) {
 
     const xlab = `${json.info.var.name} (${json.info.var.units})`;
     const ylab = 'Probability of exceeding';
+    const yTicks = [0, 20, 40, 60, 80, 100];
 
     const data = Object.entries(json.values)
         .map(([key, secdf], i) => ({
@@ -3030,6 +3032,7 @@ function expand_telecon_display_proba(json, container) {
             gridwidth: 0.5,
             gridcolor: 'lightgray',
             minor: {
+                tickvals: createTicksMinor(json.yticks),
                 showgrid: true,
                 gridwidth: 0.3,
                 gridcolor: 'lightgray',
@@ -3046,7 +3049,9 @@ function expand_telecon_display_proba(json, container) {
         },
         yaxis: {
             range: [0, 100],
-            ticksuffix: '%',
+            tickmode: 'array',
+            tickvals: yTicks,
+            ticktext: yTicks.map(v => `${v}%`),
             ticks: 'outside',
             ticklen: 8,
             fixedrange: true,
