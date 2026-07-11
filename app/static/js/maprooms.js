@@ -1,6 +1,3 @@
-const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-
 $(document).ready(function() {
     const path = '/static/images/';
     $('link[rel="shortcut icon"]').attr('href', path + MTO_INIT.iconImage);
@@ -15,17 +12,12 @@ $(document).ready(function() {
         $('html').attr('data-bs-theme', newtheme);
         localStorage.setItem('theme', newtheme);
 
-        if (current === 'dark') {
-            $('#btn-theme-icon').removeClass('bi-sun-fill');
-            $('#btn-theme-icon').addClass('bi-moon-stars-fill');
-        } else {
-            $('#btn-theme-icon').removeClass('bi-moon-stars-fill');
-            $('#btn-theme-icon').addClass('bi-sun-fill');
-        }
+        setThemeIcon(newtheme);
         setStylesTheme(newtheme);
     });
     // 
     updatePageTheme();
+    persistThemeOnNavigation();
 
     // initialize select2
     $('.form-select2').select2();
@@ -124,9 +116,34 @@ function updatePageTheme() {
         // Check system theme
         const sys_dark_theme = window.matchMedia('(prefers-color-scheme: dark)');
         current = sys_dark_theme.matches ? 'dark' : 'light';
+        localStorage.setItem('theme', current);
     }
     $('html').attr('data-bs-theme', current);
+    setThemeIcon(current);
     setStylesTheme(current);
+}
+
+function setThemeIcon(theme) {
+    if (theme === 'dark') {
+        $('#btn-theme-icon').removeClass('bi-sun-fill');
+        $('#btn-theme-icon').addClass('bi-moon-stars-fill');
+    } else {
+        $('#btn-theme-icon').removeClass('bi-moon-stars-fill');
+        $('#btn-theme-icon').addClass('bi-sun-fill');
+    }
+}
+
+function persistThemeOnNavigation() {
+    $('.navbar-nav a[href], .navbar-nav button, .item-maproom a[href]')
+        .off('click.persistTheme')
+        .on('click.persistTheme', function() {
+            const current = $('html').attr('data-bs-theme') ||
+                localStorage.getItem('theme');
+            if (current !== undefined && current !== null) {
+                localStorage.setItem('theme', current);
+                setStylesTheme(current);
+            }
+        });
 }
 
 const theme_styles = {
