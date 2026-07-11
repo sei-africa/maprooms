@@ -17,7 +17,7 @@
 {% macro create_card_charts(divchartID, pageText) %}
 <div class="card card-charts" id="container-{{ divchartID }}">
     <div class="position-relative">
-        <button id="btn-{{ divchartID }}" type="button" class="btn btn-md text-right position-absolute top-0 end-0 p-0 me-1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.expand_chart }}"><i class="bi bi-arrows-angle-expand"></i></button>
+        <button id="btn-{{ divchartID }}" type="button" class="btn-expand-chart btn btn-md text-right position-absolute top-0 end-0 p-0 me-1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.expand_chart }}"><i class="bi bi-arrows-angle-expand"></i></button>
     </div>
     <div class="card-block d-flex justify-content-center">
         <div id="{{ divchartID }}" class="div-card-charts"></div>

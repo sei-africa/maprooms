@@ -35,11 +35,6 @@ $(document).ready(function() {
 
     // get subdivisions data
     ajaxGetSubdivisions();
-    // maproomDB.getData('subdiv_be', function(data) {
-    //     if (data === null) {
-    //         ajaxGetSubdivisions();
-    //     }
-    // });
 
     // save the initial support-spatial-average
     // display country vs region
