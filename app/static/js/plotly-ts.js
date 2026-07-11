@@ -213,7 +213,8 @@ function preview_analysis_display_anomaly(json, container) {
     layout = deepMerge(setPlotlyColors(), layout);
 
     const config = {
-        displayModeBar: false
+        displayModeBar: false,
+        responsive: true
     };
 
     purgePlotlyChart(container);
@@ -350,7 +351,8 @@ function preview_analysis_display_rawdata(json, container) {
     layout = deepMerge(setPlotlyColors(), layout);
 
     const config = {
-        displayModeBar: false
+        displayModeBar: false,
+        responsive: true
     };
 
     purgePlotlyChart(container);
@@ -507,6 +509,7 @@ function preview_analysis_display_climato(json, container) {
 
     const config = {
         displayModeBar: false,
+        responsive: true
     };
 
     purgePlotlyChart(container);
@@ -685,6 +688,7 @@ function preview_analysis_display_proba(json, container) {
 
     const config = {
         displayModeBar: false,
+        responsive: true
     };
 
     purgePlotlyChart(container);
@@ -852,6 +856,7 @@ function preview_analysis_display_season(json, container) {
 
     const config = {
         displayModeBar: false,
+        responsive: true
     };
 
     purgePlotlyChart(container);
@@ -1027,6 +1032,7 @@ function preview_telecon_display_tseries(json, container) {
 
     const config = {
         displayModeBar: false,
+        responsive: true
     };
 
     purgePlotlyChart(container);
@@ -1133,6 +1139,7 @@ function preview_telecon_display_proba(json, container) {
 
     const config = {
         displayModeBar: false,
+        responsive: true
     };
 
     purgePlotlyChart(container);
@@ -1328,6 +1335,8 @@ function expand_analysis_display_rawdata(json_input, container) {
         } else {
             layout.xaxis.rangeslider.bgcolor = data[0].line.color;
         }
+        layout.width = getChartWidth(container);
+        layout.height = getChartHeight(container);
 
         purgePlotlyChart(container);
         Plotly.newPlot(
@@ -1415,6 +1424,8 @@ function expand_analysis_display_rawdata(json_input, container) {
         };
 
         layout = deepMerge(setPlotlyColors(), layout);
+        layout.width = getChartWidth(container);
+        layout.height = getChartHeight(container);
 
         purgePlotlyChart(container);
         Plotly.newPlot(
@@ -1426,9 +1437,7 @@ function expand_analysis_display_rawdata(json_input, container) {
     }
 
     setPlotlyThemeColors(container);
-    if (Plotly && Plotly.Plots) {
-        Plotly.Plots.resize(document.getElementById(container));
-    }
+    resizePlotlyChart(container);
 }
 
 ///////
@@ -1682,6 +1691,8 @@ function expand_analysis_display_climato(json, container) {
 
     layout.print_legend = 'climato';
     layout = deepMerge(setPlotlyColors(), layout);
+    layout.width = getChartWidth(container);
+    layout.height = getChartHeight(container);
 
     purgePlotlyChart(container);
     Plotly.newPlot(
@@ -1692,9 +1703,7 @@ function expand_analysis_display_climato(json, container) {
     );
 
     setPlotlyThemeColors(container);
-    if (Plotly && Plotly.Plots) {
-        Plotly.Plots.resize(document.getElementById(container));
-    }
+    resizePlotlyChart(container);
 }
 
 ///////
@@ -1891,7 +1900,9 @@ function expand_analysis_display_anomaly(json_input, container) {
             title: {
                 text: `${json.info.var.name} [${json.info.var.units}]`,
             },
-        }
+        },
+        width: getChartWidth(container),
+        height: getChartHeight(container)
     };
 
     layout = deepMerge(setPlotlyColors(), layout);
@@ -1912,9 +1923,7 @@ function expand_analysis_display_anomaly(json_input, container) {
     addRangeselector(container, ranges, last_date)
 
     setPlotlyThemeColors(container);
-    if (Plotly && Plotly.Plots) {
-        Plotly.Plots.resize(document.getElementById(container));
-    }
+    resizePlotlyChart(container);
 }
 
 ///////
@@ -2498,7 +2507,9 @@ function expand_analysis_display_season(json, container) {
                 griddash: 'dot'
             },
             showlegend: false,
-            bargap: 0.15
+            bargap: 0.15,
+            width: getChartWidth(container),
+            height: getChartHeight(container)
         };
 
         layout.margin = { t: 10, b: 60, l: 70, r: 10 };
@@ -2515,6 +2526,7 @@ function expand_analysis_display_season(json, container) {
         );
 
         setPlotlyThemeColors(container);
+        resizePlotlyChart(container);
     }
 
     ////
@@ -2961,6 +2973,8 @@ function expand_telecon_display_tseries(json, container) {
         },
         hovermode: 'x unified',
         hoverlabel: hoverlabelColors(theme),
+        width: getChartWidth(container),
+        height: getChartHeight(container)
     };
 
     layout = deepMerge(setPlotlyColors(), layout);
@@ -2971,6 +2985,7 @@ function expand_telecon_display_tseries(json, container) {
     purgePlotlyChart(container);
     Plotly.newPlot(container, data, layout, plotly_config);
     setPlotlyThemeColors(container);
+    resizePlotlyChart(container);
 }
 
 ///////
@@ -3074,6 +3089,8 @@ function expand_telecon_display_proba(json, container) {
                 text: json.info.legend_title
             }
         },
+        width: getChartWidth(container),
+        height: getChartHeight(container),
         margin: { l: 80, r: 190, t: 10, b: 70 },
         hovermode: 'x unified',
         hoverlabel: hoverlabelColors(theme)
@@ -3084,13 +3101,10 @@ function expand_telecon_display_proba(json, container) {
     layout.print_legend = 'telecon';
     layout.chart_type = 'telecon-proba';
 
-    const config = {
-        displayModeBar: false,
-    };
-
     purgePlotlyChart(container);
-    Plotly.newPlot(container, data, layout, config);
+    Plotly.newPlot(container, data, layout, plotly_config);
     setPlotlyThemeColors(container);
+    resizePlotlyChart(container);
 
     $('#btn-theme-toggle').on('click', () => {
         const gd = document.getElementById(container);

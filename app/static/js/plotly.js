@@ -530,3 +530,44 @@ function createTicksMinor(tickvals) {
     const xTicks = [xlow, ...x, xup];
     return xTicks;
 }
+
+function getChartWidth(container) {
+    const divCont = $(`#${container}`);
+    const parentWidth = divCont.parent().width();
+    const containerWidth = divCont.width();
+    return Math.floor(parentWidth || containerWidth || window.innerWidth * 0.8);
+}
+
+function getChartHeight(container) {
+    const divCont = $(`#${container}`);
+    const parentHeight = divCont.parent().height();
+    const containerHeight = divCont.height();
+    return Math.floor(parentHeight || containerHeight || window.innerHeight * 0.6);
+}
+
+function resizePlotlyChart(container) {
+    const resizeChart = () => {
+        const gd = document.getElementById(container);
+        if (!gd) return;
+        Plotly.relayout(gd, {
+            width: getChartWidth(container),
+            height: getChartHeight(container)
+        });
+        Plotly.Plots.resize(gd);
+    };
+
+    let resizeTimer;
+    const resizeNamespace = container.replace(/[^a-zA-Z0-9]/g, '');
+    $(window)
+        .off(`resize.teleconProba${resizeNamespace}`)
+        .on(`resize.teleconProba${resizeNamespace}`, function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(resizeChart, 100);
+        });
+
+    $(`#${container}`).closest('.modal')
+        .off(`hidden.bs.modal.teleconProba${resizeNamespace}`)
+        .on(`hidden.bs.modal.teleconProba${resizeNamespace}`, function() {
+            $(window).off(`resize.teleconProba${resizeNamespace}`);
+        });
+}
