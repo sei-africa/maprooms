@@ -49,7 +49,7 @@
 {% block javascript %}
 {% include "block-js.html" %}
 <script>
-const DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
+var DATA_SET = JSON.parse('{{ pageText.dataset | tojson }}');
 const THRESHOLD_DEF = JSON.parse('{{ pageText.opt_threshold | tojson }}');
 </script>
 <script type="text/javascript" src="{{ url_for('climate_analysis.static', filename='js/monthly.js') }}"></script>

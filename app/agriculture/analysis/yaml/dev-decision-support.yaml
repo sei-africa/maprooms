@@ -79,12 +79,9 @@ description:
         Notez que si les critères définissant la date de début ou de fin ne sont pas remplis au cours de la période de recherche, l'analyse renverra une valeur manquante. 
         Si l'analyse renvoie la valeur 0, il est probable que le début ou la fin de la saison ait déjà eu lieu et que la date de référence pour la recherche se situe donc à l'intérieur ou au-delà de la saison des pluies.
         </p>
+
 dataset:
-    rainfall: ALL
-    temperature: ALL
-    varid:
-        rainfall: [precip]
-        temperature: [tmin, tmax]
+    use: ALL
 
 variables:
     label:

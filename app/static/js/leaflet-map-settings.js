@@ -1,6 +1,7 @@
 function queryParamsClimateAnalysisMap(time_res) {
     let query = new Object();
     query.temporalRes = time_res;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${time_res}-map-variable`).val();
     query.mapType = $(`#${time_res}-map-type`).val();
     const tstep_id = `${time_res}-map-date`;
@@ -40,8 +41,6 @@ function queryParamsClimateAnalysisMap(time_res) {
         }
 
         ///////
-        query.dataset = DATA_SET.climatology;
-
         if (time_res === 'daily') {
             query.seasStats = $(`#${time_res}-map-statistics`).val();
 
@@ -102,7 +101,6 @@ function queryParamsClimateAnalysisMap(time_res) {
         }
 
         if (query.mapType === 'anomaly') {
-            query.dataset = DATA_SET.anomaly;
             query.anomaly = $(`#${time_res}-map-anomaly-type`).val();
             if (time_res === 'daily') {
                 query.startYear = parseInt($(`#${tstep_id}-start-year`).val().trim(), 10);
@@ -113,8 +111,6 @@ function queryParamsClimateAnalysisMap(time_res) {
                 query.endYear = parseInt($(`#${bp_id}-end`).val().trim(), 10);
                 query.minYear = parseInt($(`#${bp_id}-min`).val().trim(), 10);
             }
-        } else {
-            query.dataset = DATA_SET.rawdata;
         }
     }
 
@@ -166,7 +162,7 @@ function queryParamsAnalysisMapTelecon(time_res) {
     query.variable = $(`#${time_res}-map-variable`).val();
     query.climVariable = $(`#${time_res}-map-clim-variable`).val();
 
-    query.dataset = DATA_SET[query.variable];
+    query.dataset = DATA_SET.use;
     query.inputData = DATA_SET.timeres;
 
     const tstep_id = `${time_res}-map-date`;
@@ -308,11 +304,11 @@ function queryParamsAgricultureAnalysisMap(time_res) {
     let query = new Object();
     query.temporalRes = time_res;
     query.minFrac = 1.0;
+    query.dataset = DATA_SET.use;
 
     if (URL_ARGS.page === 'rainy-season') {
         query.variable = $(`#${time_res}-map-variable`).val();
         query.mapType = $(`#${time_res}-map-type`).val();
-        query.dataset = DATA_SET[query.mapType];
 
         if (query.mapType === 'climatology') {
             query.climStats = $(`#${time_res}-clim-statistics`).val();
@@ -341,11 +337,9 @@ function queryParamsAgricultureAnalysisMap(time_res) {
         query.rainy_season = queryParamsRainySeason(time_res);
     } else if (URL_ARGS.page === 'decision-support') {
         query.variable = $(`#${time_res}-map-variable`).val();
-        query.dataset = DATA_SET.use;
         query.rainy_season = queryParamsRainySeason(time_res);
     } else if (URL_ARGS.page === 'crops-suitability') {
         query.variable = $(`#${time_res}-map-variable`).val();
-        query.dataset = DATA_SET[query.variable];
 
         query.startMonth = parseInt($(`#${time_res}-cs-start-mon`).val(), 10);
         query.startDay = parseInt($(`#${time_res}-cs-start-day`).val(), 10);

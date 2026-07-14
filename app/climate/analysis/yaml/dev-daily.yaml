@@ -11,17 +11,18 @@ description:
         Le Maproom explore les précipitations et températures journalières en calculant de simple statistiques saisonniers et des extrêmes historiques.
         Séries temporelles de précipitations et de température (1981-2021) reconstruites à partir de données in-situ et de données de télédétection et autres proxy.
         </p>
-dataset:
-    rawdata: ALL
-    climatology: ALL
-    anomaly: ALL
-    varid:
-        rainfall: [precip]
-        temperature: [tmin, tmax]
+
 years_range:
     start_year: 1981
     end_year: 2024
     min_year: 30
+
+dataset:
+    use: ALL
+    variables:
+        rainfall: [precip]
+        temperature: [tmin, tmax]
+
 variables:
     label:
         en: Variable

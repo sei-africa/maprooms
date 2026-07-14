@@ -61,7 +61,7 @@ function preview_analysis_query_anomaly(tempRes) {
     }
 
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.anomaly;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-map-variable`).val();
     query.anomaly = 'difference';
     query.startYear = BASE_PERIOD.start_year;
@@ -237,7 +237,7 @@ function preview_analysis_query_rawdata(tempRes) {
     }
 
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.rawdata;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-map-variable`).val();
     const dates = preview_analysis_query_temporal(
         query.dataset, tempRes, query.variable, 5
@@ -376,7 +376,7 @@ function preview_analysis_query_climato(tempRes) {
 
     query.chartType = 'one';
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.climatology;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-map-variable`).val();
     query.startYear = BASE_PERIOD.start_year;
     query.endYear = BASE_PERIOD.end_year;
@@ -533,7 +533,7 @@ function preview_analysis_query_proba(tempRes) {
 
     query.chartType = 'proba';
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.rawdata;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-map-variable`).val();
 
     const tstepId = `${tempRes}-map-date`;
@@ -712,7 +712,7 @@ function preview_analysis_query_season(tempRes) {
 
     query.chartType = 'season';
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.rawdata;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-map-variable`).val();
 
     const tstepId = `${tempRes}-map-date`;
@@ -914,7 +914,7 @@ function preview_analysis_query_telecon(tempRes, cType) {
     query.variable = $(`#${tempRes}-map-variable`).val();
     query.climVariable = $(`#${tempRes}-map-clim-variable`).val();
 
-    query.dataset = DATA_SET[query.variable];
+    query.dataset = DATA_SET.use;
     query.inputData = DATA_SET.timeres;
 
     query.teleconIndex = $(`#${tempRes}-tercile-analysis`).val();
@@ -1166,7 +1166,7 @@ function expand_analysis_query_rawdata(tempRes) {
     }
 
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.rawdata;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-chart-raw-variable`).val();
     query.startDate = analysis_query_format_date(
         $(`#${tempRes}-chart-raw-startdate-calendar`).val(),
@@ -1450,7 +1450,7 @@ function expand_analysis_query_climato(tempRes) {
 
     query.chartType = $(`#${tempRes}-chart-clim-charts`).val();
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.climatology;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-chart-clim-variable`).val();
     query.startYear = parseInt($(`#${tempRes}-chart-clim-bp-start`).val().trim(), 10);
     query.endYear = parseInt($(`#${tempRes}-chart-clim-bp-end`).val().trim(), 10);
@@ -1715,7 +1715,7 @@ function expand_analysis_query_anomaly(tempRes) {
     }
 
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.anomaly;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-anom-variable`).val();
     query.anomaly = $(`#${tempRes}-chart-anom-type`).val();
 
@@ -1936,7 +1936,7 @@ function expand_analysis_query_proba(tempRes) {
 
     query.chartType = 'proba';
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.rawdata;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-proba-variable`).val();
 
     query.startDate = analysis_query_format_date(
@@ -2257,7 +2257,7 @@ function expand_analysis_query_season(tempRes) {
 
     query.chartType = 'season';
     query.temporalRes = tempRes;
-    query.dataset = DATA_SET.rawdata;
+    query.dataset = DATA_SET.use;
     query.variable = $(`#${tempRes}-tseries-variable`).val();
 
     query.startDate = analysis_query_format_date(
@@ -2837,7 +2837,7 @@ function expand_analysis_query_telecon(tempRes, cType) {
     query.variable = $(`#${tempRes}-${cType}-variable`).val();
     query.climVariable = $(`#${tempRes}-${cType}-clim-variable`).val();
 
-    query.dataset = DATA_SET[query.variable];
+    query.dataset = DATA_SET.use;
     query.inputData = DATA_SET.timeres;
 
     query.teleconIndex = $(`#${tempRes}-${cType}-index-telecon`).val();

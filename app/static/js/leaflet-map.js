@@ -1147,13 +1147,9 @@ function checkQueryPointOutside(query, time_res) {
     const lat = Number(point.lat);
     const p = query.variable;
     const d = query.dataset;
-    let bbox;
-    if (DATA_SET.varid === undefined) {
-        bbox = DATA_INFO[d][time_res][p].spatial_coverage;
-    } else {
-        const v = DATA_SET.varid[p][0];
-        bbox = DATA_INFO[d][time_res][v].spatial_coverage;
-    }
+    const v = DATA_SET.variables[p][0];
+    const bbox = DATA_INFO[d][time_res][v].spatial_coverage;
+
     const xlon = bbox.minlon > lon || bbox.maxlon < lon;
     const xlat = bbox.minlat > lat || bbox.maxlat < lat;
     if (xlon || xlat) {

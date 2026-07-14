@@ -213,23 +213,10 @@ function generateSequence01(length) {
 
 function refreshSpatialAverage(tempRes, datasetFromVariable = false) {
     const variable = $(`#${tempRes}-map-variable option:selected`).val();
-
-    if (datasetFromVariable) {
-        var dset = DATA_SET[variable];
-    } else {
-        const maptype = $(`#${tempRes}-map-type option:selected`).val();
-        var dset = DATA_SET[maptype];
-    }
-
-    let dataRes;
-    if (DATA_SET.varid === undefined) {
-        const data = DATA_INFO[dset][tempRes][variable];
-        dataRes = data.spatial_resolution;
-    } else {
-        const pvar = DATA_SET.varid[variable][0];
-        const data = DATA_INFO[dset][tempRes][pvar];
-        dataRes = data.spatial_resolution;
-    }
+    const dset = DATA_SET.use;
+    const pvar = DATA_SET.variables[variable][0];
+    const data = DATA_INFO[dset][tempRes][pvar];
+    const dataRes = data.spatial_resolution;
 
     setSelectSpatialAverage(dataRes);
 }
@@ -355,9 +342,6 @@ function setAnalysisDateCalendarVisibility(tempRes, mapType) {
             adjustSelect2Height(`${tempRes}-map-date-length`, false);
         }
     } else {
-        const dataset = mapType === 'anomaly' ?
-            DATA_SET.anomaly : DATA_SET.rawdata;
-
         if (mapType === 'anomaly') {
             setVisibility(
                 [
@@ -380,7 +364,8 @@ function setAnalysisDateCalendarVisibility(tempRes, mapType) {
         setDateCalendar(
             `${tempRes}-map-date`,
             `${tempRes}-map-variable`,
-            dataset, tempRes,
+            DATA_SET.use,
+            tempRes,
             dispDate = null,
             mapNavigation = true,
             dispYear = false,
@@ -504,10 +489,9 @@ function setAnalysisMapTypeDaily(time_res) {
     $('#prev-time-navigation').prop('disabled', false);
     $('#next-time-navigation').prop('disabled', false);
 
-    const dataset = DATA_SET[maptype];
     const variable = $(`#${time_res}-map-variable`).val();
     const year_cov = getTempCoverageYear(
-        dataset, time_res, variable
+        DATA_SET.use, time_res, variable
     );
     $(`#${tstepID}-tseries-year`).attr({
         'min': year_cov.start,
@@ -765,9 +749,8 @@ function setRainySeasonVisibilitySelectYear(time_res) {
     $('#next-time-navigation').prop('disabled', false);
 
     const variable = $(`#${time_res}-map-variable`).val();
-    const dataset = DATA_SET[maptype];
     const year_cov = getTempCoverageYear(
-        dataset, time_res, variable
+        DATA_SET.use, time_res, variable
     );
     $(`#${time_res}-tseries-year`).attr({
         'min': year_cov.start,
@@ -828,13 +811,6 @@ async function setMapDatesNavInput(tempRes) {
         }
         $(`#${tstepID}-calendar`).val(cl_date).trigger('change');
     } else {
-        let dataset;
-        if (maptype === 'anomaly') {
-            dataset = DATA_SET.anomaly;
-        } else {
-            dataset = DATA_SET.rawdata;
-        }
-
         let str_time;
         if (tempRes === 'monthly' || tempRes === 'seasonal') {
             str_time = `${this_date}-01 00:00:00`;
@@ -853,7 +829,9 @@ async function setMapDatesNavInput(tempRes) {
         }
 
         const variable = $(`#${tempRes}-map-variable`).val();
-        const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
+        const temp_cov = getTempCoverageCalendar(
+            DATA_SET.use, tempRes, variable
+        );
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
         if (this_time < start || this_time > end) {
@@ -924,13 +902,6 @@ async function setMapDatesNavPrev(tempRes) {
         $('#input-time-navigation').val(cl_input);
         $(`#${tstepID}-calendar`).val(cl_date).trigger('change');
     } else {
-        let dataset;
-        if (maptype === 'anomaly') {
-            dataset = DATA_SET.anomaly;
-        } else {
-            dataset = DATA_SET.rawdata;
-        }
-
         let str_time;
         if (tempRes === 'monthly' || tempRes === 'seasonal') {
             str_time = `${this_date}-01 00:00:00`;
@@ -949,7 +920,9 @@ async function setMapDatesNavPrev(tempRes) {
         }
 
         const variable = $(`#${tempRes}-map-variable`).val();
-        const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
+        const temp_cov = getTempCoverageCalendar(
+            DATA_SET.use, tempRes, variable
+        );
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
 
@@ -1046,13 +1019,6 @@ async function setMapDatesNavNext(tempRes) {
         $('#input-time-navigation').val(cl_input);
         $(`#${tstepID}-calendar`).val(cl_date).trigger('change');
     } else {
-        let dataset;
-        if (maptype === 'anomaly') {
-            dataset = DATA_SET.anomaly;
-        } else {
-            dataset = DATA_SET.rawdata;
-        }
-
         let str_time;
         if (tempRes === 'monthly' || tempRes === 'seasonal') {
             str_time = `${this_date}-01 00:00:00`;
@@ -1071,7 +1037,9 @@ async function setMapDatesNavNext(tempRes) {
         }
 
         const variable = $(`#${tempRes}-map-variable`).val();
-        const temp_cov = getTempCoverageCalendar(dataset, tempRes, variable);
+        const temp_cov = getTempCoverageCalendar(
+            DATA_SET.use, tempRes, variable
+        );
         const start = new Date(temp_cov.start);
         const end = new Date(temp_cov.end);
 
@@ -1260,8 +1228,7 @@ function setAnalysisExpandModalAnom(tempRes, contID) {
         disp_year = true;
     }
     setAnalysisDateCalendarSeasonal(
-        tempRes, 'chart-anom',
-        'anom', disp_year, 'anomaly'
+        tempRes, 'chart-anom', 'anom', disp_year
     );
     setNamesCalendar(
         `${tempRes}-chart-anom-tstep`,
@@ -1359,8 +1326,7 @@ function setAnalysisExpandModalDailyAnom(tempRes, contID) {
     purgePlotlyChartExpandModal(contID);
 
     setAnalysisDateCalendarSeasonal(
-        tempRes, 'chart-anom',
-        'anom', true, 'anomaly'
+        tempRes, 'chart-anom', 'anom', true
     );
     setAnalysisDateCalendarMonDay(tempRes, 'anom');
 
@@ -1473,8 +1439,7 @@ function setAnalysisExpandModalProba(tempRes, contID) {
     purgePlotlyChartExpandModal(contID);
 
     setAnalysisDateCalendarSeasonal(
-        tempRes, 'chart-proba',
-        'proba', true, 'rawdata'
+        tempRes, 'chart-proba', 'proba', true
     );
     if (tempRes === 'daily') {
         setAnalysisDateCalendarMonDay(tempRes, 'proba');
@@ -1590,8 +1555,7 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
     purgePlotlyChartExpandModal(contID);
 
     setAnalysisDateCalendarSeasonal(
-        tempRes, 'chart-season',
-        'tseries', true, 'rawdata'
+        tempRes, 'chart-season', 'tseries', true
     );
     if (tempRes === 'daily') {
         setAnalysisDateCalendarMonDay(tempRes, 'tseries');
@@ -1787,9 +1751,9 @@ function setAnalysisExpandModalTelecon(tempRes, contID, cType) {
     );
     purgePlotlyChartExpandModal(contID);
 
-    const this_var = $(`#${tempRes}-${cType}-variable`).val();
+    // const this_var = $(`#${tempRes}-${cType}-variable`).val();
     setAnalysisDateCalendarSeasonal(
-        tempRes, cType, cType, true, this_var
+        tempRes, cType, cType, true
     );
     setClimateSeasonStartLengthExpand(
         tempRes, cType, `${cType}-telecon`
@@ -1804,7 +1768,7 @@ function setAnalysisExpandModalTelecon(tempRes, contID, cType) {
                 tempRes, $(this).val(), `${cType}-clim-variable`
             );
             setAnalysisDateCalendarSeasonal(
-                tempRes, cType, cType, true, $(this).val()
+                tempRes, cType, cType, true
             );
             expandFunction[cType](contChart, tempRes);
         });
@@ -2094,7 +2058,8 @@ function setAnalysisDateCalendarEnso(tempRes) {
     );
 }
 
-function setAnalysisDateCalendarSeasonal(tempRes, chType, pltVar, dYear, dSet) {
+// function setAnalysisDateCalendarSeasonal(tempRes, chType, pltVar, dYear, dSet) {
+function setAnalysisDateCalendarSeasonal(tempRes, chType, pltVar, dYear) {
     const end_date = $(`#${tempRes}-${chType}-enddate-calendar`).val();
     let disp_end;
     if (end_date === '') {
@@ -2110,7 +2075,7 @@ function setAnalysisDateCalendarSeasonal(tempRes, chType, pltVar, dYear, dSet) {
     setDateCalendar(
         `${tempRes}-${chType}-enddate`,
         `${tempRes}-${pltVar}-variable`,
-        DATA_SET[dSet], tempRes,
+        DATA_SET.use, tempRes,
         disp_end,
         mapNavigation = false,
         dispYear = dYear,
@@ -2122,7 +2087,7 @@ function setAnalysisDateCalendarSeasonal(tempRes, chType, pltVar, dYear, dSet) {
     if (start_date === '') {
         const varTs = $(`#${tempRes}-${pltVar}-variable`).val();
         const trange = getTemporalRangeCalendar(
-            DATA_SET[dSet],
+            DATA_SET.use,
             tempRes, varTs, 30
         );
         disp_start = trange.start;
@@ -2137,7 +2102,7 @@ function setAnalysisDateCalendarSeasonal(tempRes, chType, pltVar, dYear, dSet) {
     setDateCalendar(
         `${tempRes}-${chType}-startdate`,
         `${tempRes}-${pltVar}-variable`,
-        DATA_SET[dSet], tempRes,
+        DATA_SET.use, tempRes,
         disp_start,
         mapNavigation = false,
         dispYear = dYear,
@@ -2175,7 +2140,7 @@ function setAnalysisDateCalendarRaw(tempRes) {
     setDateCalendar(
         `${tempRes}-chart-raw-enddate`,
         `${tempRes}-chart-raw-variable`,
-        DATA_SET.rawdata,
+        DATA_SET.use,
         tempRes, disp_end,
         mapNavigation = false,
         dispYear = false,
@@ -2187,7 +2152,7 @@ function setAnalysisDateCalendarRaw(tempRes) {
     if (start_date === '') {
         const varTs = $(`#${tempRes}-chart-raw-variable`).val();
         const trange = getTemporalRangeCalendar(
-            DATA_SET.rawdata,
+            DATA_SET.use,
             tempRes, varTs, 5
         );
         disp_start = trange.start;
@@ -2198,7 +2163,7 @@ function setAnalysisDateCalendarRaw(tempRes) {
     setDateCalendar(
         `${tempRes}-chart-raw-startdate`,
         `${tempRes}-chart-raw-variable`,
-        DATA_SET.rawdata,
+        DATA_SET.use,
         tempRes, disp_start,
         mapNavigation = false,
         dispYear = false,

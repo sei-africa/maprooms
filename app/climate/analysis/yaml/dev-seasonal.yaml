@@ -11,10 +11,14 @@ description:
         Cette interface permet à l'utilisateur de visualiser les climatologies et les anomalies saisonnières de précipitations et des températures ainsi que la probabilité de dépassement d'un seuil donné.
         Séries temporelles de précipitations et de température (1981-2021) reconstruites à partir de données in-situ et de données de télédétection et autres proxy.
         </p>
+
 dataset:
-    rawdata: ALL
-    climatology: ALL
-    anomaly: ALL
+    use: ALL
+    variables:
+        precip: [precip]
+        tmax: [tmax]
+        tmin: [tmin]
+
 variables:
     label:
         en: Variable

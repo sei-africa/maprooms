@@ -1,12 +1,107 @@
 description:
     en: |
-        Maproom to explore crop climate suitability using a spatial overlay analysis. The output is an index from 0-5 where 5 meet all conditions and is the most suitable.
+        <h4>Climate Suitability for Crops</h4>
+        <p>
+        Maproom to explore crop climate suitability using a spatial overlay analysis. 
+        The output is an index from 0-5 where 5 meet all conditions and is the most suitable.
+        </p>
     fr: |
-        Maproom permettant d'évaluer l'adéquation climatique des cultures à l'aide d'une analyse par superposition spatiale. Le résultat est un indice allant de 0 à 5, où la valeur 5 correspond à une adéquation optimale (satisfaction de toutes les conditions).
+        <h4>Adéquation Climatique pour les Cultures</h4>
+        <p>
+        Maproom permettant d'évaluer l'adéquation climatique des cultures à l'aide d'une analyse par superposition spatiale. 
+        Le résultat est un indice allant de 0 à 5, où la valeur 5 correspond à une adéquation optimale (satisfaction de toutes les conditions).
+        </p>
+
+default_values:
+    precip_low: 500.
+    precip_high: 700.
+    temp_low: 10.
+    temp_high: 25.
+    temp_optim: 15.
+    nb_wetdays: 60
+    rain_thres: 1.
 
 dataset:
-    rainfall: ALL
-    temperature: ALL
-    varid:
+    use: ALL
+    variables:
+        suitability: [precip]
         rainfall: [precip]
-        temperature: [tmin, tmax]
+        tempMax: [tmax]
+        tempMin: [tmin]
+
+variables:
+    label:
+        en: Variable
+        fr: Variable
+    select:
+        suitability:
+            en: Crop climate suitability
+            fr: Adéquation climatique des cultures
+        rainfall:
+            en: Rainfall
+            fr: Précipitation
+        tempMax:
+            en: Maximum temperature
+            fr: Température maximale
+        tempMin:
+            en: Minimum temperature
+            fr: Température minimale
+
+opt_season:
+    label:
+        en: Season
+        fr: Saison
+    start:
+        en: Start
+        fr: Début
+    end:
+        en: End
+        fr: Fin
+    year:
+        en: Display year
+        fr: Afficher année
+
+opt_prcpoptim:
+    label:
+        en: Optimum seasonal total rainfall
+        fr: Cumul des précipitations saisonnières optimales
+    text1:
+        en: Total rainfall amount between
+        fr: Cumul des précipitations entre
+    text2:
+        en: and
+        fr: et
+
+opt_temptol:
+    label:
+        en: Temperature tolerance
+        fr: Tolérance à la température
+    text1:
+        en: Temperature range between
+        fr: Plage de température entre
+    text2:
+        en: and
+        fr: et
+opt_tmpoptim:
+    label:
+        en: Optimal daily temperature amplitude
+        fr: Amplitude thermique journalière optimale
+    text1:
+        en: An average daily temperature amplitude of
+        fr: Une amplitude thermique journalière moyenne de
+opt_wetday:
+    label:
+        en: Wet days
+        fr: Jour pluvieux
+    text1:
+        en: The minimum number of wet days within a season
+        fr: Le nombre minimum de jours de pluie dans une saison
+    text2:
+        en: days
+        fr: jours
+    text3:
+        en: where a wet day is defined as a day with rainfall more than
+        fr: une journée pluvieuse est une journée avec des pluies supérieure à
+    text4:
+        en: mm/day
+        fr: mm/jour

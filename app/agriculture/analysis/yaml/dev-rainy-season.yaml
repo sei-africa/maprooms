@@ -15,11 +15,11 @@ description:
         Si l'analyse renvoie la valeur 0, il est probable que le début ou la fin de la saison ait déjà eu lieu et que la date de référence pour la recherche se situe donc à l'intérieur ou au-delà de la saison des pluies.</p> 
 
 dataset:
-    rainfall: ALL
-    temperature: ALL
-    varid:
-        rainfall: [precip]
-        temperature: [tmin, tmax]
+    use: ALL
+    variables:
+        onset: [precip]
+        cessation: [precip]
+        length: [precip]
 
 variables:
     label:
@@ -35,4 +35,74 @@ variables:
         length:
             en: Rainy season length
             fr: Durée de la saison des pluies
+clim_stats:
+    label:
+        en: Statistics
+        fr: Statistiques
+    select:
+        mean:
+            en: Average
+            fr: Moyenne
+        median:
+            en: Median
+            fr: Médiane
+        stdev:
+            en: Standard deviation
+            fr: Écart type
+        cv:
+            en: Coefficient of variation
+            fr: Coefficient de variation
+        probExc:
+            en: Probability of exceeding
+            fr: Probabilité de dépassement
+        probNoExc:
+            en: Probability of non-exceeding
+            fr: Probabilité de non-dépassement
+
+opt_proba:
+    text:
+        probExc:
+            en: Probability of exceeding
+            fr: Probabilité de dépasser
+        probNoExc:
+            en: Probability of not exceeding
+            fr: Probabilité de ne pas dépasser
+    thres:
+        onset:
+            value: '06-15'
+            unit: 
+                en: '(mm-dd)'
+                fr: '(mm-jj)'
+        cessation:
+            value: '09-15'
+            unit: 
+                en: '(mm-dd)'
+                fr: '(mm-jj)'
+        length:
+            value: 75
+            unit:
+                en: days
+                fr: jours
+
+opt_map:
+    label:
+        en: Display
+        fr: Afficher
+    select:
+        climatology:
+            en: Climatology
+            fr: Climatologie
+        anomaly:
+            en: Anomaly
+            fr: Anomalie
+        rawdata:
+            en: Selected year
+            fr: Année sélectionnée
+opt_year:
+    label:
+        en: Year
+        fr: Année
+    year:
+        en: Display year
+        fr: Afficher année
 

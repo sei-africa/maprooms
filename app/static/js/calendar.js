@@ -392,13 +392,9 @@ function getListOfDekadsCalendar() {
 }
 
 function getTempCoverageCalendar(dataset, tempres, variable) {
-    let info_var;
-    if (DATA_SET.varid === undefined) {
-        info_var = DATA_INFO[dataset][tempres][variable];
-    } else {
-        const pvar = DATA_SET.varid[variable][0];
-        info_var = DATA_INFO[dataset][tempres][pvar];
-    }
+    const pvar = DATA_SET.variables[variable][0];
+    const info_var = DATA_INFO[dataset][tempres][pvar];
+
     const temp_coverage = info_var['temporal_coverage'];
     if (tempres === 'daily') {
         start = temp_coverage.start;

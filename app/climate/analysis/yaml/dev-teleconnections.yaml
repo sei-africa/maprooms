@@ -15,9 +15,8 @@ description:
         </p>
 
 dataset:
-    rainfall: ALL
-    temperature: ALL
-    varid:
+    use: ALL
+    variables:
         rainfall: [precip]
         temperature: [tmin, tmax]
     timeres: dekadal
