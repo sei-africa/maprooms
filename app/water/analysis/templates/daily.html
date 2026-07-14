@@ -18,7 +18,7 @@
                 <div class="col-sm-12 col-map-container">
                     <div id="div-map-container" class="div-map-container">
                         {% call fmacros.create_map_control(pageText, urlArgs) %}
-                        {{ fanalysis.create_map_control_daily("daily", pageText) }}
+                        {{ fmacrosMap.create_map_control_daily("daily", pageText) }}
                         {% endcall %}
                     </div>
                 </div>
@@ -29,19 +29,19 @@
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-season", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-season", pageText) %}
-            {{ fanalysis.create_expand_charts_season("daily", pageText) }}
+            {{ fmacrosExp.create_expand_charts_season("daily", pageText) }}
             {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-proba", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-proba", pageText) %}
-            {{ fanalysis.create_expand_charts_proba("daily", pageText) }}
+            {{ fmacrosExp.create_expand_charts_proba("daily", pageText) }}
             {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-anom", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-anom", pageText) %}
-            {{ fanalysis.create_expand_charts_daily_anom("daily", pageText, fmacros) }}
+            {{ fmacrosExp.create_expand_charts_daily_anom("daily", pageText, fmacros) }}
             {% endcall %}
         </div>
     </div>

@@ -1,4 +1,4 @@
-function queryParamsAnalysisMap(time_res) {
+function queryParamsClimateAnalysisMap(time_res) {
     let query = new Object();
     query.temporalRes = time_res;
     query.variable = $(`#${time_res}-map-variable`).val();
@@ -128,7 +128,7 @@ function queryParamsAnalysisMap(time_res) {
 }
 
 function displayClimateAnalysisMap(time_res, options, map) {
-    const query = queryParamsAnalysisMap(time_res);
+    const query = queryParamsClimateAnalysisMap(time_res);
 
     if (!query) {
         return false;
@@ -277,4 +277,121 @@ function displayTimeSeriesDateMap(query) {
     }
 
     return date;
+}
+
+////////////
+
+function queryParamsRainySeason(time_res) {
+    let query = new Object();
+
+    query.startMonthO = parseInt($(`#${time_res}-onset-start-mon`).val(), 10);
+    query.startDayO = parseInt($(`#${time_res}-onset-start-day`).val(), 10);
+    query.searchDaysO = parseInt($(`#${time_res}-onset-search-day`).val(), 10);
+    query.rainTotalO = Number($(`#${time_res}-onset-rain-tot`).val());
+    query.numberDaysO = parseInt($(`#${time_res}-onset-nb-days`).val(), 10);
+    query.minNbDaysO = parseInt($(`#${time_res}-onset-min-day`).val(), 10);
+    query.drySpellO = parseInt($(`#${time_res}-onset-dryspell`).val(), 10);
+    query.drySpellDaysO = parseInt($(`#${time_res}-onset-dryspell-day`).val(), 10);
+
+    query.rainThres = Number($(`#${time_res}-onset-rainy-day-thres`).val());
+
+    query.startMonthC = parseInt($(`#${time_res}-cessation-start-mon`).val(), 10);
+    query.startDayC = parseInt($(`#${time_res}-cessation-start-day`).val(), 10);
+    query.searchDaysC = parseInt($(`#${time_res}-cessation-search-day`).val(), 10);
+    query.waterBalanceC = Number($(`#${time_res}-cessation-water-balance`).val());
+    query.numberDaysC = parseInt($(`#${time_res}-cessation-number-day`).val(), 10);
+
+    return query;
+}
+
+function queryParamsAgricultureAnalysisMap(time_res) {
+    let query = new Object();
+    query.temporalRes = time_res;
+    query.minFrac = 1.0;
+
+    if (URL_ARGS.page === 'rainy-season') {
+        query.variable = $(`#${time_res}-map-variable`).val();
+        query.mapType = $(`#${time_res}-map-type`).val();
+        query.dataset = DATA_SET[query.mapType];
+
+        if (query.mapType === 'climatology') {
+            query.climStats = $(`#${time_res}-clim-statistics`).val();
+            if (['probExc', 'probNoExc'].includes(query.climStats)) {
+                $(`#${time_res}-clim-stats-proba-error`).empty();
+                proba_thres = $(`#${time_res}-clim-stats-proba`).val();
+                if (query.variable === 'length') {
+                    query.probaThres = parseInt(proba_thres, 10);
+                } else {
+                    if (isValidMonthDay(proba_thres)) {
+                        query.probaThres = proba_thres;
+                    } else {
+                        const frmt = PROBA_OPT.thres[query.variable].unit;
+                        const msg1 = `Invalid "month-day" date: ${proba_thres}`;
+                        const msg2 = `the format must be: ${frmt}`;
+                        $(`#${time_res}-clim-stats-proba-error`)
+                            .text(`${msg1}, ${msg2}`)
+                            .css({ 'color': 'red', 'font-weight': 'bold' });
+                        return false;
+                    }
+                }
+            }
+        } else {
+            query.Year = parseInt($(`#${time_res}-tseries-year`).val().trim(), 10);
+        }
+        query.rainy_season = queryParamsRainySeason(time_res);
+    } else if (URL_ARGS.page === 'decision-support') {
+        query.variable = $(`#${time_res}-map-variable`).val();
+        query.dataset = DATA_SET.use;
+        query.rainy_season = queryParamsRainySeason(time_res);
+    } else if (URL_ARGS.page === 'crops-suitability') {
+        query.variable = $(`#${time_res}-map-variable`).val();
+        query.dataset = DATA_SET[query.variable];
+
+        query.startMonth = parseInt($(`#${time_res}-cs-start-mon`).val(), 10);
+        query.startDay = parseInt($(`#${time_res}-cs-start-day`).val(), 10);
+        query.endMonth = parseInt($(`#${time_res}-cs-end-mon`).val(), 10);
+        query.endDay = parseInt($(`#${time_res}-cs-end-day`).val(), 10);
+
+        if (query.variable === 'suitability') {
+            query.precipLow = Number($(`#${time_res}-cs-precip-low`).val());
+            query.precipHigh = Number($(`#${time_res}-cs-precip-high`).val());
+            query.tempLow = Number($(`#${time_res}-cs-temp-low`).val());
+            query.tempHigh = Number($(`#${time_res}-cs-temp-high`).val());
+            query.tempOptim = Number($(`#${time_res}-cs-temp-optim`).val());
+            query.nbWetDays = parseInt($(`#${time_res}-cs-nb-wetdays`).val(), 10);
+            query.rainThres = Number($(`#${time_res}-cs-rain-thres`).val());
+        }
+    } else {
+        flashMessage(`Unknown maproom page: ${URL_ARGS.page}`, 'error');
+        return false;
+    }
+
+    return query;
+}
+
+////////////
+
+function displayAgricultureAnalysisMap(time_res, options, map) {
+    const query = queryParamsAgricultureAnalysisMap(time_res);
+
+    if (!query) {
+        return false;
+    }
+
+    const endpoint = createEndpoint(
+        'agriculture_analysis',
+        'agriculture_analysis_map'
+    );
+
+    const request = ajaxLeafletMap(
+        endpoint,
+        query,
+        displayRasterImage,
+        options,
+        map
+    );
+
+    updateAnalysisMapDate(time_res, query, map);
+
+    return request;
 }

@@ -16,7 +16,7 @@
                 <div class="col-sm-12 col-map-container">
                     <div id="div-map-container" class="div-map-container">
                         {% call fmacros.create_map_control(pageText, urlArgs) %}
-                        {{ fanalysis.create_map_control_inputs("monthly", pageText) }}
+                        {{ fmacrosMap.create_map_control_inputs("monthly", pageText) }}
                         {% endcall %}
                     </div>
                 </div>
@@ -27,19 +27,19 @@
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-raw", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-raw", pageText) %}
-            {{ fanalysis.create_expand_charts_raw("monthly", pageText) }}
+            {{ fmacrosExp.create_expand_charts_raw("monthly", pageText) }}
             {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-clim", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-clim", pageText) %}
-            {{ fanalysis.create_expand_charts_clim("monthly", pageText, fmacros) }}
+            {{ fmacrosExp.create_expand_charts_clim("monthly", pageText, fmacros) }}
             {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-anom", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-anom", pageText) %}
-            {{ fanalysis.create_expand_charts_anom("monthly", pageText, fmacros) }}
+            {{ fmacrosExp.create_expand_charts_anom("monthly", pageText, fmacros) }}
             {% endcall %}
         </div>
     </div>

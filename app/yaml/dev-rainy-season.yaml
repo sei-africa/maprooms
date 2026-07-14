@@ -1,0 +1,71 @@
+onset:
+    label:
+        en: Onset date definition
+        fr: Définition date du début
+    start:
+        en: From early start date of
+        fr: À partir de la date de 
+    search:
+        en: and within the next
+        fr: et dans les prochains
+    raintot:
+        en: with a rainfall total of
+        fr: avec un cumul des précipitations de
+    nbday:
+        en: or more over a period of
+        fr: ou plus sur une période de
+    minday1:
+        en: with at least
+        fr: avec au moins
+    minday2:
+        en: rainy days
+        fr: jours de pluie
+    dryspell1:
+        en: that is not followed by a
+        fr: qui n'est pas suivi d'un
+    dryspell2:
+        en: days dry spell
+        fr: jours de période de sécheresse
+    dryspell3:
+        en: within the next
+        fr: dans les prochains
+    unit1:
+        en: mm
+        fr: mm
+    unit2:
+        en: days
+        fr: jours
+
+rainyday:
+    label:
+        en: Rainy day definition
+        fr: Définition de jour de pluie
+    rainday:
+        en: Rainfall amount greater than
+        fr: Quantité de pluies supérieure à
+    unit: 
+        en: mm/day
+        fr: mm/jour
+
+cessation:
+    label:
+        en: Cessation date definition
+        fr: Définition date de la fin
+    start:
+        en: First date after
+        fr: Premier date après 
+    search:
+        en: and within the next
+        fr: et dans les prochains
+    waterb:
+        en: when the water balance drops below
+        fr: quand le bilan hydrique tombe en dessous de
+    nbday:
+        en: for a period of
+        fr: pour une période de
+    unit1:
+        en: mm
+        fr: mm
+    unit2:
+        en: days
+        fr: jours

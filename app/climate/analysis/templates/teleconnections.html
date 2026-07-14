@@ -18,7 +18,7 @@
                 <div class="col-sm-12 col-map-container">
                     <div id="div-map-container" class="div-map-container">
                         {% call fmacros.create_map_control(pageText, urlArgs) %}
-                        {{ fanalysis.create_map_control_telecon_sp("seasonal", pageText) }}
+                        {{ fmacrosMap.create_map_control_telecon_sp("seasonal", pageText) }}
                         {% endcall %}
                     </div>
                 </div>
@@ -29,19 +29,19 @@
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-enso", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-enso", pageText) %}
-            {{ fanalysis.create_expand_charts_enso("seasonal", pageText) }}
+            {{ fmacrosExp.create_expand_charts_enso("seasonal", pageText) }}
             {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-tseries", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-tseries", pageText) %}
-            {{ fanalysis.create_expand_charts_telecon("seasonal", pageText, "tseries") }}
+            {{ fmacrosExp.create_expand_charts_telecon("seasonal", pageText, "tseries") }}
             {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-proba", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-proba", pageText) %}
-            {{ fanalysis.create_expand_charts_telecon("seasonal", pageText, "proba") }}
+            {{ fmacrosExp.create_expand_charts_telecon("seasonal", pageText, "proba") }}
             {% endcall %}
         </div>
     </div>

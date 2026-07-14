@@ -1,0 +1,115 @@
+description:
+    en: |
+        <h4>Planting and harvest decision support</h4>
+        <p>
+        The date when the rainy season starts with germinating rains is critical to agriculture planification, in particular for planting.
+        The map shows the result of the germinating rain date search (i.e. near-real time thus without checking of follow-up dry spells) from the most recent Early Start to now (or the last day with available rainfall data). 
+        Dates are expressed in days since an Early Start date.
+        </p>
+        <h5>Has germinating rain occurred?</h5>
+        <p>
+        The map shows the result of the germinating rain date search (i.e. near-real time thus without checking of follow-up dry spells) from the most recent Early Start to now (or the last day with available rainfall data). 
+        Dates are expressed in days since an Early Start date.
+        </p>
+        <h5>When to prepare for planting?</h5>
+        <p>
+        The map shows the average onset date over all years of available data. Dates are expressed in days since an Early Start date.
+        </p>
+        <h5>How uncertain is the planting date?</h5>
+        <p>
+        The map shows the standard deviation from the average onset date. over all years of available data. Dates are expressed in days since an Early Start date.
+        </p>
+        <h5>How risky to plant...</h5>
+        <p>
+        The map shows the probability of the onset date to be past a certain date, through all the years of available data. Dates are expressed in days since an Early Start date.
+        </p>
+        <h5>How long is the rainy season?</h5>
+        <p>
+        The map shows the average length (in days) of the rainy season, defined as the period between onset and cessation dates, over all years of available data.
+        </p>
+        <h5>How uncertain is the length of the rainy season?</h5>
+        <p>
+        The map shows the standard deviation from the average length of the season, over all years of available data.
+        </p>
+        <h5>How likely is the rainy season lasting less than...</h5>
+        <p>
+        The map shows the probability of the rainy season to last less than a certain number of days through all the years of available data.
+        </p>
+        <p>
+        Note that if the criteria to define the onset/cessation date are not met within the search period, the analysis will return a missing value.
+        And if the analysis returns 0, it is likely that the onset/cessation has already occurred and thus that the date from when to search is within/passed the rainy season.
+        </p>
+    fr: |
+        <h4>Aide à la décision pour les semis et la récolte</h4>
+        <p>
+        La date de début de la saison des pluies, marquée par les pluies de germination, est cruciale pour la planification agricole, notamment pour les semis.
+        La carte présente les résultats de la détermination de la date des pluies de germination (calculée en temps quasi réel, sans prise en compte des périodes sèches ultérieures) depuis le « début précoce » le plus récent jusqu'à aujourd'hui (ou jusqu'au dernier jour pour lequel des données pluviométriques sont disponibles).
+        Les dates sont exprimées en nombre de jours écoulés depuis la date de début précoce.
+        </p>
+        <h5>Des pluies favorables à la germination ont-elles eu lieu?</h5>
+        <p>
+        La carte présente le résultat de la recherche de la date des pluies favorables à la germination (c'est-à-dire en temps quasi réel, sans prise en compte des périodes sèches ultérieures) depuis la date de « début précoce » la plus récente jusqu'à aujourd'hui (ou jusqu'au dernier jour pour lequel des données pluviométriques sont disponibles).
+        Les dates sont exprimées en nombre de jours écoulés depuis la date de début précoce.
+        </p>
+        <h5>Quand se préparer aux semis?</h5>
+        <p>
+        La carte indique la date moyenne de début de la saison sur l'ensemble des années pour lesquelles des données sont disponibles. Les dates sont exprimées en nombre de jours écoulés depuis la date de début précoce.
+        </p>
+        <h5>Quelle est l'incertitude concernant la date des semis?</h5>
+        <p>
+        La carte montre l'écart-type par rapport à la date moyenne de début de la saison, calculé sur l'ensemble des années disponibles. Les dates sont exprimées en nombre de jours écoulés depuis la date de début précoce.
+        </p>
+        <h5>Quel est le risque lié aux semis...</h5>
+        <p>
+        La carte indique la probabilité que la date de début de la saison survienne après une date donnée, sur l'ensemble des années disponibles. Les dates sont exprimées en nombre de jours écoulés depuis la date de début précoce.
+        </p>
+        <h5>Quelle est la durée de la saison des pluies?</h5>
+        <p>
+        La carte présente la durée moyenne (en jours) de la saison des pluies — définie comme la période comprise entre les dates de début et de fin — sur l'ensemble des années disponibles.
+        </p>
+        <h5>Quelle est l'incertitude concernant la durée de la saison des pluies ?</h5>
+        <p>
+        La carte montre l'écart-type par rapport à la durée moyenne de la saison, calculé sur l'ensemble des années disponibles.
+        </p>
+        <h5>Quelle est la probabilité que la saison des pluies dure moins de...</h5>
+        <p>
+        La carte indique la probabilité que la saison des pluies dure moins d'un certain nombre de jours, sur l'ensemble des années disponibles.
+        </p>
+        <p>
+        Notez que si les critères définissant la date de début ou de fin ne sont pas remplis au cours de la période de recherche, l'analyse renverra une valeur manquante. 
+        Si l'analyse renvoie la valeur 0, il est probable que le début ou la fin de la saison ait déjà eu lieu et que la date de référence pour la recherche se situe donc à l'intérieur ou au-delà de la saison des pluies.
+        </p>
+dataset:
+    rainfall: ALL
+    temperature: ALL
+    varid:
+        rainfall: [precip]
+        temperature: [tmin, tmax]
+
+variables:
+    label:
+        en: Ask the map
+        fr: Demandez à la carte
+    select:
+        monit:
+            en: Has germinating rain occurred?
+            fr: Des pluies favorables à la germination ont-elles eu lieu?
+        mean_onset:
+            en: When to prepare for planting?
+            fr: Quand se préparer aux semis?
+        stdev_onset:
+            en: How uncertain is the planting date?
+            fr: Quelle est l'incertitude concernant la date des semis?
+        pe_onset:
+            en: How risky to plant...
+            fr: Quel est le risque lié aux semis...
+        mean_length:
+            en: How long is the rainy season?
+            fr: Quelle est la durée de la saison des pluies?
+        stdev_length:
+            en: How uncertain is the length of the rainy season?
+            fr: Quelle est l'incertitude concernant la durée de la saison des pluies?
+        pe_length:
+            en: How likely is the rainy season lasting less than...
+            fr: Quelle est la probabilité que la saison des pluies dure moins de...
+

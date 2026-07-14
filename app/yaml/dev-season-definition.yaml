@@ -7,3 +7,21 @@ default_season:
     months:
         start: 6
         length: 3
+rainy_season:
+    onset:
+        startMon: 5
+        startDay: 1
+        searchDay: 90
+        rainTotal: 20.
+        numberDays: 5
+        minNbDays: 3
+        drySpell: 7
+        drySpellDays: 21
+        rainThres: 1.
+    cessation:
+        startMon: 8
+        startDay: 15
+        searchDay: 90
+        waterBalance: 5.
+        numberDays: 3
+    where: [climate, agriculture]

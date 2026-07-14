@@ -686,6 +686,115 @@ function setClimateVariableTelecon(tempRes, variable, idsuffix) {
 
 //////////////
 
+function setOffCanvasMapControlAgriculture(tempRes) {
+    if (URL_ARGS.page === 'rainy-season') {
+        setRainySeasonCalendarOnset(tempRes);
+        $(`#${tempRes}-map-variable`)
+            .off(`change.rainySeason`)
+            .on(`change.rainySeason`, function() {
+                refreshSpatialAverage(tempRes, datasetFromVariable = false);
+                setRainySeasonVisibilityProba(tempRes);
+            });
+
+        $(`#${tempRes}-map-type`)
+            .off(`change.rainySeason`)
+            .on(`change.rainySeason`, function() {
+                refreshSpatialAverage(tempRes, datasetFromVariable = false);
+                setRainySeasonVisibilitySelectYear(tempRes);
+            });
+        $(`#${tempRes}-map-type`).trigger('change');
+
+        $(`#${tempRes}-clim-statistics`)
+            .off(`change.rainySeason`)
+            .on(`change.rainySeason`, function() {
+                setRainySeasonVisibilityProba(tempRes);
+            });
+    } else if (URL_ARGS.page === 'decision-support') {
+        setRainySeasonCalendarOnset(tempRes);
+    } else {
+        setAnalysisDateCalendarMonDay(tempRes, 'cs');
+    }
+}
+
+function setRainySeasonCalendarOnset(tempRes) {
+    setMonthsDaysCalendar(
+        `${tempRes}-onset-start-mon`,
+        `${tempRes}-onset-start-day`,
+        RAINY_SEASON.onset.startMon,
+        RAINY_SEASON.onset.startDay,
+        true
+    );
+
+    setMonthsDaysCalendar(
+        `${tempRes}-cessation-start-mon`,
+        `${tempRes}-cessation-start-day`,
+        RAINY_SEASON.cessation.startMon,
+        RAINY_SEASON.cessation.startDay,
+        false
+    );
+}
+
+function setRainySeasonVisibilitySelectYear(time_res) {
+    const maptype = $(`#${time_res}-map-type`).val();
+
+    if (maptype === 'climatology') {
+        setVisibility(
+            [`${time_res}-climstats-rainy-season`],
+            [`${time_res}-date-rainy-season`]
+        );
+
+        $('#input-time-navigation').val('').prop('disabled', true);
+        $('#prev-time-navigation').prop('disabled', true);
+        $('#next-time-navigation').prop('disabled', true);
+
+        return;
+    } else if (maptype === 'anomaly') {
+        setVisibility(
+            [`${time_res}-date-rainy-season`],
+            [`${time_res}-climstats-rainy-season`]
+        );
+    } else {
+        setVisibility(
+            [`${time_res}-date-rainy-season`],
+            [`${time_res}-climstats-rainy-season`]
+        );
+    }
+
+    $('#input-time-navigation').prop('disabled', false);
+    $('#prev-time-navigation').prop('disabled', false);
+    $('#next-time-navigation').prop('disabled', false);
+
+    const variable = $(`#${time_res}-map-variable`).val();
+    const dataset = DATA_SET[maptype];
+    const year_cov = getTempCoverageYear(
+        dataset, time_res, variable
+    );
+    $(`#${time_res}-tseries-year`).attr({
+        'min': year_cov.start,
+        'max': year_cov.end
+    }).val(year_cov.end);
+
+    $('#input-time-navigation').val(year_cov.end);
+}
+
+function setRainySeasonVisibilityProba(tempRes) {
+    $(`#${tempRes}-clim-stats-proba-error`).empty();
+
+    const this_stat = $(`#${tempRes}-clim-statistics`).val();
+    if (['probExc', 'probNoExc'].includes(this_stat)) {
+        $(`#${tempRes}-proba-exceed-settings`).show();
+        $(`#${tempRes}-clim-stats-text`).text(PROBA_OPT.text[this_stat]);
+        const variable = $(`#${tempRes}-map-variable`).val();
+        $(`#${tempRes}-clim-stats-unit`).text(PROBA_OPT.thres[variable].unit);
+        $(`#${tempRes}-clim-stats-proba`).val(PROBA_OPT.thres[variable].value);
+    } else {
+        $(`#${tempRes}-proba-exceed-settings`).hide();
+    }
+}
+
+
+//////////////
+
 async function setMapDatesNavInput(tempRes) {
     const this_date = $('#input-time-navigation').val().trim();
     if (this_date === '') {

@@ -170,6 +170,25 @@ def load_navigation_items(item_dirs):
             tmp['label'] = [t[lang_code] for t in nav['title']]
             break
 
+    #######################
+    # can be removed
+    # check if path exists
+    if 'path' not in tmp:
+        parent_dirs = item_dirs[:-1] if item_dirs else None
+        page = item_dirs[-1] if item_dirs else None
+        for nav in nav_info:
+            if nav['path'] == parent_dirs:
+                pths = ['maproom'] + parent_dirs
+                labels = [t[lang_code] for t in nav['title']]
+                tmp['path'] = pths + [page]
+                tmp['label'] = labels + [page.replace('-', ' ').title()]
+                break
+
+    if 'path' not in tmp:
+        tmp['path'] = ['maproom']
+        tmp['label'] = [_get_lang_text(nav_info[0]['title'][0], lang_code)]
+    #######################
+
     out = []
     for j in range(len(tmp['path'])):
         x = {'path': tmp['path'][j], 'label': tmp['label'][j]}
@@ -260,6 +279,11 @@ def load_maproom_page_text(item_dirs, page_type):
         yaml_file = os.path.join(app_dir, 'yaml', 'js-text.yaml')
         tmp = load_yaml_file(yaml_file)
         out['js_text'] = parse_lang_yaml_nested(tmp)
+
+        if item_dirs[0] in out['rainy_season']['where']:
+            yaml_file = os.path.join(app_dir, 'yaml', 'rainy-season.yaml')
+            tmp = load_yaml_file(yaml_file)
+            out['rainy_season_text'] = parse_lang_yaml_nested(tmp)
 
     return out
 

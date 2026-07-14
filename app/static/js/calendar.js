@@ -591,3 +591,21 @@ function getWeekRange(date) {
         end: format(end)
     };
 }
+
+function isValidMonthDay(mm_dd) {
+    // Must be exactly mm-dd
+    if (!/^\d{2}-\d{2}$/.test(mm_dd)) {
+        return false;
+    }
+
+    const [month, day] = mm_dd.split('-').map(Number);
+
+    // Create a date using a leap year so Feb-29 is allowed
+    const date = new Date(2000, month - 1, day);
+
+    return (
+        date.getFullYear() === 2000 &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day
+    );
+}

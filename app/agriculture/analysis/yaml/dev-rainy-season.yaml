@@ -1,13 +1,38 @@
 description:
-    en: test
-    fr: test
-# all about daily
+    en: |
+        <h4>Rainy Season Analysis</h4>
+        <p>The maproom explores current and historical rainy season onset and cessation dates based on user-defined definitions.</p>
+        <p>By enabling the exploration of the current and historical onset and cessation dates, 
+        the maproom allows to monitor and understand the spatial and temporal variability of how seasons unfold and therefore characterize the risk for a successful agricultural campaign.</p>
+        <p>Note that if the criteria to define the onset/cessation date are not met within the search period, the analysis will return a missing value. 
+        And if the analysis returns 0, it is likely that the onset/cessation has already occurred and thus that the date from when to search is within/passed the rainy season.</p>
+    fr: |
+        <h4>Analyse de la Saison des Pluies</h4>
+        <p> Cet maproom permet d'examiner les dates de début et de fin de la saison des pluies (actuelles et historiques) selon des critères définis par l'utilisateur.</p> 
+        <p> En permettant l'exploration des dates de début et de fin actuelles et historiques, 
+        le maproom permet de surveiller et de comprendre la variabilité spatiale et temporelle du déroulement des saisons et donc de caractériser le risque pour une campagne agricole réussie.</p> 
+        <p> Notez que si les critères définissant la date de début ou de fin ne sont pas remplis au cours de la période de recherche, l'analyse renverra une valeur manquante. 
+        Si l'analyse renvoie la valeur 0, il est probable que le début ou la fin de la saison ait déjà eu lieu et que la date de référence pour la recherche se situe donc à l'intérieur ou au-delà de la saison des pluies.</p> 
+
 dataset:
-    rawdata:
-        dataset: ALL
-    dryday:
-        dataset: ALL
-    climatology:
-        dataset: ALL
-    anomaly:
-        dataset: ALL
+    rainfall: ALL
+    temperature: ALL
+    varid:
+        rainfall: [precip]
+        temperature: [tmin, tmax]
+
+variables:
+    label:
+        en: Variable
+        fr: Variable
+    select:
+        onset:
+            en: Rainy season onset
+            fr: Début de la saison des pluies
+        cessation:
+            en: Rainy season cessation
+            fr: Fin de la saison des pluies
+        length:
+            en: Rainy season length
+            fr: Durée de la saison des pluies
+

@@ -1,0 +1,12 @@
+description:
+    en: |
+        Maproom to explore crop climate suitability using a spatial overlay analysis. The output is an index from 0-5 where 5 meet all conditions and is the most suitable.
+    fr: |
+        Maproom permettant d'évaluer l'adéquation climatique des cultures à l'aide d'une analyse par superposition spatiale. Le résultat est un indice allant de 0 à 5, où la valeur 5 correspond à une adéquation optimale (satisfaction de toutes les conditions).
+
+dataset:
+    rainfall: ALL
+    temperature: ALL
+    varid:
+        rainfall: [precip]
+        temperature: [tmin, tmax]

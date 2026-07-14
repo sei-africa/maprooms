@@ -26,7 +26,7 @@ from app.climate.monitoring.index import climate_monitoring
 from app.climate.forecast.index import climate_forecast
 from app.climate.projection.index import climate_projection
 
-from app.agriculture.analysis.index import agri_analysis
+from app.agriculture.analysis.index import agriculture_analysis
 
 from app.health.index import health
 from app.drm.index import drm
@@ -45,7 +45,7 @@ app.register_blueprint(climate_monitoring)
 app.register_blueprint(climate_forecast)
 app.register_blueprint(climate_projection)
 
-app.register_blueprint(agri_analysis)
+app.register_blueprint(agriculture_analysis)
 
 app.register_blueprint(health)
 app.register_blueprint(drm)

@@ -2,8 +2,12 @@ title:
     en: Historical Analysis
     fr: Analyse Historique
 description: 
-    en: The Maproom explores historical rainy season onset date based on user-defined definitions. The date when the rainy season starts is critical to agriculture planification, in particular for planting.
-    fr: Cette Maproom explore l'historique de la date de début de la saison des pluies, basée sur une définition explicitée par l'utilisateur. Cette date est critique pour la planification de la campagne agricole, en particulier pour semer.
+    en: |
+        The Maproom explores historical rainy season onset date based on user-defined definitions.
+        The date when the rainy season starts is critical to agriculture planification, in particular for planting.
+    fr: |
+        Le Maproom explore l'historique de la date de début de la saison des pluies, basée sur une définition explicitée par l'utilisateur.
+        Cette date est critique pour la planification de la campagne agricole, en particulier pour semer.
 type: navigation-page
 # icon_image from /app/static/images/card_icons
 icon_image: default-emi_climate_agriculture.gif
@@ -11,14 +15,36 @@ icon_image: default-emi_climate_agriculture.gif
 maprooms:
     - rainy-season:
         title:
-            en: Historical Onset Date
-            fr: Début Historique de la Saison des Pluies
+            en: Rainy Season Analysis
+            fr: Analyse de la Saison des Pluies
         description:
             en: |
-                The Maproom explores historical rainy season onset date based on user-defined definitions.
-                The date when the rainy season starts is critical to agriculture planification, in particular for planting.
+                The Maproom explores current and historical rainy season onset and cessation dates based on user-defined definitions.
             fr: |
-                Cette Maproom explore l'historique de la date de début de la saison des pluies, basée sur une définition explicitée par l'utilisateur.
-                Cette date est critique pour la planification de la campagne agricole, en particulier pour semer.
+                Le Maproom explore l'historique de la date de début et fin de la saison des pluies, basée sur une définition explicitée par l'utilisateur.
+        # icon_image from /app/agriculture/analysis/static/images
+        icon_image: default-emi_agriculture.gif
+    - decision-support:
+        title:
+            en: Planting and Harvest Decision Support
+            fr: Aide à la décision pour les semis et la récolte
+        description:
+            en: |
+                The date when the rainy season starts with germinating rains is critical to agriculture planification, in particular for planting.
+            fr: |
+                La date de début de la saison des pluies, marquée par les pluies de germination, est cruciale pour la planification agricole, en particulier pour les semis.
+        # icon_image from /app/agriculture/analysis/static/images
+        icon_image: default-emi_agriculture.gif
+    - crops-suitability:
+        title:
+            en: Climate Suitability for Crops
+            fr: Adéquation Climatique pour les Cultures.
+        description:
+            en: |
+                Maproom to explore climate suitability for crop production.
+                Maproom to explore crop climate suitability using a spatial overlay analysis. The output is an index from 0-5 where 5 meet all conditions and is the most suitable.
+            fr: |
+                Maproom pour explorer l'adéquation climatique à la production agricole.
+                Maproom permettant d'évaluer l'adéquation climatique des cultures à l'aide d'une analyse par superposition spatiale. Le résultat est un indice allant de 0 à 5, où la valeur 5 correspond à une adéquation optimale (satisfaction de toutes les conditions).
         # icon_image from /app/agriculture/analysis/static/images
         icon_image: default-emi_agriculture.gif

@@ -2,6 +2,17 @@
 {% block title %} {{metInfo.pageTitle}} {% endblock %}
 {% block head %}
 {{ super() }}
+<style>
+    .card-description {
+        height: 90vh;
+    }
+    .card-description-tab {
+        max-height: 78vh;
+    }
+    .div-map-container {
+        height: 88vh;
+    }
+</style>
 {% endblock %}
 {% block content %}
 <div class="container-fluid" id="container-page">
@@ -14,22 +25,11 @@
                 <div class="col-sm-12 col-map-container">
                     <div id="div-map-container" class="div-map-container">
                         {% call fmacros.create_map_control(pageText, urlArgs) %}
-                        {{ fmacrosMap.create_map_control_rainy_season("daily", pageText) }}
+                        {{ fmacrosMap.create_map_control_decision_support("daily", pageText) }}
                         {% endcall %}
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <div class="col-sm-4">
-            {{ fmacros.create_card_charts("div-chart-tseries", pageText) }}
-        </div>
-        <div class="col-sm-4">
-            {{ fmacros.create_card_charts("div-chart-proba", pageText) }}
-        </div>
-        <div class="col-sm-4">
-            {{ fmacros.create_card_charts("div-chart-anom", pageText) }}
         </div>
     </div>
     {{ fmacros.create_modal_matplotlib(pageText) }}
@@ -37,8 +37,5 @@
 {% endblock %}
 {% block javascript %}
 {% include "block-js.html" %}
-<script type="text/javascript" src="{{ url_for('agriculture_analysis.static', filename='js/rainy-season.js') }}"></script>
-<script type="text/javascript">
-const PROBA_OPT = JSON.parse('{{ pageText.opt_proba | tojson }}');
-</script>
+<script type="text/javascript" src="{{ url_for('agriculture_analysis.static', filename='js/decision-support.js') }}"></script>
 {% endblock %}
