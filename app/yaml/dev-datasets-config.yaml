@@ -58,7 +58,7 @@ datasets:
                     input_data: [tmax, tmin, precip]
                     # input_data: [tmax, tmin]
                     # function: et0_hargreaves_fao
-                    input_tres: daily
+                    input: daily
                     write_zarr: True
                     dir_zarr: et0_daily
             zarr_dir: /home/enacts/ENACTS_DATA/DATA/ZARR/ALL
