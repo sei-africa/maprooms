@@ -8,7 +8,6 @@ import xarray as xr
 from scipy.spatial import cKDTree
 
 from ._util import (
-    _rainy_params,
     _validate_cube,
     _as_numpy
 )
@@ -19,7 +18,7 @@ def compute_rainy_season(
     precip: xr.DataArray,
     et0: xr.DataArray,
     taw: xr.DataArray,
-    params: dict[str, Any],
+    rp: dict[str, Any],
 ) -> xr.Dataset:
     precip = _validate_cube(precip, 'precip')
     et0 = _validate_cube(et0, 'et0')
@@ -29,11 +28,10 @@ def compute_rainy_season(
             'taw must be an xarray.DataArray with lat and lon dimensions'
         )
     taw = taw.transpose('lat', 'lon')
-    rp = _rainy_params(params)
 
-    onset_data = compute_season_onset(precip, params)
+    onset_data = compute_season_onset(precip, rp)
     wb_data = simple_water_balance(precip, et0, taw)
-    cessation_data = compute_season_cessation(wb_data, params)
+    cessation_data = compute_season_cessation(wb_data, rp)
 
     if rp['interpolate']:
         values = (
@@ -170,10 +168,9 @@ def compute_rainy_season(
 
 def compute_season_onset(
     precip: xr.DataArray,
-    params: dict[str, Any]
+    rp: dict[str, Any]
 ) -> dict[str, Any]:
     precip = _validate_cube(precip, 'precip')
-    rp = _rainy_params(params)
     periods = index_daily_season(
         precip.time.values,
         int(rp['startMonthO']),
@@ -207,10 +204,9 @@ def compute_season_onset(
 
 def compute_season_cessation(
     wb: xr.DataArray,
-    params: dict[str, Any]
+    rp: dict[str, Any]
 ) -> dict[str, Any]:
     wb = _validate_cube(wb, 'wb')
-    rp = _rainy_params(params)
     periods = index_daily_season(
         wb.time.values,
         int(rp['startMonthC']),

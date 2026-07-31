@@ -1,7 +1,14 @@
-from flask import Blueprint, render_template, request, session
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    session
+)
 from flask import current_app as app
 import json
 import config
+
+from .scripts.analysis_sp import agriculture_analysis_sp_data
 
 agriculture_analysis = Blueprint(
     'agriculture_analysis',
@@ -29,8 +36,7 @@ def agriculture_analysis_map():
     try:
         print('-------------------------')
         print(params)
-        # map_data = climate_analysis_sp_data(params)
-        map_data = {'status': -1, 'message': 'test agriculture'}
+        map_data = agriculture_analysis_sp_data(params)
         return json.dumps(map_data)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})

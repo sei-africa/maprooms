@@ -69,3 +69,6 @@ def hash_params_ts_data(params):
     ]
     pars = {k: str(v) for k, v in params.items() if k in pars_keys}
     return _hash_params(pars)
+
+def hash_params_rainy_season(seas_params):
+    return _hash_params(seas_params)

@@ -296,6 +296,8 @@ function queryParamsRainySeason(time_res) {
     query.searchDaysC = parseInt($(`#${time_res}-cessation-search-day`).val(), 10);
     query.waterBalanceC = Number($(`#${time_res}-cessation-water-balance`).val());
     query.numberDaysC = parseInt($(`#${time_res}-cessation-number-day`).val(), 10);
+    query.interpolate = true;
+    query.minFrac = 1.0;
 
     return query;
 }
@@ -303,7 +305,6 @@ function queryParamsRainySeason(time_res) {
 function queryParamsAgricultureAnalysisMap(time_res) {
     let query = new Object();
     query.temporalRes = time_res;
-    query.minFrac = 1.0;
     query.dataset = DATA_SET.use;
 
     if (URL_ARGS.page === 'rainy-season') {
@@ -359,6 +360,12 @@ function queryParamsAgricultureAnalysisMap(time_res) {
         flashMessage(`Unknown maproom page: ${URL_ARGS.page}`, 'error');
         return false;
     }
+
+    const colorbar = colorbarGetData();
+    if (!colorbar) {
+        return false;
+    }
+    query.colorbar = colorbar;
 
     return query;
 }

@@ -28,13 +28,3 @@ def _as_numpy(
         if hasattr(data.data, 'compute')
         else data.data
     )
-
-def _rainy_params(
-    params: dict[str, Any]
-) -> dict[str, Any]:
-    try:
-        return params['rainy_season']
-    except (KeyError, TypeError) as exc:
-        raise ValueError(
-            "params must contain a 'rainy_season' dictionary"
-        ) from exc
