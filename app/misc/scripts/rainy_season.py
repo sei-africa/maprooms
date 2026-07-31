@@ -9,7 +9,9 @@ from scipy.spatial import cKDTree
 
 from ._util import (
     _validate_cube,
-    _as_numpy
+    _as_numpy,
+    _empty_spatial_dates,
+    _max_true_run
 )
 from .water_balance import simple_water_balance
 from .rm_isolated import remove_isolated_pixels_3d
@@ -34,31 +36,28 @@ def compute_rainy_season(
     cessation_data = compute_season_cessation(wb_data, rp)
 
     if rp['interpolate']:
-        values = (
-            _as_numpy(precip)
-            .reshape(precip.sizes['time'], -1)
+        empty_cells = precip.isnull().all('time')
+        onset = (
+            interp_rainy_season(
+                onset_data,
+                max_search=int(rp['searchDaysO'])
+            )
+            .where(~empty_cells)
         )
-        empty_cells = np.sum(~np.isnan(values), axis=0) == 0
-
-        xlat = np.tile(precip.lon.values, precip.sizes['lat'])
-        xlon = np.repeat(precip.lat.values, precip.sizes['lon'])
-        coords = np.column_stack([xlat, xlon])
-
-        onset = interp_rainy_season(
-            onset_data, coords, int(rp['searchDaysO'])
+        cessation = (
+            interp_rainy_season(
+                cessation_data,
+                max_search=int(rp['searchDaysC'])
+            )
+            .where(~empty_cells)
         )
-        cessation = interp_rainy_season(
-            cessation_data, coords, int(rp['searchDaysC'])
-        )
-        onset[:, empty_cells] = np.nan
-        cessation[:, empty_cells] = np.nan
     else:
-        onset = onset_data['days']
-        cessation = cessation_data['days']
+        onset = onset_data
+        cessation = cessation_data
 
-    start_ons = pd.DatetimeIndex(onset_data['start'])
-    end_ons = pd.DatetimeIndex(onset_data['end'])
-    start_cess = pd.DatetimeIndex(cessation_data['start'])
+    start_ons = pd.DatetimeIndex(onset_data.start.values)
+    end_ons = pd.DatetimeIndex(onset_data.end.values)
+    start_cess = pd.DatetimeIndex(cessation_data.start.values)
 
     idx_ons, idx_cess = [], []
     for i, (start, end) in enumerate(zip(start_ons, end_ons)):
@@ -69,43 +68,40 @@ def compute_rainy_season(
             idx_ons.append(i)
             idx_cess.append(int(matches[0]))
 
-    onset = onset[idx_ons]
-    cessation = cessation[idx_cess]
+    onset = onset.isel(year=idx_ons)
+    cessation = cessation.isel(year=idx_cess)
     onset_start = start_ons[idx_ons]
     cessation_start = start_cess[idx_cess]
 
     onset_dates = (
         onset_start.values
         .astype('datetime64[D]')
-        .astype(np.int64)[:, None]
+        .astype(np.int64)[:, None, None]
     )
-    onset_dates = onset + onset_dates
+    onset_dates = _as_numpy(onset) + onset_dates
     cessation_dates = (
         cessation_start.values
         .astype('datetime64[D]')
-        .astype(np.int64)[:, None]
+        .astype(np.int64)[:, None, None]
     )
-    cessation_dates = cessation + cessation_dates
+    cessation_dates = _as_numpy(cessation) + cessation_dates
     season_length = cessation_dates - onset_dates
 
     invalid = season_length <= int(rp['numberDaysO'])
-    onset[invalid] = np.nan
-    cessation[invalid] = np.nan
+    onset_values = _as_numpy(onset).copy()
+    cessation_values = _as_numpy(cessation).copy()
+    onset_values[invalid] = np.nan
+    cessation_values[invalid] = np.nan
     season_length[invalid] = np.nan
 
-    shape = (
-        len(idx_ons),
-        precip.sizes['lat'],
-        precip.sizes['lon']
-    )
     years = (
         onset_start.year
         .to_numpy(dtype=np.int32)
     )
 
-    onset = onset.reshape(shape).astype('float32')
-    cessation = cessation.reshape(shape).astype('float32')
-    season_length = season_length.reshape(shape).astype('float32')
+    onset = onset_values.astype('float32')
+    cessation = cessation_values.astype('float32')
+    season_length = season_length.astype('float32')
 
     onset = remove_isolated_pixels_3d(onset)
     cessation = remove_isolated_pixels_3d(cessation)
@@ -169,180 +165,226 @@ def compute_rainy_season(
 def compute_season_onset(
     precip: xr.DataArray,
     rp: dict[str, Any]
-) -> dict[str, Any]:
+) -> xr.DataArray:
     precip = _validate_cube(precip, 'precip')
     periods = index_daily_season(
         precip.time.values,
         int(rp['startMonthO']),
         int(rp['startDayO'])
     )
-    flat = (
-        _as_numpy(precip)
-        .reshape(precip.sizes['time'], -1)
-    )
-    dates = pd.DatetimeIndex(precip.time.values)
     start_dates = periods['range_date'][:, 0]
     rows = []
     for idx, start in zip(periods['index'], start_dates):
-        found = get_year_season_onset(
-            {'dates': dates[idx], 'data': flat[idx]}, rp
-        )
+        found = get_year_season_onset(precip.isel(time=idx), rp)
         start_date = pd.Timestamp(start).to_datetime64()
         offsets = (found - start_date) / np.timedelta64(1, 'D')
-        valid = ~np.isnan(offsets)
-        offsets[valid] -= int(rp['numberDaysO']) - 1
-        offsets[valid] = np.maximum(offsets[valid], 0)
-        rows.append(np.asarray(offsets, dtype=float))
+        offsets = xr.where(
+            offsets.notnull(),
+            np.maximum(offsets - int(rp['numberDaysO']) + 1, 0),
+            np.nan
+        )
+        rows.append(offsets)
 
-    return {
-        'lon': precip.lon.values,
-        'lat': precip.lat.values,
-        'days': np.vstack(rows),
-        'start': periods['range_date'][:, 0],
-        'end': periods['range_date'][:, 1],
-    }
+    years = (
+        pd.DatetimeIndex(start_dates).year
+        .astype(np.int32)
+    )
+    return (
+        xr.concat(
+            rows, dim=xr.IndexVariable('year', years)
+        )
+        .assign_coords(
+            start=('year', periods['range_date'][:, 0]),
+            end=('year', periods['range_date'][:, 1])
+        )
+        .rename('days')
+        .astype(float)
+    )
 
 def compute_season_cessation(
     wb: xr.DataArray,
     rp: dict[str, Any]
-) -> dict[str, Any]:
+) -> xr.DataArray:
     wb = _validate_cube(wb, 'wb')
     periods = index_daily_season(
         wb.time.values,
         int(rp['startMonthC']),
         int(rp['startDayC'])
     )
-    flat = _as_numpy(wb).reshape(wb.sizes['time'], -1)
-    dates = pd.DatetimeIndex(wb.time.values)
     start_dates = periods['range_date'][:, 0]
     rows = []
     for idx, start in zip(periods['index'], start_dates):
-        found = get_year_season_cessation(
-            {'dates': dates[idx], 'data': flat[idx]}, rp
-        )
+        found = get_year_season_cessation(wb.isel(time=idx), rp)
         start_date = pd.Timestamp(start).to_datetime64()
         offsets = (found - start_date) / np.timedelta64(1, 'D')
-        rows.append(np.asarray(offsets, dtype=float))
+        rows.append(offsets)
 
-    return {
-        'lon': wb.lon.values,
-        'lat': wb.lat.values,
-        'days': np.vstack(rows),
-        'start': periods['range_date'][:, 0],
-        'end': periods['range_date'][:, 1],
-    }
+    years = (
+        pd.DatetimeIndex(start_dates).year
+        .astype(np.int32)
+    )
+    return (
+        xr.concat(
+            rows, dim=xr.IndexVariable('year', years)
+        )
+        .assign_coords(
+            start=('year', periods['range_date'][:, 0]),
+            end=('year', periods['range_date'][:, 1])
+        )
+        .rename('days')
+        .astype(float)
+    )
 
 def get_year_season_onset(
-    precip_data: dict[str, Any],
+    precip: xr.DataArray,
     rainyseas_pars: dict[str, Any]
-) -> np.ndarray:
-    data = np.asarray(precip_data['data'], dtype=float)
-    dates = pd.DatetimeIndex(precip_data['dates'])
-    init_cols = data.shape[1]
-    n = min(int(rainyseas_pars['searchDaysO']), data.shape[0])
-    rain = data[:n].copy()
-    dates = dates[:n]
+) -> xr.DataArray:
+    precip = _validate_cube(precip, 'precip')
+    n = min(
+        int(rainyseas_pars['searchDaysO']),
+        precip.sizes['time']
+    )
+    rain = _single_time_chunk(
+        precip.isel(time=slice(0, n))
+    )
+    if n == 0:
+        return _empty_spatial_dates(rain)
 
-    usable = np.mean(np.isnan(rain), axis=0) <= 1 - rainyseas_pars['minFrac']
-    result_idx = np.full(init_cols, np.nan)
-    use_cols = np.flatnonzero(usable)
-    rain = rain[:, usable]
-    if rain.shape[1] == 0:
-        return _indices_to_dates(result_idx, dates)
+    result_idx = xr.apply_ufunc(
+        _onset_index_1d,
+        rain,
+        input_core_dims=[['time']],
+        output_core_dims=[[]],
+        vectorize=True,
+        dask='parallelized',
+        output_dtypes=[float],
+        kwargs={
+            'rainyseas_pars': rainyseas_pars
+        },
+        dask_gufunc_kwargs={
+            'allow_rechunk': False
+        }
+    )
+    return _indices_to_date_array(
+        result_idx, rain.time.values
+    )
+
+def get_year_season_cessation(
+    wb_data: xr.DataArray,
+    rainyseas_pars: dict[str, Any]
+) -> xr.DataArray:
+    wb_data = _validate_cube(wb_data, 'wb')
+    n = min(
+        int(rainyseas_pars['searchDaysC']),
+        wb_data.sizes['time']
+    )
+    wb = _single_time_chunk(
+        wb_data.isel(time=slice(0, n))
+    )
+    if n == 0:
+        return _empty_spatial_dates(wb)
+    
+    min_frac = float(rainyseas_pars['minFrac'])
+    usable = wb.notnull().mean('time') >= min_frac
+    threshold = float(rainyseas_pars['waterBalanceC']) or 0.01
+    run = int(rainyseas_pars['numberDaysC'])
+    below = (wb < threshold) & wb.notnull()
+
+    if run <= n:
+        complete_run = (
+            below.astype(np.int16)
+            .rolling(time=run, min_periods=run)
+            .sum()
+            >= run
+        )
+        has_run = complete_run.any('time')
+        first_end = complete_run.argmax('time')
+        result_idx = xr.where(
+            has_run, first_end - run + 1, n - 1
+        )
+    else:
+        result_idx = xr.zeros_like(usable, dtype=np.int64) + n - 1
+
+    result_idx = result_idx.where(usable)
+    return _indices_to_date_array(result_idx, wb.time.values)
+
+def _single_time_chunk(
+    data: xr.DataArray
+) -> xr.DataArray:
+    return (
+        data.chunk({'time': -1})
+        if data.chunks is not None
+        else data
+    )
+
+def _onset_index_1d(
+    values: np.ndarray,
+    rainyseas_pars: dict[str, Any]
+) -> float:
+    rain = np.asarray(values, dtype=float).copy()
+    min_frac = float(rainyseas_pars['minFrac'])
+    if (
+        rain.size == 0
+        or np.mean(np.isnan(rain)) > 1 - min_frac
+    ):
+        return np.nan
     rain[np.isnan(rain)] = 0
 
     window = int(rainyseas_pars['numberDaysO'])
-    cumulative = np.cumsum(rain, axis=0)
-    previous = np.vstack(
-        [
-            np.zeros((window, rain.shape[1])),
-            cumulative[:-window]
-        ]
-    ) if window < n else np.zeros_like(cumulative)
-    totals = cumulative - previous
-    qualifies = totals >= float(rainyseas_pars['rainTotalO'])
-    has_onset = np.any(qualifies, axis=0)
-    use_cols = use_cols[has_onset]
-    rain = rain[:, has_onset]
-    qualifies = qualifies[:, has_onset]
-    if qualifies.shape[1] == 0:
-        return _indices_to_dates(result_idx, dates)
-
-    first_day = np.all(qualifies, axis=0)
-    result_idx[use_cols[first_day]] = 0
-    use_cols = use_cols[~first_day]
-    rain = rain[:, ~first_day]
-    qualifies = qualifies[:, ~first_day]
-    rainy = rain >= float(rainyseas_pars['rainThres'])
-    for col, target in enumerate(use_cols):
-        for pos in np.flatnonzero(qualifies[:, col]):
-            future = ~rainy[pos + 1:min(n, pos + 1 + int(rainyseas_pars['drySpellDaysO'])), col]
-            if _max_true_run(future) >= int(rainyseas_pars['drySpellO']):
-                continue
-            back = rainy[max(0, pos - window + 1):pos + 1, col]
-            if np.sum(back) >= int(rainyseas_pars['minNbDaysO']):
-                result_idx[target] = pos
-                break
-    return _indices_to_dates(result_idx, dates)
-
-def get_year_season_cessation(
-    wb_data: dict[str, Any],
-    rainyseas_pars: dict[str, Any]
-) -> np.ndarray:
-    data = np.asarray(wb_data['data'], dtype=float)
-    dates = pd.DatetimeIndex(wb_data['dates'])
-    init_cols = data.shape[1]
-    n = min(int(rainyseas_pars['searchDaysC']), data.shape[0])
-    wb = data[:n]
-    dates = dates[:n]
-
-    usable = np.mean(np.isnan(wb), axis=0) <= 1 - rainyseas_pars['minFrac']
-    result_idx = np.full(init_cols, np.nan)
-    use_cols = np.flatnonzero(usable)
-    wb = wb[:, usable]
-    if wb.shape[1] == 0:
-        return _indices_to_dates(result_idx, dates)
-
-    threshold = float(rainyseas_pars['waterBalanceC']) or 0.01
-    below = (wb < threshold) & ~np.isnan(wb)
-    for col, target in enumerate(use_cols):
-        true_positions = np.flatnonzero(below[:, col])
-        if true_positions.size == 0:
-            result_idx[target] = n - 1
-        elif np.all(below[:, col]):
-            result_idx[target] = 0
-        else:
-            run = int(rainyseas_pars['numberDaysC'])
-            starts = np.flatnonzero(
-                np.convolve(
-                    below[:, col].astype(int),
-                    np.ones(run, dtype=int),
-                    'valid'
-                ) >= run
-            )
-            result_idx[target] = starts[0] if starts.size else n - 1
-    return _indices_to_dates(result_idx, dates)
-
-def _indices_to_dates(
-    indices: np.ndarray,
-    dates: pd.DatetimeIndex
-) -> np.ndarray:
-    out = np.full(
-        indices.shape,
-        np.datetime64('NaT'),
-        dtype='datetime64[ns]'
+    cumulative = np.cumsum(rain)
+    previous = (
+        np.r_[np.zeros(window), cumulative[:-window]]
+        if window < rain.size
+        else np.zeros_like(cumulative)
     )
-    valid = ~np.isnan(indices)
-    if len(dates):
-        out[valid] = dates.values[
-            indices[valid].astype(int)
-        ]
-    return out
+    rain_tot = float(rainyseas_pars['rainTotalO'])
+    qualifies = (
+        cumulative - previous >= rain_tot
+    )
+    if np.all(qualifies):
+        return 0.0
 
-def _max_true_run(values: np.ndarray) -> int:
-    padded = np.r_[False, values, False].astype(np.int8)
-    edges = np.flatnonzero(np.diff(padded))
-    return int(np.max(edges[1::2] - edges[::2], initial=0))
+    rainy = rain >= float(rainyseas_pars['rainThres'])
+    for pos in np.flatnonzero(qualifies):
+        future = ~rainy[
+            pos + 1:min(
+                rain.size,
+                pos + 1 + int(rainyseas_pars['drySpellDaysO'])
+            )
+        ]
+        if _max_true_run(future) >= int(rainyseas_pars['drySpellO']):
+            continue
+        if np.sum(
+            rainy[max(0, pos - window + 1):pos + 1]
+        ) >= int(
+            rainyseas_pars['minNbDaysO']
+        ):
+            return float(pos)
+    return np.nan
+
+def _indices_to_date_array(
+    indices: xr.DataArray,
+    dates: np.ndarray,
+) -> xr.DataArray:
+    date_values = np.asarray(dates, dtype='datetime64[ns]')
+
+    def take_date(values: np.ndarray) -> np.ndarray:
+        values = np.asarray(values, dtype=float)
+        result = np.full(
+            values.shape,
+            np.datetime64('NaT'),
+            dtype='datetime64[ns]'
+        )
+        valid = ~np.isnan(values)
+        result[valid] = date_values[values[valid].astype(np.int64)]
+        return result
+
+    return xr.apply_ufunc(
+        take_date,
+        indices,
+        dask='parallelized',
+        output_dtypes=[np.dtype('datetime64[ns]')],
+    )
 
 def index_daily_season(
     dates: Any,
@@ -405,29 +447,26 @@ def index_daily_season(
     }
 
 def interp_rainy_season(
-    season_data: dict[str, Any],
-    coords: np.ndarray | None = None,
+    season_data: xr.DataArray,
     max_search: int | float = np.inf,
     max_dist: float = 1.5,
-) -> np.ndarray:
+) -> xr.DataArray:
+    if not isinstance(season_data, xr.DataArray):
+        raise TypeError('season_data must be an xarray.DataArray')
+    season_data = season_data.transpose('year', 'lat', 'lon')
     values = np.asarray(
-        season_data['days'],
-        dtype=float
+        _as_numpy(season_data), dtype=float
     )
-    if coords is None:
-        coords = np.column_stack([
-            np.tile(
-                season_data['lon'],
-                len(season_data['lat'])
-            ),
-            np.repeat(
-                season_data['lat'],
-                len(season_data['lon'])
-            ),
-        ])
-    coords = np.asarray(coords, dtype=float)
+    lon, lat = np.meshgrid(
+        season_data.lon.values,
+        season_data.lat.values
+    )
+    coords = np.column_stack(
+        [lon.ravel(), lat.ravel()]
+    )
     output = values.copy()
-    for i, row in enumerate(values):
+    for i, layer in enumerate(values):
+        row = layer.ravel()
         valid = ~np.isnan(row)
         if np.sum(valid) < 5:
             continue
@@ -437,6 +476,10 @@ def interp_rainy_season(
         )
         fill = distance <= max_dist
         predicted = row[valid][nearest]
-        output[i, fill] = predicted[fill]
-        output[i] = np.clip(output[i], 0, max_search)
-    return output
+        filled = row.copy()
+        filled[fill] = predicted[fill]
+        output[i] = (
+            np.clip(filled, 0, max_search)
+            .reshape(layer.shape)
+        )
+    return season_data.copy(data=output)

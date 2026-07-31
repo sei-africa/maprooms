@@ -78,3 +78,8 @@ def _compute_rainy_season(params):
         precip_da, et0_da, taw_da,
         params['rainy_season']
     )
+
+# rainy_season = compute_rainy_season(
+#     precip_da, et0_da, taw_da,
+#     params['rainy_season']
+# )
