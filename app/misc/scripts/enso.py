@@ -5,9 +5,11 @@ import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
-from .sqlite import (readENSOMonthlyDataFrame,
-                     readENSOWeeklyDataFrame,
-                     readCPCONIDataFrame)
+from .sqlite import (
+    readENSOMonthlyDataFrame,
+    readENSOWeeklyDataFrame,
+    readCPCONIDataFrame
+)
 
 def date_nth_weekday(month, year, weekday='Thursday', n=2):
     weekdays_num = {

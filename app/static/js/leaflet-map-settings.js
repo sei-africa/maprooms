@@ -385,7 +385,7 @@ function displayAgricultureAnalysisMap(time_res, options, map) {
         map
     );
 
-    updateAnalysisMapDate(time_res, query, map);
+    // updateAnalysisMapDate(time_res, query, map);
 
     return request;
 }

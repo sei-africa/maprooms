@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
-from .enso import (read_enso_data_monthly,
-                   read_nao_data_monthly,
-                   read_iod_data_monthly)
+from .enso import (
+    read_enso_data_monthly,
+    read_nao_data_monthly,
+    read_iod_data_monthly
+)
 from app.dst_api.scripts import nbdays_of_month
 
 def telecon_nao_seasonal(params, start, end, fullSeas=False):

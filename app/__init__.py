@@ -1,13 +1,22 @@
-from flask import (Flask, render_template,
-                   render_template_string,
-                   g, flash, session, request)
+from flask import (
+    Flask,
+    render_template,
+    render_template_string,
+    g,
+    flash,
+    session,
+    request
+)
 import os
 import re
 import json
 from flask_cors import CORS
 from flask_jsglue import JSGlue
 
-app = Flask(__name__, instance_relative_config=False)
+app = Flask(
+    __name__,
+    instance_relative_config=False
+)
 app.config.from_object('config')
 CORS(app)
 jsglue = JSGlue(app)
@@ -57,14 +66,18 @@ app.register_blueprint(water_projection)
 
 ####
 import config
-from app.scripts._global import (GLOBAL_CONFIG,
-                                 selected_language,
-                                 set_navbar_path)
-from app.scripts.maproom_items import (load_maproom_items,
-                                       load_navigation_items,
-                                       load_maproom_page_text,
-                                       data_info_coverage,
-                                       _url_args_nav_path)
+from app.scripts._global import (
+    GLOBAL_CONFIG,
+    selected_language,
+    set_navbar_path
+)
+from app.scripts.maproom_items import (
+    load_maproom_items,
+    load_navigation_items,
+    load_maproom_page_text,
+    data_info_coverage,
+    _url_args_nav_path
+)
 from app.scripts._cache import cache
 cache.init_app(app)
 
@@ -220,9 +233,11 @@ def set_languages_main():
     selected_language(lang_code)
     maproom = request.args.get('maproom')
     component = request.args.get('component')
-    nav_path = set_navbar_path(maproom=maproom,
-                               component=component,
-                               item_type='directory')
+    nav_path = set_navbar_path(
+        maproom=maproom,
+        component=component,
+        item_type='directory'
+    )
     return render_template_main(nav_path)
 
 @app.route('/set_languages_page')
@@ -238,9 +253,11 @@ def set_languages_page():
 def maproom_items():
     maproom = request.args.get('maproom')
     component = request.args.get('component')
-    nav_path = set_navbar_path(maproom=maproom,
-                               component=component,
-                               item_type='directory')
+    nav_path = set_navbar_path(
+        maproom=maproom,
+        component=component,
+        item_type='directory'
+    )
     return render_template_main(nav_path)
 
 @app.route('/maproom_pages')

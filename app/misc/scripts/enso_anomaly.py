@@ -1,10 +1,14 @@
 import pandas as pd
-from .sqlite import (tableLastRecords,
-                     writeDataToTable,
-                     readPandasDataFrame,
-                     readENSOMonthlyDataFrame)
-from .enso import (monthly_sst_products,
-                   table_sst_products)
+from .sqlite import (
+    tableLastRecords,
+    writeDataToTable,
+    readPandasDataFrame,
+    readENSOMonthlyDataFrame
+)
+from .enso import (
+    monthly_sst_products,
+    table_sst_products
+)
 
 def _nino34_monthly_sst_mean(table, name):
     df = readENSOMonthlyDataFrame(

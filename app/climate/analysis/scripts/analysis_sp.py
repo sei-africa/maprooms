@@ -1,11 +1,13 @@
 import json
 import numpy as np
-from app.dst_api.scripts import (download_climdata,
-                                 download_analysis,
-                                 download_rawdata,
-                                 download_analysis_dailydata,
-                                 download_analysis_dailyclim,
-                                 download_analysis_dailyanom)
+from app.dst_api.scripts import (
+    download_climdata,
+    download_analysis,
+    download_rawdata,
+    download_analysis_dailydata,
+    download_analysis_dailyclim,
+    download_analysis_dailyanom
+)
 from app.scripts.imagepng import create_imagePng
 from app.scripts.colorbar import matplotlib_invalid_colors
 

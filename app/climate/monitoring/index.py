@@ -1,4 +1,9 @@
-from flask import Blueprint, render_template, request, session
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    session
+)
 from flask import current_app as app
 import config
 

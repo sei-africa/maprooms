@@ -320,3 +320,19 @@ datasets:
                     minfrac: 1
 climatology:
     zarr_dir: /home/enacts/ENACTS_DATA/DATA/ZARR/CLIM
+soilgrids:
+    base_url: "https://files.isric.org/public/gyga/GYGA_Results"
+    tawc:
+        agg_erzd:
+            name: tawc_agg_erzd
+            file: "gyga_af_agg_erzd_tawcpf23mm__m_1km.tif"
+            long_name: Absolute total available water capacity (mm), aggregated over the Effective Root Zone Depth for Maize
+        agg_30cm:
+            name: tawc_agg_30cm
+            file: "gyga_af_agg_30cm_tawcpf23mm__m_1km.tif"
+            long_name: Absolute total available water capacity (mm), aggregated over the top 30 cm
+    files_dir: /home/enacts/SOILGRIDS/FILES
+    zarr_dir: /home/enacts/SOILGRIDS/ZARR
+    chunks:
+        lat: 50
+        lon: 50
