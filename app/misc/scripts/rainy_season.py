@@ -177,12 +177,14 @@ def compute_season_onset(
     for idx, start in zip(periods['index'], start_dates):
         found = get_year_season_onset(precip.isel(time=idx), rp)
         start_date = pd.Timestamp(start).to_datetime64()
-        offsets = (found - start_date) / np.timedelta64(1, 'D')
-        offsets = xr.where(
-            offsets.notnull(),
-            np.maximum(offsets - int(rp['numberDaysO']) + 1, 0),
-            np.nan
+        offsets = (
+            (found - start_date) / np.timedelta64(1, 'D')
+            - int(rp['numberDaysO'])
+            + 1
         )
+        # NaN/NaT values remain missing when clipped. This avoids a separate
+        # Dask blockwise broadcast between the values and a validity mask.
+        offsets = offsets.clip(min=0)
         rows.append(offsets)
 
     years = (
@@ -299,12 +301,13 @@ def get_year_season_cessation(
         )
         has_run = complete_run.any('time')
         first_end = complete_run.argmax('time')
-        result_idx = xr.where(
-            has_run, first_end - run + 1, n - 1
-        )
+        result_idx = first_end - run + 1
+        result_idx, has_run = xr.unify_chunks(result_idx, has_run)
+        result_idx = result_idx.where(has_run, other=n - 1)
     else:
         result_idx = xr.zeros_like(usable, dtype=np.int64) + n - 1
 
+    result_idx, usable = xr.unify_chunks(result_idx, usable)
     result_idx = result_idx.where(usable)
     return _indices_to_date_array(result_idx, wb.time.values)
 
@@ -454,9 +457,6 @@ def interp_rainy_season(
     if not isinstance(season_data, xr.DataArray):
         raise TypeError('season_data must be an xarray.DataArray')
     season_data = season_data.transpose('year', 'lat', 'lon')
-    values = np.asarray(
-        _as_numpy(season_data), dtype=float
-    )
     lon, lat = np.meshgrid(
         season_data.lon.values,
         season_data.lat.values
@@ -464,22 +464,48 @@ def interp_rainy_season(
     coords = np.column_stack(
         [lon.ravel(), lat.ravel()]
     )
-    output = values.copy()
-    for i, layer in enumerate(values):
-        row = layer.ravel()
-        valid = ~np.isnan(row)
-        if np.sum(valid) < 5:
-            continue
-        distance, nearest = (
-            cKDTree(coords[valid])
-            .query(coords, k=1)
-        )
-        fill = distance <= max_dist
-        predicted = row[valid][nearest]
-        filled = row.copy()
-        filled[fill] = predicted[fill]
-        output[i] = (
-            np.clip(filled, 0, max_search)
-            .reshape(layer.shape)
-        )
-    return season_data.copy(data=output)
+
+    if season_data.chunks is not None:
+        # The KD-tree needs a complete spatial layer. Rechunk spatially first,
+        # then split years in a separate step to avoid a chunk cross-product.
+        season_data = season_data.chunk({'lat': -1, 'lon': -1})
+        season_data = season_data.chunk({'year': 1})
+
+    return xr.apply_ufunc(
+        _interp_rainy_season_layer,
+        season_data,
+        input_core_dims=[['lat', 'lon']],
+        output_core_dims=[['lat', 'lon']],
+        vectorize=True,
+        dask='parallelized',
+        output_dtypes=[float],
+        kwargs={
+            'coords': coords,
+            'max_search': max_search,
+            'max_dist': max_dist,
+        },
+        dask_gufunc_kwargs={'allow_rechunk': False},
+        keep_attrs=True,
+    ).transpose('year', 'lat', 'lon')
+
+def _interp_rainy_season_layer(
+    layer: np.ndarray,
+    coords: np.ndarray,
+    max_search: int | float,
+    max_dist: float,
+) -> np.ndarray:
+    """
+    Interpolate one spatial layer;
+    Dask schedules layers in parallel.
+    """
+    layer = np.asarray(layer, dtype=float)
+    row = layer.ravel()
+    valid = ~np.isnan(row)
+    if np.count_nonzero(valid) < 5:
+        return layer.copy()
+
+    distance, nearest = cKDTree(coords[valid]).query(coords, k=1)
+    fill = distance <= max_dist
+    filled = row.copy()
+    filled[fill] = row[valid][nearest[fill]]
+    return np.clip(filled, 0, max_search).reshape(layer.shape)

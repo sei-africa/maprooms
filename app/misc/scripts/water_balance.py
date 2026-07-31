@@ -67,6 +67,22 @@ def simple_water_balance(
             'rain and et0 have no common time coordinates'
         )
 
+    if rain.chunks is not None:
+        # The recurrence requires the complete time series in every task.
+        # Rechunk it explicitly and preserve the rainfall spatial chunks;
+        # allowing apply_gufunc to rechunk automatically fragments lat/lon.
+        rain = rain.chunk({'time': -1})
+        target_chunks = {
+            'time': -1,
+            'lat': rain.chunksizes['lat'],
+            'lon': rain.chunksizes['lon'],
+        }
+        et0 = et0.chunk(target_chunks)
+        taw = taw.chunk({
+            'lat': rain.chunksizes['lat'],
+            'lon': rain.chunksizes['lon'],
+        })
+
     valid = rain.notnull() & et0.notnull()
     rain_filled = rain.where(valid, 0.0).astype(np.float64)
     et0_filled = et0.where(valid, 0.0).astype(np.float64)
@@ -114,6 +130,13 @@ def simple_water_balance(
             'a NumPy array, or a DataArray'
         )
 
+    if rain.chunks is not None:
+        spatial_chunks = {
+            'lat': rain.chunksizes['lat'],
+            'lon': rain.chunksizes['lon'],
+        }
+        initial = initial.chunk(spatial_chunks)
+
     def _calculate(
         rain_values: np.ndarray,
         et0_values: np.ndarray,
@@ -144,7 +167,7 @@ def simple_water_balance(
         dask='parallelized',
         vectorize=False,
         output_dtypes=[np.float64],
-        dask_gufunc_kwargs={'allow_rechunk': True},
+        dask_gufunc_kwargs={'allow_rechunk': False},
     )
     entirely_missing = valid.sum('time') == 0
     balance = (
