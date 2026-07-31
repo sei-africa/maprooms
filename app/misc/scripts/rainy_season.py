@@ -5,11 +5,11 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import xarray as xr
+from dask import compute as dask_compute
 from scipy.spatial import cKDTree
 
 from ._util import (
     _validate_cube,
-    _as_numpy,
     _empty_spatial_dates,
     _max_true_run
 )
@@ -37,6 +37,8 @@ def compute_rainy_season(
 
     if rp['interpolate']:
         empty_cells = precip.isnull().all('time')
+        if empty_cells.chunks is not None:
+            empty_cells = empty_cells.chunk({'lat': -1, 'lon': -1})
         onset = (
             interp_rainy_season(
                 onset_data,
@@ -73,23 +75,25 @@ def compute_rainy_season(
     onset_start = start_ons[idx_ons]
     cessation_start = start_cess[idx_cess]
 
-    onset_dates = (
-        onset_start.values
-        .astype('datetime64[D]')
-        .astype(np.int64)[:, None, None]
+    onset_values, cessation_values = dask_compute(
+        onset.data,
+        cessation.data,
     )
-    onset_dates = _as_numpy(onset) + onset_dates
-    cessation_dates = (
+    onset_values = np.asarray(onset_values).copy()
+    cessation_values = np.asarray(cessation_values).copy()
+
+    start_difference = (
         cessation_start.values
         .astype('datetime64[D]')
+        - onset_start.values.astype('datetime64[D]')
+    )
+    start_difference = (
+        start_difference.astype('timedelta64[D]')
         .astype(np.int64)[:, None, None]
     )
-    cessation_dates = _as_numpy(cessation) + cessation_dates
-    season_length = cessation_dates - onset_dates
+    season_length = cessation_values - onset_values + start_difference
 
     invalid = season_length <= int(rp['numberDaysO'])
-    onset_values = _as_numpy(onset).copy()
-    cessation_values = _as_numpy(cessation).copy()
     onset_values[invalid] = np.nan
     cessation_values[invalid] = np.nan
     season_length[invalid] = np.nan
@@ -285,30 +289,17 @@ def get_year_season_cessation(
     )
     if n == 0:
         return _empty_spatial_dates(wb)
-    
-    min_frac = float(rainyseas_pars['minFrac'])
-    usable = wb.notnull().mean('time') >= min_frac
-    threshold = float(rainyseas_pars['waterBalanceC']) or 0.01
-    run = int(rainyseas_pars['numberDaysC'])
-    below = (wb < threshold) & wb.notnull()
-
-    if run <= n:
-        complete_run = (
-            below.astype(np.int16)
-            .rolling(time=run, min_periods=run)
-            .sum()
-            >= run
-        )
-        has_run = complete_run.any('time')
-        first_end = complete_run.argmax('time')
-        result_idx = first_end - run + 1
-        result_idx, has_run = xr.unify_chunks(result_idx, has_run)
-        result_idx = result_idx.where(has_run, other=n - 1)
-    else:
-        result_idx = xr.zeros_like(usable, dtype=np.int64) + n - 1
-
-    result_idx, usable = xr.unify_chunks(result_idx, usable)
-    result_idx = result_idx.where(usable)
+    result_idx = xr.apply_ufunc(
+        _cessation_index_block,
+        wb,
+        input_core_dims=[['time']],
+        output_core_dims=[[]],
+        vectorize=False,
+        dask='parallelized',
+        output_dtypes=[float],
+        kwargs={'rainyseas_pars': rainyseas_pars},
+        dask_gufunc_kwargs={'allow_rechunk': False},
+    )
     return _indices_to_date_array(result_idx, wb.time.values)
 
 def _single_time_chunk(
@@ -364,6 +355,39 @@ def _onset_index_1d(
         ):
             return float(pos)
     return np.nan
+
+def _cessation_index_block(
+    values: np.ndarray,
+    rainyseas_pars: dict[str, Any]
+) -> np.ndarray:
+    """Find cessation for every cell in one Dask spatial block."""
+    wb = np.asarray(values, dtype=float)
+    n = wb.shape[-1]
+    spatial_shape = wb.shape[:-1]
+    min_frac = float(rainyseas_pars['minFrac'])
+    usable = np.mean(np.isnan(wb), axis=-1) <= 1 - min_frac
+    result = np.full(spatial_shape, n - 1, dtype=float)
+
+    run = int(rainyseas_pars['numberDaysC'])
+    if run <= n:
+        threshold = float(rainyseas_pars['waterBalanceC']) or 0.01
+        below = (wb < threshold) & ~np.isnan(wb)
+        cumulative = np.concatenate(
+            [
+                np.zeros((*spatial_shape, 1), dtype=np.int64),
+                np.cumsum(below, axis=-1, dtype=np.int64),
+            ],
+            axis=-1,
+        )
+        complete_run = (
+            cumulative[..., run:] - cumulative[..., :-run]
+        ) >= run
+        has_run = np.any(complete_run, axis=-1)
+        first_run = np.argmax(complete_run, axis=-1)
+        result[has_run] = first_run[has_run]
+
+    result[~usable] = np.nan
+    return result
 
 def _indices_to_date_array(
     indices: xr.DataArray,
@@ -466,8 +490,6 @@ def interp_rainy_season(
     )
 
     if season_data.chunks is not None:
-        # The KD-tree needs a complete spatial layer. Rechunk spatially first,
-        # then split years in a separate step to avoid a chunk cross-product.
         season_data = season_data.chunk({'lat': -1, 'lon': -1})
         season_data = season_data.chunk({'year': 1})
 
