@@ -4,6 +4,24 @@ import numpy as np
 import xarray as xr
 from ._util import _validate_cube
 
+def _calculate_water_balance(
+    rain_values: np.ndarray,
+    et0_values: np.ndarray,
+    taw_values: np.ndarray,
+    initial_values: np.ndarray,
+) -> np.ndarray:
+    output = np.empty_like(rain_values, dtype=np.float64)
+    output[..., 0] = initial_values
+    for day in range(1, rain_values.shape[-1]):
+        output[..., day] = np.clip(
+            output[..., day - 1]
+            + rain_values[..., day]
+            - et0_values[..., day],
+            0.0,
+            taw_values,
+        )
+    return output
+
 def simple_water_balance(
     rain: xr.DataArray,
     et0: xr.DataArray,
@@ -68,9 +86,6 @@ def simple_water_balance(
         )
 
     if rain.chunks is not None:
-        # The recurrence requires the complete time series in every task.
-        # Rechunk it explicitly and preserve the rainfall spatial chunks;
-        # allowing apply_gufunc to rechunk automatically fragments lat/lon.
         rain = rain.chunk({'time': -1})
         target_chunks = {
             'time': -1,
@@ -137,27 +152,8 @@ def simple_water_balance(
         }
         initial = initial.chunk(spatial_chunks)
 
-    def _calculate(
-        rain_values: np.ndarray,
-        et0_values: np.ndarray,
-        taw_values: np.ndarray,
-        initial_values: np.ndarray,
-    ) -> np.ndarray:
-        # apply_ufunc moves the core time dimension to the final axis.
-        output = np.empty_like(rain_values, dtype=np.float64)
-        output[..., 0] = initial_values
-        for day in range(1, rain_values.shape[-1]):
-            output[..., day] = np.clip(
-                output[..., day - 1]
-                + rain_values[..., day]
-                - et0_values[..., day],
-                0.0,
-                taw_values,
-            )
-        return output
-
     balance = xr.apply_ufunc(
-        _calculate,
+        _calculate_water_balance,
         rain_filled,
         et0_filled,
         taw,

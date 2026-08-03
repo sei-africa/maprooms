@@ -693,6 +693,12 @@ function setOffCanvasMapControlAgriculture(tempRes) {
             .on(`change.rainySeason`, function() {
                 setRainySeasonVisibilityProba(tempRes);
             });
+
+        $(`#${tempRes}-map-date-tseries-year`)
+            .on('input', function() {
+                const this_year = $(this).val();
+                $('#input-time-navigation').val(this_year);
+            });
     } else if (URL_ARGS.page === 'decision-support') {
         setRainySeasonCalendarOnset(tempRes);
     } else {
@@ -752,7 +758,7 @@ function setRainySeasonVisibilitySelectYear(time_res) {
     const year_cov = getTempCoverageYear(
         DATA_SET.use, time_res, variable
     );
-    $(`#${time_res}-tseries-year`).attr({
+    $(`#${time_res}-map-date-tseries-year`).attr({
         'min': year_cov.start,
         'max': year_cov.end
     }).val(year_cov.end);

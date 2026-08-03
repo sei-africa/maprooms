@@ -34,8 +34,6 @@ def before_request():
 def agriculture_analysis_map():
     params = request.get_json()
     try:
-        print('-------------------------')
-        print(params)
         map_data = agriculture_analysis_sp_data(params)
         return json.dumps(map_data)
     except Exception as e:

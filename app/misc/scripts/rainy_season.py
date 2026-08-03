@@ -5,8 +5,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import xarray as xr
-from dask import compute as dask_compute
 from scipy.spatial import cKDTree
+import calendar
 
 from ._util import (
     _validate_cube,
@@ -57,64 +57,67 @@ def compute_rainy_season(
         onset = onset_data
         cessation = cessation_data
 
-    start_ons = pd.DatetimeIndex(onset_data.start.values)
-    end_ons = pd.DatetimeIndex(onset_data.end.values)
-    start_cess = pd.DatetimeIndex(cessation_data.start.values)
+    years = np.union1d(
+        onset_data.year.values,
+        cessation_data.year.values,
+    ).astype(np.int32)
+    onset = onset.reindex(year=years)
+    cessation = cessation.reindex(year=years)
+    onset_start = onset_data.start.reindex(year=years)
+    cessation_start = cessation_data.start.reindex(year=years)
 
-    idx_ons, idx_cess = [], []
-    for i, (start, end) in enumerate(zip(start_ons, end_ons)):
-        matches = np.flatnonzero(
-            (start <= start_cess) & (end >= start_cess)
-        )
-        if matches.size:
-            idx_ons.append(i)
-            idx_cess.append(int(matches[0]))
-
-    onset = onset.isel(year=idx_ons)
-    cessation = cessation.isel(year=idx_cess)
-    onset_start = start_ons[idx_ons]
-    cessation_start = start_cess[idx_cess]
-
-    onset_values, cessation_values = dask_compute(
+    output_coords = {
+        'year': years,
+        'lat': precip.lat,
+        'lon': precip.lon,
+    }
+    onset = xr.DataArray(
         onset.data,
-        cessation.data,
+        dims=('year', 'lat', 'lon'),
+        coords=output_coords,
+        name='onset',
     )
-    onset_values = np.asarray(onset_values).copy()
-    cessation_values = np.asarray(cessation_values).copy()
+    cessation = xr.DataArray(
+        cessation.data,
+        dims=('year', 'lat', 'lon'),
+        coords=output_coords,
+        name='cessation',
+    )
 
     start_difference = (
         cessation_start.values
         .astype('datetime64[D]')
         - onset_start.values.astype('datetime64[D]')
+    ) / np.timedelta64(1, 'D')
+    start_difference = xr.DataArray(
+        np.asarray(start_difference, dtype=float),
+        dims='year',
+        coords={'year': years},
     )
-    start_difference = (
-        start_difference.astype('timedelta64[D]')
-        .astype(np.int64)[:, None, None]
-    )
-    season_length = cessation_values - onset_values + start_difference
+    season_length = cessation - onset + start_difference
 
     invalid = season_length <= int(rp['numberDaysO'])
-    onset_values[invalid] = np.nan
-    cessation_values[invalid] = np.nan
-    season_length[invalid] = np.nan
+    onset = onset.where(~invalid).astype('float32')
+    cessation = cessation.where(~invalid).astype('float32')
+    season_length = season_length.where(~invalid).astype('float32')
 
-    years = (
-        onset_start.year
-        .to_numpy(dtype=np.int32)
-    )
+    if rp['rmIsolatedPix']:
+        onset = onset.copy(
+            data=remove_isolated_pixels_3d(onset.data)
+        )
+        cessation = cessation.copy(
+            data=remove_isolated_pixels_3d(cessation.data)
+        )
+        season_length = season_length.copy(
+            data=remove_isolated_pixels_3d(season_length.data)
+        )
 
-    onset = onset_values.astype('float32')
-    cessation = cessation_values.astype('float32')
-    season_length = season_length.astype('float32')
-
-    onset = remove_isolated_pixels_3d(onset)
-    cessation = remove_isolated_pixels_3d(cessation)
-    season_length = remove_isolated_pixels_3d(season_length)
-
+    full_months = list(calendar.month_name)[1:]
     method = (
-        "Onset is the first qualifying rainfall window within the annual "
-        f"{int(rp['searchDaysO'])}-day onset search period: at least "
-        f"{float(rp['rainTotalO']):g} mm over {int(rp['numberDaysO'])} days, "
+        "Onset is the first qualifying rainfall window from "
+        f"{full_months[rp['startMonthO'] - 1]} {rp['startDayO']} and "
+        f"within the annual {int(rp['searchDaysO'])}-day onset search period: "
+        f"at least {float(rp['rainTotalO']):g} mm over {int(rp['numberDaysO'])} days, "
         f"with rain >= {float(rp['rainThres']):g} mm on at least "
         f"{int(rp['minNbDaysO'])} days. A candidate is rejected as a false "
         f"onset when a dry spell lasting at least {int(rp['drySpellO'])} "
@@ -123,42 +126,34 @@ def compute_rainy_season(
         "to one third of total available water and updated as rainfall minus "
         "reference evapotranspiration within bounds of zero and TAW. It is the "
         f"first of {int(rp['numberDaysC'])} consecutive days with water balance "
-        f"below {float(rp['waterBalanceC']):g} mm during the annual "
-        f"{int(rp['searchDaysC'])}-day cessation search period. Missing spatial "
-        "values are filled from the nearest valid grid cell within the configured "
+        f"below {float(rp['waterBalanceC']):g} mm starting from "
+        f"{full_months[rp['startMonthC'] - 1]} {rp['startDayC']} and "
+        f"within the annual {int(rp['searchDaysC'])}-day cessation search period. "
+        "Missing spatial values are filled from the nearest valid grid cell within the configured "
         "maximum interpolation distance when at least five valid cells exist."
     )
 
+    onset.attrs = {
+        'long_name': 'Onset of the rainy season',
+        'units': "days since 'onset_start' for each 'year'"
+    }
+    cessation.attrs = {
+        'long_name': 'Cessation of the rainy season',
+        'units': "days since 'cessation_start' for each 'year'"
+    }
+    season_length.name = 'length'
+    season_length.attrs = {
+        'long_name': 'Length of the rainy season',
+        'units': 'days'
+    }
+
     return xr.Dataset(
         data_vars={
-            'onset': (
-                ('year', 'lat', 'lon'), onset,
-                {
-                    'long_name': 'Onset of the rainy season',
-                    'units': "days since 'onset_start' for each 'year'"
-                }
-            ),
-            'cessation': (
-                ('year', 'lat', 'lon'), cessation,
-                {
-                    'long_name': 'Cessation of the rainy season',
-                    'units': "days since 'cessation_start' for each 'year'"
-                }
-            ),
-            'season_length': (
-                ('year', 'lat', 'lon'), season_length,
-                {
-                    'long_name': 'Length of the rainy season',
-                    'units': 'days'
-                }
-            ),
+            'onset': onset,
+            'cessation': cessation,
+            'length': season_length,
             'onset_start': ('year', onset_start.values),
             'cessation_start': ('year', cessation_start.values),
-        },
-        coords={
-            'year': years,
-            'lat': precip.lat.values,
-            'lon': precip.lon.values
         },
         attrs={
             'title': 'Rainy season: onset, cessation and length',
@@ -186,8 +181,6 @@ def compute_season_onset(
             - int(rp['numberDaysO'])
             + 1
         )
-        # NaN/NaT values remain missing when clipped. This avoids a separate
-        # Dask blockwise broadcast between the values and a validity mask.
         offsets = offsets.clip(min=0)
         rows.append(offsets)
 
@@ -360,7 +353,9 @@ def _cessation_index_block(
     values: np.ndarray,
     rainyseas_pars: dict[str, Any]
 ) -> np.ndarray:
-    """Find cessation for every cell in one Dask spatial block."""
+    """
+    Find cessation for every cell in one Dask spatial block.
+    """
     wb = np.asarray(values, dtype=float)
     n = wb.shape[-1]
     spatial_shape = wb.shape[:-1]
@@ -394,24 +389,27 @@ def _indices_to_date_array(
     dates: np.ndarray,
 ) -> xr.DataArray:
     date_values = np.asarray(dates, dtype='datetime64[ns]')
-
-    def take_date(values: np.ndarray) -> np.ndarray:
-        values = np.asarray(values, dtype=float)
-        result = np.full(
-            values.shape,
-            np.datetime64('NaT'),
-            dtype='datetime64[ns]'
-        )
-        valid = ~np.isnan(values)
-        result[valid] = date_values[values[valid].astype(np.int64)]
-        return result
-
     return xr.apply_ufunc(
-        take_date,
+        _take_dates,
         indices,
         dask='parallelized',
         output_dtypes=[np.dtype('datetime64[ns]')],
+        kwargs={'date_values': date_values},
     )
+
+def _take_dates(
+    values: np.ndarray,
+    date_values: np.ndarray,
+) -> np.ndarray:
+    values = np.asarray(values, dtype=float)
+    result = np.full(
+        values.shape,
+        np.datetime64('NaT'),
+        dtype='datetime64[ns]'
+    )
+    valid = ~np.isnan(values)
+    result[valid] = date_values[values[valid].astype(np.int64)]
+    return result
 
 def index_daily_season(
     dates: Any,

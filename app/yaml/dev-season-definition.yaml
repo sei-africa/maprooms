@@ -24,4 +24,8 @@ rainy_season:
         searchDay: 90
         waterBalance: 5.
         numberDays: 3
+    computation:
+        interpolate: False
+        minfrac: 0.75
+        rmisolatedpx: True
     where: [climate, agriculture]

@@ -69,3 +69,17 @@ cessation:
     unit2:
         en: days
         fr: jours
+
+computation:
+    label:
+        en: Computation parameters
+        fr: Paramètres de calcul
+    interpolate:
+        en: Try to fill missing data
+        fr: Compléter les données manquantes
+    minfrac:
+        en: Minimum fraction of data
+        fr: Fraction minimale de données
+    rmisolatedpx:
+        en: Remove isolated pixels
+        fr: Supprimer les pixels isolés

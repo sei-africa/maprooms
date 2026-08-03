@@ -51,4 +51,25 @@
             <span>{{ pageText.rainy_season_text.cessation.unit2 }}</span>
         </div>
     </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.rainy_season_text.computation.label }}</legend>
+        <div class="row">
+            <div class="col-auto">
+                <div class="form-check">
+                    <input id="{{ tempRes }}-rseason-interpolate" type="checkbox" class="form-check-input" {% if ( pageText.rainy_season.computation.interpolate ) %} checked {% endif %}>
+                    <label class="form-check-label" for="{{ tempRes }}-rseason-interpolate">{{ pageText.rainy_season_text.computation.interpolate }}</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check">
+                    <input id="{{ tempRes }}-rseason-rmisolatedpx" type="checkbox" class="form-check-input" {% if ( pageText.rainy_season.computation.rmisolatedpx ) %} checked {% endif %}>
+                    <label class="form-check-label" for="{{ tempRes }}-rseason-rmisolatedpx">{{ pageText.rainy_season_text.computation.rmisolatedpx }}</label>
+                </div>
+            </div>
+        </div>
+        <div class="mt-2">
+            <span>{{ pageText.rainy_season_text.computation.minfrac }}</span>
+            <input id="{{ tempRes }}-rseason-minfrac" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="3" value="{{ pageText.rainy_season.computation.minfrac }}">
+        </div>
+    </fieldset>
 </div>

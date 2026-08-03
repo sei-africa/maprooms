@@ -6,7 +6,6 @@ $(document).ready(function() {
     setOffCanvasMapControlAgriculture('daily');
 
 
-
     ////////////
     // initialize map
     const map_options = {};
@@ -16,5 +15,36 @@ $(document).ready(function() {
     $('#map-control-offcanvas-dataselect').on('hidden.bs.offcanvas', () => {
         displayAgricultureAnalysisMap('daily', map_options, map);
     });
+
+    // 
+    $('#map-control-redraw').on('click', () => {
+        displayAgricultureAnalysisMap('daily', map_options, map);
+    });
+
+    ////////////
+    $('#input-time-navigation').on('blur', async () => {
+        const ret = await setMapDatesNavInput('daily');
+        if (ret) {
+            displayAgricultureAnalysisMap('daily', map_options, map);
+        }
+    });
+
+    $('#prev-time-navigation').on('click', async () => {
+        const ret = await setMapDatesNavPrev('daily');
+        if (ret) {
+            displayAgricultureAnalysisMap('daily', map_options, map);
+        }
+    });
+
+    $('#next-time-navigation').on('click', async () => {
+        const ret = await setMapDatesNavNext('daily');
+        if (ret) {
+            displayAgricultureAnalysisMap('daily', map_options, map);
+        }
+    });
+
+    ///////////
+
+
 
 });

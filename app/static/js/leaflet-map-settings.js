@@ -296,8 +296,10 @@ function queryParamsRainySeason(time_res) {
     query.searchDaysC = parseInt($(`#${time_res}-cessation-search-day`).val(), 10);
     query.waterBalanceC = Number($(`#${time_res}-cessation-water-balance`).val());
     query.numberDaysC = parseInt($(`#${time_res}-cessation-number-day`).val(), 10);
-    query.interpolate = true;
-    query.minFrac = 1.0;
+
+    query.interpolate = $(`#${time_res}-rseason-interpolate`).is(':checked');
+    query.minFrac = Number($(`#${time_res}-rseason-minfrac`).val());
+    query.rmIsolatedPix = $(`#${time_res}-rseason-rmisolatedpx`).is(':checked');
 
     return query;
 }
@@ -310,6 +312,7 @@ function queryParamsAgricultureAnalysisMap(time_res) {
     if (URL_ARGS.page === 'rainy-season') {
         query.variable = $(`#${time_res}-map-variable`).val();
         query.mapType = $(`#${time_res}-map-type`).val();
+        query.minYear = 15;
 
         if (query.mapType === 'climatology') {
             query.climStats = $(`#${time_res}-clim-statistics`).val();
@@ -331,9 +334,10 @@ function queryParamsAgricultureAnalysisMap(time_res) {
                         return false;
                     }
                 }
+                query.probaUnit = 'perc';
             }
         } else {
-            query.Year = parseInt($(`#${time_res}-tseries-year`).val().trim(), 10);
+            query.Year = parseInt($(`#${time_res}-map-date-tseries-year`).val().trim(), 10);
         }
         query.rainy_season = queryParamsRainySeason(time_res);
     } else if (URL_ARGS.page === 'decision-support') {
@@ -392,7 +396,13 @@ function displayAgricultureAnalysisMap(time_res, options, map) {
         map
     );
 
-    // updateAnalysisMapDate(time_res, query, map);
+    if (request && request.always) {
+        request.always(() => {
+            map.displayText_date.update(
+                request.responseJSON.data.date
+            );
+        });
+    }
 
     return request;
 }

@@ -1404,6 +1404,7 @@ function colorbarGetData() {
 
     // 
     const btype = $('#map-colorbar-breaks').val();
+    let breaks = null;
     if (btype === 'user') {
         const brks = $('#colorbar-breaks-user-text').val();
         if (brks.trim() === '') {
@@ -1416,20 +1417,35 @@ function colorbarGetData() {
             flashMessage(JS_TEXT.colorbar_brk_length, 'error');
             return false;
         }
-        const arr_brk = arr_str.map(Number);
-        const idx = arr_brk
-            .map((v, i) => Number.isNaN(v) ? i : -1)
-            .filter(i => i !== -1);
-        if (idx.length > 0) {
-            const wrng = idx.map(i => arr_str[i]).join(', ');
-            const msg = `${JS_TEXT.colorbar_brk_invalid}: ${wrng}`;
-            flashMessage(msg, 'error');
-            return false;
+
+        const is_dates = arr_str.every(i => i.includes('-'));
+        let arr_brk;
+        if (is_dates) {
+            arr_brk = arr_str;
+            const is_valid = arr_brk
+                .every(i => /^[A-Za-z]{3}-/.test(i));
+
+            if (!is_valid) {
+                const wrng = idx.map(i => arr_str[i]).join(', ');
+                const msg = `${JS_TEXT.colorbar_brk_invalid}: ${wrng}`;
+                flashMessage(msg, 'error');
+                return false;
+            }
+        } else {
+            arr_brk = arr_str.map(Number);
+            const idx = arr_brk
+                .map((v, i) => Number.isNaN(v) ? i : -1)
+                .filter(i => i !== -1);
+
+            if (idx.length > 0) {
+                const wrng = idx.map(i => arr_str[i]).join(', ');
+                const msg = `${JS_TEXT.colorbar_brk_invalid}: ${wrng}`;
+                flashMessage(msg, 'error');
+                return false;
+            }
         }
 
-        var breaks = arr_brk;
-    } else {
-        var breaks = null;
+        breaks = arr_brk;
     }
 
     return {
