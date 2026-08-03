@@ -1,0 +1,732 @@
+function setAnalysisExpandModalRaw(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_rawdata,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    setAnalysisDateCalendarRaw(tempRes);
+    setNamesCalendar(
+        `${tempRes}-chart-raw-startmonth`,
+        'monthly',
+        $(`#${tempRes}-raw-control`),
+        mapNavigation = false
+    );
+
+    //
+    const contChart = `container-chart-${contID}`;
+
+    const updateRawSeriesControls = () => {
+        if ($(`#${tempRes}-chart-raw-series`).val() === 'one') {
+            $(`#${tempRes}-chart-raw-startmonth-list`).hide();
+        } else {
+            $(`#${tempRes}-chart-raw-startmonth-list`).show();
+        }
+    };
+    updateRawSeriesControls();
+
+    $(`#${tempRes}-chart-raw-series`)
+        .off('change.chartTsRaw')
+        .on('change.chartTsRaw', function() {
+            updateRawSeriesControls();
+            maproomDB.getData('ts_rawdata', function(data) {
+                expand_analysis_display_rawdata(data, contChart);
+            });
+        });
+
+    $(`#${tempRes}-chart-raw-variable`)
+        .off('change.chartTsRaw')
+        .on('change.chartTsRaw', function() {
+            expand_analysis_charts_rawdata(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-chart-raw-startmonth-calendar`)
+        .off('change.chartTsRaw')
+        .on('change.chartTsRaw', function() {
+            maproomDB.getData('ts_rawdata', function(data) {
+                expand_analysis_display_rawdata(data, contChart);
+            });
+        });
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsRaw')
+        .on('click.chartTsRaw', function() {
+            expand_analysis_charts_rawdata(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsRaw')
+        .on('click.chartTsRaw', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setAnalysisExpandModalClim(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_climato,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    // 
+    const contChart = `container-chart-${contID}`;
+
+    const updateClimatoChartControls = () => {
+        if ($(`#${tempRes}-chart-clim-charts`).val() === 'one') {
+            $(`#${tempRes}-chart-clim-variable-cont`).show();
+        } else {
+            $(`#${tempRes}-chart-clim-variable-cont`).hide();
+        }
+    };
+    updateClimatoChartControls();
+
+    $(`#${tempRes}-chart-clim-charts`)
+        .off('change.chartTsClim')
+        .on('change.chartTsClim', function() {
+            updateClimatoChartControls();
+            expand_analysis_charts_climato(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-chart-clim-variable`)
+        .off('change.chartTsClim')
+        .on('change.chartTsClim', function() {
+            expand_analysis_charts_climato(contChart, tempRes);
+        });
+
+    // set base period
+    setBoxDialog(
+        `${tempRes}-chart-clim-bp`,
+        `${tempRes}-chart-clim-bp-open`
+    );
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsClim')
+        .on('click.chartTsClim', function() {
+            expand_analysis_charts_climato(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsClim')
+        .on('click.chartTsClim', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setAnalysisExpandModalAnom(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_anomaly,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    let disp_year = false;
+    if (tempRes === 'seasonal') {
+        disp_year = true;
+    }
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-anom', 'anom', disp_year
+    );
+    setNamesCalendar(
+        `${tempRes}-chart-anom-tstep`,
+        tempRes,
+        $(`#${tempRes}-anom-control`),
+        mapNavigation = false
+    );
+
+    // 
+    if (tempRes === 'seasonal') {
+        setClimateSeasonLengthExpand(
+            tempRes, 'chart-anom-seaslen'
+        );
+    }
+
+    //
+    const contChart = `container-chart-${contID}`;
+
+    const updateAnomalySeriesControls = () => {
+        if ($(`#${tempRes}-chart-anom-series`).val() === 'one') {
+            $(`#${tempRes}-chart-anom-tstep-list`).hide();
+        } else {
+            $(`#${tempRes}-chart-anom-tstep-list`).show();
+        }
+    };
+    updateAnomalySeriesControls();
+
+    $(`#${tempRes}-chart-anom-series`)
+        .off('change.chartTsAnom')
+        .on('change.chartTsAnom', function() {
+            updateAnomalySeriesControls();
+            maproomDB.getData('ts_anomaly', function(data) {
+                expand_analysis_display_anomaly(data, contChart);
+            });
+        });
+
+    $(`#${tempRes}-anom-variable`)
+        .off('change.chartTsAnom')
+        .on('change.chartTsAnom', function() {
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    // 
+    $(`#${tempRes}-chart-anom-type`)
+        .off('change.chartTsAnom')
+        .on('change.chartTsAnom', function() {
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-chart-anom-tstep-calendar`)
+        .off('change.chartTsAnom')
+        .on('change.chartTsAnom', function() {
+            maproomDB.getData('ts_anomaly', function(data) {
+                expand_analysis_display_anomaly(data, contChart);
+            });
+        });
+
+    // 
+    if (tempRes === 'seasonal') {
+        $(`#${tempRes}-chart-anom-seaslen`)
+            .off('change.chartTsAnom')
+            .on('change.chartTsAnom', function() {
+                expand_analysis_charts_anomaly(contChart, tempRes);
+            });
+    }
+
+    // set base period
+    setBoxDialog(
+        `${tempRes}-chart-anom-bp`,
+        `${tempRes}-chart-anom-bp-open`
+    );
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsAnom')
+        .on('click.chartTsAnom', function() {
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsAnom')
+        .on('click.chartTsAnom', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setAnalysisExpandModalDailyAnom(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_anomaly,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-anom', 'anom', true
+    );
+    setAnalysisDateCalendarMonDay(tempRes, 'anom');
+
+    // 
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-anom-variable`)
+        .off('change.chartTsAnoma')
+        .on('change.chartTsAnoma', function() {
+            const this_var = $(this).val();
+            $(`#${tempRes}-anom-parameters`).empty();
+            for (const item of PARAMS_ORDER[this_var]) {
+                $(`#${tempRes}-anom-parameters`).append(
+                    $('<option>').val(item)
+                    .text(PARAMS_LIST[this_var][item].select)
+                );
+                setAnalysisParamsDefDaily(tempRes, 'anom');
+            }
+            // 
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    // 
+    $(`#${tempRes}-anom-parameters`)
+        .off(`change.chartTsAnoma`)
+        .on(`change.chartTsAnoma`, function() {
+            setAnalysisParamsDefDaily(tempRes, 'anom');
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-chart-anom-type`)
+        .off('change.chartTsAnoma')
+        .on('change.chartTsAnoma', function() {
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    // set base period
+    setBoxDialog(
+        `${tempRes}-chart-anom-bp`,
+        `${tempRes}-chart-anom-bp-open`
+    );
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsAnom')
+        .on('click.chartTsAnom', function() {
+            expand_analysis_charts_anomaly(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsAnom')
+        .on('click.chartTsAnom', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setProbaPlotContainer(data, container) {
+    const divCont = $(`#${container}`);
+    const divRow = $('<div>')
+        .addClass('row flex-nowrap h-100')
+        .appendTo(divCont);
+
+    const cont_plot = `${container}-plot`;
+    $('<div>')
+        .attr('id', cont_plot)
+        .addClass('col-md-8')
+        .css({
+            'width': '75%',
+            'height': '100%'
+        })
+        .appendTo(divRow);
+
+    const div_distr = `${container}-distr-div`;
+    const divDistr = $('<div>')
+        .attr('id', div_distr)
+        .addClass('col-md-4 m-2 p-2')
+        .css({
+            'width': '22%',
+            'height': '84%',
+            'border': '1px solid #d0d7de'
+        })
+        .appendTo(divRow);
+
+    $('<h5>')
+        .appendTo(divDistr)
+        .text('Fitted Distribution');
+
+    const frmtJson = JSON.stringify(
+        data.info.proba, null, 2
+    );
+    const pre_distr = `${container}-distr-pre`;
+    $('<pre>')
+        .attr('id', pre_distr)
+        .appendTo(divDistr)
+        .text(frmtJson);
+
+    divDistr.hide();
+
+    return cont_plot
+}
+
+function setAnalysisExpandModalProba(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_proba,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-proba', 'proba', true
+    );
+    if (tempRes === 'daily') {
+        setAnalysisDateCalendarMonDay(tempRes, 'proba');
+    }
+    if (tempRes === 'seasonal') {
+        setClimateSeasonStartLengthExpand(
+            tempRes, 'chart-proba', 'proba'
+        );
+    }
+
+    // 
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-proba-variable`)
+        .off('change.chartTsProba')
+        .on('change.chartTsProba', function() {
+            if (tempRes === 'daily') {
+                const this_var = $(this).val();
+                $(`#${tempRes}-proba-parameters`).empty();
+                for (const item of PARAMS_ORDER[this_var]) {
+                    $(`#${tempRes}-proba-parameters`).append(
+                        $('<option>').val(item)
+                        .text(PARAMS_LIST[this_var][item].select)
+                    );
+                }
+                setAnalysisParamsDefDaily(tempRes, 'proba');
+            }
+            // 
+            expand_analysis_charts_proba(contChart, tempRes);
+        });
+
+    // 
+    if (tempRes === 'daily') {
+        $(`#${tempRes}-proba-parameters`)
+            .off(`change.chartTsProba`)
+            .on(`change.chartTsProba`, function() {
+                setAnalysisParamsDefDaily(tempRes, 'proba');
+                expand_analysis_charts_proba(contChart, tempRes);
+            });
+    }
+
+    // 
+    if (tempRes === 'seasonal') {
+        const sDId = `${tempRes}-chart-proba`;
+        $(`#${sDId}-seaslen, #${sDId}-startmon-calendar`)
+            .off('change.chartTsProba')
+            .on('change.chartTsProba', function() {
+                expand_analysis_charts_proba(contChart, tempRes);
+            });
+    }
+    // 
+
+    const updateProbaDataControls = () => {
+        if ($(`#${tempRes}-chart-proba-plot-type`).val() === 'cdf') {
+            $(`#${tempRes}-chart-proba-plot-cdf`).show();
+            $(`#${tempRes}-chart-proba-plot-pdf`).hide();
+        } else {
+            $(`#${tempRes}-chart-proba-plot-cdf`).hide();
+            $(`#${tempRes}-chart-proba-plot-pdf`).show();
+        }
+    };
+    updateProbaDataControls();
+
+    $(`#${tempRes}-chart-proba-plot-type`)
+        .off('change.chartTsProba')
+        .on('change.chartTsProba', function() {
+            updateProbaDataControls();
+            maproomDB.getData('data_proba', function(data) {
+                expand_analysis_display_proba(data, contChart);
+            });
+        });
+
+    $(`.${tempRes}-proba-plot`)
+        .off('change.chartTsProba')
+        .on('change.chartTsProba', function() {
+            const pKind = $(this).data('plot');
+            const pType = $(this).val();
+            const isVisible = $(this).is(':checked');
+
+            const ix = PROBA_PLOT[pKind].indexOf(pType);
+
+            Plotly.restyle(`${contChart}-plot`, {
+                visible: isVisible
+            }, [ix]);
+
+            if (pType === 'fitted') {
+                $(`#${contChart}-distr-div`).toggle(isVisible);
+            }
+        });
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsProba')
+        .on('click.chartTsProba', function() {
+            expand_analysis_charts_proba(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsProba')
+        .on('click.chartTsProba', function() {
+            downloadPlotlyImageJPG(`${contChart}-plot`);
+        });
+}
+
+function setAnalysisExpandModalSeason(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_season,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-season', 'tseries', true
+    );
+    if (tempRes === 'daily') {
+        setAnalysisDateCalendarMonDay(tempRes, 'tseries');
+    }
+    if (tempRes === 'seasonal') {
+        setClimateSeasonStartLengthExpand(
+            tempRes, 'chart-season', 'season'
+        );
+    }
+
+    // 
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-tseries-variable`)
+        .off('change.chartTsSeason')
+        .on('change.chartTsSeason', function() {
+            if (tempRes === 'daily') {
+                const this_var = $(this).val();
+                $(`#${tempRes}-tseries-parameters`).empty();
+                for (const item of PARAMS_ORDER[this_var]) {
+                    $(`#${tempRes}-tseries-parameters`).append(
+                        $('<option>').val(item)
+                        .text(PARAMS_LIST[this_var][item].select)
+                    );
+                }
+                setAnalysisParamsDefDaily(tempRes, 'tseries');
+            }
+            // 
+            expand_analysis_charts_season(contChart, tempRes);
+        });
+
+    // 
+    if (tempRes === 'daily') {
+        $(`#${tempRes}-tseries-parameters`)
+            .off(`change.chartTsSeason`)
+            .on(`change.chartTsSeason`, function() {
+                setAnalysisParamsDefDaily(tempRes, 'tseries');
+                expand_analysis_charts_season(contChart, tempRes);
+            });
+    }
+
+    // 
+    if (tempRes === 'seasonal') {
+        const sDId = `${tempRes}-chart-season`;
+        $(`#${sDId}-seaslen, #${sDId}-startmon-calendar`)
+            .off('change.chartTsSeason')
+            .on('change.chartTsSeason', function() {
+                expand_analysis_charts_season(contChart, tempRes);
+            });
+    }
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsSeason')
+        .on('click.chartTsSeason', function() {
+            expand_analysis_charts_season(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsSeason')
+        .on('click.chartTsSeason', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setAnalysisExpandModalEnso(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_enso,
+        tempRes
+    );
+
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-enso-indices`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            setAnalysisDateCalendarEnso(tempRes);
+            setAnalysisVisibilityEnso(tempRes);
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-tempres`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            setAnalysisDateCalendarEnso(tempRes);
+            setAnalysisVisibilityEnso(tempRes);
+            setAnalysisAnomaliesEnso(contChart, tempRes);
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-sstweek`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            setAnalysisDateCalendarEnso(tempRes);
+            setAnalysisAnomaliesEnso(contChart, tempRes);
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-sstmonth`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            setAnalysisDateCalendarEnso(tempRes);
+            setAnalysisAnomaliesEnso(contChart, tempRes);
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    // 
+    $(`#${tempRes}-oni-indices`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-iod-sst`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-ninotype`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-anom-ninoregion`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-disp-image-enso`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            const this_image = $(this).val();
+            if (this_image === 'image') {
+                $(`#${tempRes}-disp-lastval-enso-opt`).show();
+            } else {
+                $(`#${tempRes}-disp-lastval-enso-opt`).hide();
+            }
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    $(`#${tempRes}-disp-lastval-enso`)
+        .off('change.teleconIndex')
+        .on('change.teleconIndex', function() {
+            expand_analysis_charts_enso(contChart, tempRes);
+        });
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.teleconIndex')
+        .on('click.teleconIndex', function() {
+            const ensoIdx = $(`#${tempRes}-enso-indices`).val();
+            if (['oni', 'anom', 'iod', 'nao'].includes(ensoIdx)) {
+                expand_analysis_charts_enso(contChart, tempRes);
+            }
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.teleconIndex')
+        .on('click.teleconIndex', function() {
+            const ensoIdx = $(`#${tempRes}-enso-indices`).val();
+            if (['proba', 'strength'].includes(ensoIdx)) {
+                downloadImageSrcPNG(contChart);
+            } else {
+                const ensoImg = $(`#${tempRes}-disp-image-enso`).val();
+                if (ensoImg === 'image') {
+                    downloadImageSrcPNG(contChart);
+                } else {
+                    downloadPlotlyImageJPG(contChart);
+                }
+            }
+
+        });
+}
+
+function setAnalysisExpandModalTelecon(tempRes, contID, cType) {
+    const expandFunction = {
+        'tseries': expand_analysis_telecon_tseries,
+        'proba': expand_analysis_telecon_proba
+    };
+
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expandFunction[cType],
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    // const this_var = $(`#${tempRes}-${cType}-variable`).val();
+    setAnalysisDateCalendarSeasonal(
+        tempRes, cType, cType, true
+    );
+    setClimateSeasonStartLengthExpand(
+        tempRes, cType, `${cType}-telecon`
+    );
+
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-${cType}-variable`)
+        .off(`change.${cType}Telecon`)
+        .on(`change.${cType}Telecon`, function() {
+            setClimateVariableTelecon(
+                tempRes, $(this).val(), `${cType}-clim-variable`
+            );
+            setAnalysisDateCalendarSeasonal(
+                tempRes, cType, cType, true
+            );
+            expandFunction[cType](contChart, tempRes);
+        });
+
+    $(`#${tempRes}-${cType}-clim-variable`)
+        .off(`change.${cType}Telecon`)
+        .on(`change.${cType}Telecon`, function() {
+            expandFunction[cType](contChart, tempRes);
+        });
+
+    $(`#${tempRes}-${cType}-index-telecon`)
+        .off(`change.${cType}Telecon`)
+        .on(`change.${cType}Telecon`, function() {
+            expandFunction[cType](contChart, tempRes);
+        });
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off(`click.${cType}Telecon`)
+        .on(`click.${cType}Telecon`, function() {
+            expandFunction[cType](contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off(`click.${cType}Telecon`)
+        .on(`click.${cType}Telecon`, function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setRainySeasonExpandModalSeries(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    // expandModalCharts(
+    //     contID,
+    //     expand_analysis_charts_season,
+    //     tempRes
+    // );
+    // purgePlotlyChartExpandModal(contID);
+
+    setRainySeasonCalendarOnset(tempRes, 'series');
+
+}
+
+function setRainySeasonExpandModalProba(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    setRainySeasonCalendarOnset(tempRes, 'proba');
+
+}
+
+function setRainySeasonExpandModalAnom(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    setRainySeasonCalendarOnset(tempRes, 'anom');
+
+}

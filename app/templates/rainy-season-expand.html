@@ -1,0 +1,62 @@
+<fieldset class="border border-secondary rounded-3 py-1">
+    <legend class="legend-label">{{ pageText.variables.label }}</legend>
+    <select id="{{ prefixID }}-variable" class="form-select {{ prefixID }}-select2 w-auto align-middle" style="width: 250px;">
+        {% for key, value in pageText.variables.select.items() %}
+        <option value="{{key}}">{{value}}</option>
+        {% endfor %}
+    </select>
+</fieldset>
+<!--  -->
+<fieldset class="border border-secondary rounded-3 py-1">
+    <legend class="legend-label">{{ pageText.rainy_season_text.rainyday.label }}</legend>
+    <div>
+        <span>{{ pageText.rainy_season_text.rainyday.rainday }}</span>
+        <input id="{{ prefixID }}-onset-rainy-day-thres" class="form-control form-control-sm d-inline-block w-auto text-center" type="text" size="3" value="{{ pageText.rainy_season.onset.rainThres }}">
+        <span>{{ pageText.rainy_season_text.rainyday.unit }}</span>
+    </div>
+</fieldset>
+<!--  -->
+<fieldset class="border border-secondary rounded-3 py-1">
+    <legend class="legend-label">{{ pageText.rainy_season_text.onset.label }}</legend>
+    <div class="mb-1">
+        <span>{{ pageText.rainy_season_text.onset.start }}</span>
+        <select id="{{ prefixID }}-onset-start-mon" class="form-select {{ prefixID }}-select2 d-inline-block w-auto align-middle" style="width: 120px;"></select>
+        <select id="{{ prefixID }}-onset-start-day" class="form-select {{ prefixID }}-select2 d-inline-block w-auto align-middle"></select>
+        <span>{{ pageText.rainy_season_text.onset.search }}</span>
+        <input id="{{ prefixID }}-onset-search-day" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="3" value="{{ pageText.rainy_season.onset.searchDay }}">
+        <span>{{ pageText.rainy_season_text.onset.unit2 }}</span>
+        <span>{{ pageText.rainy_season_text.onset.raintot }}</span>
+        <input id="{{ prefixID }}-onset-rain-tot" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="3" value="{{ pageText.rainy_season.onset.rainTotal }}">
+        <span>{{ pageText.rainy_season_text.onset.unit1 }}</span>
+        <span>{{ pageText.rainy_season_text.onset.nbday }}</span>
+        <input id="{{ prefixID }}-onset-nb-days" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="2" value="{{ pageText.rainy_season.onset.numberDays }}">
+        <span>{{ pageText.rainy_season_text.onset.unit2 }}</span>
+        <span>{{ pageText.rainy_season_text.onset.minday1 }}</span>
+        <input id="{{ prefixID }}-onset-min-day" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="2" value="{{ pageText.rainy_season.onset.minNbDays }}">
+        <span>{{ pageText.rainy_season_text.onset.minday2 }}</span>
+        <span>{{ pageText.rainy_season_text.onset.dryspell1 }}</span>
+        <input id="{{ prefixID }}-onset-dryspell" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="2" value="{{ pageText.rainy_season.onset.drySpell }}">
+        <span>{{ pageText.rainy_season_text.onset.dryspell2 }}</span>
+        <span>{{ pageText.rainy_season_text.onset.dryspell3 }}</span>
+        <input id="{{ prefixID }}-onset-dryspell-day" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="2" value="{{ pageText.rainy_season.onset.drySpellDays }}">
+        <span>{{ pageText.rainy_season_text.onset.unit2 }}</span>
+    </div>
+</fieldset>
+<!--  -->
+<fieldset class="border border-secondary rounded-3 py-1">
+    <legend class="legend-label">{{ pageText.rainy_season_text.cessation.label }}</legend>
+    <div>
+        <span>{{ pageText.rainy_season_text.cessation.start }}</span>
+        <select id="{{ prefixID }}-cessation-start-mon" class="form-select {{ prefixID }}-select2 d-inline-block w-auto align-middle" style="width: 120px;"></select>
+        <select id="{{ prefixID }}-cessation-start-day" class="form-select {{ prefixID }}-select2 d-inline-block w-auto align-middle"></select>
+        <span>{{ pageText.rainy_season_text.cessation.search }}</span>
+        <input id="{{ prefixID }}-cessation-search-day" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="3" value="{{ pageText.rainy_season.cessation.searchDay }}">
+        <span>{{ pageText.rainy_season_text.cessation.unit2 }}</span>
+        <span>{{ pageText.rainy_season_text.cessation.waterb }}</span>
+        <input id="{{ prefixID }}-cessation-water-balance" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="3" value="{{ pageText.rainy_season.cessation.waterBalance }}">
+        <span>{{ pageText.rainy_season_text.cessation.unit1 }}</span>
+        <span>{{ pageText.rainy_season_text.cessation.nbday }}</span>
+        <input id="{{ prefixID }}-cessation-number-day" class="form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="3" value="{{ pageText.rainy_season.cessation.numberDays }}">
+        <span>{{ pageText.rainy_season_text.cessation.unit2 }}</span>
+    </div>
+</fieldset>
