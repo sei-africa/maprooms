@@ -682,21 +682,21 @@
 </div>
 {% endmacro %}
 <!--  -->
-{% macro create_expand_charts_rseason_series(tempRes, chartType, pageText) %}
+{% macro create_expand_charts_rseason_series(tempRes, chartType, pageText, fmacros) %}
 {% set prefixID = tempRes ~ '-' ~ chartType %}
 <div class="container d-flex flex-wrap justify-content-start w-100" id="{{ prefixID }}-rseason-control">
     {% include "rainy-season-expand.html" %}
 </div>
 {% endmacro %}
 <!--  -->
-{% macro create_expand_charts_rseason_proba(tempRes, chartType, pageText) %}
+{% macro create_expand_charts_rseason_proba(tempRes, chartType, pageText, fmacros) %}
 {% set prefixID = tempRes ~ '-' ~ chartType %}
 <div class="container d-flex flex-wrap justify-content-start w-100" id="{{ prefixID }}-rseason-control">
     {% include "rainy-season-expand.html" %}
 </div>
 {% endmacro %}
 <!--  -->
-{% macro create_expand_charts_rseason_anom(tempRes, chartType, pageText) %}
+{% macro create_expand_charts_rseason_anom(tempRes, chartType, pageText, fmacros) %}
 {% set prefixID = tempRes ~ '-' ~ chartType %}
 <div class="container d-flex flex-wrap justify-content-start w-100" id="{{ prefixID }}-rseason-control">
     {% include "rainy-season-expand.html" %}

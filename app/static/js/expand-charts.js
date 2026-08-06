@@ -708,25 +708,49 @@ function setAnalysisExpandModalTelecon(tempRes, contID, cType) {
 
 function setRainySeasonExpandModalSeries(tempRes, contID) {
     showModalDialog(`modal-expand-${contID}`);
-    // expandModalCharts(
-    //     contID,
-    //     expand_analysis_charts_season,
-    //     tempRes
-    // );
-    // purgePlotlyChartExpandModal(contID);
+    expandModalCharts(
+        contID,
+        expand_agri_rseason_charts_series,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
 
+    setBoxDialog(
+        `${tempRes}-series-rseason-def`,
+        `${tempRes}-series-rseason-def-open`
+    );
     setRainySeasonCalendarOnset(tempRes, 'series');
 
 }
 
 function setRainySeasonExpandModalProba(tempRes, contID) {
     showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_agri_rseason_charts_proba,
+        tempRes
+    );
+
+    setBoxDialog(
+        `${tempRes}-proba-rseason-def`,
+        `${tempRes}-proba-rseason-def-open`
+    );
     setRainySeasonCalendarOnset(tempRes, 'proba');
 
 }
 
 function setRainySeasonExpandModalAnom(tempRes, contID) {
     showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_agri_rseason_charts_anom,
+        tempRes
+    );
+
+    setBoxDialog(
+        `${tempRes}-anom-rseason-def`,
+        `${tempRes}-anom-rseason-def-open`
+    );
     setRainySeasonCalendarOnset(tempRes, 'anom');
 
 }

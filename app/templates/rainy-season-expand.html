@@ -6,7 +6,14 @@
         {% endfor %}
     </select>
 </fieldset>
-<!--  -->
+<fieldset class="border border-secondary rounded-3 py-1">
+    <legend class="legend-label">{{ pageText.opt_rseason.label }}</legend>
+    <div class="text-center align-middle">
+        <button id="{{ prefixID }}-rseason-def-open" type="button" class="btn btn-outline-secondary">{{ pageText.opt_rseason.button }}</button>
+    </div>
+</fieldset>
+{% set dialogID = prefixID ~ '-rseason-def' %}
+{% call fmacros.create_settings_dialog(dialogID, pageText, pageText.opt_rseason.title, prefixID) %}
 <fieldset class="border border-secondary rounded-3 py-1">
     <legend class="legend-label">{{ pageText.rainy_season_text.rainyday.label }}</legend>
     <div>
@@ -60,3 +67,4 @@
         <span>{{ pageText.rainy_season_text.cessation.unit2 }}</span>
     </div>
 </fieldset>
+{% endcall %}

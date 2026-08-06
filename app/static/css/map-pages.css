@@ -124,7 +124,8 @@
     z-index: 9999;
     border-radius: var(--bs-modal-border-radius);
     background-color: var(--bs-modal-bg);
-    border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
+    /*border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);*/
+    border: 5px solid var(--bs-modal-border-color);
 }
 
 [data-bs-theme="light"] .dialog-box-settings input:hover {

@@ -25,19 +25,19 @@
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-series", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-series", pageText) %}
-            {{ fmacrosExp.create_expand_charts_rseason_series("daily", "series", pageText) }}
+            {{ fmacrosExp.create_expand_charts_rseason_series("daily", "series", pageText, fmacros) }}
             {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-proba", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-proba", pageText) %}
-            {{ fmacrosExp.create_expand_charts_rseason_proba("daily", "proba",pageText) }}
+            {{ fmacrosExp.create_expand_charts_rseason_proba("daily", "proba", pageText, fmacros) }}
             {% endcall %}
         </div>
         <div class="col-sm-4">
             {{ fmacros.create_card_charts("div-chart-anom", pageText) }}
             {% call fmacros.create_modal_expand_charts("div-chart-anom", pageText) %}
-            {{ fmacrosExp.create_expand_charts_rseason_anom("daily", "anom",pageText) }}
+            {{ fmacrosExp.create_expand_charts_rseason_anom("daily", "anom", pageText, fmacros) }}
             {% endcall %}
         </div>
     </div>

@@ -106,3 +106,13 @@ opt_year:
         en: Display year
         fr: Afficher année
 
+opt_rseason:
+    label:
+        en: Rainy season
+        fr: Saison des pluies
+    button:
+        en: Definition
+        fr: Définition
+    title:
+        en: Rainy season definition
+        fr: Définition saison des pluies

@@ -176,7 +176,7 @@
 </div>
 {% endmacro %}
 <!--  -->
-{% macro create_settings_dialog(dialogID, pageText, dialogTitle='') %}
+{% macro create_settings_dialog(dialogID, pageText, dialogTitle='', prefixID='') %}
 <div id="{{ dialogID }}" class="container-fluid dialog-box-settings">
     <div class="row m-2">
         <div class="col-sm-11 d-flex justify-content-start">
@@ -185,6 +185,7 @@
         <div class="col-sm-1 d-flex justify-content-end">
             <button id="{{ dialogID }}-close-1" type="button" class="btn btn-md position-absolute top-0 end-0 me-1 p-1"><i class="bi bi-x-circle-fill"></i></button>
         </div>
+        <hr class="w-100">
     </div>
     <div class="container mt-2 mb-1 mx-0 px-0">
         {{ caller() }}
@@ -223,3 +224,4 @@
 </div>
 {% endcall %}
 {% endmacro %}
+<!--  -->

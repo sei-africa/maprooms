@@ -1957,3 +1957,90 @@ function expand_telecon_display_proba(json, container) {
 }
 
 ///////
+
+function expand_agri_rseason_query_series(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+
+
+    return query;
+}
+
+function expand_agri_rseason_charts_series(container_id, tempRes) {
+    const query = expand_agri_rseason_query_series(tempRes);
+    if (!query) {
+        return false;
+    }
+    // if (checkQueryPointOutside(query, tempRes)) {
+    //     return false;
+    // }
+
+    // ajaxDisplayChart(
+    //     '/climate_analysis_season',
+    //     query,
+    //     expand_agri_rseason_display_series,
+    //     container_id,
+    //     'data_season'
+    // );
+}
+
+function expand_agri_rseason_display_series(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+}
+
+///////
+
+function expand_agri_rseason_query_proba(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+
+    return query;
+}
+
+function expand_agri_rseason_charts_proba(container_id, tempRes) {
+    const query = expand_agri_rseason_query_proba(tempRes);
+    if (!query) {
+        return false;
+    }
+
+}
+
+function expand_agri_rseason_display_proba(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+}
+
+///////
+
+function expand_agri_rseason_query_anom(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+
+    return query;
+}
+
+function expand_agri_rseason_charts_anom(container_id, tempRes) {
+    const query = expand_agri_rseason_query_anom(tempRes);
+    if (!query) {
+        return false;
+    }
+
+}
+
+function expand_agri_rseason_display_anom(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+}

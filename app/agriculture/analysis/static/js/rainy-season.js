@@ -12,6 +12,7 @@ $(document).ready(function() {
         minimumResultsForSearch: -1,
         dropdownParent: $('#daily-series-rseason-control')
     });
+    $('.daily-series-select2').css('z-index', 9999);
     $('#btn-div-chart-series').on('click', () => {
         setRainySeasonExpandModalSeries('daily', 'div-chart-series');
     });
