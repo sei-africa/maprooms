@@ -99,6 +99,17 @@ function adjustSelect2Height(select_id, input_group = true) {
         });
 }
 
+function initiDialogBoxSelect2(selector, controlSelector) {
+    $(selector).each(function() {
+        const this_select = $(this);
+        const settingsDialog = this_select.closest('.dialog-box-settings');
+        this_select.select2({
+            minimumResultsForSearch: -1,
+            dropdownParent: settingsDialog.length ? settingsDialog : $(controlSelector)
+        });
+    });
+}
+
 //////////////
 
 function ensoDatasetTempCoverage(dataset) {

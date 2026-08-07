@@ -706,51 +706,47 @@ function setAnalysisExpandModalTelecon(tempRes, contID, cType) {
         });
 }
 
-function setRainySeasonExpandModalSeries(tempRes, contID) {
+function setRainySeasonExpandModal(tempRes, chartType, contID) {
+    const expandFunction = {
+        'series': expand_agri_rseason_charts_series,
+        'proba': expand_agri_rseason_charts_proba,
+        'anom': expand_agri_rseason_charts_anom
+    };
+
     showModalDialog(`modal-expand-${contID}`);
     expandModalCharts(
         contID,
-        expand_agri_rseason_charts_series,
+        expandFunction[chartType],
         tempRes
     );
     purgePlotlyChartExpandModal(contID);
 
-    setBoxDialog(
-        `${tempRes}-series-rseason-def`,
-        `${tempRes}-series-rseason-def-open`
-    );
-    setRainySeasonCalendarOnset(tempRes, 'series');
-
-}
-
-function setRainySeasonExpandModalProba(tempRes, contID) {
-    showModalDialog(`modal-expand-${contID}`);
-    expandModalCharts(
-        contID,
-        expand_agri_rseason_charts_proba,
-        tempRes
-    );
+    const contChart = `container-chart-${contID}`;
+    const prefixID = `${tempRes}-${chartType}`;
 
     setBoxDialog(
-        `${tempRes}-proba-rseason-def`,
-        `${tempRes}-proba-rseason-def-open`
+        `${prefixID}-rseason-def`,
+        `${prefixID}-rseason-def-open`
     );
-    setRainySeasonCalendarOnset(tempRes, 'proba');
+    setRainySeasonCalendarOnset(tempRes, chartType);
 
-}
+    $(`#${prefixID}-variable`)
+        .off('change.chartRSeason')
+        .on('change.chartRSeason', function() {
+            expandFunction[chartType](contChart, tempRes);
+        });
 
-function setRainySeasonExpandModalAnom(tempRes, contID) {
-    showModalDialog(`modal-expand-${contID}`);
-    expandModalCharts(
-        contID,
-        expand_agri_rseason_charts_anom,
-        tempRes
-    );
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartRSeason')
+        .on('click.chartRSeason', function() {
+            expandFunction[chartType](contChart, tempRes);
+        });
 
-    setBoxDialog(
-        `${tempRes}-anom-rseason-def`,
-        `${tempRes}-anom-rseason-def-open`
-    );
-    setRainySeasonCalendarOnset(tempRes, 'anom');
-
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartRSeason')
+        .on('click.chartRSeason', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
 }

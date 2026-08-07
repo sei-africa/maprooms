@@ -17,6 +17,12 @@ function preview_seasonal_teleconnections(tempRes) {
     preview_analysis_telecon_proba(tempRes, 'div-chart-proba');
 }
 
+function preview_rainyseason_display_charts(tempRes) {
+    preview_rainyseason_charts_series(tempRes, 'div-chart-series');
+    preview_rainyseason_charts_proba(tempRes, 'div-chart-proba');
+    preview_rainyseason_charts_anom(tempRes, 'div-chart-anom');
+}
+
 ///////////////////
 
 function analysis_query_format_date(date, temp_res) {
@@ -1158,3 +1164,230 @@ function preview_telecon_display_proba(json, container) {
 }
 
 ///////
+
+function preview_query_rainyseason(tempRes) {
+    let query = new Object();
+
+    query.startMonthO = parseInt($(`#${tempRes}-onset-start-mon`).val(), 10);
+    query.startDayO = parseInt($(`#${tempRes}-onset-start-day`).val(), 10);
+    query.searchDaysO = parseInt($(`#${tempRes}-onset-search-day`).val(), 10);
+    query.rainTotalO = Number($(`#${tempRes}-onset-rain-tot`).val());
+    query.numberDaysO = parseInt($(`#${tempRes}-onset-nb-days`).val(), 10);
+    query.minNbDaysO = parseInt($(`#${tempRes}-onset-min-day`).val(), 10);
+    query.drySpellO = parseInt($(`#${tempRes}-onset-dryspell`).val(), 10);
+    query.drySpellDaysO = parseInt($(`#${tempRes}-onset-dryspell-day`).val(), 10);
+
+    query.rainThres = Number($(`#${tempRes}-onset-rainy-day-thres`).val());
+
+    query.startMonthC = parseInt($(`#${tempRes}-cessation-start-mon`).val(), 10);
+    query.startDayC = parseInt($(`#${tempRes}-cessation-start-day`).val(), 10);
+    query.searchDaysC = parseInt($(`#${tempRes}-cessation-search-day`).val(), 10);
+    query.waterBalanceC = Number($(`#${tempRes}-cessation-water-balance`).val());
+    query.numberDaysC = parseInt($(`#${tempRes}-cessation-number-day`).val(), 10);
+
+    query.interpolate = false;
+    query.minFrac = 0.75;
+    query.rmIsolatedPix = false;
+
+    return query;
+}
+
+function preview_rainyseason_query(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    query.variable = $(`#${tempRes}-map-variable`).val();
+
+    query.rainy_season = preview_query_rainyseason(tempRes);
+
+    return query;
+}
+
+///////
+
+function preview_rainyseason_charts_series(tempRes, contID) {
+    const query = preview_rainyseason_query(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/agriculture_analysis_series',
+        query,
+        preview_rainyseason_display_series,
+        contID
+    );
+}
+
+function preview_rainyseason_display_series(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    const xdata = json.time;
+    const ydata = json.values;
+    const xlim = [
+        Math.min(...xdata) - 1,
+        Math.max(...xdata) + 1
+    ];
+    const yticktext = formatTickTextRainySeason(
+        json.yticks, json.start[0], json.info.var
+    );
+
+    const xaxisHoverText = xdata.map((x) => {
+        return formatPlotlyHoverDateRainySeason(
+            x, xdata, ydata, json.start, json.info.var
+        );
+    });
+
+    let data = [{
+        x: xdata,
+        y: ydata,
+        type: 'scatter',
+        mode: 'lines',
+        line: {
+            color: '#dc3545',
+            width: 3
+        },
+        customdata: xaxisHoverText,
+        hovertemplate: '%{customdata}<extra></extra>'
+    }];
+
+    if (json.coeffs !== null) {
+        const regX = xlim;
+        const areg = json.coeffs.slope;
+        const breg = json.coeffs.intercept;
+        const regY = regX.map(x => breg + areg * x);
+        const trendTrace = {
+            x: regX,
+            y: regY,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Trend line',
+            units: 'days',
+            line: {
+                color: '#0d6efd',
+                width: 4
+            }
+        };
+
+        if (['onset', 'cessation'].includes(json.info.var.type)) {
+            const start = json.start.find(value => value !== null);
+            if (start !== undefined) {
+                const [, month, day] = start.split('-').map(Number);
+                trendTrace.customdata = regX.map((year, index) => {
+                    const date = new Date(Date.UTC(year, month - 1, day));
+                    date.setUTCDate(date.getUTCDate() + regY[index]);
+                    return date;
+                });
+                trendTrace.hovertemplate =
+                    'Trend line (%{x}, %{customdata|%b-%d})' +
+                    '<extra></extra>';
+            }
+        } else if (json.info.var.type === 'length') {
+            trendTrace.hovertemplate =
+                'Trend line (%{x}, %{y:.0f})<extra></extra>';
+        }
+
+        data.push(trendTrace);
+    }
+
+    var layout = {
+        xaxis: {
+            range: xlim,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            gridcolor: 'lightgray'
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            ticktext: yticktext,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            gridcolor: 'lightgray'
+        },
+        showlegend: false
+    };
+
+    layout.margin = { t: 10, b: 30, l: 50, r: 10 };
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+
+    const config = {
+        displayModeBar: false,
+        responsive: true
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(
+        container,
+        data,
+        layout,
+        config
+    );
+
+    setPlotlyThemeColors(container);
+}
+
+///////
+
+function preview_rainyseason_charts_proba(tempRes, contID) {
+    const query = preview_rainyseason_query(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/agriculture_analysis_proba',
+        query,
+        preview_rainyseason_display_proba,
+        contID
+    );
+}
+
+function preview_rainyseason_display_proba(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+}
+
+///////
+
+function preview_rainyseason_charts_anom(tempRes, contID) {
+    const query = preview_rainyseason_query(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/agriculture_analysis_anom',
+        query,
+        preview_rainyseason_display_anom,
+        contID
+    );
+}
+
+function preview_rainyseason_display_anom(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+}

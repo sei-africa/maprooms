@@ -1958,13 +1958,47 @@ function expand_telecon_display_proba(json, container) {
 
 ///////
 
+function expand_rainy_season_query(tempRes, chartType) {
+    const prefix = `${tempRes}-${chartType}`;
+    let query = new Object();
+
+    query.startMonthO = parseInt($(`#${prefix}-onset-start-mon`).val(), 10);
+    query.startDayO = parseInt($(`#${prefix}-onset-start-day`).val(), 10);
+    query.searchDaysO = parseInt($(`#${prefix}-onset-search-day`).val(), 10);
+    query.rainTotalO = Number($(`#${prefix}-onset-rain-tot`).val());
+    query.numberDaysO = parseInt($(`#${prefix}-onset-nb-days`).val(), 10);
+    query.minNbDaysO = parseInt($(`#${prefix}-onset-min-day`).val(), 10);
+    query.drySpellO = parseInt($(`#${prefix}-onset-dryspell`).val(), 10);
+    query.drySpellDaysO = parseInt($(`#${prefix}-onset-dryspell-day`).val(), 10);
+
+    query.rainThres = Number($(`#${prefix}-onset-rainy-day-thres`).val());
+
+    query.startMonthC = parseInt($(`#${prefix}-cessation-start-mon`).val(), 10);
+    query.startDayC = parseInt($(`#${prefix}-cessation-start-day`).val(), 10);
+    query.searchDaysC = parseInt($(`#${prefix}-cessation-search-day`).val(), 10);
+    query.waterBalanceC = Number($(`#${prefix}-cessation-water-balance`).val());
+    query.numberDaysC = parseInt($(`#${prefix}-cessation-number-day`).val(), 10);
+
+    query.interpolate = false;
+    query.minFrac = 0.75;
+    query.rmIsolatedPix = false;
+
+    return query;
+}
+
+///////
+
 function expand_agri_rseason_query_series(tempRes) {
     let query = queryParamsSpatialAverage();
     if (!query) {
         return query;
     }
 
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    query.variable = $(`#${tempRes}-series-variable`).val();
 
+    query.rainy_season = expand_rainy_season_query(tempRes, 'series');
 
     return query;
 }
@@ -1974,23 +2008,272 @@ function expand_agri_rseason_charts_series(container_id, tempRes) {
     if (!query) {
         return false;
     }
-    // if (checkQueryPointOutside(query, tempRes)) {
-    //     return false;
-    // }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
 
-    // ajaxDisplayChart(
-    //     '/climate_analysis_season',
-    //     query,
-    //     expand_agri_rseason_display_series,
-    //     container_id,
-    //     'data_season'
-    // );
+    ajaxDisplayChart(
+        '/agriculture_analysis_series',
+        query,
+        expand_agri_rseason_display_series,
+        container_id
+    );
 }
 
 function expand_agri_rseason_display_series(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
 
+    const xdata = json.time;
+    const ydata = json.values;
+    const timeres = json.info.time_res;
+    const vname = json.info.var.name;
+    const vunit = json.info.var.units;
+    const ylab = vunit === '' ? vname : `${vname} (${vunit})`;
+    const xlim = [
+        Math.min(...xdata) - 1,
+        Math.max(...xdata) + 1
+    ];
+    const ylim = json.yrange;
+    const yticks = json.yticks;
+    const yticktext = formatTickTextRainySeason(
+        json.yticks, json.start[0], json.info.var
+    );
+
+    const xaxisHoverText = xdata.map((x) => {
+        return formatPlotlyHoverDateRainySeason(
+            x, xdata, ydata, json.start, json.info.var
+        );
+    });
+
+    function formatSummaryHover(trace) {
+        if (['onset', 'cessation'].includes(json.info.var.type)) {
+            const start = json.start.find(value => value !== null);
+            if (start !== undefined) {
+                const [, month, day] = start.split('-').map(Number);
+                trace.customdata = trace.x.map((year, index) => {
+                    const date = new Date(Date.UTC(year, month - 1, day));
+                    date.setUTCDate(date.getUTCDate() + trace.y[index]);
+                    return date;
+                });
+                trace.hovertemplate =
+                    '%{data.name} (%{x}, %{customdata|%b-%d})' +
+                    '<extra></extra>';
+            }
+        } else if (json.info.var.type === 'length') {
+            trace.hovertemplate =
+                '%{data.name} (%{x}, %{y:.0f})<extra></extra>';
+        }
+
+        return trace;
+    }
+
+    function makeMainTrace(plotType) {
+        const base = {
+            x: xdata,
+            y: ydata,
+            name: vname,
+            units: vunit,
+            customdata: xaxisHoverText,
+            hovertemplate: '%{customdata}<extra></extra>'
+        };
+
+        if (plotType === 'line') {
+            return {
+                ...base,
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                    color: '#dc3545',
+                    width: 3
+                }
+            };
+        }
+
+        if (plotType === 'lpoint') {
+            return {
+                ...base,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: {
+                    color: '#dc3545',
+                    width: 3
+                },
+                marker: {
+                    color: '#fd7e14',
+                    line: {
+                        color: '#dc3545',
+                        width: 1
+                    },
+                    size: 8
+                }
+            };
+        }
+
+        return {
+            ...base,
+            type: 'bar',
+            marker: {
+                color: '#dc3545'
+            }
+        };
+    }
+
+    // Regression line
+    function makeTrendTrace() {
+        const regX = xlim;
+        const areg = json.coeffs.slope;
+        const breg = json.coeffs.intercept;
+        const regY = regX.map(x => breg + areg * x);
+
+        return formatSummaryHover({
+            x: regX,
+            y: regY,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Trend line',
+            units: 'days',
+            line: {
+                color: '#0d6efd',
+                width: 4
+            }
+        });
+    }
+
+    function makeReferenceTraces() {
+        const traces = [];
+
+        if ($(`#${timeres}-series-plot-mean`).is(':checked')) {
+            traces.push({
+                x: xlim,
+                y: [json.stats.mean, json.stats.mean],
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Mean',
+                line: {
+                    color: '#6610f2',
+                    width: 4
+                }
+            });
+        }
+
+        if ($(`#${timeres}-series-plot-median`).is(':checked')) {
+            traces.push({
+                x: xlim,
+                y: [json.stats.median, json.stats.median],
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Median',
+                line: {
+                    color: '#fd7e14',
+                    width: 4
+                }
+            });
+        }
+
+        if ($(`#${timeres}-series-plot-terciles`).is(':checked')) {
+            traces.push({
+                x: xlim,
+                y: [json.stats.tercile1, json.stats.tercile1],
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Lower tercile',
+                line: {
+                    color: '#198754',
+                    width: 4
+                }
+            });
+
+            traces.push({
+                x: xlim,
+                y: [json.stats.tercile2, json.stats.tercile2],
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Upper tercile',
+                line: {
+                    color: '#0a3622',
+                    width: 4
+                }
+            });
+        }
+
+        return traces.map(formatSummaryHover);
+    }
+
+    function drawPlot() {
+        const plotType = $(`#${timeres}-series-plot-type`).val();
+        const showTrend = $(`#${timeres}-series-plot-trend`).is(':checked');
+        const traces = [makeMainTrace(plotType)];
+
+        if (showTrend & json.coeffs !== null) {
+            traces.push(makeTrendTrace());
+        }
+
+        if (json.stats !== null) {
+            traces.push(...makeReferenceTraces());
+        }
+
+        var layout = {
+            xaxis: {
+                range: xlim,
+                ticks: 'outside',
+                ticklen: 8,
+                fixedrange: true,
+                showline: true,
+                showgrid: true,
+                gridwidth: 0.5,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            yaxis: {
+                range: ylim,
+                tickvals: yticks,
+                ticktext: yticktext,
+                ticks: 'outside',
+                ticklen: 8,
+                title: {
+                    text: ylab
+                },
+                fixedrange: true,
+                showline: true,
+                showgrid: true,
+                gridwidth: 0.5,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            showlegend: false,
+            bargap: 0.15,
+            width: getChartWidth(container),
+            height: getChartHeight(container)
+        };
+
+        layout.margin = { t: 10, b: 60, l: 80, r: 10 };
+        layout.print_legend = 'rainy_season';
+        layout = deepMerge(setPlotlyColors(), layout);
+        layout = deepMerge(expand_layout, layout);
+
+        purgePlotlyChart(container);
+        Plotly.react(
+            container,
+            traces,
+            layout,
+            plotly_config
+        );
+
+        setPlotlyThemeColors(container);
+        resizePlotlyChart(container);
+    }
+
+    ////
+    drawPlot();
+
+    $(`#${timeres}-series-plot-type`)
+        .off('change.chartRSeason')
+        .on('change.chartRSeason', drawPlot);
+
+    $(`.${timeres}-series-plot`)
+        .off('change.chartRSeason')
+        .on('change.chartRSeason', drawPlot);
 }
 
 ///////
@@ -2001,6 +2284,11 @@ function expand_agri_rseason_query_proba(tempRes) {
         return query;
     }
 
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    query.variable = $(`#${tempRes}-proba-variable`).val();
+
+    query.rainy_season = expand_rainy_season_query(tempRes, 'proba');
 
     return query;
 }
@@ -2011,6 +2299,12 @@ function expand_agri_rseason_charts_proba(container_id, tempRes) {
         return false;
     }
 
+    ajaxDisplayChart(
+        '/agriculture_analysis_proba',
+        query,
+        expand_agri_rseason_display_proba,
+        container_id
+    );
 }
 
 function expand_agri_rseason_display_proba(json, container) {
@@ -2027,6 +2321,11 @@ function expand_agri_rseason_query_anom(tempRes) {
         return query;
     }
 
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    query.variable = $(`#${tempRes}-anom-variable`).val();
+
+    query.rainy_season = expand_rainy_season_query(tempRes, 'anom');
 
     return query;
 }
@@ -2037,6 +2336,12 @@ function expand_agri_rseason_charts_anom(container_id, tempRes) {
         return false;
     }
 
+    ajaxDisplayChart(
+        '/agriculture_analysis_anom',
+        query,
+        expand_agri_rseason_display_anom,
+        container_id
+    );
 }
 
 function expand_agri_rseason_display_anom(json, container) {

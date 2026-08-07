@@ -55,7 +55,7 @@ def climate_analysis_ts_rawdata(params):
         else:
             crd = f'polygon ({info['geom']['name']})'
 
-        msg = f'All data are missing for point {crd}'
+        msg = f'All data are missing for {crd}'
         return {'status': -1, 'message': msg}
 
 def climate_analysis_ts_anomaly(params):
@@ -414,7 +414,7 @@ def climate_analysis_ts_proba(params):
         else:
             crd = f'polygon ({info['geom']['name']})'
 
-        msg = f'All data are missing for point {crd}'
+        msg = f'All data are missing for {crd}'
         return {'status': -1, 'message': msg}
 
 def climate_analysis_ts_season(params):
@@ -467,7 +467,7 @@ def climate_analysis_ts_season(params):
         else:
             crd = f'polygon ({info['geom']['name']})'
 
-        msg = f'All data are missing for point {crd}'
+        msg = f'All data are missing for {crd}'
         return {'status': -1, 'message': msg}
 
 #####

@@ -8,29 +8,15 @@ $(document).ready(function() {
     ////////////
     // Modal Expand Charts
 
-    $('.daily-series-select2').select2({
-        minimumResultsForSearch: -1,
-        dropdownParent: $('#daily-series-rseason-control')
-    });
-    $('.daily-series-select2').css('z-index', 9999);
-    $('#btn-div-chart-series').on('click', () => {
-        setRainySeasonExpandModalSeries('daily', 'div-chart-series');
-    });
-
-    $('.daily-proba-select2').select2({
-        minimumResultsForSearch: -1,
-        dropdownParent: $('#daily-proba-rseason-control')
-    });
-    $('#btn-div-chart-proba').on('click', () => {
-        setRainySeasonExpandModalProba('daily', 'div-chart-proba');
-    });
-
-    $('.daily-anom-select2').select2({
-        minimumResultsForSearch: -1,
-        dropdownParent: $('#daily-anom-rseason-control')
-    });
-    $('#btn-div-chart-anom').on('click', () => {
-        setRainySeasonExpandModalAnom('daily', 'div-chart-anom');
+    ['series', 'proba', 'anom'].map(x => {
+        const d = `div-chart-${x}`;
+        initiDialogBoxSelect2(
+            `.daily-${x}-select2`,
+            `#daily-${x}-rseason-control`
+        );
+        $(`#btn-${d}`).on('click', () => {
+            setRainySeasonExpandModal('daily', x, d);
+        });
     });
 
     ////////////
@@ -71,7 +57,10 @@ $(document).ready(function() {
     });
 
     ///////////
+    // display preview time series on click on map
+    mapClickLayersSpatialAverage(preview_rainyseason_display_charts, 'daily', map);
 
-
-
+    //// grid point only 
+    $('#support-spatial-average').prop('disabled', true);
+    $('#list-spatial-average').prop('disabled', true);
 });

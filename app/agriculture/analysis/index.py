@@ -9,6 +9,11 @@ import json
 import config
 
 from .scripts.analysis_sp import agriculture_analysis_sp_data
+from .scripts.analysis_ts import (
+    agriculture_analysis_ts_series,
+    agriculture_analysis_ts_proba,
+    agriculture_analysis_ts_anom
+)
 
 agriculture_analysis = Blueprint(
     'agriculture_analysis',
@@ -36,5 +41,32 @@ def agriculture_analysis_map():
     try:
         map_data = agriculture_analysis_sp_data(params)
         return json.dumps(map_data)
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@agriculture_analysis.route('/agriculture_analysis_series', methods=['POST'])
+def agriculture_analysis_series():
+    params = request.get_json()
+    try:
+        data_series = agriculture_analysis_ts_series(params)
+        return json.dumps(data_series)
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@agriculture_analysis.route('/agriculture_analysis_proba', methods=['POST'])
+def agriculture_analysis_proba():
+    params = request.get_json()
+    try:
+        data_proba = agriculture_analysis_ts_proba(params)
+        return json.dumps(data_proba)
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@agriculture_analysis.route('/agriculture_analysis_anom', methods=['POST'])
+def agriculture_analysis_anom():
+    params = request.get_json()
+    try:
+        data_anom = agriculture_analysis_ts_anom(params)
+        return json.dumps(data_anom)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})

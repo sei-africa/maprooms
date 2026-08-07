@@ -8,6 +8,22 @@ $(document).ready(function() {
     ////////////
     // Modal Expand Charts
 
+    // ['anom', 'proba', 'season'].map(x => {
+    //     $(`.daily-${x}-select2`).select2({
+    //         minimumResultsForSearch: -1,
+    //         dropdownParent: $(`#daily-${x}-control`)
+    //     });
+    //     const d = `div-chart-${x}`;
+    //     const sf = x.charAt(0).toUpperCase() + x.slice(1);
+    //     const fName = `setAnalysisExpandModal${sf}`;
+
+    //     $(`#btn-${d}`).on('click', () => {
+    //         if (typeof globalThis[fName] === 'function') {
+    //             globalThis[fName]('daily', d);
+    //         }
+    //     });
+    // });
+
     $('.daily-anom-select2').select2({
         minimumResultsForSearch: -1,
         dropdownParent: $('#daily-anom-control')

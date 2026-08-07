@@ -515,6 +515,53 @@ function formatPlotlyHoverDateEnso(
     }
 }
 
+function formatPlotlyHoverDateRainySeason(
+    time, time_list, ydata_list, start_list, var_info
+) {
+    const it = time_list.indexOf(time);
+    if (it === -1) {
+        return '';
+    } else {
+        const y = ydata_list[it];
+        const txt = `Rainy season: ${time}<br>${var_info.name}`;
+        if (var_info.type === 'length') {
+            return `${txt}: ${parseInt(y, 10)} ${var_info.units}`
+        } else {
+            const s = start_list[it];
+            const d = new Date(s);
+            d.setDate(d.getDate() + y);
+            const r = d.toLocaleDateString(
+                LANG_USER.selected.locale, {
+                    month: 'long',
+                    day: '2-digit',
+                    year: 'numeric'
+                }
+            );
+            return `${txt}: ${r}`
+        }
+    }
+}
+
+function formatTickTextRainySeason(
+    tickvals, start, var_info
+) {
+    if (var_info.type === 'length') {
+        return tickvals;
+    }
+
+    const [year, month, day] = start.split('-').map(Number);
+    return tickvals.map(n => {
+        const date = new Date(year, month - 1, day);
+        date.setDate(date.getDate() + n);
+
+        return date.toLocaleDateString(
+            LANG_USER.selected.locale, {
+                month: 'short',
+                day: '2-digit'
+            }).replace(' ', '-');
+    });
+}
+
 function getDaysDifference(date1, date2) {
     const timeDiff = Math.abs(date2 - date1);
     const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
