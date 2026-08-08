@@ -474,7 +474,7 @@ def index_daily_season(
 def interp_rainy_season(
     season_data: xr.DataArray,
     max_search: int | float = np.inf,
-    max_dist: float = 1.5,
+    max_dist: float = 0.5,
 ) -> xr.DataArray:
     if not isinstance(season_data, xr.DataArray):
         raise TypeError('season_data must be an xarray.DataArray')

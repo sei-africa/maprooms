@@ -253,13 +253,13 @@ function downloadPlotlyImageJPG(container) {
         });
 }
 
-function addRangeselector(container, ranges, last_date) {
+function addRangeselector(container, ranges, last_date, xaxis_type = 'date') {
     displayRangeselector(container, ranges);
     const range_id = getRangeselectorId(container);
     const button = $(`#${range_id} .rangeselector-btn`);
     button.on('click', function() {
         const range_key = $(this).data('range');
-        createRangeselector(container, $(this), range_key, last_date);
+        createRangeselector(container, $(this), range_key, last_date, xaxis_type);
     });
 
     const eltChart = document.getElementById(container);
@@ -303,7 +303,7 @@ function showRangeselector(container, action) {
     });
 }
 
-function computeRangeselector(range_key, last_date) {
+function computeRangeselectorDate(range_key, last_date) {
     const end = new Date(last_date);
     let start = null;
 
@@ -351,7 +351,6 @@ function computeRangeselector(range_key, last_date) {
             start = new Date(end);
             start.setFullYear(end.getFullYear() - 30);
             break;
-        case 'ALL':
         default:
             start = null;
             break;
@@ -359,22 +358,66 @@ function computeRangeselector(range_key, last_date) {
     return start;
 }
 
-function createRangeselector(container, button, range_key, last_date) {
+function computeRangeselectorYear(range_key, last_year) {
+    let start = null;
+    switch (range_key) {
+        case '5Y':
+            start = last_year - 5;
+            break;
+        case '10Y':
+            start = last_year - 10;
+            break;
+        case '15Y':
+            start = last_year - 15;
+            break;
+        case '20Y':
+            start = last_year - 20;
+            break;
+        case '25Y':
+            start = last_year - 25;
+            break;
+        case '30Y':
+            start = last_year - 30;
+            break;
+        default:
+            start = null;
+            break;
+    }
+    return start;
+}
+
+function createRangeselector(container, button, range_key, last_date, xaxis_type) {
     const range_id = getRangeselectorId(container);
     const this_button = $(`#${range_id} .rangeselector-btn`);
     this_button.removeClass('active');
     button.addClass('active');
 
-    const start = computeRangeselector(range_key, last_date);
+    let start;
+    if (xaxis_type === 'date') {
+        start = computeRangeselectorDate(range_key, last_date);
+    } else if (xaxis_type === 'year') {
+        start = computeRangeselectorYear(range_key, last_date);
+    } else {
+        start = null;
+    }
+
     if (!start) {
         Plotly.relayout(container, {
             'xaxis.autorange': true,
             'xaxis.range': null
         });
     } else {
+        let xaxis_range;
+        if (xaxis_type === 'date') {
+            xaxis_range = [start.toISOString(), last_date.toISOString()]
+        } else if (xaxis_type === 'year') {
+            xaxis_range = [start, last_date];
+        } else {
+            xaxis_range = null;
+        }
         Plotly.relayout(container, {
             'xaxis.autorange': false,
-            'xaxis.range': [start.toISOString(), last_date.toISOString()]
+            'xaxis.range': xaxis_range
         });
     }
 }
@@ -606,15 +649,15 @@ function resizePlotlyChart(container) {
     let resizeTimer;
     const resizeNamespace = container.replace(/[^a-zA-Z0-9]/g, '');
     $(window)
-        .off(`resize.teleconProba${resizeNamespace}`)
-        .on(`resize.teleconProba${resizeNamespace}`, function() {
+        .off(`resize.plotlyChart${resizeNamespace}`)
+        .on(`resize.plotlyChart${resizeNamespace}`, function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(resizeChart, 100);
         });
 
     $(`#${container}`).closest('.modal')
-        .off(`hidden.bs.modal.teleconProba${resizeNamespace}`)
-        .on(`hidden.bs.modal.teleconProba${resizeNamespace}`, function() {
-            $(window).off(`resize.teleconProba${resizeNamespace}`);
+        .off(`hidden.bs.modal.plotlyChart${resizeNamespace}`)
+        .on(`hidden.bs.modal.plotlyChart${resizeNamespace}`, function() {
+            $(window).off(`resize.plotlyChart${resizeNamespace}`);
         });
 }

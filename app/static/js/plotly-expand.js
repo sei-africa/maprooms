@@ -745,13 +745,14 @@ function expand_analysis_display_anomaly(json_input, container) {
     };
 
     layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(expand_layout, layout);
     layout.xaxis.rangeslider.bgcolor = defColors.positive;
 
     purgePlotlyChart(container);
     Plotly.newPlot(
         container,
         data,
-        deepMerge(expand_layout, layout),
+        layout,
         plotly_config
     );
 
@@ -759,7 +760,7 @@ function expand_analysis_display_anomaly(json_input, container) {
     const last_date = new Date(json.time[json.time.length - 1]);
     // const ranges = ['1Y', '5Y', '10Y', 'ALL'];
     const ranges = ['1Y', '5Y', '10Y', '15Y', '20Y', '30Y', 'ALL'];
-    addRangeselector(container, ranges, last_date)
+    addRangeselector(container, ranges, last_date, 'date');
 
     setPlotlyThemeColors(container);
     resizePlotlyChart(container);
@@ -903,7 +904,7 @@ function expand_analysis_display_proba(json, container) {
         layout = {
             xaxis: {
                 range: json.xrange,
-                tickvals: json.yticks,
+                tickvals: json.xticks,
                 ticks: 'outside',
                 ticklen: 8,
                 fixedrange: true,
@@ -912,6 +913,7 @@ function expand_analysis_display_proba(json, container) {
                 gridwidth: 0.5,
                 gridcolor: 'lightgray',
                 minor: {
+                    tickvals: createTicksMinor(json.xticks),
                     showgrid: true,
                     gridwidth: 0.3,
                     gridcolor: 'lightgray',
@@ -1067,8 +1069,7 @@ function expand_analysis_display_proba(json, container) {
     const container_plot = setProbaPlotContainer(json, container);
 
     purgePlotlyChart(container_plot);
-    // Plotly.newPlot(
-    Plotly.react(
+    Plotly.newPlot(
         container_plot,
         data,
         layout,
@@ -1357,7 +1358,7 @@ function expand_analysis_display_season(json, container) {
         layout = deepMerge(expand_layout, layout);
 
         purgePlotlyChart(container);
-        Plotly.react(
+        Plotly.newPlot(
             container,
             traces,
             layout,
@@ -1646,8 +1647,7 @@ function expand_analysis_display_enso(json, container) {
         };
 
         purgePlotlyChart(container);
-
-        Plotly.react(
+        Plotly.newPlot(
             container,
             data,
             layout,
@@ -1849,8 +1849,8 @@ function expand_analysis_telecon_proba(container_id, tempRes) {
 function expand_telecon_display_proba(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
-
     const theme = $('html').attr('data-bs-theme');
+
     const col_allyears = plotly_themecolors[theme].fontcolor;
     const linecol = ['blue', 'gray', 'red', col_allyears];
 
@@ -1875,7 +1875,7 @@ function expand_telecon_display_proba(json, container) {
 
     var layout = {
         xaxis: {
-            range: json.xrange,
+            range: json.yrange,
             tickvals: json.yticks,
             tickformat: '.1f',
             ticks: 'outside',
@@ -2253,7 +2253,7 @@ function expand_agri_rseason_display_series(json, container) {
         layout = deepMerge(expand_layout, layout);
 
         purgePlotlyChart(container);
-        Plotly.react(
+        Plotly.newPlot(
             container,
             traces,
             layout,
@@ -2310,7 +2310,131 @@ function expand_agri_rseason_charts_proba(container_id, tempRes) {
 function expand_agri_rseason_display_proba(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
+    divCont.closest('.modal-content').css('width', '60%');
+    const theme = $('html').attr('data-bs-theme');
 
+    const xticktext = formatTickTextRainySeason(
+        json.xticks, json.start[0], json.info.var
+    );
+    const isDateVariable = ['onset', 'cessation'].includes(
+        json.info.var.type
+    );
+    let formatX = value => value;
+    if (isDateVariable) {
+        const [year, month, day] = json.start[0].split('-').map(Number);
+        const startTime = Date.UTC(year, month - 1, day);
+        formatX = value => new Date(startTime + value * 86400000);
+    }
+
+    const time_res = json.info.time_res;
+    const c1 = `${time_res}-proba-plot-cdf-empirical`;
+    const cdfE = $(`#${c1}`).is(':checked');
+    const c2 = `${time_res}-proba-plot-cdf-smoothed`;
+    const cdfS = $(`#${c2}`).is(':checked');
+
+    const data = [{
+            x: json.cdf.empirical.x.map(formatX),
+            y: json.cdf.empirical.y,
+            mode: 'lines+markers',
+            name: 'Empirical CDF',
+            units: '%',
+            line: {
+                color: 'red',
+                width: 3
+            },
+            marker: {
+                color: 'orange',
+                line: {
+                    color: 'red',
+                    width: 1
+                },
+                size: 6
+            },
+            visible: cdfE,
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        },
+        {
+            x: json.cdf.smoothed.x.map(formatX),
+            y: json.cdf.smoothed.y,
+            mode: 'lines',
+            name: 'Smoothed CDF',
+            units: '%',
+            line: {
+                color: '#1e90ff',
+                width: 3
+            },
+            visible: cdfS,
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        }
+    ];
+
+    var layout = {
+        xaxis: {
+            range: json.xrange.map(formatX),
+            tickvals: json.xticks.map(formatX),
+            ticktext: xticktext,
+            ticks: 'outside',
+            ticklen: 8,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                tickvals: createTicksMinor(json.xticks).map(formatX),
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            unifiedhovertitle: {
+                text: isDateVariable ?
+                    json.info.var.name + ': %{x|%b-%d}' : json.info.var.name +
+                    ': %{x:.0f} ' + json.info.var.units
+            },
+            title: {
+                text: json.info.labels.x
+            }
+        },
+        yaxis: {
+            range: [0, 100],
+            ticks: 'outside',
+            ticklen: 8,
+            ticksuffix: '%',
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            title: {
+                text: json.info.labels.y
+            }
+        },
+        showlegend: false,
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme)
+    };
+
+    layout.margin = { t: 10, b: 70, l: 70, r: 10 };
+    layout.print_legend = 'probability';
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(expand_layout, layout);
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(
+        container,
+        data,
+        layout,
+        plotly_config
+    );
+
+    setPlotlyThemeColors(container);
 }
 
 ///////
@@ -2348,4 +2472,82 @@ function expand_agri_rseason_display_anom(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
 
+    const defColors = {
+        negative: '#fd7e14',
+        positive: '#198754',
+        other: '#6c757d'
+    }
+
+    const barColors = json.values.map(value => {
+        if (value > 0) {
+            return defColors.positive;
+        } else if (value < 0) {
+            return defColors.negative;
+        } else {
+            return defColors.other;
+        }
+    });
+
+    const data = [{
+        x: json.time,
+        y: json.values,
+        name: json.info.var.name,
+        units: json.info.var.units,
+        type: 'bar',
+        marker: {
+            color: barColors,
+            line: {
+                width: 0
+            }
+        },
+        hovertemplate: 'Rainy season: %{x}<br> %{data.name}: %{y:.0f} %{data.units} <extra></extra>'
+    }];
+
+    let layout = {
+        xaxis: {
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            rangeslider: plotly_rangeslider,
+            ticks: 'outside',
+            ticklen: 8,
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            ticks: 'outside',
+            ticklen: 8,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            title: {
+                text: `${json.info.var.name} [${json.info.var.units}]`,
+            },
+        },
+        width: getChartWidth(container),
+        height: getChartHeight(container)
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(expand_layout, layout);
+    layout.xaxis.rangeslider.bgcolor = defColors.positive;
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(
+        container,
+        data,
+        layout,
+        plotly_config
+    );
+
+    //// add range selector
+    const last_year = json.time[json.time.length - 1];
+    const ranges = ['10Y', '15Y', '20Y', '30Y', 'ALL'];
+    addRangeselector(container, ranges, last_year, 'year')
+
+    setPlotlyThemeColors(container);
+    resizePlotlyChart(container);
 }

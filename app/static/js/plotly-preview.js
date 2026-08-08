@@ -650,13 +650,14 @@ function preview_analysis_display_proba(json, container) {
     var layout = {
         xaxis: {
             range: json.xrange,
-            tickvals: json.yticks,
+            tickvals: json.xticks,
             fixedrange: true,
             showline: true,
             showgrid: true,
             gridwidth: 0.5,
             gridcolor: 'lightgray',
             minor: {
+                tickvals: createTicksMinor(json.xticks),
                 showgrid: true,
                 gridwidth: 0.3,
                 gridcolor: 'lightgray',
@@ -1098,7 +1099,7 @@ function preview_telecon_display_proba(json, container) {
 
     var layout = {
         xaxis: {
-            range: json.xrange,
+            range: json.yrange,
             tickvals: json.yticks,
             tickformat: '.1f',
             fixedrange: true,
@@ -1364,7 +1365,117 @@ function preview_rainyseason_charts_proba(tempRes, contID) {
 function preview_rainyseason_display_proba(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
+    const theme = $('html').attr('data-bs-theme');
 
+    const xticktext = formatTickTextRainySeason(
+        json.xticks, json.start[0], json.info.var
+    );
+    const isDateVariable = ['onset', 'cessation'].includes(
+        json.info.var.type
+    );
+    let formatX = value => value;
+    if (isDateVariable) {
+        const [year, month, day] = json.start[0].split('-').map(Number);
+        const startTime = Date.UTC(year, month - 1, day);
+        formatX = value => new Date(startTime + value * 86400000);
+    }
+
+    const data = [{
+            x: json.cdf.smoothed.x.map(formatX),
+            y: json.cdf.smoothed.y,
+            mode: 'lines',
+            name: 'Smoothed CDF',
+            units: '%',
+            line: {
+                color: '#1e90ff',
+                width: 4
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        },
+        {
+            x: json.cdf.empirical.x.map(formatX),
+            y: json.cdf.empirical.y,
+            mode: 'lines+markers',
+            name: 'Empirical CDF',
+            units: '%',
+            line: {
+                color: 'red',
+                width: 3
+            },
+            marker: {
+                color: 'orange',
+                line: {
+                    color: 'red',
+                    width: 1
+                },
+                size: 6
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        }
+    ];
+
+    var layout = {
+        xaxis: {
+            range: json.xrange.map(formatX),
+            tickvals: json.xticks.map(formatX),
+            ticktext: xticktext,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                tickvals: createTicksMinor(json.xticks).map(formatX),
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            unifiedhovertitle: {
+                text: isDateVariable ?
+                    json.info.var.name + ': %{x|%b-%d}' : json.info.var.name +
+                    ': %{x:.0f} ' + json.info.var.units
+            }
+        },
+        yaxis: {
+            range: [0, 100],
+            ticksuffix: '%',
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            }
+        },
+        showlegend: false,
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme)
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+    layout.margin.l = 40;
+    layout.margin.b = 40;
+
+    const config = {
+        displayModeBar: false,
+        responsive: true
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(
+        container,
+        data,
+        layout,
+        config
+    );
+
+    setPlotlyThemeColors(container);
 }
 
 ///////
@@ -1390,4 +1501,78 @@ function preview_rainyseason_display_anom(json, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
 
+    const xlim = [
+        Math.min(...json.time) - 1,
+        Math.max(...json.time) + 1
+    ];
+
+    const defColors = {
+        negative: '#fd7e14',
+        positive: '#198754',
+        other: '#6c757d'
+    }
+
+    const barColors = json.values.map(value => {
+        if (value > 0) {
+            return defColors.positive;
+        } else if (value < 0) {
+            return defColors.negative;
+        } else {
+            return defColors.other;
+        }
+    });
+
+    const data = [{
+        x: json.time,
+        y: json.values,
+        name: json.info.var.name,
+        units: json.info.var.units,
+        type: 'bar',
+        marker: {
+            color: barColors,
+            line: {
+                width: 0
+            }
+        },
+        hovertemplate: 'Rainy season: %{x}<br> %{data.name}: %{y:.0f} %{data.units} <extra></extra>'
+    }];
+
+    let layout = {
+        xaxis: {
+            range: xlim,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            gridcolor: 'lightgray'
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+        },
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+
+    const config = {
+        displayModeBar: false,
+        responsive: true
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(
+        container,
+        data,
+        layout,
+        config
+    );
+
+    setPlotlyThemeColors(container);
 }

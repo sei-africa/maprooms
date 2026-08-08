@@ -8,6 +8,9 @@ from app.scripts._cache import cache, hash_params_rainy_season
 from app.misc.scripts.soilgrids_tawc import get_gyga_af_tawc
 from app.misc.scripts.rainy_season import compute_rainy_season
 from app.misc.scripts.regression import linear_model
+from app.misc.scripts.probabilities import (
+    ecdf_ts, ecdf_smooth_v2
+)
 
 def agriculture_analysis_ts_series(params):
     season_data = _get_rainy_season(params)
@@ -24,7 +27,7 @@ def agriculture_analysis_ts_series(params):
     start_cessation = rainy_season.cessation_start.values
 
     if ~np.all(np.isnan(values)):
-        if len(values[~np.isnan(values)]) > 5:
+        if len(values[~np.isnan(values)]) > 10:
             vmin = np.nanmin(values)
             vmax = np.nanmax(values)
             breaks = pretty(vmin, vmax, 14).tolist()
@@ -90,15 +93,130 @@ def agriculture_analysis_ts_series(params):
         return {'status': -1, 'message': msg}
 
 def agriculture_analysis_ts_proba(params):
-    # print('**********************')
-    # print(params)
-    return {'status': 0, 'data': 'test proba'}
+    season_data = _get_rainy_season(params)
+    if season_data['status'] == -1:
+        return season_data
+    rainy_season = season_data['data']
 
+    var_name = params['variable']
+    years = rainy_season['year'].values
+    values = rainy_season[var_name].values
+    values = values.squeeze()
+    info = _get_rainy_season_info(rainy_season, params)
+    xunits = info['var']['units']
+    xlabel = info['var']['name']
+    if xunits != '':
+        xlabel = f'{xlabel} ({xunits})'
+    info['labels'] = {
+        'x': xlabel,
+        'y': 'Probability of exceeding'
+    }
+
+    start_onset = rainy_season.onset_start.values
+    start_cessation = rainy_season.cessation_start.values
+
+    mlon = info['geom']['lon']
+    mlat = info['geom']['lat']
+    mcrd = f'(Longitude: {mlon}, Latitude: {mlat})'
+
+    if ~np.all(np.isnan(values)):
+        if len(values[~np.isnan(values)]) > 10:
+            p_ecdf = ecdf_ts(values)
+            s_ecdf = ecdf_smooth_v2(
+                values, adj=1.0, extend=True, n=512
+            )
+            cdf = {
+                'empirical': {
+                    k: np.round(v, decimals=6).tolist()
+                    for k, v in p_ecdf.items()
+                },
+                'smoothed': {
+                    k: np.round(v, decimals=6).tolist()
+                    for k, v in s_ecdf.items()
+                }
+            }
+
+            vmin = np.nanmin(values)
+            vmax = np.nanmax(values)
+            breaks = pretty(vmin, vmax, 14).tolist()
+
+            xlim = [breaks[0], breaks[-1]]
+            ex = (xlim[1] - xlim[0]) * 0.01
+            xlim[0] = xlim[0] - ex
+            xlim[1] = xlim[1] + ex
+
+            if params['variable'] == 'cessation':
+                start_d = pd.Series(start_cessation).dt.strftime('%Y-%m-%d').to_numpy()
+                start_d = np.where(np.isnan(start_cessation), None, start_d)
+            elif params['variable'] == 'onset':
+                start_d = pd.Series(start_onset).dt.strftime('%Y-%m-%d').to_numpy()
+                start_d = np.where(np.isnan(start_onset), None, start_d)
+            else:
+                start_d = years
+
+            values = np.where(np.isnan(values), None, values)
+            data = {
+                'ts': values.tolist(),
+                'cdf': cdf,
+                'info': info,
+                'xrange': xlim,
+                'xticks': breaks,
+                'start': start_d.tolist()
+            }
+            return {'status': 0, 'data': data}
+        else:
+            msg = f'Not enough data to compute CDF for point {mcrd}'
+            return {'status': -1, 'message': msg}
+    else:
+        msg = f'All data are missing for point {mcrd}'
+        return {'status': -1, 'message': msg}
 
 def agriculture_analysis_ts_anom(params):
-    # print('######################')
-    # print(params)
-    return {'status': 0, 'data': 'test anom'}
+    season_data = _get_rainy_season(params)
+    if season_data['status'] == -1:
+        return season_data
+    rainy_season = season_data['data']
+
+    var_name = params['variable']
+    years = rainy_season['year'].values
+    values = rainy_season[var_name].values
+    values = values.squeeze()
+    info = _get_rainy_season_info(rainy_season, params)
+    info['var']['name'] = f"{info['var']['name']} anomaly"
+    info['var']['units'] = 'days'
+
+    mlon = info['geom']['lon']
+    mlat = info['geom']['lat']
+    mcrd = f'(Longitude: {mlon}, Latitude: {mlat})'
+
+    if ~np.all(np.isnan(values)):
+        if len(values[~np.isnan(values)]) > 10:
+            clim = np.nanmean(values)
+        else:
+            msg = f'Not enough data to compute climatology for point {mcrd}'
+            return {'status': -1, 'message': msg}
+
+        values = values - clim
+        vmin = np.nanmin(values)
+        vmax = np.nanmax(values)
+        val_max = np.maximum(np.abs(vmin), np.abs(vmax))
+        breaks = pretty(-val_max, val_max, 14).tolist()
+        ylim = np.array([breaks[0], breaks[-1]])
+        ylim = ylim + ((ylim[1] - ylim[0]) * 0.01) * np.array([-1, 1])
+
+        values = np.round(values)
+        values = np.where(np.isnan(values), None, values)
+        data = {
+            'time': years.tolist(),
+            'values': values.tolist(),
+            'info': info,
+            'yrange': ylim.tolist(),
+            'yticks': breaks
+        }
+        return {'status': 0, 'data': data}
+    else:
+        msg = f'All data are missing for point {mcrd}'
+        return {'status': -1, 'message': msg}
 
 def _get_rainy_season(params):
     p_rseas = params['rainy_season']

@@ -736,6 +736,17 @@ function setRainySeasonExpandModal(tempRes, chartType, contID) {
             expandFunction[chartType](contChart, tempRes);
         });
 
+    $(`.${tempRes}-proba-plot`)
+        .off('change.chartRSeason')
+        .on('change.chartRSeason', function() {
+            const pType = $(this).val();
+            const ix = ['empirical', 'smoothed'].indexOf(pType);
+
+            Plotly.restyle(contChart, {
+                visible: $(this).is(':checked')
+            }, [ix]);
+        });
+
     // update chart
     $(`#plotly-replot-${contID}`)
         .off('click.chartRSeason')
