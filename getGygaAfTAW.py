@@ -5,6 +5,7 @@ def main():
     print(f'{sep}\n Downloading GYGA Africa Soil Information')
     download_gyga_af_tawc('agg_erzd')
     download_gyga_af_tawc('agg_30cm')
+    print('Done!')
 
 if __name__ == '__main__':
     main()
