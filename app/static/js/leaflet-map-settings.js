@@ -493,7 +493,7 @@ function queryParamsClimateMonitoringMap(time_res) {
         if (['rain_cumul', 'anom_cumul', 'anom_per_cumul'].includes(query.map_variable)) {
             const start_dek = $(`#${time_res}-start-cumul-calendar`).val();
 
-            if (!checkDatesDekadCumul(start_dek, date)) {
+            if (!checkDatesCumul(start_dek, date)) {
                 return false;
             }
             query.startDekad = formatDekadDate(start_dek);

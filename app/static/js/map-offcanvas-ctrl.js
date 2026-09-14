@@ -599,7 +599,7 @@ function setMonitoringSeasonal(tempRes, variable) {
             [`${tempRes}-time-scale-div`]
         );
 
-        temp_cov = getTempCoverageCalendar(
+        const temp_cov = getTempCoverageCalendar(
             DATA_SET.use, tempRes, variable
         );
         const mon = -1 * SEASON_DEF.months.length + 1;

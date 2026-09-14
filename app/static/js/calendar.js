@@ -157,7 +157,12 @@ function setDateCalendar(
     // 
     if (dispDate === null) {
         if (tempRes === 'seasonal' && !dispYear) {
-            const disp_d = addDateYears(temp_cov.end, -1);
+            let disp_d;
+            if (URL_ARGS.component === 'monitoring') {
+                disp_d = temp_cov.end;
+            } else {
+                disp_d = addDateYears(temp_cov.end, -1);
+            }
             dispDate = formatDateToString(disp_d);
         } else {
             dispDate = temp_cov.end;
@@ -229,7 +234,8 @@ function setDateCalendar(
 function setNamesCalendar(
     divContainerID, tempRes,
     dropdownParent = $(document.body),
-    mapNavigation = true
+    mapNavigation = true,
+    startMonth = SEASON_DEF.months.start
 ) {
     let divCont = $(`#${divContainerID}`);
     divCont.empty();
@@ -249,8 +255,8 @@ function setNamesCalendar(
                 .val(m + 1)
             );
         }
-        select.val(SEASON_DEF.months.start);
-        const imon = parseInt(SEASON_DEF.months.start, 10);
+        select.val(startMonth);
+        const imon = parseInt(startMonth, 10);
         var int_value = months[imon - 1];
     } else if (tempRes === 'dekadal') {
         const dekads = getListOfDekadsCalendar();
