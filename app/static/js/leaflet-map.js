@@ -1225,8 +1225,13 @@ function checkQueryPointOutside(query, time_res) {
     const lon = Number(point.lon);
     const lat = Number(point.lat);
     let p;
-    if ('map_variable' in query) {
-        p = query.map_variable;
+    if (query.map_variable || query.chart_variable) {
+        if (query.map_variable) {
+            p = query.map_variable;
+        }
+        if (query.chart_variable) {
+            p = query.chart_variable;
+        }
     } else {
         p = query.variable;
     }

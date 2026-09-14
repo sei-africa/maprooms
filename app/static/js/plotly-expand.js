@@ -6,7 +6,13 @@ function expand_analysis_query_rawdata(tempRes) {
 
     query.temporalRes = tempRes;
     query.dataset = DATA_SET.use;
-    query.variable = $(`#${tempRes}-chart-raw-variable`).val();
+    // query.variable = $(`#${tempRes}-chart-raw-variable`).val();
+    query.chart_variable = $(`#${tempRes}-chart-raw-variable`).val();
+    if (URL_ARGS.component === 'monitoring') {
+        query.variable = DATA_SET.variables[query.chart_variable][0];
+    } else {
+        query.variable = query.chart_variable;
+    }
     query.startDate = analysis_query_format_date(
         $(`#${tempRes}-chart-raw-startdate-calendar`).val(),
         tempRes
@@ -15,6 +21,12 @@ function expand_analysis_query_rawdata(tempRes) {
         $(`#${tempRes}-chart-raw-enddate-calendar`).val(),
         tempRes
     );
+
+    if (tempRes === 'seasonal') {
+        query.seasStart = parseInt($(`#${tempRes}-chart-season-startmon-calendar`).val(), 10);
+        query.seasLength = parseInt($(`#${tempRes}-chart-season-seaslen`).val(), 10);
+        query.fullYearTS = false;
+    }
 
     return Object.assign({}, query);
 }
@@ -79,7 +91,10 @@ function expand_analysis_display_rawdata(json_input, container) {
         const var_precip = json.info.var.type === 'precip';
 
         const xaxisHoverText = json.time.map((t) => {
-            return formatPlotlyHoverDate(t, json.info.time_res);
+            return formatPlotlyHoverDate(
+                t, json.info.time_res,
+                json.info.seas_len
+            );
         });
 
         const data = [{
@@ -126,7 +141,7 @@ function expand_analysis_display_rawdata(json_input, container) {
                 yaxis: {
                     showgrid: true,
                     griddash: 'dot',
-                    tickfont: { color: '#fc03fc' }
+                    // tickfont: { color: '#fc03fc' }
                 },
                 shapes: [{
                     action: 'change-color',
@@ -555,7 +570,13 @@ function expand_analysis_query_anomaly(tempRes) {
 
     query.temporalRes = tempRes;
     query.dataset = DATA_SET.use;
-    query.variable = $(`#${tempRes}-anom-variable`).val();
+    // query.variable = $(`#${tempRes}-anom-variable`).val();
+    query.chart_variable = $(`#${tempRes}-anom-variable`).val();
+    if (URL_ARGS.component === 'monitoring') {
+        query.variable = DATA_SET.variables[query.chart_variable][0];
+    } else {
+        query.variable = query.chart_variable;
+    }
     query.anomaly = $(`#${tempRes}-chart-anom-type`).val();
 
     query.startYear = parseInt($(`#${tempRes}-chart-anom-bp-start`).val().trim(), 10);
@@ -2685,4 +2706,220 @@ function expand_agri_cropsuit_display(json, container) {
 
     setPlotlyThemeColors(container);
     resizePlotlyChart(container);
+}
+
+///////
+
+function expand_analysis_query_cumul(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+
+    query.chart_variable = $(`#${tempRes}-chart-cumul-variable`).val();
+    query.variable = DATA_SET.variables[query.chart_variable][0];
+
+    const start_date = $(`#${tempRes}-chart-cumul-startdate-calendar`).val();
+    const end_date = $(`#${tempRes}-chart-cumul-enddate-calendar`).val();
+    if (!checkDatesCumul(start_date, end_date)) {
+        return false;
+    }
+    query.startDate = analysis_query_format_date(
+        start_date, tempRes
+    );
+    query.endDate = analysis_query_format_date(
+        end_date, tempRes
+    );
+
+    query.startYear = parseInt($(`#${tempRes}-chart-cumul-bp-start`).val().trim(), 10);
+    query.endYear = parseInt($(`#${tempRes}-chart-cumul-bp-end`).val().trim(), 10);
+    query.minYear = parseInt($(`#${tempRes}-chart-cumul-bp-min`).val().trim(), 10);
+
+    return query;
+}
+
+function expand_analysis_charts_cumul(container_id, tempRes) {
+    const query = expand_analysis_query_cumul(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_monitoring_cumul',
+        query,
+        expand_analysis_display_cumul,
+        container_id
+    );
+}
+
+function expand_analysis_display_cumul(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+    const theme = $('html').attr('data-bs-theme');
+
+    const percentileLegend = {
+        x: [null],
+        y: [null],
+        type: 'scatter',
+        mode: 'markers',
+
+        marker: {
+            color: 'gray',
+            size: 12,
+            symbol: 'square'
+        },
+
+        name: '5th–95th Percentile',
+        hoverinfo: 'skip'
+    };
+
+    const shapes = [];
+    for (let j = 0; j < json.time.length - 1; j++) {
+        shapes.push({
+            type: 'rect',
+
+            xref: 'x',
+            yref: 'y',
+
+            x0: json.time[j],
+            x1: json.time[j + 1],
+
+            y0: json.values[2][j],
+            y1: json.values[3][j],
+
+            fillcolor: 'gray',
+            line: {
+                color: 'gray',
+                width: 1
+            },
+
+            layer: 'below'
+        });
+    }
+
+    const data = [
+        percentileLegend,
+        {
+            x: json.time,
+            y: json.values[0],
+            name: 'Cumulative Rainfall',
+            units: 'mm',
+            type: 'scatter',
+            mode: 'lines',
+            line: {
+                color: 'red',
+                width: 4
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        },
+        {
+            x: json.time,
+            y: json.values[1],
+            name: 'Climatological Mean',
+            units: 'mm',
+            type: 'scatter',
+            mode: 'lines',
+            line: {
+                color: 'blue',
+                width: 4
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        },
+        {
+            x: json.time,
+            y: json.values[2],
+            name: '5th Percentile',
+            showlegend: false,
+            units: 'mm',
+            type: 'scatter',
+            mode: 'lines',
+            line: {
+                shape: 'hv',
+                color: 'gray',
+                width: 4
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        },
+        {
+            x: json.time,
+            y: json.values[3],
+            name: '95th Percentile',
+            showlegend: false,
+            units: 'mm',
+            type: 'scatter',
+            mode: 'lines',
+            line: {
+                shape: 'hv',
+                color: 'gray',
+                width: 4
+            },
+            hovertemplate: '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+        }
+    ];
+
+    let layout = {
+        xaxis: {
+            type: 'date',
+            showgrid: true,
+            gridwidth: 0.5,
+            griddash: 'dot',
+            gridcolor: 'lightgray',
+            showline: true,
+            linecolor: plotly_themecolors[theme].fontcolor,
+            unifiedhovertitle: {
+                text: 'Dekad: %{x|%d %b %Y}'
+            },
+            ticks: 'outside',
+            ticklen: 8
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            showgrid: true,
+            gridwidth: 0.5,
+            griddash: 'dot',
+            gridcolor: 'lightgray',
+            showline: true,
+            linecolor: plotly_themecolors[theme].fontcolor,
+            ticks: 'outside',
+            ticklen: 8,
+            title: {
+                text: `${json.info.var.name} [${json.info.var.units}]`,
+            },
+        },
+        shapes: shapes,
+        showlegend: true,
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme)
+    };
+
+    layout.margin = { t: 10, b: 60, l: 60, r: 10 };
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(preview_layout, layout);
+
+    const config = {
+        displayModeBar: false,
+        responsive: true
+    };
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(container, data, layout, config);
+    setPlotlyThemeColors(container);
+
+    $('#btn-theme-toggle').on('click', () => {
+        const thm = $('html').attr('data-bs-theme');
+        const update = {
+            'xaxis.linecolor': plotly_themecolors[thm].fontcolor,
+            'yaxis.linecolor': plotly_themecolors[thm].fontcolor,
+            'hoverlabel.font.color': plotly_themecolors[thm].fontcolor,
+            'hoverlabel.bgcolor': plotly_themecolors[thm].bgcolor
+        };
+        Plotly.relayout(container, update);
+    });
 }

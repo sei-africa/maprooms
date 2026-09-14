@@ -15,6 +15,21 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
         mapNavigation = false
     );
 
+    if (tempRes === 'seasonal') {
+        const variable = $(`#${tempRes}-chart-raw-variable`).val();
+        const temp_cov = getTempCoverageCalendar(
+            DATA_SET.use, tempRes, variable
+        );
+        const mon = -1 * SEASON_DEF.months.length + 1;
+        const disp_d = addDateMonths(temp_cov.end, mon);
+        const dispDate = formatDateToString(disp_d);
+        const start_mon = parseInt(dispDate.split('-')[1], 10);
+
+        setClimateSeasonStartLengthExpand(
+            tempRes, 'chart-season', 'raw', start_mon
+        );
+    }
+
     //
     const contChart = `container-chart-${contID}`;
 
@@ -49,6 +64,20 @@ function setAnalysisExpandModalRaw(tempRes, contID) {
                 expand_analysis_display_rawdata(data, contChart);
             });
         });
+
+    if (tempRes === 'seasonal') {
+        $(`#${tempRes}-chart-season-startmon`)
+            .off('change.chartTsRaw')
+            .on('change.chartTsRaw', function() {
+                expand_analysis_charts_rawdata(contChart, tempRes);
+            });
+
+        $(`#${tempRes}-chart-season-seaslen`)
+            .off('change.chartTsRaw')
+            .on('change.chartTsRaw', function() {
+                expand_analysis_charts_rawdata(contChart, tempRes);
+            });
+    }
 
     // update chart
     $(`#plotly-replot-${contID}`)
@@ -535,7 +564,6 @@ function setAnalysisExpandModalSeason(tempRes, contID) {
         .on('click.chartTsSeason', function() {
             downloadPlotlyImageJPG(contChart);
         });
-    
 }
 
 function setAnalysisExpandModalEnso(tempRes, contID) {
@@ -807,6 +835,84 @@ function setCropSuitabilityExpandModal(tempRes, contID) {
     $(`#plotly-download-${contID}`)
         .off('click.chartCropSuit')
         .on('click.chartCropSuit', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setAnalysisExpandModalCumul(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_cumul,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    // set base period
+    setBoxDialog(
+        `${tempRes}-chart-cumul-bp`,
+        `${tempRes}-chart-cumul-bp-open`
+    );
+
+    const end_date = $(`#${tempRes}-chart-cumul-enddate-calendar`).val();
+    let disp_end;
+    if (end_date === '') {
+        disp_end = null;
+    } else {
+        if (end_date.length == 4) {
+            disp_end = `${end_date}-12`;
+        } else {
+            disp_end = end_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-cumul-enddate`,
+        `${tempRes}-chart-cumul-variable`,
+        DATA_SET.use,
+        tempRes, disp_end,
+        mapNavigation = false,
+        isStart = false
+    );
+
+    const variable = $(`#${tempRes}-chart-cumul-variable`).val();
+    const start_date = $(`#${tempRes}-chart-cumul-startdate-calendar`).val();
+    let disp_start;
+    if (start_date === '') {
+        disp_start = getStartDekadCumul(tempRes, variable);
+    } else {
+        if (start_date.length == 4) {
+            disp_start = `${start_date}-01`;
+        } else {
+            disp_start = start_date;
+        }
+    }
+
+    setDateCalendar(
+        `${tempRes}-chart-cumul-startdate`,
+        `${tempRes}-chart-cumul-variable`,
+        DATA_SET.use,
+        tempRes,
+        dispDate = disp_start,
+        mapNavigation = true,
+        dispYear = false,
+        isStart = null,
+        ensoData = false
+    );
+
+    const contChart = `container-chart-${contID}`;
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartCumul')
+        .on('click.chartCumul', function() {
+            expand_analysis_charts_cumul(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartCumul')
+        .on('click.chartCumul', function() {
             downloadPlotlyImageJPG(contChart);
         });
 }
