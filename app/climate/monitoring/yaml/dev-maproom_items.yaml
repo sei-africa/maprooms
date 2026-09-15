@@ -2,8 +2,26 @@ title:
     en: Climate Monitoring
     fr: Suivi Climatique
 description: 
-    en: Historical, current and forecast climate conditions around the country.
-    fr: Conditions climatiques historiques, courantes et prévues dans le pays.
+    en: |
+        <p>
+        This Maproom enables users to track and assess current climate conditions at dekadal (10-day), monthly, and seasonal timescales. 
+        </p>
+        <p>
+        Using a range of interactive maps and graphs the Maproom compares current rainfall against long-term climatological averages as well as recent years, helping users identify emerging anomalies and trends.
+        </p>
+        <p>
+        By placing current conditions within their historical context, the Maproom helps users better understand the progression of the season and respond proactively to developing climate risks and opportunities.
+        </p>
+    fr: |
+        <p>
+        Cette Maproom permet aux utilisateurs de suivre et d’évaluer les conditions climatiques actuelles à des échelles temporelles décadaires (10 jours), mensuelles et saisonnières.
+        </p>
+        <p>
+        Grâce à un ensemble de cartes et de graphiques interactifs, elle permet de comparer les précipitations actuelles aux moyennes climatologiques à long terme ainsi qu’à celles des années récentes, aidant ainsi les utilisateurs à détecter les anomalies et les tendances émergentes.
+        </p>
+        <p>
+        En replaçant les conditions actuelles dans leur contexte historique, la Maproom aide les utilisateurs à mieux comprendre le déroulement de la saison et à réagir de manière proactive aux risques et aux opportunités climatiques qui se développent.
+        </p>
 type: navigation-page
 # icon_function defined in /app/climate/monitoring/scripts/icons.py
 icon_function: icon_climate_monitoring
