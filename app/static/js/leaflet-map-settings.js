@@ -548,38 +548,7 @@ function queryParamsClimateMonitoringMap(time_res) {
     if (!colorbar) {
         return false;
     }
-
-    if (
-        ['spi_dek', 'spi_mon', 'spi_seas']
-        .includes(query.map_variable)
-    ) {
-        query.colorbar = colorbarSetDefault(
-            colorbar, 'spi_colors', [-2, -1.5, -1, 1, 1.5, 2]
-        );
-    } else if (
-        ['rain_dek', 'rain_cumul', 'rain_mon', 'rain_seas']
-        .includes(query.map_variable)
-    ) {
-        query.colorbar = colorbarSetDefault(
-            colorbar, 'precipitation_3'
-        );
-    } else if (
-        ['anom_dek', 'anom_cumul', 'anom_mon', 'anom_seas']
-        .includes(query.map_variable)
-    ) {
-        query.colorbar = colorbarSetDefault(
-            colorbar, 'anomalies_4'
-        );
-    } else if (
-        ['anom_per_dek', 'anom_per_cumul', 'anom_per_mon', 'anom_per_seas']
-        .includes(query.map_variable)
-    ) {
-        query.colorbar = colorbarSetDefault(
-            colorbar, 'anomalies_3'
-        );
-    } else {
-        query.colorbar = colorbarSetDefault(colorbar);
-    }
+    query.colorbar = colorbar;
 
     return query;
 }
