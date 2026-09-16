@@ -1470,7 +1470,6 @@ function colorbarSetDefault(colors = null, breaks = null) {
         $('#map-colorbar-colors').val('preset');
         $('#colorbar-color-preset-select').val('tim_colors');
         $('#colorbar-color-user-text').val('');
-
     } else {
         if (Array.isArray(colors)) {
             $('#map-colorbar-colors').val('user');

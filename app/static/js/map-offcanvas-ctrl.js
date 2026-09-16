@@ -549,7 +549,6 @@ function setOffCanvasMapControlMonitoring(tempRes) {
                 setMonitoringCalendar(tempRes, $(this).val());
                 setMonitoringColorbar($(this).val());
             });
-        // $(`#${tempRes}-map-variable`).trigger('change');
     } else if (tempRes === 'monthly') {
         $(`#${tempRes}-map-variable`)
             .off(`change.monitMonthly`)
@@ -557,7 +556,6 @@ function setOffCanvasMapControlMonitoring(tempRes) {
                 setMonitoringCalendar(tempRes, $(this).val());
                 setMonitoringColorbar($(this).val());
             });
-        // $(`#${tempRes}-map-variable`).trigger('change');
     } else {
         $(`#${tempRes}-map-variable`)
             .off(`change.monitSeasnal`)

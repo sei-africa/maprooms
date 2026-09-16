@@ -261,6 +261,9 @@ datasets:
     MON:
         variables:
             rainfall: precip
+            maximum_temperature: tmax
+            minimum_temperature: tmin
+            reference_evapotranspiration: et0
         daily:
             netcdf:
                 precip: 
