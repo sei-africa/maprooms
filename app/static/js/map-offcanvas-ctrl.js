@@ -547,23 +547,52 @@ function setOffCanvasMapControlMonitoring(tempRes) {
             .on(`change.monitDekadal`, function() {
                 setMonitoringVisibilityDekadal(tempRes, $(this).val());
                 setMonitoringCalendar(tempRes, $(this).val());
+                setMonitoringColorbar($(this).val());
             });
-        $(`#${tempRes}-map-variable`).trigger('change');
+        // $(`#${tempRes}-map-variable`).trigger('change');
     } else if (tempRes === 'monthly') {
         $(`#${tempRes}-map-variable`)
             .off(`change.monitMonthly`)
             .on(`change.monitMonthly`, function() {
                 setMonitoringCalendar(tempRes, $(this).val());
+                setMonitoringColorbar($(this).val());
             });
-        $(`#${tempRes}-map-variable`).trigger('change');
+        // $(`#${tempRes}-map-variable`).trigger('change');
     } else {
         $(`#${tempRes}-map-variable`)
             .off(`change.monitSeasnal`)
             .on(`change.monitSeasonal`, function() {
                 setMonitoringSeasonal(tempRes, $(this).val());
+                setMonitoringColorbar($(this).val());
             });
     }
     $(`#${tempRes}-map-variable`).trigger('change');
+}
+
+function setMonitoringColorbar(variable) {
+    if (
+        ['spi_dek', 'spi_mon', 'spi_seas']
+        .includes(variable)
+    ) {
+        colorbarSetDefault('spi_colors', [-2, -1.5, -1, 1, 1.5, 2]);
+    } else if (
+        ['rain_dek', 'rain_cumul', 'rain_mon', 'rain_seas']
+        .includes(variable)
+    ) {
+        colorbarSetDefault('precipitation_3');
+    } else if (
+        ['anom_dek', 'anom_cumul', 'anom_mon', 'anom_seas']
+        .includes(variable)
+    ) {
+        colorbarSetDefault('anomalies_4');
+    } else if (
+        ['anom_per_dek', 'anom_per_cumul', 'anom_per_mon', 'anom_per_seas']
+        .includes(variable)
+    ) {
+        colorbarSetDefault('anomalies_3');
+    } else {
+        colorbarSetDefault();
+    }
 }
 
 function setMonitoringVisibilityDekadal(tempRes, variable) {
