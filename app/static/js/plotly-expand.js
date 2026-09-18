@@ -88,7 +88,16 @@ function expand_analysis_display_rawdata(json_input, container) {
     if (json.chartType === 'one') {
         showRangeselector(container, true);
 
-        const var_precip = json.info.var.type === 'precip';
+        
+        const plotType = $(`#${json.info.time_res}-chart-raw-plot-type`).val() || 'bar';
+        const isBar = plotType === 'bar';
+        const showMarkers = plotType === 'lpoint';
+        const traceStyle = isBar
+            ? { marker: { color: '#fc03fc' } }
+            : {
+                line: { color: '#17becf' },
+                ...(showMarkers ? { marker: { color: '#fc03fc' } } : {})
+            };
 
         const xaxisHoverText = json.time.map((t) => {
             return formatPlotlyHoverDate(
@@ -102,10 +111,9 @@ function expand_analysis_display_rawdata(json_input, container) {
             y: json.values,
             name: json.info.var.name,
             units: json.info.var.units,
-            type: var_precip ? 'bar' : 'scatter',
-            mode: 'lines',
-            line: { color: '#17becf' },
-            marker: { color: '#fc03fc' },
+            type: isBar ? 'bar' : 'scatter',
+            ...(isBar ? {} : { mode: showMarkers ? 'lines+markers' : 'lines' }),
+            ...traceStyle,
             customdata: xaxisHoverText,
             hovertemplate: 'Date: %{customdata}<br> %{data.name}: %{y:.1f} %{data.units} <extra></extra>'
             // hovertemplate: 'Date: %{x|%B %Y}<br> %{data.name}: %{y:.1f} %{data.units} <extra></extra>'
@@ -114,8 +122,8 @@ function expand_analysis_display_rawdata(json_input, container) {
         var common_layout = {
             xaxis: {
                 type: 'date',
-                // tickformat: '%b %Y',
-                // dtick: 'M6',
+   
+                tickformat: '%b %Y',
                 rangeslider: plotly_rangeslider,
             },
             yaxis: {
@@ -130,7 +138,7 @@ function expand_analysis_display_rawdata(json_input, container) {
             }
         };
 
-        if (var_precip) {
+        if (isBar) {
             var layout = {
                 // margin: { b: 50 },
                 xaxis: {
@@ -184,7 +192,7 @@ function expand_analysis_display_rawdata(json_input, container) {
         layout = deepMerge(common_layout, layout);
         layout = deepMerge(setPlotlyColors(), layout);
 
-        if (var_precip) {
+        if (isBar) {
             layout.xaxis.rangeslider.bgcolor = data[0].marker.color;
         } else {
             layout.xaxis.rangeslider.bgcolor = data[0].line.color;
@@ -679,6 +687,53 @@ function expand_analysis_format_anomaly(json) {
     return jsc;
 }
 
+
+function getAnomalyBarWidthMs(time, timeRes, info) {
+    const date = new Date(time);
+    if (timeRes === 'seasonal') {
+        const seasLen = Number(info.seas_len);
+        if (Number.isFinite(seasLen) && seasLen > 0) {
+            const { start, end } = getSeasonFromDate(date, seasLen);
+            return end.getTime() - start.getTime();
+        }
+        return null;
+    }
+    if (timeRes === 'daily' && info.seas_daily) {
+        const { start, end } = getDailySeasonRange(date, info.seas_daily);
+        return end.getTime() - start.getTime();
+    }
+    return null;
+}
+
+const ANOMALY_MIN_BAR_WIDTH_FRACTION_OF_RANGE = 0.012; // ~1.2% of the visible span
+const ANOMALY_MAX_BAR_WIDTH_FRACTION_OF_GAP = 0.8; 
+const ANOMALY_MIN_BAR_WIDTH_MS_FLOOR = 5 * 86400000; // 5 days, for a single/near-empty range
+
+function applyMinimumAnomalyBarWidths(times, widths) {
+    const numericTimes = times.map(t => new Date(t).getTime());
+    const rangeSpan = numericTimes.length
+        ? Math.max(...numericTimes) - Math.min(...numericTimes)
+        : 0;
+    const floor = Math.max(
+        rangeSpan * ANOMALY_MIN_BAR_WIDTH_FRACTION_OF_RANGE,
+        ANOMALY_MIN_BAR_WIDTH_MS_FLOOR
+    );
+
+    const sorted = [...numericTimes].sort((a, b) => a - b);
+    const sortedGaps = sorted
+        .slice(1)
+        .map((t, i) => t - sorted[i])
+        .filter(gap => gap > 0);
+    const ceiling = sortedGaps.length
+        ? Math.min(...sortedGaps) * ANOMALY_MAX_BAR_WIDTH_FRACTION_OF_GAP
+        : null;
+
+    return widths.map(width => {
+        const withFloor = Math.max(width, floor);
+        return ceiling !== null ? Math.min(withFloor, ceiling) : withFloor;
+    });
+}
+
 function expand_analysis_display_anomaly(json_input, container) {
     const divCont = $(`#${container}`);
     divCont.empty();
@@ -719,12 +774,19 @@ function expand_analysis_display_anomaly(json_input, container) {
         }
     });
 
+    
+    const barWidths = json.time.map(
+        t => getAnomalyBarWidthMs(t, json.info.time_res, json.info)
+    );
+    const hasCustomBarWidths = barWidths.every(w => Number.isFinite(w) && w > 0);
+
     const data = [{
         x: json.time,
         y: json.values,
         name: json.info.var.name,
         units: json.info.var.units,
         type: 'bar',
+        ...(hasCustomBarWidths ? { width: applyMinimumAnomalyBarWidths(json.time, barWidths) } : {}),
         marker: {
             color: barColors,
             line: {
@@ -1492,7 +1554,9 @@ function expand_analysis_display_enso(json, container) {
             'object-fit': 'cover'
         });
         showRangeselector(container, false);
+        toggleChartSettingsButton(container, false);
     } else {
+        toggleChartSettingsButton(container, true);
         let xaxisHoverText;
         if (json.time_res === 'seasonal-enso') {
             xaxisHoverText = json.time.map((t) => {
@@ -1526,12 +1590,9 @@ function expand_analysis_display_enso(json, container) {
         const xmin = addDateMonths(new Date(Math.min(...x)), -xlim);
         const xmax = addDateMonths(new Date(Math.max(...x)), xlim);
 
-        //
-        const pwidth = Math.floor(screen.width * 0.7672);
-        // const pheight = Math.floor(screen.height * 0.49389);
-        //// .modal-expand-charts-plotly (height: 60vh)
-        //// const pheight = Math.floor(window.innerHeight * 0.6);
-        const pheight = Math.floor(window.innerHeight * 0.585);
+       
+        const pwidth = getChartWidth(container);
+        const pheight = getChartHeight(container);
 
         // 
         const data = [{
@@ -1572,6 +1633,7 @@ function expand_analysis_display_enso(json, container) {
                 type: 'date',
                 range: [xmin, xmax],
                 rangeslider: enso_rangeslider,
+                automargin: true,
                 showgrid: true,
                 ticks: 'outside',
                 ticklen: 6,
@@ -1674,6 +1736,8 @@ function expand_analysis_display_enso(json, container) {
             layout,
             enso_config
         );
+     
+        resizePlotlyChart(container);
 
         //// add range selector
         const last_date = new Date(json.time[json.time.length - 1]);
@@ -1755,11 +1819,13 @@ function expand_telecon_display_tseries(json, container) {
             marker: {
                 color: barColors
             },
+       
+            customdata: json.classes,
             width: 0.7,
             hovertemplate: `%{data.name}: %{y:.2f} %{data.units} <extra></extra>`,
             showlegend: false
         },
-        // Legend only: classes
+  
         ...Object.entries(json.info.classes).map(([key, name]) => ({
             x: [null],
             y: [null],
@@ -1768,6 +1834,7 @@ function expand_telecon_display_tseries(json, container) {
             marker: {
                 color: barcol[Number(key)]
             },
+            meta: { categoryKey: key },
             showlegend: true
         })),
         {
@@ -1957,7 +2024,8 @@ function expand_telecon_display_proba(json, container) {
     };
 
     layout = deepMerge(setPlotlyColors(), layout);
-    layout = deepMerge(preview_layout, layout);
+
+    layout = deepMerge(expand_layout, layout);
     layout.print_legend = 'telecon';
     layout.chart_type = 'telecon-proba';
 
@@ -2060,6 +2128,18 @@ function expand_agri_rseason_display_series(json, container) {
     const yticktext = formatTickTextRainySeason(
         json.yticks, json.start[0], json.info.var
     );
+
+    
+    const isDateVariable = ['onset', 'cessation'].includes(json.info.var.type);
+    let formatY = value => value;
+    if (isDateVariable) {
+        const start = json.start.find(value => value !== null);
+        if (start !== undefined) {
+            const [year, month, day] = start.split('-').map(Number);
+            const startTime = Date.UTC(year, month - 1, day);
+            formatY = value => new Date(startTime + value * 86400000);
+        }
+    }
 
     const xaxisHoverText = xdata.map((x) => {
         return formatPlotlyHoverDateRainySeason(
@@ -2234,6 +2314,13 @@ function expand_agri_rseason_display_series(json, container) {
             traces.push(...makeReferenceTraces());
         }
 
+    
+        traces.forEach(trace => {
+            if (Array.isArray(trace.y)) {
+                trace.y = trace.y.map(formatY);
+            }
+        });
+
         var layout = {
             xaxis: {
                 range: xlim,
@@ -2247,8 +2334,8 @@ function expand_agri_rseason_display_series(json, container) {
                 griddash: 'dot'
             },
             yaxis: {
-                range: ylim,
-                tickvals: yticks,
+                range: ylim.map(formatY),
+                tickvals: yticks.map(formatY),
                 ticktext: yticktext,
                 ticks: 'outside',
                 ticklen: 8,
@@ -2268,7 +2355,8 @@ function expand_agri_rseason_display_series(json, container) {
             height: getChartHeight(container)
         };
 
-        layout.margin = { t: 10, b: 60, l: 80, r: 10 };
+ 
+        layout.margin = { t: 10, b: 85, l: 80, r: 10 };
         layout.print_legend = 'rainy_season';
         layout = deepMerge(setPlotlyColors(), layout);
         layout = deepMerge(expand_layout, layout);
