@@ -320,7 +320,7 @@ function setMonthsDaysCalendar(monthID, dayID, month0, day0, isStart) {
     const mon_id = $(`#${monthID}`);
     const day_id = $(`#${dayID}`);
 
-   
+
     const alreadyInitialized = mon_id.find('option').length > 0;
 
     if (!alreadyInitialized) {
@@ -482,15 +482,35 @@ function formatDekadDate(date) {
     return `${ym}-${dk}`;
 }
 
-function formatSeasonDate(date, length) {
-    let start = new Date(`${date}-16`);
-    let end = addDateMonths(start, length - 1);
+// function formatSeasonDate(date, length) {
+//     let start = new Date(`${date}-16`);
+//     let end = addDateMonths(start, length - 1);
+//     start = formatDateToString(start);
+//     start = start.slice(0, 7);
+//     end = formatDateToString(end);
+//     end = end.slice(0, 7);
+//     return `${start}_${end}`;
+// }
+
+function formatSeasonDate(date, length, isStart = true) {
+    const this_date = new Date(`${date}-16`);
+    let start;
+    let end;
+    if (isStart) {
+        start = this_date;
+        end = addDateMonths(this_date, length - 1);
+    } else {
+        start = addDateMonths(this_date, -1 * length + 1);
+        end = this_date;
+    }
+
     start = formatDateToString(start);
     start = start.slice(0, 7);
     end = formatDateToString(end);
     end = end.slice(0, 7);
     return `${start}_${end}`;
 }
+
 
 function getSeasonFromDate(date, length) {
     date = new Date(date);

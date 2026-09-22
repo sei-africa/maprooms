@@ -527,7 +527,11 @@ function queryParamsClimateMonitoringMap(time_res) {
     } else if (time_res === 'seasonal') {
         const date = $(`#${time_res}-map-date-calendar`).val();
         query.seasLength = parseInt($(`#${time_res}-map-date-length`).val(), 10);
-        query.Date = formatSeasonDate(date, query.seasLength);
+        if (query.map_variable === 'spi_seas') {
+            query.Date = formatSeasonDate(date, query.seasLength, isStart = false);
+        } else {
+            query.Date = formatSeasonDate(date, query.seasLength);
+        }
         if (query.map_variable === 'anom_seas') {
             query.anomaly = 'difference';
         }
@@ -537,7 +541,7 @@ function queryParamsClimateMonitoringMap(time_res) {
         if (query.map_variable === 'spi_seas') {
             query.analysis = 'spi';
             query.distribution = 'gamma';
-            query.timeScale = parseInt($(`#${time_res}-spi-time-scale`).val(), 10);
+            query.timeScale = parseInt($(`#${time_res}-map-date-length`).val(), 10);
             query.timeRes = 'monthly';
         }
     } else {

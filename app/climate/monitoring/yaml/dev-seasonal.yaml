@@ -48,6 +48,9 @@ opt_dates:
     length:
         en: Length
         fr: Longueur
+    end_month:
+        en: Month of
+        fr: Mois du
     time_scale:
         en: Time scales
         fr: Échelles de temps
