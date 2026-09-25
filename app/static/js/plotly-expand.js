@@ -1481,6 +1481,10 @@ function expand_analysis_query_enso(tempRes) {
         // not used
         query.sstProd = $(`#${tempRes}-nao-cdas`).val();
     }
+    if (query.teleconIndex === 'atl3') {
+        // not used
+        query.sstProd = $(`#${tempRes}-atl3-cdas`).val();
+    }
     if (query.teleconIndex === 'anom') {
         query.timeRes = $(`#${tempRes}-anom-tempres`).val();
 
@@ -1493,7 +1497,7 @@ function expand_analysis_query_enso(tempRes) {
         query.ninoRegion = $(`#${tempRes}-anom-ninoregion`).val();
     }
 
-    if (['oni', 'iod', 'nao', 'anom'].includes(query.teleconIndex)) {
+    if (['oni', 'iod', 'nao', 'atl3', 'anom'].includes(query.teleconIndex)) {
         query.startDate = $(`#${tempRes}-chart-enso-startdate-calendar`).val();
         query.endDate = $(`#${tempRes}-chart-enso-enddate-calendar`).val();
         const ensoImg = $(`#${tempRes}-disp-image-enso`).val();
@@ -1521,7 +1525,7 @@ function expand_analysis_charts_enso(container_id, tempRes) {
     // between line or bar plot
     let storename = null;
     // if (!query.imgPNG) {
-    //     if (['oni', 'iod', 'nao', 'anom'].includes(query.teleconIndex)) {
+    //     if (['oni', 'iod', 'nao', 'atl3', 'anom'].includes(query.teleconIndex)) {
     //         storename = 'ts_enso';
     //     }
     // }

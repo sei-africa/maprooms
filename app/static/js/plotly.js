@@ -102,9 +102,9 @@ function fixRangesliderTitlePosition(gd) {
         return;
     }
 
-    const fontSize = parseFloat(titleEl.style.fontSize)
-        || (xaxis.title.font && xaxis.title.font.size)
-        || 14;
+    const fontSize = parseFloat(titleEl.style.fontSize) ||
+        (xaxis.title.font && xaxis.title.font.size) ||
+        14;
     const ascent = fontSize * 0.8;
     const descent = fontSize * 0.2;
     // small fixed gap between the title and the slider below it, instead
@@ -174,9 +174,9 @@ function isThemeDefaultFontColor(color) {
 
 // the color a chart title should actually be drawn in under `theme`
 function themeAwareTitleColor(color, theme) {
-    return isThemeDefaultFontColor(color)
-        ? (plotly_themecolors[theme] || plotly_themecolors.light).fontcolor
-        : color;
+    return isThemeDefaultFontColor(color) ?
+        (plotly_themecolors[theme] || plotly_themecolors.light).fontcolor :
+        color;
 }
 
 function setPlotlyThemeColors(container) {
@@ -215,8 +215,12 @@ function setPlotlyThemeColors(container) {
             layout.yaxis2.tickfont.color = yax_tck_col2;
         }
 
-        
-        const title_col = gd.layout.title?.font?.color;
+
+        // const title_col = gd.layout.title?.font?.color;
+        const title_col = gd.layout.title && gd.layout.title.font ?
+            gd.layout.title.font.color :
+            undefined;
+
         const title_col_themed = themeAwareTitleColor(title_col, theme);
         if (title_col_themed !== title_col) {
             layout.title = deepMerge(layout.title, {
@@ -325,8 +329,13 @@ function downloadPlotlyImageJPG(container) {
     if (plot_layout.title && plot_layout.title.text) {
         print_layout.margin = deepMerge(print_layout.margin || {}, { t: 60 });
     }
- 
-    if (isWhitishColor(plot_layout.title?.font?.color)) {
+
+    // if (isWhitishColor(plot_layout.title?.font?.color)) {
+    if (isWhitishColor(
+            plot_layout.title && plot_layout.title.font ?
+            plot_layout.title.font.color :
+            undefined
+        )) {
         print_layout.title = { font: { color: 'black' } };
     }
     const legend_color = {
@@ -344,7 +353,7 @@ function downloadPlotlyImageJPG(container) {
             // height: 450
         })
         .then(function(dataUrl) {
-           
+
             gd.layout = plot_layout_copy;
         })
         .catch(function(error) {
@@ -642,11 +651,11 @@ function formatPlotlyHoverDate(
         return `${mo1} ${yr1} - ${mo2} ${yr2}`;
     } else if (time_res === 'daily') {
         const { start: dt1, end: dt2, startParts, endParts } =
-            getDailySeasonRange(date, seas_daily);
+        getDailySeasonRange(date, seas_daily);
         const m1 = dt1.toLocaleString(
             localeS, { month: 'short' }
         );
-        
+
         const m2 = dt2.toLocaleString(
             localeS, { month: 'short' }
         );
