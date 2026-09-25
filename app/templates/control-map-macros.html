@@ -333,6 +333,10 @@
             {% if key=='nao' and not pageText.display_nao %}
             {% continue %}
             {% endif %}
+            <!--  -->
+            {% if key=='atl3' and not pageText.display_atl3 %}
+            {% continue %}
+            {% endif %}
             <option value="{{key}}">{{value}}</option>
             {% endfor %}
         </select>

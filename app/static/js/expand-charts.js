@@ -1,4 +1,3 @@
-
 function alwaysFloatAxis(axisName) {
     return axis => (axis === axisName ? 'float' : null);
 }
@@ -14,8 +13,10 @@ function parameterDrivenAxis(axisName, variableSelId, parametersSelId) {
         }
         const variable = $(`#${variableSelId}`).val();
         const paramKey = $(`#${parametersSelId}`).val();
-        const param = (typeof PARAMS_LIST !== 'undefined') && PARAMS_LIST[variable]?.[paramKey];
-        return param?.dtype === 'integer' ? { kind: 'integer', unit: param.unit } : 'float';
+        // const param = (typeof PARAMS_LIST !== 'undefined') && PARAMS_LIST[variable]?.[paramKey];
+        // return param?.dtype === 'integer' ? { kind: 'integer', unit: param.unit } : 'float';
+        const param = (typeof PARAMS_LIST !== 'undefined' && PARAMS_LIST[variable] != null) ? PARAMS_LIST[variable][paramKey] : undefined;
+        return param != null && param.dtype === 'integer' ? { kind: 'integer', unit: param.unit } : 'float';
     };
 }
 
@@ -36,9 +37,14 @@ function combineAxisResolvers(...resolvers) {
     };
 }
 
-
 function makeCaseKeyResolver(...selectIds) {
-    return () => selectIds.map(id => $(`#${id}`).val() ?? '').join('|');
+    // return () => selectIds.map(id => $(`#${id}`).val() ?? '').join('|');
+    return () => selectIds
+        .map(id => {
+            const value = $(`#${id}`).val();
+            return value == null ? '' : value;
+        })
+        .join('|');
 }
 
 function setAnalysisExpandModalRaw(tempRes, contID) {
@@ -790,7 +796,7 @@ function setAnalysisExpandModalEnso(tempRes, contID) {
         .off('click.teleconIndex')
         .on('click.teleconIndex', function() {
             const ensoIdx = $(`#${tempRes}-enso-indices`).val();
-            if (['oni', 'anom', 'iod', 'nao'].includes(ensoIdx)) {
+            if (['oni', 'anom', 'iod', 'nao', 'atl3'].includes(ensoIdx)) {
                 expand_analysis_charts_enso(contChart, tempRes);
             }
         });
@@ -926,7 +932,7 @@ function setRainySeasonExpandModal(tempRes, chartType, contID) {
 
     const contChart = `container-chart-${contID}`;
 
-    
+
     setBoxDialog(
         `${prefixID}-rseason-def`,
         `${prefixID}-rseason-def-open`

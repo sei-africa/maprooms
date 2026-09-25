@@ -80,6 +80,9 @@ dataset_enso:
     nao:
         cdas_cpc:
             table: nao_cdas_cpc_monthly
+    atl3:
+        cdas_cpc:
+            table: atl3_cdas_cpc_monthly
 opt_enso:
     label:
         en: Index type
@@ -103,6 +106,9 @@ opt_enso:
         nao:
             en: NAO Index
             fr: NAO Indice
+        atl3:
+            en: ATL3 Index
+            fr: ATL3 Indice
 opt_oni:
     label:
         en: ENSO Indices
@@ -203,6 +209,9 @@ opt_terciles_analysis:
         nao:
             en: Terciles conditioned on NAO
             fr: Terciles conditionnés par NAO
+        atl3:
+            en: Terciles conditioned on ATL3
+            fr: Terciles conditionnés par ATL3
 opt_variables_analysis:
     phases:
         enso:
@@ -237,6 +246,20 @@ opt_variables_analysis:
             label:
                 en: NAO Phase
                 fr: Phase NAO
+            select:
+                negative:
+                    en: Negative
+                    fr: Negative
+                neutral:
+                    en: Neutral
+                    fr: Neutre
+                positive:
+                    en: Positive
+                    fr: Positive
+        atl3:
+            label:
+                en: ATL3 Phase
+                fr: Phase ATL3
             select:
                 negative:
                     en: Negative
@@ -307,3 +330,6 @@ opt_index_telecon:
         nao:
             en: North Atlantic Oscillation (NAO)
             fr: North Atlantic Oscillation (NAO)
+        atl3:
+            en: North Atlantic Oscillation (ATL3)
+            fr: North Atlantic Oscillation (ATL3)

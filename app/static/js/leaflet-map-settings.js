@@ -541,7 +541,7 @@ function queryParamsClimateMonitoringMap(time_res) {
         if (query.map_variable === 'spi_seas') {
             query.analysis = 'spi';
             query.distribution = 'gamma';
-            query.timeScale = parseInt($(`#${time_res}-map-date-length`).val(), 10);
+            query.timeScale = query.seasLength;
             query.timeRes = 'monthly';
         }
     } else {
