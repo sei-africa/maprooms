@@ -1,15 +1,25 @@
 description:
     en: |
-        <h4>Monthly Climate Monitoring</h4>
+        <h4>Monthly SPI Monitoring</h4>
         <p>
-        Rainfall and temperature time series (from 1981) reconstructed from station observations and remote sensing proxies. 
-        This interface allows users to view rainfall, maximum and minimum temperature climatologies and anomalies.
+        The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall. </p>
+        <p>
+        The SPI map displays the standard rainfall index of the most recent month of rainfall (using 1981 to the latest complete year as base period). The SPI (McKee 1993) is the number of standard deviations that observed cumulative rainfall deviates from the climatological average. To compute the index, a long-term time series of rainfall accumulations over months are used to estimate an appropriate probability density function. The analyses shown here are based on the Pearson Type III distribution (i.e., 3-parameter gamma) as suggested by Guttman (1999). The associated cumulative probability distribution is then estimated and subsequently transformed to a normal distribution. The result is the SPI, which can be interpreted as a probability using the standard normal distrubtion (i.e., users can expect the SPI be within one standard deviation about 68% of the time, two standard deviations about 95% of the time, etc.) The analyses shown here utilize the FORTRAN code made available by Guttman (1999).
+        In months when it rains too little, the gamma distribution can not fit and a dry mask is applied. 
+        </p>
+        <p>
+        Clicking on the map will pop-up a local time series at the 0.05˚ gridbox clicked. Users can also choose to spatially average the SPI over Districts, Regions or Countries, by clicking on the map or picking an administrative name in the drop-down list, once having chosen which level of administration. Users can also focus the time series on a small time period by using the menu in the Control Bar.
         </p>
     fr: |
-        <h4>Suivi Climatique Mensuel</h4>
+        <h4>Suivi mensuel du SPI</h4>
         <p>
-        Séries temporelles (à partir de 1981) de précipitations et de température reconstruites à partir de données in-situ et de données de télédétection.
-        Cette interface permet à l'utilisateur de visualiser les climatologies et les anomalies de précipitations et températures. Les climatologies sont définies par la période 1991-2020.
+        L’indice standardisé de précipitation est un indicateur des événements pluviométriques extrêmes, qu’il s’agisse de sécheresse ou d’excès de précipitations. </p>
+        <p>
+        La carte du SPI affiche l’indice standardisé de précipitation du mois de précipitations le plus récent (en utilisant la période allant de 1981 jusqu’à la dernière année complète comme période de référence). Le SPI (McKee 1993) correspond au nombre d’écarts-types séparant les précipitations cumulées observées de la moyenne climatologique. Pour calculer cet indice, une longue série chronologique de cumuls de précipitations mensuelles est utilisée afin d’estimer une fonction de densité de probabilité appropriée. Les analyses présentées ici sont basées sur la distribution de Pearson de type III (c’est-à-dire une distribution gamma à 3 paramètres), comme suggéré par Guttman (1999). La distribution de probabilité cumulative associée est ensuite estimée puis transformée en distribution normale. Le résultat obtenu est le SPI, qui peut être interprété comme une probabilité à l’aide de la distribution normale standard (par exemple, les utilisateurs peuvent s’attendre à ce que le SPI se situe à moins d’un écart-type environ 68 % du temps, à moins de deux écarts-types environ 95 % du temps, etc.). Les analyses présentées ici utilisent le code FORTRAN mis à disposition par Guttman (1999).
+        Pour les mois où les précipitations sont trop faibles, la distribution gamma ne peut pas être ajustée et un masque de sécheresse est appliqué. 
+        </p>
+        <p>
+        Un clic sur la carte affiche une série chronologique locale correspondant au point de grille de 0,05˚ sélectionné. Les utilisateurs peuvent également choisir de calculer la moyenne spatiale du SPI sur des districts, des régions ou des pays, soit en cliquant sur la carte, soit en sélectionnant le nom d’une unité administrative dans la liste déroulante, après avoir choisi le niveau administratif souhaité. Les utilisateurs peuvent également limiter la série chronologique à une période plus courte à l’aide du menu de la barre de contrôle.
         </p>
 
 dataset:
@@ -19,103 +29,3 @@ dataset:
         anom_mon: [precip]
         anom_per_mon: [precip]
         spi_mon: [precip]
-
-variables:
-    label:
-        en: Variable
-        fr: Variable
-    select:
-        rain_mon:
-            en: Monthly Rainfall Total
-            fr: Cumul de Précipitations Mensuelles
-        anom_mon:
-            en: Monthly Rainfall Anomaly
-            fr: Anomalie de Précipitations Mensuelles
-        anom_per_mon:
-            en: Monthly Rainfall Anomaly in Percent
-            fr: Anomalie de Précipitations Mensuelles en Pourcentage
-        spi_mon:
-            en: Standard Precipitation Index (SPI)
-            fr: Indice de Précipitations Standardisé (SPI)
-
-opt_dates:
-    label:
-        en: Date
-        fr: Date
-    month:
-        en: Month of
-        fr: Mois du
-
-opt_ts_raw:
-    label_date:
-        start:
-            en: Start
-            fr: Début
-        end:
-            en: End
-            fr: Fin
-    label_series:
-        en: Display
-        fr: Afficher
-    series:
-        one:
-            en: One serie
-            fr: Une série
-        years:
-            en: Each year
-            fr: Chaque année
-    start_mon:
-        en: Start month
-        fr: Début mois
-
-opt_ts_raw_plot:
-    label:
-        en: Plot type
-        fr: Type de graphique
-    select:
-        bar:
-            en: Bar
-            fr: Barre
-        line:
-            en: Line
-            fr: Ligne
-        lpoint:
-            en: Line + Points
-            fr: Ligne + Points
-
-opt_anomaly:
-    label:
-        en: Anomaly
-        fr: Anomalie
-    select:
-        difference:
-            en: Deviation from mean
-            fr: Écart par rapport à la moyenne
-        standardized:
-            en: Standardized anomaly
-            fr: Anomalie standardisée
-        percentage:
-            en: Percentage of mean
-            fr: Pourcentage de la moyenne
-
-opt_ts_anom:
-    label_date:
-        start:
-            en: Start
-            fr: Début
-        end:
-            en: End
-            fr: Fin
-    label_series:
-        en: Display
-        fr: Afficher
-    series:
-        one:
-            en: One serie
-            fr: Une série
-        tstep:
-            en: By month
-            fr: Par mois
-    label_tstep:
-        en: Month
-        fr: Mois

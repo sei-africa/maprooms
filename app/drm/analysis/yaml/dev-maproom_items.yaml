@@ -1,6 +1,6 @@
 title: 
-    en: Disaster Risk Management
-    fr: Gestion des Risques de Catastrophe
+    en: Risk Analysis
+    fr: Analyse des Risques
 description: 
     en: |
         <p>
@@ -33,24 +33,24 @@ maprooms:
             fr: SPI
         description:
             en: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
-            fr: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
+            fr: L’indice standardisé de précipitation est un indicateur des événements pluviométriques extrêmes, qu’il s’agisse de sécheresse ou d’excès de précipitations.
         # icon_image from /app/drm/static/images
         icon_image: default-emi_spi.gif
     - ext_rainfall:
         title:
             en: Extreme Rainfall Analysis
-            fr: Extreme Rainfall Analysis
+            fr: Analyse des précipitations extrêmes
         description:
             en: The Maproom facilitates the exploration of the history of extreme monthly and seasonal rainfall characteristics.
-            fr: The Maproom facilitates the exploration of the history of extreme monthly and seasonal rainfall characteristics.
+            fr: Le Maproom facilite l’exploration de l’historique des caractéristiques des précipitations mensuelles et saisonnières extrêmes.
         # icon_image from /app/drm/static/images
         icon_image: default-emi_extrainfall.gif
     - ext_temperature:
         title:
             en: Extreme Temperature Analysis
-            fr: Extreme Temperature Analysis
+            fr: Analyse des températures extrêmes
         description:
             en: The Maproom facilitates the exploration of the history of extreme monthly and seasonal minimum and maximum temperatures.
-            fr: The Maproom facilitates the exploration of the history of extreme monthly and seasonal minimum and maximum temperatures.
+            fr: Le Maproom facilite l’exploration de l’historique des températures minimales et maximales extrêmes, à l’échelle mensuelle et saisonnière.
         # icon_image from /app/drm/static/images
         icon_image: default-emi_exttemp.gif

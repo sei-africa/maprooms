@@ -1,6 +1,6 @@
 description:
     en: |
-        <h4>Dekadal Climate Monitoring</h4>
+        <h4>Dekadal Rainfall Monitoring</h4>
         <p>This Analysis tool allows users to view different presentations of the the most recent dekad. The default map on this page displays dekadal (approximately 10-day) rainfall amounts over the country.</p>
         <h5>Dekadal Rainfall Amount</h5>
         The default map shows rainfall totals for the most recently available dekad, but totals for previous dekads can be displayed as well.</p>
@@ -17,7 +17,7 @@ description:
         <h5>Standard Precipitation Index (SPI)</h5>
         <p>The SPI map displays the standard rainfall index of the most recent dekadal rainfall (using 1981 to the latest complete year as base period). The SPI (McKee 1993) is the number of standard deviations that observed cumulative rainfall deviates from the climatological average. To compute the index, a long-term time series of rainfall accumulations over dekads are used to estimate an appropriate probability density function. The analyses shown here are based on the Pearson Type III distribution (i.e., 3-parameter gamma) as suggested by Guttman (1999). The associated cumulative probability distribution is then estimated and subsequently transformed to a normal distribution. The result is the SPI, which can be interpreted as a probability using the standard normal distrubtion (i.e., users can expect the SPI be within one standard deviation about 68% of the time, two standard deviations about 95% of the time, etc.)</p> 
     fr: |
-        <h4>Suivi Climatique Décadaire</h4>
+        <h4>Suivi des Precipitations Décadaire</h4>
         <p>Cet outil d'analyse permet aux utilisateurs de visualiser différentes représentations de la dernière décade. La carte par défaut de cette page affiche les cumuls de précipitations décadaires (environ 10 jours) sur l'ensemble du pays.</p>
         <h5>Cumul de Précipitations Décadaires</h5>
         La carte par défaut affiche les cumuls de précipitations de la dernière décade disponible, mais les cumuls des décades précédentes peuvent également être affichés.</p>
@@ -44,118 +44,3 @@ dataset:
         anom_cumul: [precip]
         anom_per_cumul: [precip]
         spi_dek: [precip]
-
-variables:
-    label:
-        en: Variable
-        fr: Variable
-    select:
-        rain_dek:
-            en: Dekadal Rainfall Amount
-            fr: Cumul de Précipitations Décadaires
-        anom_dek:
-            en: Dekadal Rainfall Anomaly
-            fr: Anomalie de Précipitations Décadaires
-        anom_per_dek:
-            en: Dekadal Rainfall Anomaly in Percent
-            fr: Anomalie de Précipitations Décadaires en Pourcentage
-        rain_cumul:
-            en: Cumulative Rainfall
-            fr: Précipitations Cumulées
-        anom_cumul:
-            en: Cumulative Rainfall Anomaly
-            fr: Anomalie des Précipitations Cumulées
-        anom_per_cumul:
-            en: Cumulative Rainfall Anomaly in Percent
-            fr: Anomalie des Précipitations Cumulées en Pourcentage
-        spi_dek:
-            en: Standard Precipitation Index (SPI)
-            fr: Indice de Précipitations Standardisé (SPI)
-
-opt_dates:
-    label:
-        en: Date
-        fr: Date
-    dekad:
-        en: Dekad of
-        fr: Décade du
-    cumul:
-        en: Cumulative rainfall from
-        fr: Cumul des précipitations du
-    todate:
-        en: to
-        fr: au
-
-opt_ts_raw:
-    label_date:
-        start:
-            en: Start
-            fr: Début
-        end:
-            en: End
-            fr: Fin
-    label_series:
-        en: Display
-        fr: Afficher
-    series:
-        one:
-            en: One serie
-            fr: Une série
-        years:
-            en: Each year
-            fr: Chaque année
-    start_mon:
-        en: Start month
-        fr: Début mois
-
-opt_ts_raw_plot:
-    label:
-        en: Plot type
-        fr: Type de graphique
-    select:
-        bar:
-            en: Bar
-            fr: Barre
-        line:
-            en: Line
-            fr: Ligne
-        lpoint:
-            en: Line + Points
-            fr: Ligne + Points
-
-opt_anomaly:
-    label:
-        en: Anomaly
-        fr: Anomalie
-    select:
-        difference:
-            en: Deviation from mean
-            fr: Écart par rapport à la moyenne
-        standardized:
-            en: Standardized anomaly
-            fr: Anomalie standardisée
-        percentage:
-            en: Percentage of mean
-            fr: Pourcentage de la moyenne
-
-opt_ts_anom:
-    label_date:
-        start:
-            en: Start
-            fr: Début
-        end:
-            en: End
-            fr: Fin
-    label_series:
-        en: Display
-        fr: Afficher
-    series:
-        one:
-            en: One serie
-            fr: Une série
-        tstep:
-            en: By dekad
-            fr: Par décade
-    label_tstep:
-        en: Dekad
-        fr: Décade
