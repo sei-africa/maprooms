@@ -1,6 +1,6 @@
 title: 
-    en: Disaster Risk Management
-    fr: Gestion des Risques de Catastrophe
+    en: Risk Anticipation
+    fr: Anticipation des Risques
 description: 
     en: |
         <p>
@@ -27,30 +27,22 @@ type: navigation-page
 icon_image: default-emi_drm.gif
 
 maprooms:
-    - spi:
+    - flexible_forecast:
         title:
-            en: SPI
-            fr: SPI
+            en: Precipitation Flexible Seasonal NextGen Forecast
+            fr: Prévision Saisonniere Flexible NextGen
         description:
-            en: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
-            fr: The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall.
+            en: The flexible forecast Maproom provides access to seasonal forecast for rainfall with a format of probabilistic forecast. 
+            fr: Les previsions flexible du Maproom sont des previsions saisonnières avec un format probabiliste.
         # icon_image from /app/drm/static/images
-        icon_image: default-emi_spi.gif
-    - ext_rainfall:
+        icon_image: default-emi_flexibleforecast.gif
+    - ondj_forecast:
         title:
-            en: Extreme Rainfall Analysis
-            fr: Extreme Rainfall Analysis
+            en: ONDJ Precipitation Forecast
+            fr: Prévision de Précipitations ONDJ
         description:
             en: The Maproom facilitates the exploration of the history of extreme monthly and seasonal rainfall characteristics.
-            fr: The Maproom facilitates the exploration of the history of extreme monthly and seasonal rainfall characteristics.
+            fr: Le Maproom facilite l’exploration de l’historique des caractéristiques des précipitations mensuelles et saisonnières extrêmes.
         # icon_image from /app/drm/static/images
-        icon_image: default-emi_extrainfall.gif
-    - ext_temperature:
-        title:
-            en: Extreme Temperature Analysis
-            fr: Extreme Temperature Analysis
-        description:
-            en: The Maproom facilitates the exploration of the history of extreme monthly and seasonal minimum and maximum temperatures.
-            fr: The Maproom facilitates the exploration of the history of extreme monthly and seasonal minimum and maximum temperatures.
-        # icon_image from /app/drm/static/images
-        icon_image: default-emi_exttemp.gif
+        icon_image: default-emi_monthlyanticipation.gif
+
