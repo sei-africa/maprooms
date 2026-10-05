@@ -43,5 +43,9 @@
 {% endblock %}
 {% block javascript %}
 {% include "block-js.html" %}
+<script>
+const PARAMS_LIST = JSON.parse('{{ pageText.parameters | tojson }}');
+const PARAMS_DEF = JSON.parse('{{ pageText.definition | tojson }}');
+</script>
 <script type="text/javascript" src="{{ url_for('drm_analysis.static', filename='js/ext_rainfall.js') }}"></script>
 {% endblock %}

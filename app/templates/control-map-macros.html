@@ -666,13 +666,232 @@
 <!--  -->
 {% macro create_map_control_drm_analysis_temperature(tempRes, pageText) %}
 <div class="container">
-    test
+    {% set tstepID = tempRes ~ '-map-date' %}
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-map-variable" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.opt_season_map.label_season }}</legend>
+        <div class="container-fluid px-0">
+            <div class="row gx-1">
+                <div class="col-md-6 text-center">
+                    {{ pageText.opt_season_map.start_date }}
+                </div>
+                <div class="col-md-6 text-center">
+                    {{ pageText.opt_season_map.end_date }}
+                </div>
+            </div>
+            <div class="row gx-1">
+                <div class="col-md-4">
+                    <select id="{{ tstepID }}-start-mon" class="form-select form-select2-nosearch"></select>
+                </div>
+                <div class="col-md-2">
+                    <select id="{{ tstepID }}-start-day" class="form-select form-select2-nosearch"></select>
+                </div>
+                <div class="col-md-4">
+                    <select id="{{ tstepID }}-end-mon" class="form-select form-select2-nosearch"></select>
+                </div>
+                <div class="col-md-2">
+                    <select id="{{ tstepID }}-end-day" class="form-select form-select2-nosearch"></select>
+                </div>
+            </div>
+        </div>
+        <div id="div-{{ tstepID }}-tseries-years" class="container-fluid px-0" style="display: none;">
+            <div class="row gx-1 mt-1">
+                <div class="col-md-6 d-flex justify-content-end align-items-center text-end">
+                    {{ pageText.opt_season_map.disp_year }}
+                </div>
+                <div class="col-md-4">
+                    <input id="{{ tstepID }}-tseries-year" class="form-control text-center" type="number" value="2024" min="1961" max="2100" step="1">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset id="div-{{ tstepID }}-climato-years" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_season_map.label_year }}</legend>
+        <div class="row gx-1">
+            <div class="col-md-3 d-flex justify-content-end align-items-center text-end">
+                {{ pageText.opt_season_map.start_date }}
+            </div>
+            <div class="col-md-3 d-flex justify-content-end align-items-center  text-end">
+                {{ pageText.opt_season_map.end_date }}
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.label_statistics.params }}</legend>
+        <select id="{{ tempRes }}-map-parameters" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.parameters.items() %}
+            <option value="{{key}}">{{value.select}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-map-climato" class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.label_statistics.stats }}</legend>
+        <div class="w-100">
+            <select id="{{ tempRes }}-map-statistics" class="form-select form-select2-nosearch">
+                {% for key, value in pageText.seasonal_statistics.items() %}
+                <option value="{{key}}">{{value}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="div-{{ tempRes}}-map-climato-proba">
+            <div class="input-group w-75 mt-2">
+                <span class="input-group-text">
+                    {{ pageText.probabilities.thres }}
+                </span>
+                <input id="{{ tempRes }}-map-climato-probaTh" type="text" 
+                value="{{ pageText.parameters.MeanTemp.value }}"
+                class="form-control"
+                style="flex: 0 0 70px;">
+                <span id="{{ tempRes }}-map-climato-parUnit"
+                class="input-group-text">
+                    {{ pageText.parameters.MeanTemp.unit }}
+                </span>
+            </div>
+            <div class="input-group w-100 mt-1">
+                <span>
+                    {{ pageText.probabilities.unit }}
+                </span>
+                <select id="{{ tempRes }}-map-climato-probaUnit" class="form-select form-select2-nosearch">
+                    {% for key, value in pageText.probabilities.select.items() %}
+                    <option value="{{key}}">{{value}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </fieldset>
+        <fieldset id="{{ tempRes }}-map-def-number" class="border border-secondary rounded-3" style="display: none;">
+        <legend id="{{ tempRes }}-map-def-number-thres-lab" class="legend-label">{{ pageText.definition.rainfall.number.label }}</legend>
+        <div class="row gx-0 mt-1">
+            <div id="{{ tempRes }}-map-def-number-thres-txt" class="col-md-8 d-flex justify-content-end align-items-center text-end pe-1">
+                {{ pageText.definition.rainfall.number.text }}
+            </div>
+            <div class="col-md-2 d-flex align-items-center">
+                <input id="{{ tempRes }}-map-def-number-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.number.value }}">
+            </div>
+            <div id="{{ tempRes }}-map-def-number-thres-unit" class="col-md-2 d-flex justify-content-start align-items-center text-start ps-1">
+                {{ pageText.definition.rainfall.number.unit }}
+            </div>
+        </div>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-map-def-spell" class="border border-secondary rounded-3" style="display: none;">
+        <legend id="{{ tempRes }}-map-def-spell-thres-lab" class="legend-label">{{ pageText.definition.rainfall.spell.label }}</legend>
+        <div class="row gx-0 mt-1">
+            <div class="col-md-2 d-flex align-items-center">
+                <input id="{{ tempRes }}-map-def-spell-thres-val" class="form-control text-center" type="text" value="{{ pageText.definition.rainfall.spell.value }}">
+            </div>
+            <div id="{{ tempRes }}-map-def-spell-thres-txt" class="col-md-8 d-flex justify-content-start align-items-center text-start ps-2">
+                {{ pageText.definition.rainfall.spell.text }}
+            </div>
+        </div>
+    </fieldset>
+
 </div>
 {% endmacro %}
 <!--  -->
 {% macro create_map_control_drm_analysis_rainfall(tempRes, pageText) %}
 <div class="container">
-    test rainfall
+    {% set tstepID = tempRes ~ '-map-date' %}
+    <input type="hidden" id="{{ tempRes}}-map-variable" value="rainfall">
+
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.opt_season_map.label_season }}</legend>
+        <div class="container-fluid px-0">
+            <div class="row gx-1">
+                <div class="col-md-6 text-center">
+                    {{ pageText.opt_season_map.start_date }}
+                </div>
+                <div class="col-md-6 text-center">
+                    {{ pageText.opt_season_map.end_date }}
+                </div>
+            </div>
+            <div class="row gx-1">
+                <div class="col-md-4">
+                    <select id="{{ tstepID }}-start-mon" class="form-select form-select2-nosearch"></select>
+                </div>
+                <div class="col-md-2">
+                    <select id="{{ tstepID }}-start-day" class="form-select form-select2-nosearch"></select>
+                </div>
+                <div class="col-md-4">
+                    <select id="{{ tstepID }}-end-mon" class="form-select form-select2-nosearch"></select>
+                </div>
+                <div class="col-md-2">
+                    <select id="{{ tstepID }}-end-day" class="form-select form-select2-nosearch"></select>
+                </div>
+            </div>
+        </div>
+        <div id="div-{{ tstepID }}-tseries-years" class="container-fluid px-0" style="display: none;">
+            <div class="row gx-1 mt-1">
+                <div class="col-md-6 d-flex justify-content-end align-items-center text-end">
+                    {{ pageText.opt_season_map.disp_year }}
+                </div>
+                <div class="col-md-4">
+                    <input id="{{ tstepID }}-tseries-year" class="form-control text-center" type="number" value="2024" min="1961" max="2100" step="1">
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset id="div-{{ tstepID }}-climato-years" class="border border-secondary rounded-3" style="display: none;">
+        <legend class="legend-label">{{ pageText.opt_season_map.label_year }}</legend>
+        <div class="row gx-1">
+            <div class="col-md-3 d-flex justify-content-end align-items-center text-end">
+                {{ pageText.opt_season_map.start_date }}
+            </div>
+            <div class="col-md-3 d-flex justify-content-end align-items-center  text-end">
+                {{ pageText.opt_season_map.end_date }}
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.label_statistics.params }}</legend>
+        <select id="{{ tempRes }}-map-parameters" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.parameters.rainfall.items() %}
+            <option value="{{key}}">{{value.select}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset id="{{ tempRes }}-map-climato" class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.label_statistics.stats }}</legend>
+        <div class="w-100">
+            <select id="{{ tempRes }}-map-statistics" class="form-select form-select2-nosearch">
+                {% for key, value in pageText.seasonal_statistics.items() %}
+                <option value="{{key}}">{{value}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="div-{{ tempRes}}-map-climato-proba">
+            <div class="input-group w-75 mt-2">
+                <span class="input-group-text">
+                    {{ pageText.probabilities.thres }}
+                </span>
+                <input id="{{ tempRes }}-map-climato-probaTh" type="text" 
+                value="{{ pageText.parameters.rainfall.TotRain.value }}"
+                class="form-control"
+                style="flex: 0 0 70px;">
+                <span id="{{ tempRes }}-map-climato-parUnit"
+                class="input-group-text">
+                    {{ pageText.parameters.rainfall.TotRain.unit }}
+                </span>
+            </div>
+            <div class="input-group w-100 mt-1">
+                <span>
+                    {{ pageText.probabilities.unit }}
+                </span>
+                <select id="{{ tempRes }}-map-climato-probaUnit" class="form-select form-select2-nosearch">
+                    {% for key, value in pageText.probabilities.select.items() %}
+                    <option value="{{key}}">{{value}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </fieldset>
+
 </div>
 {% endmacro %}
 <!--  -->
