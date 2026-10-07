@@ -572,8 +572,10 @@ function setOffCanvasMapControlMonitoring(tempRes) {
 
 function setMonitoringColorbar(variable) {
     if (
-        ['spi_dek', 'spi_mon', 'spi_seas']
-        .includes(variable)
+        [
+            'spi_dek', 'spi_mon', 'spi_seas',
+            'spei_dek', 'spei_mon', 'spei_seas'
+        ].includes(variable)
     ) {
         colorbarSetDefault('spi_colors', [-2, -1.5, -1, 1, 1.5, 2]);
     } else if (
@@ -615,7 +617,7 @@ function setMonitoringSeasonal(tempRes, variable) {
         DATA_SET.use, tempRes, variable
     );
     let dispDate;
-    if (variable === 'spi_seas') {
+    if (['spi_seas', 'spei_seas'].includes(variable)) {
         dispDate = temp_cov.end;
     } else {
         const mon = -1 * SEASON_DEF.months.length + 1;
@@ -628,7 +630,7 @@ function setMonitoringSeasonal(tempRes, variable) {
     adjustSelect2Height(`${tempRes}-map-date-length`, true);
 
     let dispText;
-    if (variable === 'spi_seas') {
+    if (['spi_seas', 'spei_seas'].includes(variable)) {
         $(`#${tempRes}-map-date-label1`).text(SEAS_LABELS.end_month);
         $(`#${tempRes}-map-date-label2`).text(SEAS_LABELS.time_scale);
         dispText = false;

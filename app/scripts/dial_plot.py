@@ -5,14 +5,9 @@ from .imagepng import render_image_png
 
 plt.switch_backend('Agg')
 
-def draw_dial_image(data_class, params, figsize=(8.6, 6.2)):
+def draw_dial_image(data_class, text_col='black', figsize=(8.6, 6.2)):
     score = data_class['score']
     nb_class = len(data_class['definition'])
-
-    text_col = 'black'
-    if 'theme' in params:
-        if params['theme'] == 'dark':
-            text_col = 'white'
 
     # Circles
     center = (0, 0)

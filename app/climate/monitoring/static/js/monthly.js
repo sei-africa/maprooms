@@ -7,6 +7,14 @@ $(document).ready(function() {
 
     ////////////
     // Modal Expand Charts
+    $('.monthly-spei-select2').select2({
+        minimumResultsForSearch: -1,
+        dropdownParent: $('#monthly-spei-control')
+    });
+    $('#btn-div-chart-spei').on('click', () => {
+        setAnalysisExpandModalSPEI('monthly', 'div-chart-spei');
+    });
+
     $('.monthly-raw-select2').select2({
         minimumResultsForSearch: -1,
         dropdownParent: $('#monthly-raw-control')

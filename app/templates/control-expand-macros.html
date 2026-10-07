@@ -877,3 +877,50 @@
     {{ fmacros.baseline_period_dialog(tempRes ~ '-chart-cumul-bp', pageText) }}
 </div>
 {% endmacro %}
+<!--  -->
+{% macro create_expand_charts_spei(tempRes, pageText) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-spei-control">
+    <select id="{{ tempRes }}-spei-variable" hidden>
+        <option value="{{ pageText.variables.select.keys() | first }}" selected>{{ pageText.variables.select.values() | first }}</option>
+    </select>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_spei.spei_label }}</legend>
+        <select id="{{ tempRes }}-chart-spei-analysis" class="form-select {{ tempRes }}-spei-select2" style="width: 300px;">
+            {% for key, value in pageText.opt_ts_spei.spei_type.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_spei.date_label.start }}</legend>
+        <div id="{{ tempRes }}-chart-spei-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Start date" style="width: 8.0em">
+            <input id="{{ tempRes }}-chart-spei-startdate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_spei.date_label.end }}</legend>
+        <div id="{{ tempRes }}-chart-spei-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="End date" style="width: 8.0em">
+            <input id="{{ tempRes }}-chart-spei-enddate-calendar" type="text" class="form-control">
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_spei.time_scale }}</legend>
+        <div class="row">
+            <div class="col-md-4">
+                <select id="{{ tempRes }}-chart-spei-timescale" class="form-select {{ tempRes }}-spei-select2"></select>
+            </div>
+            <div class="col-md-6">
+                {{ pageText.opt_ts_spei.units }}
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.opt_ts_spei.distr_label }}</legend>
+        <select id="{{ tempRes }}-chart-spei-distr" class="form-select {{ tempRes }}-spei-select2" style="width: 150px;">
+            {% for key, value in pageText.opt_ts_spei.distr_function.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+</div>
+{% endmacro %}

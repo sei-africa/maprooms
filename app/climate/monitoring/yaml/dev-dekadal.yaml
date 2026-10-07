@@ -44,6 +44,7 @@ dataset:
         anom_cumul: [precip]
         anom_per_cumul: [precip]
         spi_dek: [precip]
+        spei_dek: [precip, et0]
 
 variables:
     label:
@@ -71,6 +72,9 @@ variables:
         spi_dek:
             en: Standard Precipitation Index (SPI)
             fr: Indice de Précipitations Standardisé (SPI)
+        spei_dek:
+            en: Standardized Precipitation Evapotranspiration Index (SPEI)
+            fr: Indice Standardisé de Précipitation et d’Évapotranspiration (SPEI)
 
 opt_dates:
     label:
@@ -159,3 +163,47 @@ opt_ts_anom:
     label_tstep:
         en: Dekad
         fr: Décade
+
+opt_ts_spei:
+    date_label:
+        start:
+            en: Start date
+            fr: Début date
+        end:
+            en: End date
+            fr: Fin date
+    spei_label:
+        en: Compute
+        fr: Calculer
+    spei_type:
+        spi: 
+            en: SPI - Standardized Precipitation Index
+            fr: SPI - Indice de Précipitations Standardisé
+        spei:
+            en: SPEI - Standardized Precipitation Evapotranspiration Index
+            fr: SPEI - Indice Standardisé de Précipitation et d’Évapotranspiration
+    spei_variable:
+        spi: spi_dek
+        spei: spei_dek
+    time_scale:
+        en: Time scales
+        fr: Échelles de temps
+    units:
+        en: dekad
+        fr: décade
+    distr_label:
+        en: Distribution
+        fr: Distribution
+    distr_function:
+        gamma:
+            en: Gamma
+            fr: Gamma
+        peasron3:
+            en: Pearson Type III
+            fr: Pearson Type III
+        llogistic:
+            en: log-Logistic
+            fr: log-Logistic
+        zscore:
+            en: Z-Score
+            fr: Z-Score
