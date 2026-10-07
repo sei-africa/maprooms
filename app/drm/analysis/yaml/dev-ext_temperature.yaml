@@ -9,42 +9,42 @@ description:
         The graph gives a sense of the range of possible value for monthly or seasonal minimum or maximum temperatures, including its extreme values. The different options are detailed below.
         </p>
         <ul>
-                <li>
-                <strong> Season </strong>: Specify the start and end dates of the season, over which the rainfall characteristcs are to be computed over the 1981-2010 climatological period.
-                </li>
-                <li>
-                <strong>Temperature</strong>: Choose between minimum or maximum temperature.
-                </li>
-                <li>
-                <strong>Hot/Cold Day Definition</strong>: Threshold in ˚C above/below which a day is considered hot/cold.
-                </li>
-                <li>
-                <strong>Seasonal daily statistcis </strong>: Choose the seasonal diagnostic quantity (i.e the statistic of the daily data) 
-                to be computed for each season, from the following choices.
-                </li>
-                <li>
-                <strong>Seasonal Average</strong>: average daily temperature over the season.
-                </li>
-                <li>
-                <strong>Number of Hot/Cold Days</strong>: the number of hot/cold days (as defined above) during the season.
-                </li>
-                <li>
-                <strong>Yearly seasonal statistics</strong>: choose the threshold to map the probability of non-/exceeding, or look at the variance or the coefficient of variation of the yearly seasonal time series across the 1981-2010 period.
-                </li>
-                <li>
-                <strong>Probability of non-/exceeding</strong>: the portion of years, in percentage, when the seasonal quantity exceeded or not a given threshold.
-                </li>
-                <li>
-                <strong>Variance</strong>: a measure of the variability of the seasonal quantity, expressed in square of the units. The higher, the farther the quantity departs from its mean value.
-                </li>
-                <li>                
-                <strong>Coefficient of Variation</strong>: the ratio between the standard deviation (square root of the variance) and the mean of the seasonal quantity. It gives similar information as the variance but in perspective with the value of the mean rather than in units of the quantity.
-                </li>
-                <li>
-                <strong>Spatial Resolution</strong>: The analysis can be done and mapped at each 0.0375 resolution grid point. Additionally it is possible to average the 
-                daily min/max temperature, prior to doing the analysis, over the 0.0375 grid points falling within administrative boundaries for the probability of 
-                exceeding graph.
-                </li>
+            <li>
+            <strong> Season </strong>: Specify the start and end dates of the season, over which the rainfall characteristcs are to be computed over the 1981-2010 climatological period.
+            </li>
+            <li>
+            <strong>Temperature</strong>: Choose between minimum or maximum temperature.
+            </li>
+            <li>
+            <strong>Hot/Cold Day Definition</strong>: Threshold in ˚C above/below which a day is considered hot/cold.
+            </li>
+            <li>
+            <strong>Seasonal daily statistcis </strong>: Choose the seasonal diagnostic quantity (i.e the statistic of the daily data) 
+            to be computed for each season, from the following choices.
+            </li>
+            <li>
+            <strong>Seasonal Average</strong>: average daily temperature over the season.
+            </li>
+            <li>
+            <strong>Number of Hot/Cold Days</strong>: the number of hot/cold days (as defined above) during the season.
+            </li>
+            <li>
+            <strong>Yearly seasonal statistics</strong>: choose the threshold to map the probability of non-/exceeding, or look at the variance or the coefficient of variation of the yearly seasonal time series across the 1981-2010 period.
+            </li>
+            <li>
+            <strong>Probability of non-/exceeding</strong>: the portion of years, in percentage, when the seasonal quantity exceeded or not a given threshold.
+            </li>
+            <li>
+            <strong>Variance</strong>: a measure of the variability of the seasonal quantity, expressed in square of the units. The higher, the farther the quantity departs from its mean value.
+            </li>
+            <li>                
+            <strong>Coefficient of Variation</strong>: the ratio between the standard deviation (square root of the variance) and the mean of the seasonal quantity. It gives similar information as the variance but in perspective with the value of the mean rather than in units of the quantity.
+            </li>
+            <li>
+            <strong>Spatial Resolution</strong>: The analysis can be done and mapped at each 0.0375 resolution grid point. Additionally it is possible to average the 
+            daily min/max temperature, prior to doing the analysis, over the 0.0375 grid points falling within administrative boundaries for the probability of 
+            exceeding graph.
+            </li>
         </ul>
     fr: |
         <h4>Analyse des températures extrêmes</h4>
@@ -56,46 +56,243 @@ description:
         Le graphique donne une indication de l’intervalle des valeurs possibles des températures minimales ou maximales, mensuelles ou saisonnières, y compris leurs valeurs extrêmes. Les différentes options sont détaillées ci-dessous.
         </p>
         <ul>
-                <li>
-                <strong> Saison </strong>: Spécifiez les dates de début et de fin de la saison sur laquelle les caractéristiques doivent être calculées pour la période climatologique 1981-2010.
-                </li>
-                <li>
-                <strong>Température</strong>: Choisissez entre la température minimale et la température maximale.
-                </li>
-                <li>
-                <strong>Définition d’un jour chaud/froid</strong>: Seuil en ˚C au-dessus/au-dessous duquel un jour est considéré comme chaud/froid.
-                </li>
-                <li>
-                <strong>Statistiques journalières saisonnières </strong>: Choisissez l’indicateur saisonnier (c’est-à-dire la statistique calculée à partir des données journalières) 
-                à calculer pour chaque saison parmi les options suivantes.
-                </li>
-                <li>
-                <strong>Moyenne saisonnière</strong>: température journalière moyenne au cours de la saison.
-                </li>
-                <li>
-                <strong>Nombre de jours chauds/froids</strong>: nombre de jours chauds/froids (selon la définition ci-dessus) au cours de la saison.
-                </li>
-                <li>
-                <strong>Statistiques saisonnières annuelles</strong>: choisissez le seuil pour cartographier la probabilité de non-dépassement ou de dépassement, ou examinez la variance ou le coefficient de variation de la série chronologique saisonnière annuelle sur la période 1981-2010.
-                </li>
-                <li>
-                <strong>Probabilité de non-dépassement/dépassement</strong>: proportion des années, exprimée en pourcentage, au cours desquelles la quantité saisonnière a dépassé ou non un seuil donné.
-                </li>
-                <li>
-                <strong>Variance</strong>: mesure de la variabilité de la quantité saisonnière, exprimée au carré de l’unité utilisée. Plus la variance est élevée, plus les valeurs s’écartent de leur valeur moyenne.
-                </li>
-                <li>                
-                <strong>Coefficient de variation</strong>: rapport entre l’écart-type (racine carrée de la variance) et la moyenne de la quantité saisonnière. Il fournit une information similaire à celle de la variance, mais en la rapportant à la valeur moyenne plutôt qu’en l’exprimant dans l’unité de la quantité.
-                </li>
-                <li>
-                <strong>Résolution spatiale</strong>: L’analyse peut être réalisée et cartographiée pour chaque point de grille à une résolution de 0,0375°. Il est également possible de calculer la moyenne des 
-                températures journalières minimales/maximales, avant d’effectuer l’analyse, sur les points de grille de 0,0375° situés à l’intérieur des limites administratives pour le graphique de probabilité de 
-                dépassement.
-                </li>
+            <li>
+            <strong> Saison </strong>: Spécifiez les dates de début et de fin de la saison sur laquelle les caractéristiques doivent être calculées pour la période climatologique 1981-2010.
+            </li>
+            <li>
+            <strong>Température</strong>: Choisissez entre la température minimale et la température maximale.
+            </li>
+            <li>
+            <strong>Définition d’un jour chaud/froid</strong>: Seuil en ˚C au-dessus/au-dessous duquel un jour est considéré comme chaud/froid.
+            </li>
+            <li>
+            <strong>Statistiques journalières saisonnières </strong>: Choisissez l’indicateur saisonnier (c’est-à-dire la statistique calculée à partir des données journalières) 
+            à calculer pour chaque saison parmi les options suivantes.
+            </li>
+            <li>
+            <strong>Moyenne saisonnière</strong>: température journalière moyenne au cours de la saison.
+            </li>
+            <li>
+            <strong>Nombre de jours chauds/froids</strong>: nombre de jours chauds/froids (selon la définition ci-dessus) au cours de la saison.
+            </li>
+            <li>
+            <strong>Statistiques saisonnières annuelles</strong>: choisissez le seuil pour cartographier la probabilité de non-dépassement ou de dépassement, ou examinez la variance ou le coefficient de variation de la série chronologique saisonnière annuelle sur la période 1981-2010.
+            </li>
+            <li>
+            <strong>Probabilité de non-dépassement/dépassement</strong>: proportion des années, exprimée en pourcentage, au cours desquelles la quantité saisonnière a dépassé ou non un seuil donné.
+            </li>
+            <li>
+            <strong>Variance</strong>: mesure de la variabilité de la quantité saisonnière, exprimée au carré de l’unité utilisée. Plus la variance est élevée, plus les valeurs s’écartent de leur valeur moyenne.
+            </li>
+            <li>                
+            <strong>Coefficient de variation</strong>: rapport entre l’écart-type (racine carrée de la variance) et la moyenne de la quantité saisonnière. Il fournit une information similaire à celle de la variance, mais en la rapportant à la valeur moyenne plutôt qu’en l’exprimant dans l’unité de la quantité.
+            </li>
+            <li>
+            <strong>Résolution spatiale</strong>: L’analyse peut être réalisée et cartographiée pour chaque point de grille à une résolution de 0,0375°. Il est également possible de calculer la moyenne des 
+            températures journalières minimales/maximales, avant d’effectuer l’analyse, sur les points de grille de 0,0375° situés à l’intérieur des limites administratives pour le graphique de probabilité de 
+            dépassement.
+            </li>
         </ul>
+
+years_range:
+    start_year: 1981
+    end_year: 2024
+    min_year: 30
 
 dataset:
     use: ALL
     variables:
-        tmax: [tmax]
-        tmin: [tmin]
+        max_temperature: [tmax]
+        min_temperature: [tmin]
+
+variables:
+    label:
+        en: Variable
+        fr: Variable
+    select:
+        max_temperature:
+            en: Maximum Temperature
+            fr: Temperature Maximale
+        min_temperature:
+            en: Minimum Temperature
+            fr: Température Minimale
+            
+opt_season:
+    label_season:
+        start:
+            en: Start season
+            fr: Début saison
+        end:
+            en: End season
+            fr: Fin saison
+
+opt_season_map:
+    label_season:
+        en: Season
+        fr: Saison
+    label_year:
+        en: Years
+        fr: Années
+    start_date:
+        en: Start
+        fr: Début
+    end_date:
+        en: End
+        fr: Fin
+    min_year:
+        en: Minimum number of years
+        fr: Nombre minimum d'années
+
+parameters:
+    seasAvg:
+        select:
+            en: Seasonal Average
+            fr: Moyenne Saisonnière
+        unit:
+            en: °C
+            fr: °C
+        value: 20
+        dtype: float
+    NumCD:
+        select:
+            en: Number of cold days
+            fr: Nombre de jours froids
+        unit:
+            en: days
+            fr: jours
+        value: 30
+        dtype: integer
+    NumHD:
+        select:
+            en: Number of hot days
+            fr: Nombre de jours chauds
+        unit:
+            en: days
+            fr: jours
+        value: 30
+        dtype: integer
+
+parameters_order: [MeanTemp, NumCD, NumHD]
+
+definition:
+    label:
+        en: Hot/Cold day definition
+        fr: Définition d'un jour chaud/froid
+    text:
+        en: Temperature above/below
+        fr: Température au-dessus/en-dessous de
+    unit: 
+        en: °C
+        fr: °C
+    value: 20
+label_statistics:
+    params:
+        en: Seasonal daily statistics
+        fr: Statistique journalières saisonnières
+    stats:
+        en: Yearly seasonal statistics
+        fr: Statistiques saisonnières annuelles
+
+seasonal_statistics:
+        probExc:
+            en: Probability of exceeding
+            fr: Probabilité de dépassement
+        probNoExc:
+            en: Probability of non-exceeding
+            fr: Probabilité de non-dépassement
+        stdev:
+            en: Standard deviation
+            fr: Écart type
+        cv:
+            en: Coefficient of variation
+            fr: Coefficient de variation
+
+probabilities:
+    thres:
+        en: Threshold
+        fr: Seuil
+    unit:
+        en: Probability units
+        fr: Unités de probabilité
+    select:
+        perc:
+            en: Percentage
+            fr: Pourcentage
+        frac:
+            en: Fraction
+            fr: Fraction
+
+opt_ts_df:
+    label:
+        en: Display
+        fr: Afficher
+    select:
+        cdf: 
+            en: Cumulative Distribution Function (CDF)
+            fr: Fonction de Répartition (CDF)
+        pdf: 
+            en: Probability Density Function (PDF)
+            fr: Fonction de Densité de Probabilité (PDF)
+
+opt_ts_cdf:
+    label:
+        en: CDF Chart
+        fr: Graphique de CDF
+    type:
+        empirical:
+            en: Empirical
+            fr: Empirique
+        smoothed:
+            en: Smoothed
+            fr: Lissée
+        fitted:
+            en: Theoretical
+            fr: Théorique
+opt_ts_pdf:
+    label:
+        en: PDF Chart
+        fr: Graphique de PDF
+    type:
+        histogram:
+            en: Histogram
+            fr: Histogramme
+        density:
+            en: Density (KDE)
+            fr: Densité (KDE)
+        fitted:
+            en: Theoretical
+            fr: Théorique
+opt_js_data:
+    cdf: [empirical, smoothed, fitted]
+    pdf: [histogram, density, fitted]
+opt_ts_seasplot:
+    label:
+        en: Plot type
+        fr: Type de graphique
+    select:
+        bar:
+            en: Bar
+            fr: Barre
+        line:
+            en: Line
+            fr: Ligne
+        lpoint:
+            en: Line + Points
+            fr: Ligne + Points
+opt_ts_seaslines:
+    label:
+        en: Display
+        fr: Afficher
+    type:
+        mean:
+            en: Mean
+            fr: Moyenne
+        median:
+            en: Median
+            fr: Médiane
+        terciles:
+            en: Terciles
+            fr: Terciles
+        trend:
+            en: Trend
+            fr: Tendance
