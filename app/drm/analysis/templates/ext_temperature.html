@@ -45,10 +45,10 @@
 {% include "block-js.html" %}
 <script>
 const PARAMS_LIST = JSON.parse('{{ pageText.parameters | tojson }}');
-PARAMS_LIST.tmin = PARAMS_LIST.temperature;
-PARAMS_LIST.tmax = PARAMS_LIST.temperature;
+// PARAMS_LIST.tmin = PARAMS_LIST.temperature;
+// PARAMS_LIST.tmax = PARAMS_LIST.temperature;
 const PARAMS_ORDER = JSON.parse('{{ pageText.parameters_order | tojson }}');
-const PARAMS_DEF = JSON.parse('{{ pageText.definition | tojson }}');
+// const PARAMS_DEF = JSON.parse('{{ pageText.definition | tojson }}');
 const PROBA_PLOT = JSON.parse('{{ pageText.opt_js_data | tojson }}');
 </script>
 <script type="text/javascript" src="{{ url_for('drm_analysis.static', filename='js/ext_temperature.js') }}"></script>

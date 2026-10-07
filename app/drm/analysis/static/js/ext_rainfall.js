@@ -4,16 +4,27 @@ $(document).ready(function() {
     const tooltipList = [...tTriggerList].map(t => new bootstrap.Tooltip(t));
 
     let map = createLeafletTileLayer('div-map-container', MTO_INIT);
-    setAnalysisDateCalendarMonDay('daily', 'map-date');
 
-    $('#daily-map-parameters').on('change.dailyParameters', function() {
-        setAnalysisParamsDefDaily('daily', 'map');
-        setAnalysisStatProbaDaily('daily'); 
+    setOffCanvasMapControlsDrmExtRain('daily');
+    ////////////
+    // Modal Expand Charts
+
+
+    ////////////
+    
+    ////////////
+    // initialize map
+    const map_options = {};
+    displayDrmAnalysisMap('daily', map_options, map);
+
+    // display map when offcanvas hidden
+    $('#map-control-offcanvas-dataselect').on('hidden.bs.offcanvas', () => {
+        displayDrmAnalysisMap('daily', map_options, map);
     });
 
-    $('#daily-map-statistics').on('change.dailyStatistics', function() {
-        setAnalysisStatProbaDaily('daily')
-    }); 
-    $('#daily-map-parameters').trigger('change'); 
-    $('#daily-map-statistics').trigger('change');
+    // 
+    $('#map-control-redraw').on('click', () => {
+        displayDrmAnalysisMap('daily', map_options, map);
+    });
+    
 });
