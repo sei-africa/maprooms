@@ -675,3 +675,107 @@ function setMonitoringCalendar(tempRes, variable, dispDate = null) {
         );
     }
 }
+
+//////////////
+function setOffCanvasMapControlsDrmExtTemp(tempRes) {
+    setAnalysisDateCalendarMonDay(tempRes, 'map-date');
+    // 
+    $(`#${tempRes}-map-parameters`)
+        .off('change.drmExtTempParameters')
+        .on('change.drmExtTempParameters', function() {
+            const this_val= $(this).val();
+
+            if (this_val==='seasAvg'){
+                // $(`#${tempRes}-map-def-number`).hide();
+                setVisibility([], [`${tempRes}-map-def-number`]);
+            }else{
+            //   $(`#${tempRes}-map-def-number`).show();
+             setVisibility([`${tempRes}-map-def-number`], []);
+            }
+
+            $(`#${tempRes}-map-climato-probaTh`).val(PARAMS_LIST[this_val].value);
+            $(`#${tempRes}-map-climato-parUnit`).text(PARAMS_LIST[this_val].unit);
+
+        }); 
+    $(`#${tempRes}-map-parameters`).trigger('change');
+
+        // 
+    $(`#${tempRes}-map-statistics`)
+        .off('change.drmExtTempParameters')
+        .on('change.drmExtTempParameters', function() {
+            const this_val= $(this).val();
+
+            if (['probExc', 'probNoExc'].includes(this_val)){
+                // $(`#${tempRes}-map-def-number`).hide();
+                setVisibility([`div-${tempRes}-map-climato-proba`], []);
+            }else{
+            //  $(`#${tempRes}-map-def-number`).show();
+                setVisibility([],[`div-${tempRes}-map-climato-proba`]);
+            }
+    
+        }); 
+    $(`#${tempRes}-map-statistics`).trigger('change');
+
+}
+
+//////////////
+function setOffCanvasMapControlsDrmExtRain(tempRes) {
+    setAnalysisDateCalendarMonDay(tempRes, 'map-date');
+    //
+    $(`#${tempRes}-map-parameters`)
+        .off('change.drmRainRainParameters')
+        .on('change.drmRainRainParameters', function() {
+            const this_val= $(this).val();
+
+            if (this_val==='TotRain'){
+                setVisibility(
+                [],
+                [
+                    `${tempRes}-map-def-number`,
+                    `${tempRes}-map-def-spell`
+                ])
+
+            } else if (['NumWD', 'NumDD', 'RainInt'].includes(this_val)) {
+                setVisibility(
+                    [
+                        `${tempRes}-map-def-number`
+                    ],
+                    [
+                        `${tempRes}-map-def-spell`
+                    ]
+                )
+            } else {
+                setVisibility(
+                    [
+                        `${tempRes}-map-def-number`,
+                        `${tempRes}-map-def-spell`
+                    ],
+                    [])
+            }
+
+            $(`#${tempRes}-map-climato-probaTh`).val(PARAMS_LIST[this_val].value);
+            $(`#${tempRes}-map-climato-parUnit`).text(PARAMS_LIST[this_val].unit);
+
+        }); 
+    $(`#${tempRes}-map-parameters`).trigger('change');
+
+    //
+    $(`#${tempRes}-map-statistics`)
+        .off('change.drmExtRainParameters')
+        .on('change.drmExtRainParameters', function() {
+            const this_val= $(this).val();
+
+            if (['probExc', 'probNoExc'].includes(this_val)){
+                // $(`#${tempRes}-map-def-number`).hide();
+                setVisibility([`div-${tempRes}-map-climato-proba`], []);
+            }else{
+            //   $(`#${tempRes}-map-def-number`).show();
+                setVisibility([],[`div-${tempRes}-map-climato-proba`]);
+            }
+        });
+        
+    $(`#${tempRes}-map-statistics`).trigger('change');
+            //
+
+
+}

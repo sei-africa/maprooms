@@ -593,3 +593,78 @@ function displayClimateMonitoringMap(time_res, options, map) {
 
     return request;
 }
+
+////////////
+
+function queryParamsDrmAnalysisMap(time_res){
+    let query = new Object();
+    query.temporalRes = time_res;
+    query.dataset = DATA_SET.use;
+
+    query.variable = $(`#${time_res}-map-variable`).val();
+
+    query.mapType = 'climatology';
+    const tstep_id = `${time_res}-map-date`;
+    const bp_id = `${time_res}-base-period`;
+
+    query.dailyAnalysis = true;
+    query.minFrac = 1.0;
+    query.seasParams = $(`#${time_res}-map-parameters`).val();
+
+    query.startMonth = parseInt($(`#${tstep_id}-start-mon`).val(), 10);
+    query.startDay = parseInt($(`#${tstep_id}-start-day`).val(), 10);
+    query.endMonth = parseInt($(`#${tstep_id}-end-mon`).val(), 10);
+    query.endDay = parseInt($(`#${tstep_id}-end-day`).val(), 10);
+
+    query.fullYear = false;
+
+    query.seasStats = $(`#${time_res}-map-statistics`).val();
+
+    if (query.seasStats === 'probExc' || query.seasStats === 'probNoExc') {
+        query.probaThres = Number($(`#${time_res}-map-climato-probaTh`).val().trim());
+        query.probaUnit = $(`#${time_res}-map-climato-probaUnit`).val();
+    }
+
+    query.defThres = Number($(`#${time_res}-map-def-number-thres-val`).val().trim());
+
+    query.startYear = parseInt($(`#${tstep_id}-start-year`).val().trim(), 10);
+    query.endYear = parseInt($(`#${tstep_id}-end-year`).val().trim(), 10);
+    query.minYear = parseInt($(`#${tstep_id}-min-year`).val().trim(), 10);
+
+    const colorbar = colorbarGetData();
+    if (!colorbar) {
+        return false;
+    }
+    query.colorbar = colorbar;
+
+    return query;
+}
+
+////////////
+
+function displayDrmAnalysisMap(time_res, options, map) {
+    const query = queryParamsDrmAnalysisMap(time_res);
+
+    if (!query) {
+        return false;
+    }
+
+    const endpoint = createEndpoint(
+        'climate_analysis',
+        'climate_analysis_map'
+    );
+
+    const request = ajaxLeafletMap(
+        endpoint,
+        query,
+        displayRasterImage,
+        options,
+        map
+    );
+
+    updateAnalysisMapDate(time_res, query, map);
+
+    return request;
+}
+
+////////////
