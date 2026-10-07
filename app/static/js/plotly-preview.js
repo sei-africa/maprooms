@@ -34,6 +34,8 @@ function preview_monitoring_display_charts(tempRes) {
 }
 
 function preview_monitoring_display_charts_1(tempRes) {
+    // preview_analysis_charts_spei_ts(tempRes, 'div-chart-spei');
+    preview_monitoring_charts_spei_dial(tempRes, 'div-chart-spei')
     preview_analysis_charts_rawdata(tempRes, 'div-chart-raw');
     preview_analysis_charts_anomaly(tempRes, 'div-chart-anom');
 }
@@ -1932,4 +1934,149 @@ function preview_analysis_display_cumul(json, container) {
         };
         Plotly.relayout(container, update);
     });
+}
+
+///////
+
+function preview_monitoring_query_spei_dial(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    const spi_variables = {
+        'dekadal': 'spi_dek',
+        'monthly': 'spi_mon',
+        'seasonal': 'spi_seas'
+    };
+    query.map_variable = spi_variables[tempRes];
+    query.variable = DATA_SET.variables[query.map_variable];
+    query.analysis = 'spi';
+    query.distribution = 'gamma';
+
+    if (tempRes === 'dekadal') {
+        query.timeScale = 1;
+    } else if (tempRes === 'monthly') {
+        query.timeScale = 1;
+    } else if (tempRes === 'seasonal') {
+        query.seasLength = parseInt($(`#${tempRes}-map-date-length`).val(), 10);
+        query.timeScale = query.seasLength;
+        query.timeRes = 'monthly';
+    } else {
+        return false;
+    }
+
+    const temp_cov = getTempCoverageCalendar(
+        query.dataset, tempRes, query.map_variable
+    );
+
+    const end_date = analysis_query_format_date(temp_cov.end, tempRes);
+    query.startDate = end_date;
+    query.endDate = end_date;
+
+    query.theme = $('html').attr('data-bs-theme');
+
+    return query;
+}
+
+function preview_monitoring_charts_spei_dial(tempRes, contID) {
+    const query = preview_monitoring_query_spei_dial(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        flashMessage(JS_TEXT.point_outside, 'error');
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_monitoring_spei_dial',
+        query,
+        preview_monitoring_display_spei_dial,
+        contID
+    );
+}
+
+function preview_monitoring_display_spei_dial(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    const img = $('<img>', {
+        id: 'enso-alert-system',
+        src: json.png
+    }).appendTo(divCont);
+
+    img.css({
+        'width': '100%',
+        'height': '100%',
+        'object-fit': 'cover'
+    });
+    console.log(json)
+}
+
+///////
+
+function preview_monitoring_query_spei_ts(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    const spi_variables = {
+        'dekadal': 'spi_dek',
+        'monthly': 'spi_mon',
+        'seasonal': 'spi_seas'
+    };
+    query.map_variable = spi_variables[tempRes];
+    query.variable = DATA_SET.variables[query.map_variable];
+    query.analysis = 'spi';
+    query.distribution = 'gamma';
+
+    if (tempRes === 'dekadal') {
+        query.timeScale = 1;
+    } else if (tempRes === 'monthly') {
+        query.timeScale = 1;
+    } else if (tempRes === 'seasonal') {
+        query.seasLength = parseInt($(`#${tempRes}-map-date-length`).val(), 10);
+        query.timeScale = query.seasLength;
+        query.timeRes = 'monthly';
+    } else {
+        return false;
+    }
+
+    const dates = preview_analysis_query_temporal(
+        query.dataset, tempRes, query.map_variable, 30
+    );
+
+    return Object.assign({}, query, dates);
+}
+
+function preview_analysis_charts_spei_ts(tempRes, contID) {
+    const query = preview_monitoring_query_spei_ts(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        flashMessage(JS_TEXT.point_outside, 'error');
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_monitoring_spei_tseries',
+        query,
+        preview_analysis_display_spei_ts,
+        contID
+    );
+}
+
+function preview_analysis_display_spei_ts(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+    const theme = $('html').attr('data-bs-theme');
+
+    console.log(json)
 }

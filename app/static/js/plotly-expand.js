@@ -771,7 +771,6 @@ function expand_analysis_display_anomaly(json_input, container) {
         }
     });
 
-
     const barWidths = json.time.map(
         t => getAnomalyBarWidthMs(t, json.info.time_res, json.info)
     );
@@ -3013,4 +3012,171 @@ function expand_analysis_display_cumul(json, container) {
         };
         Plotly.relayout(container, update);
     });
+}
+
+///////
+
+function expand_analysis_query_spei_ts(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    query.chart_variable = $(`#${tempRes}-spei-variable`).val();
+    // query.variable = DATA_SET.variables[query.chart_variable];
+    // // if (URL_ARGS.component === 'monitoring') {
+    // //     query.variable = DATA_SET.variables[query.chart_variable];
+    // // } else {
+    // //     query.variable = query.chart_variable;
+    // // }
+
+    query.analysis = $(`#${tempRes}-chart-spei-analysis`).val();
+    const spei_var = OPT_SPEI.spei_variable[query.analysis];
+    query.variable = DATA_SET.variables[spei_var];
+
+    query.distribution = $(`#${tempRes}-chart-spei-distr`).val();
+    query.timeScale = parseInt($(`#${tempRes}-chart-spei-timescale`).val(), 10);
+
+    if (tempRes === 'seasonal') {
+        query.seasLength = query.timeScale;
+        query.timeRes = 'monthly';
+    }
+
+    query.startDate = analysis_query_format_date(
+        $(`#${tempRes}-chart-spei-startdate-calendar`).val(),
+        tempRes
+    );
+    query.endDate = analysis_query_format_date(
+        $(`#${tempRes}-chart-spei-enddate-calendar`).val(),
+        tempRes
+    );
+
+    return query;
+}
+
+function expand_analysis_charts_spei_ts(container_id, tempRes) {
+    const query = expand_analysis_query_spei_ts(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_monitoring_spei_tseries',
+        query,
+        expand_analysis_display_spei_ts,
+        container_id
+    );
+}
+
+function expand_analysis_display_spei_ts(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    // const json = expand_analysis_format_anomaly(json_input);
+    // if (json === null) {
+    //     return false;
+    // }
+
+    // console.log(json)
+
+    const xaxisHoverText = json.time.map((t) => {
+        return formatPlotlyHoverDate(
+            t, json.info.time_res,
+            json.info.seas_len,
+            json.info.seas_daily
+        );
+    });
+
+    var defColors = {
+        negative: '#fd7e14',
+        positive: '#198754',
+        other: '#6c757d'
+    }
+
+    const barColors = json.values.map(value => {
+        if (value > 0) {
+            return defColors.positive;
+        } else if (value < 0) {
+            return defColors.negative;
+        } else {
+            return defColors.other;
+        }
+    });
+
+    const barWidths = json.time.map(
+        t => getAnomalyBarWidthMs(t, json.info.time_res, json.info)
+    );
+    const hasCustomBarWidths = barWidths.every(w => Number.isFinite(w) && w > 0);
+
+    const data = [{
+        x: json.time,
+        y: json.values,
+        name: json.info.var.name,
+        units: json.info.var.units,
+        type: 'bar',
+        ...(hasCustomBarWidths ? { width: applyMinimumAnomalyBarWidths(json.time, barWidths) } : {}),
+        marker: {
+            color: barColors,
+            line: {
+                width: 0
+            }
+        },
+        customdata: xaxisHoverText,
+        hovertemplate: 'Date: %{customdata}<br> %{data.name}: %{y:.1f} <extra></extra>'
+    }];
+
+    var layout = {
+        xaxis: {
+            type: 'date',
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            rangeslider: plotly_rangeslider,
+            ticks: 'outside',
+            ticklen: 8,
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            ticks: 'outside',
+            ticklen: 8,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.3,
+            griddash: 'dot',
+            title: {
+                text: json.info.var.name,
+            },
+        },
+        width: getChartWidth(container),
+        height: getChartHeight(container)
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout = deepMerge(expand_layout, layout);
+    layout.xaxis.rangeslider.bgcolor = defColors.positive;
+
+    purgePlotlyChart(container);
+    Plotly.newPlot(
+        container,
+        data,
+        layout,
+        plotly_config
+    );
+
+    //// add range selector
+    const last_date = new Date(json.time[json.time.length - 1]);
+    // const ranges = ['1Y', '5Y', '10Y', 'ALL'];
+    const ranges = ['1Y', '5Y', '10Y', '15Y', '20Y', '30Y', 'ALL'];
+    addRangeselector(container, ranges, last_date, 'date');
+
+    setPlotlyThemeColors(container);
+    resizePlotlyChart(container);
 }

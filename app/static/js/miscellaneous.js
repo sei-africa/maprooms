@@ -801,6 +801,21 @@ function setClimateSeasonLengthExpand(tempRes, idSuffix) {
     seasLenId.val(SEASON_DEF.months.length);
 }
 
+function setAnalysisTimeScaleSPEI(tempRes, idSuffix, tScaleMax = 12) {
+    const tScaleId = $(`#${tempRes}-${idSuffix}`);
+
+    if (tempRes === 'seasonal') {
+        for (let l = 2; l <= tScaleMax; l++) {
+            tScaleId.append(
+                $('<option>').text(l).val(l)
+            );
+        }
+        tScaleId.val(SEASON_DEF.months.length);
+    } else {
+        tScaleId.append($('<option>').text(1).val(1));
+    }
+}
+
 function setAnalysisSeasonLengthMap(tempRes) {
     if (tempRes !== 'seasonal') return;
 

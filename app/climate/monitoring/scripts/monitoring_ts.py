@@ -1,10 +1,167 @@
 import json
 import numpy as np
+from datetime import datetime
+
 from app.dst_api.scripts import (
     download_rawdata,
-    extract_climdata
+    extract_climdata,
+    download_analysis
 )
+from app.misc.scripts.tseries_dates import format_tseries_dates
 from app.scripts.util import pretty
+from app.scripts.dial_plot import draw_dial_image
+
+def climate_monitoring_ts_spei(params):
+    data_spei = get_monitoring_ts_spei(params)
+    if data_spei['status'] != 0: return data_spei
+    values = data_spei['data']['values']
+    time = data_spei['data']['time']
+    info = data_spei['data']['info']
+
+    if ~np.all(np.isnan(values)):
+        vmin = np.nanmin(values)
+        vmax = np.nanmax(values)
+        val_max = np.maximum(np.abs(vmin), np.abs(vmax))
+        breaks = pretty(-val_max, val_max, 14).tolist()
+        ylim = np.array([breaks[0], breaks[-1]])
+        ylim = ylim + ((ylim[1] - ylim[0]) * 0.01) * np.array([-1, 1])
+        values = np.where(np.isnan(values), None, values)
+        data = {
+            'time': time,
+            'values': values.tolist(),
+            'info': info,
+            'yrange': ylim.tolist(),
+            'yticks': breaks
+        }
+
+        return {'status': 0, 'data': data}
+    else:
+        if params['geomExtract'] == 'points':
+            lon = info['geom']['lon']
+            lat = info['geom']['lat']
+            crd = f'point (Longitude: {lon}, Latitude: {lat})'
+        else:
+            crd = f'polygon ({info['geom']['name']})'
+
+        msg = f'{info['var']['type']}: All data are missing for {crd}'
+        return {'status': -1, 'message': msg}
+
+def climate_monitoring_dial_spei(params):
+    data_spei = get_monitoring_ts_spei(params)
+    if data_spei['status'] != 0: return data_spei
+    spei_class = spei_dial_classification(data_spei['data'])
+
+    text_color = 'black'
+    if 'theme' in params:
+        if params['theme'] == 'dark':
+            text_color = 'white'
+
+    img_png = draw_dial_image(
+        spei_class,
+        text_color,
+        figsize=(8.6, 6.2)
+    )
+    data = {
+        'info': data_spei['data']['info'],
+        'png': img_png
+    }
+    return {'status': 0, 'data': data}
+
+def spei_dial_classification(spei):
+    spei_class = {
+        'definition': [
+            {'color': '#14713d', 'label': 'Extremely', 'score': 0, 'state': 'Extremely Wet'},
+            {'color': '#3cb371', 'label': 'Severely', 'score': 1, 'state': 'Severely Wet'},
+            {'color': '#98fb98', 'label': 'Moderately', 'score': 2, 'state': 'Moderately Wet'},
+            {'color': '#f5f5f5', 'label': 'Normal', 'score': 3, 'state': 'Near Normal'},
+            {'color': '#f5deb3', 'label': 'Moderately', 'score': 4, 'state': 'Moderately Dry'},
+            {'color': '#d2691e', 'label': 'Severely', 'score': 5, 'state': 'Severely Dry'},
+            {'color': '#b22222', 'label': 'Extremely', 'score': 6, 'state': 'Extremely Dry'}
+        ]
+    }
+
+    tscale = int(spei['info']['time_scale'])
+    last_val = spei['values'][-1]
+    last_date = spei['time'][-1]
+
+    spei_breaks = np.array(spei['info']['spei_breaks'])
+    spei_class['score'] = int(
+        np.searchsorted(
+            spei_breaks, last_val, side='right'
+        )
+    )
+
+    if spei['info']['time_res'] == 'dekadal':
+        txt = 'dekad'
+        this_date = datetime.strptime(last_date, '%Y-%m-%d')
+        dekad = min((this_date.day - 1) // 10 + 1, 3)
+        obs_date = f"Dekad-{dekad} {this_date.strftime('%B %Y')}"
+
+    if spei['info']['time_res'] == 'monthly':
+        txt = 'month'
+        if tscale > 1:
+            txt = f'{txt}s'
+        obs_date = (
+            datetime.strptime(last_date, '%Y-%m-%d')
+            .strftime('%B %Y')
+        )
+
+    spei_class['left_text'] = obs_date
+    s = spei['info']['var']['type'].upper()
+    spei_class['right_text'] = f'{s} {tscale}-{txt}'
+    spei_class['left_title'] = 'Wet'
+    spei_class['right_title'] = 'Dry'
+    return spei_class
+
+def get_monitoring_ts_spei(params):
+    params = _create_params_ts(params)
+    data_spei = download_analysis(params)
+    data_spei = json.loads(data_spei)
+    if data_spei['status'] != 0: return data_spei
+    data_spei['data'] = json.loads(data_spei['data'])
+
+    if params['temporalRes'] == 'seasonal':
+        params['temporalRes'] = 'monthly'
+
+    time = format_tseries_dates(
+        data_spei['data']['Dates'],
+        params['temporalRes']
+    )
+    if time is None:
+        return {
+            'status': -1,
+            'message': 'Unknown temporal resolution'
+        }
+
+    miss = data_spei['data']['Missing']
+    values = data_spei['data']['Data'][0]['Values']
+    values = np.array(values)
+    values[values == miss] = np.nan
+
+    info = {
+        'geom': {
+            'name': data_spei['data']['Data'][0]['Name'],
+            'lon': data_spei['data']['Data'][0]['Longitude'],
+            'lat': data_spei['data']['Data'][0]['Latitude']
+        },
+        'var':{
+            'name': data_spei['data']['VariableName'],
+            'units': data_spei['data']['VariableUnits'],
+            'type': params['analysis']
+        },
+        'time_res': params['temporalRes'],
+        'time_scale': params['timeScale'],
+        'spei_breaks': [-2, -1.5, -1, 1, 1.5, 2],
+        'spei_class': [
+            'Extremely Dry', 'Severely Dry', 'Moderately Dry', 
+            'Normal',
+            'Moderately Wet', 'Severely Wet', 'Extremely Wet'  
+        ],
+        'seas_len': None,
+        'seas_daily': None
+    }
+    out = {'time': time, 'values': values, 'info': info}
+    return {'status': 0, 'data': out}
 
 def climate_monitoring_ts_cumul(params):
     params = _create_params_ts(params)
@@ -12,7 +169,7 @@ def climate_monitoring_ts_cumul(params):
     data_raw = json.loads(data_raw)
     if data_raw['status'] != 0: return data_raw
     data_raw['data'] = json.loads(data_raw['data'])
-    time_ts = _format_ts_dates(data_raw['data']['Dates'])
+    time_ts = format_tseries_dates(data_raw['data']['Dates'], params['temporalRes'])
     date_ts = ['-'.join(d.split('-')[1:]) for d in time_ts]
 
     params_mean = _create_params_ts_clim_mean(params)
@@ -135,20 +292,6 @@ def _create_params_ts_clim_perc(params):
     else:
         pars = pars_0 | {'spatialAvg': True, 'allPolygons': False}
     return pars | params
-
-def _format_ts_dates(dates_l):
-    y = [s[:4] for s in dates_l]
-    m = [s[4:6] for s in dates_l]
-    dk = [s[6:] for s in dates_l]
-    dy = [
-            '01' if d == '1'
-            else 
-            '11' if d == '2'
-            else
-            '21'
-            for d in dk
-        ]
-    return ['-'.join(l) for l in zip(y, m, dy)]
 
 def _format_clim_dates(dates_l):
     mdk = [t.split('_')[1] for t in dates_l]

@@ -510,6 +510,11 @@ function queryParamsClimateMonitoringMap(time_res) {
                 query.distribution = 'gamma';
                 query.timeScale = 1;
             }
+            if (query.map_variable === 'spei_dek') {
+                query.analysis = 'spei';
+                query.distribution = 'llogistic';
+                query.timeScale = 1;
+            }
         }
     } else if (time_res === 'monthly') {
         query.Date = $(`#${time_res}-map-date-calendar`).val();
@@ -524,14 +529,20 @@ function queryParamsClimateMonitoringMap(time_res) {
             query.distribution = 'gamma';
             query.timeScale = 1;
         }
+        if (query.map_variable === 'spei_mon') {
+            query.analysis = 'spei';
+            query.distribution = 'llogistic';
+            query.timeScale = 1;
+        }
     } else if (time_res === 'seasonal') {
         const date = $(`#${time_res}-map-date-calendar`).val();
         query.seasLength = parseInt($(`#${time_res}-map-date-length`).val(), 10);
-        if (query.map_variable === 'spi_seas') {
+        if (['spi_seas', 'spei_seas'].includes(query.map_variable)) {
             query.Date = formatSeasonDate(date, query.seasLength, isStart = false);
         } else {
             query.Date = formatSeasonDate(date, query.seasLength);
         }
+
         if (query.map_variable === 'anom_seas') {
             query.anomaly = 'difference';
         }
@@ -541,6 +552,12 @@ function queryParamsClimateMonitoringMap(time_res) {
         if (query.map_variable === 'spi_seas') {
             query.analysis = 'spi';
             query.distribution = 'gamma';
+            query.timeScale = query.seasLength;
+            query.timeRes = 'monthly';
+        }
+        if (query.map_variable === 'spei_seas') {
+            query.analysis = 'spei';
+            query.distribution = 'llogistic';
             query.timeScale = query.seasLength;
             query.timeRes = 'monthly';
         }
@@ -571,8 +588,10 @@ function displayClimateMonitoringMap(time_res, options, map) {
 
     let cacheStatusEndpoint = null;
     if (
-        ['spi_dek', 'spi_mon', 'spi_seas']
-        .includes(query.map_variable)
+        [
+            'spi_dek', 'spi_mon', 'spi_seas',
+            'spei_dek', 'spei_mon', 'spei_seas'
+        ].includes(query.map_variable)
     ) {
         cacheStatusEndpoint = createEndpoint(
             'climate_monitoring',

@@ -74,8 +74,11 @@ def get_climate_monitoring_sp_data(params):
         params = _create_params_sp_anom(params)
         json_data = download_analysis(params)
         data = parse_json_spatial_data(json_data, 'Date')
-    elif params['map_variable'] in ['spi_dek', 'spi_mon', 'spi_seas']:
-        params = _create_params_sp_spi(params)
+    elif params['map_variable'] in [
+            'spi_dek', 'spi_mon', 'spi_seas',
+            'spei_dek', 'spei_mon', 'spei_seas'
+        ]:
+        params = _create_params_sp_spei(params)
         json_data = download_analysis(params)
         data = parse_json_spatial_data(json_data, 'Date')
     elif params['map_variable'] == 'rain_cumul':
@@ -145,8 +148,8 @@ def _create_params_sp_anom(params):
     }
     return pars | params
 
-def _create_params_sp_spi(params):
-    params['variable'] = params['variable'][0]
+def _create_params_sp_spei(params):
+    # params['variable'] = params['variable'][0]
     pars = {
         'geomExtract': 'original',
         'outFormat': 'JSON-Format',

@@ -1080,3 +1080,64 @@ function setAnalysisExpandModalCumul(tempRes, contID) {
             downloadPlotlyImageJPG(contChart);
         });
 }
+
+function setAnalysisExpandModalSPEI(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_spei_ts,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+    const disp_year = tempRes === 'seasonal';
+    setAnalysisDateCalendarSeasonal(
+        tempRes, 'chart-spei', 'spei', disp_year
+    );
+
+    setAnalysisTimeScaleSPEI(
+        tempRes, 'chart-spei-timescale', 12
+    );
+
+    //
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-chart-spei-analysis`)
+        .off('change.chartTsSpei')
+        .on('change.chartTsSpei', function() {
+            setAnalysisDistributionSPEI(tempRes, $(this).val());
+            setTimeout(() => {
+                expand_analysis_charts_spei_ts(contChart, tempRes);
+            }, 30);
+        });
+
+
+    // update chart
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsSpei')
+        .on('click.chartTsSpei', function() {
+            expand_analysis_charts_spei_ts(contChart, tempRes);
+        });
+
+    // download chart
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsSpei')
+        .on('click.chartTsSpei', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+}
+
+function setAnalysisDistributionSPEI(tempRes, analysis) {
+    let distr_obj = makeCopy(OPT_SPEI.distr_function);
+    if (analysis === 'spei') {
+        distr_obj = { llogistic: distr_obj.llogistic };
+    }
+
+    const speiDistr = $(`#${tempRes}-chart-spei-distr`);
+    speiDistr.empty();
+    for (const [k, v] of Object.entries(distr_obj)) {
+        speiDistr.append(
+            $('<option>').text(v).val(k)
+        );
+    }
+}

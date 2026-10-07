@@ -7,6 +7,13 @@ $(document).ready(function() {
 
     ////////////
     // Modal Expand Charts
+    $('.seasonal-spei-select2').select2({
+        minimumResultsForSearch: -1,
+        dropdownParent: $('#seasonal-spei-control')
+    });
+    $('#btn-div-chart-spei').on('click', () => {
+        setAnalysisExpandModalSPEI('seasonal', 'div-chart-spei');
+    });
 
     $('.seasonal-raw-select2').select2({
         minimumResultsForSearch: -1,

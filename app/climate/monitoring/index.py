@@ -10,7 +10,11 @@ import config
 from threading import Lock
 
 from .scripts.monitoring_sp import climate_monitoring_sp_data
-from .scripts.monitoring_ts import climate_monitoring_ts_cumul
+from .scripts.monitoring_ts import (
+    climate_monitoring_ts_cumul,
+    climate_monitoring_ts_spei,
+    climate_monitoring_dial_spei
+)
 from app.dst_api.scripts import check_spei_cache_status
 
 climate_monitoring = Blueprint(
@@ -59,5 +63,24 @@ def climate_monitoring_cumul():
     try:
         cumul_data = climate_monitoring_ts_cumul(params)
         return json.dumps(cumul_data)
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_monitoring.route('/climate_monitoring_spei_tseries', methods=['POST'])
+def climate_monitoring_spei_tseries():
+    params = request.get_json()
+    try:
+        spei_data = climate_monitoring_ts_spei(params)
+        return json.dumps(spei_data)
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_monitoring.route('/climate_monitoring_spei_dial', methods=['POST'])
+def climate_monitoring_spei_dial():
+    params = request.get_json()
+    try:
+        with matplotlib_render_lock:
+            obj = climate_monitoring_dial_spei(params)
+        return json.dumps(obj)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})

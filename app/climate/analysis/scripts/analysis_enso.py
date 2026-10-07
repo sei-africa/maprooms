@@ -40,10 +40,14 @@ def climate_analysis_enso_alert_dial(params):
         anom_df['anom_nino3.4'].round(1).to_numpy()
     )
 
+    text_color = 'black'
+    if 'theme' in params:
+        if params['theme'] == 'dark':
+            text_color = 'white'
 
     img_png = draw_dial_image(
         enso_alert,
-        params,
+        text_color,
         figsize=(8.6, 6.2)
     )
     data = {
