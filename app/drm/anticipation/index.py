@@ -2,16 +2,16 @@ from flask import Blueprint, render_template, request, session
 from flask import current_app as app
 import config
 
-drm = Blueprint(
-    'drm',
+drm_anticipation = Blueprint(
+    'drm_anticipation',
     __name__,
     template_folder='templates',
     static_folder='static',
-    static_url_path='/static/drm',
+    static_url_path='/static/drm_anticipation',
 )
 
 dataUser = dict()
-@drm.before_request
+@drm_anticipation.before_request
 def before_request():
     global dataUser
     if 'logged_in' not in session:

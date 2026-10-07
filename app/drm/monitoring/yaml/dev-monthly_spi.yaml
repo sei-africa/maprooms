@@ -1,0 +1,31 @@
+description:
+    en: |
+        <h4>Monthly SPI Monitoring</h4>
+        <p>
+        The Standardized Precipitation Index is an indicator of extreme rainfall events, whether they are drought or excess rainfall. </p>
+        <p>
+        The SPI map displays the standard rainfall index of the most recent month of rainfall (using 1981 to the latest complete year as base period). The SPI (McKee 1993) is the number of standard deviations that observed cumulative rainfall deviates from the climatological average. To compute the index, a long-term time series of rainfall accumulations over months are used to estimate an appropriate probability density function. The analyses shown here are based on the Pearson Type III distribution (i.e., 3-parameter gamma) as suggested by Guttman (1999). The associated cumulative probability distribution is then estimated and subsequently transformed to a normal distribution. The result is the SPI, which can be interpreted as a probability using the standard normal distrubtion (i.e., users can expect the SPI be within one standard deviation about 68% of the time, two standard deviations about 95% of the time, etc.) The analyses shown here utilize the FORTRAN code made available by Guttman (1999).
+        In months when it rains too little, the gamma distribution can not fit and a dry mask is applied. 
+        </p>
+        <p>
+        Clicking on the map will pop-up a local time series at the 0.05˚ gridbox clicked. Users can also choose to spatially average the SPI over Districts, Regions or Countries, by clicking on the map or picking an administrative name in the drop-down list, once having chosen which level of administration. Users can also focus the time series on a small time period by using the menu in the Control Bar.
+        </p>
+    fr: |
+        <h4>Suivi mensuel du SPI</h4>
+        <p>
+        L’indice standardisé de précipitation est un indicateur des événements pluviométriques extrêmes, qu’il s’agisse de sécheresse ou d’excès de précipitations. </p>
+        <p>
+        La carte du SPI affiche l’indice standardisé de précipitation du mois de précipitations le plus récent (en utilisant la période allant de 1981 jusqu’à la dernière année complète comme période de référence). Le SPI (McKee 1993) correspond au nombre d’écarts-types séparant les précipitations cumulées observées de la moyenne climatologique. Pour calculer cet indice, une longue série chronologique de cumuls de précipitations mensuelles est utilisée afin d’estimer une fonction de densité de probabilité appropriée. Les analyses présentées ici sont basées sur la distribution de Pearson de type III (c’est-à-dire une distribution gamma à 3 paramètres), comme suggéré par Guttman (1999). La distribution de probabilité cumulative associée est ensuite estimée puis transformée en distribution normale. Le résultat obtenu est le SPI, qui peut être interprété comme une probabilité à l’aide de la distribution normale standard (par exemple, les utilisateurs peuvent s’attendre à ce que le SPI se situe à moins d’un écart-type environ 68 % du temps, à moins de deux écarts-types environ 95 % du temps, etc.). Les analyses présentées ici utilisent le code FORTRAN mis à disposition par Guttman (1999).
+        Pour les mois où les précipitations sont trop faibles, la distribution gamma ne peut pas être ajustée et un masque de sécheresse est appliqué. 
+        </p>
+        <p>
+        Un clic sur la carte affiche une série chronologique locale correspondant au point de grille de 0,05˚ sélectionné. Les utilisateurs peuvent également choisir de calculer la moyenne spatiale du SPI sur des districts, des régions ou des pays, soit en cliquant sur la carte, soit en sélectionnant le nom d’une unité administrative dans la liste déroulante, après avoir choisi le niveau administratif souhaité. Les utilisateurs peuvent également limiter la série chronologique à une période plus courte à l’aide du menu de la barre de contrôle.
+        </p>
+
+dataset:
+    use: MON
+    variables:
+        rain_mon: [precip]
+        anom_mon: [precip]
+        anom_per_mon: [precip]
+        spi_mon: [precip]

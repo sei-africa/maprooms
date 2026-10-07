@@ -1,0 +1,48 @@
+title: 
+    en: Risk Anticipation
+    fr: Anticipation des Risques
+description: 
+    en: |
+        <p>
+        The <strong>Disaster Risk Management Maproom</strong> integrates historical climate analysis, real-time observations, and forecast information to support a comprehensive understanding of disaster risks across time scales. 
+        </p>
+        <p>
+        By analyzing historical climate patterns, users can identify areas that are vulnerable to recurring events such as droughts, floods, and heatwaves. 
+        </p>
+        <p>
+        Current monitoring products provide near-real-time information on evolving conditions, enabling early detection of emerging risks, while seasonal forecasts and longer-term outlooks help anticipate future hazards and their potential impacts.
+        </p>
+    fr: |
+        <p>
+        La <strong>Maproom Gestion des Risques de Catastrophe</strong> intègre l’analyse des données climatiques historiques, les observations en temps réel et les informations prévisionnelles afin de permettre une compréhension globale des risques de catastrophe à différentes échelles temporelles.
+        </p>
+        <p>
+        Grâce à l’analyse des régimes climatiques historiques, les utilisateurs peuvent repérer les zones exposées à des phénomènes récurrents tels que les sécheresses, les inondations et les vagues de chaleur.
+        </p>
+        <p>
+        Les produits de suivi des conditions actuelles fournissent des informations en temps quasi réel, permettant ainsi de détecter rapidement les risques émergents. Par ailleurs, les prévisions saisonnières et les perspectives à plus long terme permettent d’anticiper les aléas futurs et leurs répercussions potentielles.
+        </p>
+type: navigation-page
+# icon_image from /app/static/images/card_icons
+icon_image: default-emi_drm.gif
+
+maprooms:
+    - flexible_forecast:
+        title:
+            en: Precipitation Flexible Seasonal NextGen Forecast
+            fr: Prévision Saisonniere Flexible NextGen
+        description:
+            en: The flexible forecast Maproom provides access to seasonal forecast for rainfall with a format of probabilistic forecast. 
+            fr: Les previsions flexible du Maproom sont des previsions saisonnières avec un format probabiliste.
+        # icon_image from /app/drm/static/images
+        icon_image: default-emi_flexibleforecast.gif
+    - ondj_forecast:
+        title:
+            en: ONDJ Precipitation Forecast
+            fr: Prévision de Précipitations ONDJ
+        description:
+            en: The Maproom facilitates the exploration of the history of extreme monthly and seasonal rainfall characteristics.
+            fr: Le Maproom facilite l’exploration de l’historique des caractéristiques des précipitations mensuelles et saisonnières extrêmes.
+        # icon_image from /app/drm/static/images
+        icon_image: default-emi_monthlyanticipation.gif
+
