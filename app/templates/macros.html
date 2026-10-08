@@ -121,6 +121,10 @@
         <div class="col-auto btns-map-control">
             {% include "map-navigation.html" %}
         </div>
+        <!-- remove layer -->
+        <div class="col-auto btns-map-control">
+            <button id="rm-layer-spatial-average" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.spatial_avg_rm_layers }}"><i class="bi bi-layers-half"></i></button>
+        </div>
         <!-- redraw map -->
         <div class="col-auto btns-map-control">
             <button id="map-control-redraw" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.redraw_map }}"><i class="bi bi-arrow-counterclockwise"></i></button>

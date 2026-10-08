@@ -65,8 +65,8 @@ body {
     filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.08));
 }
 
-.navbar-header > .navbar-brand + .navbar-brand,
-.navbar-header > .navbar-brand + .navbar-brand + .nav-link-path {
+.navbar-header>.navbar-brand+.navbar-brand,
+.navbar-header>.navbar-brand+.navbar-brand+.nav-link-path {
     margin-left: 0.35rem;
 }
 

@@ -335,13 +335,13 @@
 
 /*-----------*/
 
-.div-map-time-navigation {
+#div-input-map-time-navigation {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.div-map-time-navigation input {
+#div-input-map-time-navigation input {
     height: 28px;
     padding-top: 3px;
     padding-bottom: 3px;

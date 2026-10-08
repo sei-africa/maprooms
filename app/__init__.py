@@ -151,7 +151,15 @@ def _render_maproom_template(maproom, component, page, **context):
             break
 
     if template_file is None:
-        return render_template('unknown-page.html')
+        return render_template(
+            'unknown-page.html',
+            dataUser=g.dataUser,
+            dataInfo=g.dataInfoCoverage,
+            langUser=GLOBAL_CONFIG['language'],
+            metInfo=GLOBAL_CONFIG['metInfo'],
+            pageText=context.get('pageText'),
+            urlArgs=_url_args_nav_path(None)
+        ), 404
 
     with open(template_file, 'r', encoding='utf-8') as f:
         template_source = f.read()
@@ -279,4 +287,12 @@ def get_flashes():
 
 @app.route('/unknown_page')
 def unknown_page():
-    return render_template('unknown-page.html')
+    return render_template(
+        'unknown-page.html',
+        dataUser=g.dataUser,
+        dataInfo=g.dataInfoCoverage,
+        langUser=GLOBAL_CONFIG['language'],
+        metInfo=GLOBAL_CONFIG['metInfo'],
+        pageText=load_maproom_page_text(None, 'main'),
+        urlArgs=_url_args_nav_path(None)
+    ), 404
