@@ -1,16 +1,18 @@
 <div class="container p-0" id="container-map-navigation">
     <div class="row gap-0 m-0 p-0">
-        <!-- time navigation previous -->
-        <div class="col m-0 p-0">
-            <button id="prev-time-navigation" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.time_nav_prev }}"><i class="bi bi-arrow-left-square-fill"></i></button>
-        </div>
-        <!-- time navigation input -->
-        <div class="col m-0 p-0 div-map-time-navigation">
-            <input type="text" id="input-time-navigation" class="input-map-time-navigation" size="11">
-        </div>
-        <!-- time navigation next -->
-        <div class="col m-0 p-0">
-            <button id="next-time-navigation" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.time_nav_next }}"><i class="bi bi-arrow-right-square-fill"></i></button>
+        <div id="div-map-time-navigation" class="col d-flex m-0 p-0">
+            <!-- time navigation previous -->
+            <div class="col m-0 p-0">
+                <button id="prev-time-navigation" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.time_nav_prev }}"><i class="bi bi-arrow-left-square-fill"></i></button>
+            </div>
+            <!-- time navigation input -->
+            <div id="div-input-map-time-navigation" class="col m-0 p-0">
+                <input type="text" id="input-time-navigation" class="input-map-time-navigation" size="11">
+            </div>
+            <!-- time navigation next -->
+            <div class="col m-0 p-0">
+                <button id="next-time-navigation" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.time_nav_next }}"><i class="bi bi-arrow-right-square-fill"></i></button>
+            </div>
         </div>
         <!-- spatial average point or polygon -->
         <div id="div-list-spatial-average" class="col m-0 p-0 div-spatial-average">
@@ -32,10 +34,6 @@
                 </optgroup>
                 {% endfor %}
             </select>
-        </div>
-        <!-- remove layer -->
-        <div class="col m-0 p-0">
-            <button id="rm-layer-spatial-average" class="btns-leaflet-control" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.spatial_avg_rm_layers }}"><i class="bi bi-layers-half"></i></button>
         </div>
     </div>
 </div>

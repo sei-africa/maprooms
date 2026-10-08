@@ -5,13 +5,16 @@ $(document).ready(function() {
 
     let map = createLeafletTileLayer('div-map-container', MTO_INIT);
 
+    // hide map time navigation
+    $('#div-map-time-navigation').removeClass('d-flex').addClass('d-none');
+
     setOffCanvasMapControlsDrmExtRain('daily');
     ////////////
     // Modal Expand Charts
 
 
     ////////////
-    
+
     ////////////
     // initialize map
     const map_options = {};
@@ -26,5 +29,5 @@ $(document).ready(function() {
     $('#map-control-redraw').on('click', () => {
         displayDrmAnalysisMap('daily', map_options, map);
     });
-    
+
 });
