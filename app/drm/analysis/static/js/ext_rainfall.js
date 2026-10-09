@@ -22,9 +22,6 @@ $(document).ready(function() {
     });
 
 
-
-    ////////////
-
     ////////////
     // initialize map
     const map_options = {};
@@ -40,4 +37,15 @@ $(document).ready(function() {
         displayDrmAnalysisMap('daily', map_options, map);
     });
 
+    ///////////
+    // display preview time series on click on map, or select polygon
+    mapClickLayersSpatialAverage(preview_drmExtRain_display_charts, 'daily', map);
+
+    $('#select-country-region').on('change', () => {
+        mapClickLayersSpatialAverage(preview_drmExtRain_display_charts, 'daily', map);
+    });
+
+    $('#select-region-name').on('change', () => {
+        mapClickLayersSpatialAverage(preview_drmExtRain_display_charts, 'daily', map);
+    });
 });
