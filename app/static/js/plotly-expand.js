@@ -3180,3 +3180,44 @@ function expand_analysis_display_spei_ts(json, container) {
     setPlotlyThemeColors(container);
     resizePlotlyChart(container);
 }
+
+///////
+
+function expand_analysis_query_drmExtRain(tempRes) {
+    let query = queryParamsSpatialAverage();
+    if (!query) {
+        return query;
+    }
+
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+
+    // 
+
+    return query;
+}
+
+function expand_analysis_charts_drmExtRain(container_id, tempRes) {
+    const query = expand_analysis_query_drmExtRain(tempRes);
+    if (!query) {
+        return false;
+    }
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        '/climate_analysis_proba',
+        query,
+        expand_analysis_display_drmExtRain,
+        container_id
+    );
+}
+
+function expand_analysis_display_drmExtRain(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+    const theme = $('html').attr('data-bs-theme');
+
+
+}

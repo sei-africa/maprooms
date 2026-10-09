@@ -9,8 +9,18 @@ $(document).ready(function() {
     $('#div-map-time-navigation').removeClass('d-flex').addClass('d-none');
 
     setOffCanvasMapControlsDrmExtRain('daily');
+
     ////////////
     // Modal Expand Charts
+
+    $('.daily-proba-select2').select2({
+        minimumResultsForSearch: -1,
+        dropdownParent: $('#daily-drmExtRain-control')
+    });
+    $('#btn-div-chart-cdf').on('click', () => {
+        setAnalysisExpandModalDrmExtRain('daily', 'div-chart-cdf');
+    });
+
 
 
     ////////////

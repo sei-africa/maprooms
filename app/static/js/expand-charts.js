@@ -1141,3 +1141,15 @@ function setAnalysisDistributionSPEI(tempRes, analysis) {
         );
     }
 }
+
+function setAnalysisExpandModalDrmExtRain(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+    expandModalCharts(
+        contID,
+        expand_analysis_charts_drmExtRain,
+        tempRes
+    );
+    purgePlotlyChartExpandModal(contID);
+
+
+}
