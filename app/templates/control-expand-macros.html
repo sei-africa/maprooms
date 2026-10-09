@@ -924,3 +924,17 @@
     </fieldset>
 </div>
 {% endmacro %}
+<!--  -->
+{% macro create_expand_charts_drmExtRain(tempRes, pageText) %}
+<div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-drmExtRain-control">
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.label_statistics.params }}</legend>
+        <!--  -->
+        <select id="{{ tempRes }}-proba-parameters" class="form-select {{ tempRes }}-proba-select2" style="width: 300px;">
+            {% for key, value in pageText.parameters.items() %}
+            <option value="{{key}}">{{value.select}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+</div>
+{% endmacro %}
