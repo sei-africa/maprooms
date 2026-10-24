@@ -1212,6 +1212,62 @@ function queryParamsHealthWaspMap(tempRes) {
 
     query.Date = endingMonth;
     query.StartDate = beginning.toISOString().slice(0, 7);
+    query.comparisonStartYear = Number(
+        $(`#${prefix}-comparison-start`).val()
+    );
+
+    query.comparisonEndYear = Number(
+        $(`#${prefix}-comparison-end`).val()
+    );
+
+    query.comparisonStartMonth = Number(
+        $(`#${prefix}-comparison-month-calendar`).val()
+    );
+
+    const validBase = (
+        [
+            query.comparisonStartYear,
+            query.comparisonEndYear,
+            query.comparisonStartMonth
+        ].every(Number.isInteger) &&
+        query.comparisonStartYear >= 1 &&
+        query.comparisonEndYear >= query.comparisonStartYear &&
+        query.comparisonEndYear <= 9998 &&
+        query.comparisonStartMonth >= 1 &&
+        query.comparisonStartMonth <= 12
+    );
+
+    if (!validBase) {
+        flashMessage(
+            'Select valid base years and starting month.',
+            'error'
+        );
+        return false;
+    }
+
+    const baseMonth = String(
+        query.comparisonStartMonth
+    ).padStart(2, '0');
+
+    const firstStart = (
+        `${String(query.comparisonStartYear).padStart(4, '0')}-${baseMonth}`
+    );
+
+    const lastStart = (
+        `${String(query.comparisonEndYear).padStart(4, '0')}-${baseMonth}`
+    );
+
+    if (
+        firstStart < coverage.map_start.slice(0, 7) ||
+        lastStart > coverage.map_end.slice(0, 7)
+    ) {
+        flashMessage(
+            'Select base-year windows within rainfall coverage.',
+            'error'
+        );
+        return false;
+    }
+
     query.colorbar = colorbarGetData();
 
     if (!query.colorbar) {

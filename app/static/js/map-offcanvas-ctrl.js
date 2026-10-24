@@ -1253,28 +1253,65 @@ function setSeasFcstTargets(tempRes, year, month, fcst_obj) {
 
 ///////
 
-
 function setHealthWaspControls(prefix) {
+    const parent = $(`#${prefix}-control`);
+
     $(`.${prefix}-select2`).each(function() {
         const select = $(this);
 
         if (!select.hasClass('select2-hidden-accessible')) {
             select.select2({
                 minimumResultsForSearch: -1,
-                dropdownParent: $(`#${prefix}-control`)
+                dropdownParent: parent
             });
         }
     });
+
+    const monthHolder = `${prefix}-comparison-month`;
+
+    if (
+        $(`#${monthHolder}`).length &&
+        !$(`#${monthHolder}-calendar`).length
+    ) {
+        setNamesCalendar(
+            monthHolder,
+            'monthly',
+            parent,
+            false,
+            Number(
+                $(`#${monthHolder}`).attr('data-default') || 1
+            )
+        );
+    }
 }
 
 
-async function setHealthWaspDateCalendars(
+function setHealthWaspDateCalendars(
     tempRes,
     prefix = `${tempRes}-wasp-map`,
-    resetDates = false
+    resetDates = false,
+    onReady = null
 ) {
     const control = $(`#${prefix}-control`);
     const token = {};
+
+    control.data('waspCalendarToken', token);
+    control.data('waspCalendarReady', false);
+    control.data('waspCalendarLoading', true);
+
+    const query = queryParamsHealthWasp(tempRes, prefix);
+
+    if (!query) {
+        control.data('waspCalendarLoading', false);
+
+        if (typeof onReady === 'function') {
+            onReady(false);
+        }
+
+        return false;
+    }
+
+    const key = `${query.dataset}:${query.timeScale}`;
 
     const previousMonth = resetDates ? '' : String(
         $(`#${tempRes}-map-date-calendar`).val() || ''
@@ -1288,176 +1325,216 @@ async function setHealthWaspDateCalendars(
         $(`#${prefix}-enddate-calendar`).val() || ''
     ).trim();
 
-    control.data('waspCalendarToken', token);
-    control.data('waspCalendarReady', false);
-
-    try {
-        const query = queryParamsHealthWasp(
-            tempRes,
-            prefix
-        );
-
-        if (!query) {
-            return false;
-        }
-
-        const json = await $.ajax({
-            type: 'POST',
-            url: createEndpoint(
-                'health_malaria',
-                'health_wasp_coverage'
-            ),
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify(query)
-        });
-
+    function fail(error) {
         if (control.data('waspCalendarToken') !== token) {
             return false;
         }
 
-        if (json.status !== 0) {
-            throw new Error(json.message);
-        }
-
-        const coverage = json.data;
-
-        if (
-            !coverage ||
-            typeof coverage.start !== 'string' ||
-            typeof coverage.end !== 'string'
-        ) {
-            throw new Error('Unable to read WASP dataset dates.');
-        }
-
-        control.data('waspCoverage', coverage);
-
-        if (prefix === `${tempRes}-wasp-map`) {
-
-            const mapCoverage = coverage;
-
-            const first = mapCoverage.start.slice(0, 7);
-            const last = mapCoverage.end.slice(0, 7);
-
-            let month = previousMonth || last;
-            month = month < first ? first :
-                month > last ? last : month;
-
-            setDateCalendar(
-                `${tempRes}-map-date`,
-                mapCoverage,
-                DATA_SET.use,
-                'monthly',
-                `${month}-01`,
-                true,
-                false,
-                null,
-                true
-            );
-
-            $(`#${tempRes}-map-date-calendar`).val(month);
-            $('#input-time-navigation').val(month);
-
-        } else {
-            const firstYear = coverage.plot_start_year;
-            const lastYear = coverage.plot_end_year;
-
-            function setYearCalendar(
-                boundary,
-                previous,
-                isStart
-            ) {
-                let year = /^\d{4}$/.test(previous)
-                    ? Number(previous)
-                    : isStart ? firstYear : lastYear;
-
-                year = Math.max(
-                    firstYear,
-                    Math.min(year, lastYear)
-                );
-
-                let date = (
-                    `${year}-${isStart ? '01' : '12'}-01`
-                );
-
-                date = date < coverage.start
-                    ? coverage.start
-                    : date > coverage.end
-                        ? coverage.end
-                        : date;
-
-                setDateCalendar(
-                    `${prefix}-${boundary}date`,
-                    coverage,
-                    DATA_SET.use,
-                    'seasonal',
-                    date,
-                    false,
-                    true,
-                    isStart,
-                    true
-                );
-
-                $(`#${prefix}-${boundary}date-calendar`)
-                    .val(String(year));
-            }
-
-            setYearCalendar('start', previousStart, true);
-            setYearCalendar('end', previousEnd, false);
-        }
-
-        control.data('waspCalendarReady', true);
-        return true;
-
-    } catch (error) {
-        if (control.data('waspCalendarToken') !== token) {
-            return false;
-        }
+        control.data('waspCalendarLoading', false);
 
         console.error(error);
-
         flashMessage(
             error.message || 'Unable to load WASP dates.',
             'error'
         );
 
+        if (typeof onReady === 'function') {
+            onReady(false);
+        }
+
         return false;
     }
+
+    function applyCoverage(coverage) {
+        if (control.data('waspCalendarToken') !== token) {
+            return false;
+        }
+
+        try {
+            if (
+                !coverage ||
+                !['start', 'end', 'map_start', 'map_end'].every(
+                    field => typeof coverage[field] === 'string'
+                ) ||
+                !Number.isInteger(coverage.plot_start_year) ||
+                !Number.isInteger(coverage.plot_end_year)
+            ) {
+                throw new Error(
+                    'Unable to read WASP dataset dates.'
+                );
+            }
+
+            control.data('waspCoverage', coverage);
+            setHealthWaspControls(prefix);
+
+            if (prefix === `${tempRes}-wasp-map`) {
+                const first = coverage.start.slice(0, 7);
+                const last = coverage.end.slice(0, 7);
+
+                let month = /^\d{4}-(0[1-9]|1[0-2])$/
+                    .test(previousMonth)
+                    ? previousMonth
+                    : last;
+
+                month = month < first
+                    ? first
+                    : month > last ? last : month;
+
+                setDateCalendar(
+                    `${tempRes}-map-date`,
+                    coverage,
+                    query.dataset,
+                    'monthly',
+                    `${month}-01`,
+                    true,
+                    false,
+                    null,
+                    true
+                );
+
+                $(`#${tempRes}-map-date-calendar`).val(month);
+                $('#input-time-navigation').val(month);
+
+            } else {
+                [
+                    ['start', previousStart, true],
+                    ['end', previousEnd, false]
+                ].forEach(([boundary, previous, isStart]) => {
+                    let year = /^\d{4}$/.test(previous)
+                        ? Number(previous)
+                        : isStart
+                            ? coverage.plot_start_year
+                            : coverage.plot_end_year;
+
+                    year = Math.max(
+                        coverage.plot_start_year,
+                        Math.min(year, coverage.plot_end_year)
+                    );
+
+                    let date = (
+                        `${year}-${isStart ? '01' : '12'}-01`
+                    );
+
+                    date = date < coverage.start
+                        ? coverage.start
+                        : date > coverage.end
+                            ? coverage.end
+                            : date;
+
+                    setDateCalendar(
+                        `${prefix}-${boundary}date`,
+                        coverage,
+                        query.dataset,
+                        'seasonal',
+                        date,
+                        false,
+                        true,
+                        isStart,
+                        true
+                    );
+
+                    $(`#${prefix}-${boundary}date-calendar`)
+                        .val(String(year));
+                });
+            }
+
+            ['comparison-start', 'comparison-end']
+                .forEach(field => {
+                    $(`#${prefix}-${field}`).attr({
+                        min: coverage.plot_start_year,
+                        max: coverage.plot_end_year
+                    });
+                });
+
+            control.data('waspCoverageKey', key);
+            control.data('waspCalendarReady', true);
+            control.data('waspCalendarLoading', false);
+
+        } catch (error) {
+            return fail(error);
+        }
+
+        if (typeof onReady === 'function') {
+            onReady(true);
+        }
+
+        return true;
+    }
+
+    // Reuse coverage already obtained
+    const cached = [
+        control,
+        $(`#${tempRes}-wasp-map-control`),
+        $(`#${tempRes}-wasp-chart-control`)
+    ].find(item =>
+        item.data('waspCoverageKey') === key &&
+        item.data('waspCoverage')
+    );
+
+    if (cached) {
+        return applyCoverage(cached.data('waspCoverage'));
+    }
+
+    return $.ajax({
+        type: 'POST',
+        url: createEndpoint(
+            'health_malaria',
+            'health_wasp_coverage'
+        ),
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify(query),
+
+        success: json => {
+            if (control.data('waspCalendarToken') !== token) {
+                return;
+            }
+
+            if (json.status !== 0) {
+                fail(new Error(
+                    json.message || 'Unable to load WASP dates.'
+                ));
+                return;
+            }
+
+            applyCoverage(json.data);
+        },
+
+        error: (xhr, status, error) => {
+            fail(new Error(
+                xhr.responseJSON?.message ||
+                error ||
+                'Unable to load WASP dates.'
+            ));
+        }
+    });
 }
 
 
-async function setOffCanvasMapControlHealthWasp(tempRes) {
-    try {
-        const prefix = `${tempRes}-wasp-map`;
+function setOffCanvasMapControlHealthWasp(
+    tempRes,
+    onReady = null
+) {
+    const prefix = `${tempRes}-wasp-map`;
 
-        setHealthWaspControls(prefix);
+    setHealthWaspControls(prefix);
 
-        setVisibility([], [
-            'div-support-spatial-average',
-            'div-list-spatial-average'
-        ]);
+    setVisibility([], [
+        'div-support-spatial-average',
+        'div-list-spatial-average'
+    ]);
 
-        colorbarSetDefault(
-            'spi_colors',
-            [-3, -2, -1, 0, 1, 2, 3]
-        );
+    colorbarSetDefault(
+        'spi_colors',
+        [-3, -2, -1, 0, 1, 2, 3]
+    );
 
-        return await setHealthWaspDateCalendars(
-            tempRes,
-            prefix,
-            true
-        );
-
-    } catch (error) {
-        console.error(error);
-
-        flashMessage(
-            error.message || 'Unable to initialize WASP controls.',
-            'error'
-        );
-
-        return false;
-    }
+    return setHealthWaspDateCalendars(
+        tempRes,
+        prefix,
+        true,
+        onReady
+    );
 }
 
 
