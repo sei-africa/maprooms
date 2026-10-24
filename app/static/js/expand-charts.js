@@ -1550,141 +1550,143 @@ async function setProjectionExpandModalSpi(tempRes, contID) {
 
 ///////
 
-async function setHealthWaspExpandedControls(tempRes) {
+function setHealthWaspExpandedControls(
+    tempRes,
+    subdivisions = SUBDIV_BE
+) {
     const prefix = `${tempRes}-wasp-chart`;
     const parent = $(`#${tempRes}-health-wasp-control`);
     const area = $(`#${prefix}-area`);
-    const month = $(`#${prefix}-comparison-month`);
 
-    if (!area.data('waspAreasReady')) {
-        let subdivisions = SUBDIV_BE;
+    setHealthWaspControls(prefix);
 
-        if (!subdivisions) {
-            const json = await $.getJSON(
-                '/map_subdivisions_data'
-            );
+    if (area.data('waspAreasReady')) {
+        return;
+    }
 
-            if (json.status !== 0) {
-                throw new Error(
-                    json.message ||
-                    'Unable to load administrative areas.'
-                );
-            }
-
-            subdivisions = json.data;
-        }
-
-        const options = [{
-            id: 'country',
-            text: area.attr('data-country-label')
-        }];
-
-        ['region', 'zone'].forEach(key => {
-            const layer = LAYERS.subdivision[key];
-            const source = subdivisions[key];
-
-            if (!layer || !source) {
-                return;
-            }
-
-            const geojson = typeof source === 'string'
-                ? JSON.parse(source)
-                : source;
-
-            const names = [...new Set(
-                geojson.features
-                    .map(feature => feature.properties.field)
-                    .filter(name =>
-                        name !== null && name !== undefined
-                    )
-                    .map(String)
-            )].sort((a, b) => a.localeCompare(b));
-
-            options.push({
-                text: typeof layer.name === 'string'
-                    ? layer.name
-                    : key,
-                children: names.map(name => ({
-                    id: JSON.stringify([key, name]),
-                    text: name
-                }))
-            });
-        });
-
-        area.empty().select2({
-            data: options,
+    if (!area.hasClass('select2-hidden-accessible')) {
+        area.select2({
             dropdownParent: parent,
             minimumResultsForSearch: 0
         });
-
-        area.val('country').trigger('change.select2');
-        area.data('waspAreasReady', true);
     }
 
+    if (!subdivisions) {
+        if (area.data('waspAreasLoading')) {
+            return;
+        }
 
-    const monthHolder = `${prefix}-comparison-month`;
+        area.data('waspAreasLoading', true);
 
-    if (!$(`#${monthHolder}-calendar`).length) {
-        setNamesCalendar(
-            monthHolder,
-            'monthly',
-            parent,
-            false,
-            Number(
-                $(`#${monthHolder}`).attr('data-default') || 1
-            )
-        );
+        $.getJSON('/map_subdivisions_data')
+            .done(json => {
+                area.data('waspAreasLoading', false);
+
+                if (json.status !== 0 || !json.data) {
+                    flashMessage(
+                        json.message ||
+                            'Unable to load administrative areas.',
+                        'error'
+                    );
+                    return;
+                }
+
+                setHealthWaspExpandedControls(
+                    tempRes,
+                    json.data
+                );
+            })
+            .fail(error => {
+                area.data('waspAreasLoading', false);
+                console.error(error);
+
+                flashMessage(
+                    'Unable to load administrative areas.',
+                    'error'
+                );
+            });
+
+        return;
     }
 
-    const coverage = $(`#${prefix}-control`)
-        .data('waspCoverage');
+    const selected = area.val() || 'country';
 
-    ['comparison-start', 'comparison-end'].forEach(field => {
-        const input = $(`#${prefix}-${field}`);
-        const value = Number(input.val());
+    const options = [{
+        id: 'country',
+        text: area.attr('data-country-label') || 'Whole country'
+    }];
 
-        input.attr({
-            min: coverage.plot_start_year,
-            max: coverage.plot_end_year
+    ['region', 'zone'].forEach(key => {
+        const layer = LAYERS.subdivision[key];
+        const source = subdivisions[key];
+
+        if (!layer || !source) {
+            return;
+        }
+
+        const geojson = typeof source === 'string'
+            ? JSON.parse(source)
+            : source;
+
+        const names = [...new Set(
+            geojson.features
+                .map(feature => feature.properties.field)
+                .filter(name =>
+                    name !== null && name !== undefined
+                )
+                .map(String)
+        )].sort((a, b) => a.localeCompare(b));
+
+        options.push({
+            text: typeof layer.name === 'string'
+                ? layer.name
+                : key,
+            children: names.map(name => ({
+                id: JSON.stringify([key, name]),
+                text: name
+            }))
         });
-
-        input.val(Math.max(
-            coverage.plot_start_year,
-            Math.min(
-                Number.isInteger(value)
-                    ? value
-                    : coverage.plot_start_year,
-                coverage.plot_end_year
-            )
-        ));
     });
 
-    const start = $(`#${prefix}-comparison-start`);
-    const end = $(`#${prefix}-comparison-end`);
+    area.empty().select2({
+        data: options,
+        dropdownParent: parent,
+        minimumResultsForSearch: 0
+    });
 
-    if (Number(start.val()) > Number(end.val())) {
-        end.val(start.val());
+    area.val(selected);
+
+    if (area.val() === null) {
+        area.val('country');
     }
+
+    area.trigger('change.select2');
+    area.data('waspAreasReady', true);
 }
 
-
-async function setHealthExpandModalWasp(tempRes, contID) {
+function setHealthExpandModalWasp(tempRes, contID) {
     const source = `${tempRes}-wasp-map`;
     const prefix = `${tempRes}-wasp-chart`;
     const container = `container-chart-${contID}`;
+
     const modal = $(`#modal-expand-${contID}`);
     const controls = $(`#${tempRes}-health-wasp-control`);
+    const chartControl = $(`#${prefix}-control`);
 
-    const query = queryParamsHealthWasp(tempRes, source);
+    let chartReady = false;
 
-    if (!query) {
-        return false;
+    const oldSpinner = modal.data('waspPreparingSpinner');
+
+    if (oldSpinner) {
+        oldSpinner.stop();
     }
-    
+
     const preparing = new Spinner(spinnerChartOptions());
-    controls.data('waspBusy', true);
+    modal.data('waspPreparingSpinner', preparing);
+
     controls.off('.healthWaspExpanded');
     controls.off('.healthWaspCalculation');
+    controls.data('waspBusy', true);
 
     [
         'timescale',
@@ -1697,153 +1699,62 @@ async function setHealthExpandModalWasp(tempRes, contID) {
             .trigger('change.select2');
     });
 
-    setHealthWaspControls(prefix);
-    showModalDialog(`modal-expand-${contID}`);
+    setHealthWaspExpandedControls(tempRes);
 
-    const initialization = (async () => {
-        try {
-            const ready = await setHealthWaspDateCalendars(
-                tempRes,
-                prefix
-            );
-
-            if (!ready) {
-                return false;
-            }
-
-            await setHealthWaspExpandedControls(tempRes);
-            return true;
-
-        } catch (error) {
-            console.error(error);
-            flashMessage(error.message, 'error');
-            return false;
-
-        } finally {
-            controls.data('waspBusy', false);
-        }
-    })();
-
-
-    expandModalCharts(
-        contID,
-        async (chartContainer, resolution) => {
-            const ready = await initialization;
-
-            if (controls.data('waspBusy')) {
-                return;
-            }
-
-            preparing.stop();
-
-            if (ready && modal.hasClass('show')) {
-                expand_health_wasp_charts(
-                    chartContainer,
-                    resolution
-                );
-            }
-        },
-        tempRes
-    );
-
-    $(`#${container}`).addClass('position-relative');
-
-    preparing.spin(
-        document.getElementById(container)
-    );
-
-    modal
-        .off('hidden.bs.modal.healthWaspPreparing')
-        .on('hidden.bs.modal.healthWaspPreparing', () => {
-            preparing.stop();
-        });
-
-    purgePlotlyChartExpandModal(contID);
-    $(`#rangeselector-${contID}`).show();
-
-    if (!(await initialization)) {
-        preparing.stop();
-        return false;
-    }
-
-    purgePlotlyChartExpandModal(contID);
-    $(`#rangeselector-${contID}`).show();
-
-    if (!(await initialization)) {
-        return false;
-    }
-
-    const draw = () => {
+    function draw() {
         if (
-            modal.hasClass('show') &&
-            !controls.data('waspBusy')
+            !chartReady ||
+            !modal.hasClass('show') ||
+            controls.data('waspBusy') ||
+            !chartControl.data('waspCalendarReady')
         ) {
-            expand_health_wasp_charts(
-                container,
-                tempRes
-            );
+            return;
         }
-    };
 
-    let revision = 0;
+        preparing.stop();
+        expand_health_wasp_charts(container, tempRes);
+    }
 
-    controls.on(
-        'change.healthWaspCalculation',
-        [
-            `#${prefix}-timescale`,
-            `#${prefix}-base-start`,
-            `#${prefix}-base-end`,
-            `#${prefix}-base-min`
-        ].join(','),
-        async () => {
-            const current = ++revision;
-            controls.data('waspBusy', true);
-            preparing.spin(
-                document.getElementById(container)
-            );
-            try {
-                const ready = await setHealthWaspDateCalendars(
-                    tempRes,
-                    prefix
-                );
+    function updateDates(copyBaseline = false) {
+        controls.data('waspBusy', true);
 
-                if (current !== revision) {
-                    return;
-                }
+        preparing.spin(
+            document.getElementById(container)
+        );
 
-                if (ready) {
-                    await setHealthWaspExpandedControls(tempRes);
-                }
-
-                if (current !== revision) {
-                    return;
-                }
-
+        setHealthWaspDateCalendars(
+            tempRes,
+            prefix,
+            false,
+            ready => {
                 controls.data('waspBusy', false);
 
-                if (ready) {
-                    draw();
-                }
-
-
-            } catch (error) {
-                if (current === revision) {
-                    controls.data('waspBusy', false);
-                    console.error(error);
-                    flashMessage(error.message, 'error');
-                }
-
-            } finally {
-                if (current === revision) {
+                if (!ready) {
                     preparing.stop();
+                    return;
                 }
+
+                if (copyBaseline) {
+                    [
+                        'comparison-start',
+                        'comparison-end',
+                        'comparison-month-calendar'
+                    ].forEach(field => {
+                        $(`#${prefix}-${field}`)
+                            .val($(`#${source}-${field}`).val())
+                            .trigger('change.select2');
+                    });
+                }
+
+                draw();
             }
-        }
-    );
+        );
+    }
 
-
-    const redraw = () => {
+    // Base-year and chart-period changes
+    function redraw() {
         if (
+            !chartReady ||
             !modal.hasClass('show') ||
             controls.data('waspBusy')
         ) {
@@ -1855,7 +1766,44 @@ async function setHealthExpandModalWasp(tempRes, contID) {
                 expand_health_display_wasp(data, container);
             }
         });
-    };
+    }
+
+    showModalDialog(`modal-expand-${contID}`);
+
+    expandModalCharts(
+        contID,
+        () => {
+            chartReady = true;
+            draw();
+        },
+        tempRes
+    );
+
+    purgePlotlyChartExpandModal(contID);
+    $(`#rangeselector-${contID}`).show();
+    $(`#${container}`).addClass('position-relative');
+
+    modal
+        .off('hidden.bs.modal.healthWaspPreparing')
+        .on('hidden.bs.modal.healthWaspPreparing', () => {
+            preparing.stop();
+        });
+
+    controls.on(
+        'change.healthWaspCalculation',
+        `#${prefix}-timescale`,
+        () => updateDates()
+    );
+
+    controls.on(
+        'change.healthWaspCalculation',
+        [
+            `#${prefix}-base-start`,
+            `#${prefix}-base-end`,
+            `#${prefix}-base-min`
+        ].join(','),
+        draw
+    );
 
     controls.on(
         'change.healthWaspExpanded',
@@ -1875,7 +1823,6 @@ async function setHealthExpandModalWasp(tempRes, contID) {
         redraw
     );
 
-
     $(`#plotly-replot-${contID}`)
         .off('click.healthWaspExpand')
         .on('click.healthWaspExpand', draw);
@@ -1885,8 +1832,11 @@ async function setHealthExpandModalWasp(tempRes, contID) {
         .on('click.healthWaspExpand', () => {
             downloadPlotlyImageJPG(container);
         });
+
+    updateDates(true);
 }
 
+///////
 async function setAnalysisExpandModalSeasFcst(tempRes, contID, expandID) {
     const expand_functions = {
         'ter': expand_seasfcst_charts_ter,

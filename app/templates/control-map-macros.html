@@ -1376,6 +1376,7 @@
 {% set prefix = prefix or tempRes ~ '-wasp-map' %}
 {% set labels = pageText.wasp.labels %}
 {% set calibration = pageText.wasp.calibration %}
+{% set comparison = pageText.wasp.comparison %}
 
 <div class="container" id="{{ prefix }}-control">
 
@@ -1403,6 +1404,102 @@
             {% endfor %}
         </select>
     </fieldset>
+   <div class="d-flex flex-wrap align-items-start gap-2 w-100">
+        <fieldset class="border border-secondary rounded-3 py-1"
+                  style="width: 26rem; max-width: 100%; min-width: 0;">
+
+            <legend class="legend-label">
+                {{ labels.comparison_baseline }}
+            </legend>
+
+            <div class="row g-2 align-items-end">
+
+                <div class="col-auto">
+                    <label for="{{ prefix }}-comparison-start"
+                           class="d-block small mb-1">
+                        {{ labels.start_year }}
+                    </label>
+
+                    <input id="{{ prefix }}-comparison-start"
+                           type="number"
+                           step="1"
+                           class="form-control text-center"
+                           value="{{ comparison.start_year }}"
+                           style="width: 6em;">
+                </div>
+
+                <div class="col-auto">
+                    <label for="{{ prefix }}-comparison-end"
+                           class="d-block small mb-1">
+                        {{ labels.end_year }}
+                    </label>
+
+                    <input id="{{ prefix }}-comparison-end"
+                           type="number"
+                           step="1"
+                           class="form-control text-center"
+                           value="{{ comparison.end_year }}"
+                           style="width: 6em;">
+                </div>
+
+                <div class="col-auto"
+                     style="width: 11em; max-width: 100%;">
+
+                    <label for="{{ prefix }}-comparison-month-calendar"
+                           class="d-block small mb-1">
+                        {{ labels.comparison_start_month }}
+                    </label>
+
+                    <div id="{{ prefix }}-comparison-month"
+                         data-default="{{ comparison.start_month }}"
+                         style="width: 100%;">
+                    </div>
+                </div>
+
+            </div>
+        </fieldset>
+
+       {# <fieldset class="border border-secondary rounded-3 py-1"
+                  style="width: 16rem; max-width: 100%; min-width: 0;">
+
+            <legend class="legend-label">
+                {{ labels.chart_period }}
+            </legend>
+
+            <div class="row g-2 align-items-end">
+
+                <div class="col-auto">
+                    <label for="{{ prefix }}-startdate-calendar"
+                           class="d-block small mb-1">
+                        {{ labels.start_year }}
+                    </label>
+
+                    <div id="{{ prefix }}-startdate"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="top"
+                         data-bs-title="{{ labels.start_year }}"
+                         style="width: 6em;">
+                    </div>
+                </div>
+
+                <div class="col-auto">
+                    <label for="{{ prefix }}-enddate-calendar"
+                           class="d-block small mb-1">
+                        {{ labels.end_year }}
+                    </label>
+
+                    <div id="{{ prefix }}-enddate"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="top"
+                         data-bs-title="{{ labels.end_year }}"
+                         style="width: 6em;">
+                    </div>
+                </div>
+
+            </div>
+        </fieldset> #}
+
+    </div>
 
     {% if include_map %}
     <fieldset class="border border-secondary rounded-3">

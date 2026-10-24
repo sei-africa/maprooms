@@ -9,8 +9,10 @@ from app.scripts.imagepng import create_imagePng
 
 from .wasp import (
     _arguments,
+    _integer,
     WASP_Weighted_anomalies,
 )
+
 
 from .wasp_data import (
     get_wasp_xr_data,
@@ -84,8 +86,8 @@ def get_health_wasp_sp_data(params):
         "units": "",
         "date": (
             f"{beginning:%Y-%m}–{ending:%Y-%m}; "
-            f"calibration "
-            f"{arguments['start_year']}–{arguments['end_year']}"
+            # f"calibration "
+            # f"{arguments['start_year']}–{arguments['end_year']}"
         ),
     }
 
@@ -99,6 +101,134 @@ def health_wasp_sp_data(params):
         return check
 
     data = get_health_wasp_sp_data(params)
+
+
+    # comparison_date = params.get("comparisonDate")
+
+    # if comparison_date is not None:
+    #     comparison_date = str(comparison_date).strip()
+
+    #     if not re.fullmatch(
+    #         r"\d{4}-(0[1-9]|1[0-2])",
+    #         comparison_date,
+    #     ):
+    #         raise ValueError(
+    #             "Select a valid comparison base month."
+    #         )
+
+    #     length = _arguments(params)["tscale"]
+
+    #     # reference_start = pd.Timestamp(
+    #     #     f"{comparison_date}-01"
+    #     # )
+
+    #     # reference_end = reference_start + pd.DateOffset(
+    #     #     months=length - 1
+    #     # )
+
+    #     reference_end = pd.Timestamp(
+    #         f"{comparison_date}-01"
+    #     )
+
+    #     reference_start = reference_end - pd.DateOffset(
+    #         months=length - 1
+    #     )
+
+    #     # weuse exactly the same WASP calculation as the selected map.
+    #     reference = get_health_wasp_sp_data({
+    #         **params,
+    #         "Date": reference_end.strftime("%Y-%m"),
+    #     })
+
+    #     if not (
+    #         np.array_equal(data["lon"], reference["lon"])
+    #         and np.array_equal(data["lat"], reference["lat"])
+    #     ):
+    #         raise ValueError(
+    #             "Map and comparison grids do not match."
+    #         )
+
+    #     data["data"] = (
+    #         data["data"] - reference["data"]
+    #     )
+
+    #     if not np.isfinite(data["data"]).any():
+    #         raise ValueError(
+    #             "No common valid cells for the map "
+    #             "and comparison periods."
+    #         )
+
+    #     data["longname"] = (
+    #         f"WASP-{length}: departure from comparison baseline"
+    #     )
+
+    #     data["date"] += (
+    #         # f"; reference "
+    #         # f"{reference_start:%Y-%m}–{reference_end:%Y-%m}"
+    #         f"Base year: "
+    #         f"{reference_start:%Y-%m}"
+    #     )
+
+    
+    base_start = _integer(
+        params, "comparisonStartYear", 1, 9998
+    )
+    base_end = _integer(
+        params, "comparisonEndYear", base_start, 9998
+    )
+    start_month = _integer(
+        params, "comparisonStartMonth", 1, 12
+    )
+
+    length = _arguments(params)["tscale"]
+    reference_values = []
+
+    for year in range(base_start, base_end + 1):
+        reference_start = pd.Timestamp(
+            year=year,
+            month=start_month,
+            day=1,
+        )
+
+        reference_end = reference_start + pd.DateOffset(
+            months=length - 1
+        )
+
+        reference = get_health_wasp_sp_data({
+            **params,
+            "Date": reference_end.strftime("%Y-%m"),
+        })
+
+        if not (
+            np.array_equal(data["lon"], reference["lon"])
+            and np.array_equal(data["lat"], reference["lat"])
+        ):
+            raise ValueError(
+                "Map and base-year grids do not match."
+            )
+
+        reference_values.append(reference["data"])
+
+    baseline = np.mean(
+        np.stack(reference_values),
+        axis=0,
+    )
+
+    data["data"] = data["data"] - baseline
+
+    if not np.isfinite(data["data"]).any():
+        raise ValueError(
+            "No common valid cells for the map and base years."
+        )
+
+    data["longname"] = (
+        f"WASP-{length}: departure from base years"
+    )
+
+    data["date"] += (
+        f"Base year: {base_start}–{base_end}, "
+        f"starting {reference_start:%b}"
+    )
 
     breaks = colorbar["break_cbar"]
 

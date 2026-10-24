@@ -1,4 +1,4 @@
-$(document).ready(async function() {
+$(document).ready(function() {
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
         .forEach(element => {
             bootstrap.Tooltip.getOrCreateInstance(element);
@@ -6,67 +6,71 @@ $(document).ready(async function() {
 
     const tempRes = 'monthly';
     const prefix = `${tempRes}-wasp-map`;
+    const control = $(`#${prefix}-control`);
 
     const map = createLeafletTileLayer('div-map-container',MTO_INIT);
-
     const mapOptions = {};
-    let refreshVersion = 0;
     const previewHolder = $('#div-chart-wasp')
         .addClass('position-relative')[0];
 
     const mapPreparing = new Spinner(spinnerMapOptions());
     const previewPreparing = new Spinner(spinnerChartOptions());
 
-    mapPreparing.spin(map.getContainer());
-    previewPreparing.spin(previewHolder);
-    const initialization = setOffCanvasMapControlHealthWasp(tempRes);
+    function refreshWasp() {
+        if (control.data('waspCalendarLoading')) {
+            return;
+        }
 
+        const query = queryParamsHealthWasp(tempRes, prefix);
 
-    async function refreshWasp() {
-        const version = ++refreshVersion;
+        if (!query) {
+            mapPreparing.stop();
+            previewPreparing.stop();
+            return;
+        }
 
-        mapPreparing.spin(map.getContainer());
-        previewPreparing.spin(previewHolder);
+        const key = `${query.dataset}:${query.timeScale}`;
 
-        try {
-            const initialized = await initialization;
+        if (
+            !control.data('waspCalendarReady') ||
+            control.data('waspCoverageKey') !== key
+        ) {
+            mapPreparing.spin(map.getContainer());
+            previewPreparing.spin(previewHolder);
 
-            if (!initialized || version !== refreshVersion) {
-                return;
-            }
-
-            const ready = await setHealthWaspDateCalendars(
+            setHealthWaspDateCalendars(
                 tempRes,
-                prefix
+                prefix,
+                false,
+                ready => {
+                    if (ready) {
+                        refreshWasp();
+                    } else {
+                        mapPreparing.stop();
+                        previewPreparing.stop();
+                    }
+                }
             );
 
-            if (!ready || version !== refreshVersion) {
-                return;
-            }
-
-            displayHealthWaspMap(tempRes, mapOptions, map);
-            preview_health_wasp_charts(tempRes);
-
-        } finally {
-            if (version === refreshVersion) {
-                mapPreparing.stop();
-                previewPreparing.stop();
-            }
+            return;
         }
-    }
 
+        displayHealthWaspMap(tempRes, mapOptions, map);
+        preview_health_wasp_charts(tempRes);
+
+        mapPreparing.stop();
+        previewPreparing.stop();
+    }
 
     $('#map-control-offcanvas-dataselect')
         .off('hidden.bs.offcanvas.healthWasp')
-        .on(
-            'hidden.bs.offcanvas.healthWasp',
-            refreshWasp
-        );
+        .on('hidden.bs.offcanvas.healthWasp', refreshWasp);
 
     $('#map-control-redraw')
         .off('click.healthWasp')
         .on('click.healthWasp', refreshWasp);
 
+    // Expanded chart
     $('#btn-div-chart-wasp')
         .off('click.healthWaspExpand')
         .on('click.healthWaspExpand', () => {
@@ -76,6 +80,7 @@ $(document).ready(async function() {
             );
         });
 
+    // Date navigation
     $('#input-time-navigation')
         .off('blur.healthWasp')
         .on('blur.healthWasp', () => {
@@ -101,25 +106,15 @@ $(document).ready(async function() {
         });
 
 
-    // $(`#${tempRes}-wasp-chart-area`)
-    //     .off('change.healthWaspArea')
-    //     .on('change.healthWaspArea', () => {
-    //         preview_health_wasp_charts(tempRes);
-    //     });
+    mapPreparing.spin(map.getContainer());
+    previewPreparing.spin(previewHolder);
 
-
-    try {
-        const initialized = await initialization;
-
-        if (initialized && refreshVersion === 0) {
-            displayHealthWaspMap(tempRes, mapOptions, map);
-            preview_health_wasp_charts(tempRes);
-        }
-
-    } finally {
-        if (refreshVersion === 0) {
+    setOffCanvasMapControlHealthWasp(tempRes, ready => {
+        if (ready) {
+            refreshWasp();
+        } else {
             mapPreparing.stop();
             previewPreparing.stop();
         }
-    }
+    });
 });
