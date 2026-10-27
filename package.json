@@ -1,0 +1,27 @@
+{
+  "name": "enacts-maprooms-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pinned browser dependencies for the ENACTS Maprooms Flask application",
+  "scripts": {
+    "build:vendor": "node scripts/copy-vendor-assets.js"
+  },
+  "dependencies": {
+    "@turf/turf": "7.2.0",
+    "bootstrap": "5.3.3",
+    "bootstrap-icons": "1.13.1",
+    "dom-to-image-more": "3.5.0",
+    "geotiff": "2.1.3",
+    "jquery": "3.7.1",
+    "jsuites": "6.5.1",
+    "leaflet": "1.9.4",
+    "leaflet-geotiff": "0.2.0",
+    "leaflet-mouse-position": "1.0.4",
+    "leaflet-spin": "1.1.2",
+    "masonry-layout": "4.2.2",
+    "plotly.js-dist-min": "3.5.1",
+    "plotty": "0.4.9",
+    "select2": "4.1.0-rc.0",
+    "spin.js": "2.3.2"
+  }
+}
