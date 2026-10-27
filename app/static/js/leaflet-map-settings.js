@@ -836,6 +836,54 @@ function displayClimateSeasFcstMap(time_res, options, map) {
 
 ////////////
 
+function queryParamsClimate10dasyFcstMap(time_res) {
+    let query = new Object();
+    query.temporalRes = time_res;
+    query.dataset = DATA_SET.use;
+    query.map_variable = $(`#${time_res}-map-variable`).val();
+    query.variable = query.map_variable;
+
+    query.issued = $(`#${time_res}-map-date-calendar`).val();
+    query.parameter = $(`#${time_res}-map-parameter`).val();
+
+    const colorbar = colorbarGetData();
+    if (!colorbar) {
+        return false;
+    }
+    query.colorbar = colorbar;
+
+    return query;
+}
+
+function displayClimate10daysFcstMap(time_res, options, map) {
+    const query = queryParamsClimate10dasyFcstMap(time_res);
+    if (!query) {
+        return false;
+    }
+
+    const endpoint = createEndpoint(
+        'climate_forecast',
+        'climate_forecast_10days_map'
+    );
+
+    const request = ajaxLeafletMap(
+        endpoint,
+        query,
+        displayRasterImage,
+        options,
+        map
+    );
+
+    const start = $(`#${time_res}-forecast-target-start`).text();
+    const end = $(`#${time_res}-forecast-target-end`).text();
+    const disp = `Forecast for: ${start} -> ${end}, issued on: ${query.issued}`;
+    map.displayText_date.update(disp);
+
+    return request;
+}
+
+////////////
+
 function queryParamsClimateProjectionSeasonalMap() {
     const prefix = 'seasonal-seasonal-proj';
 
@@ -932,13 +980,13 @@ function queryParamsClimateProjectionAgreementMap() {
     ].every(value => Number.isInteger(value) && value > 0);
 
     if (
-        !integers
-        || query.seasStart > 12
-        || query.seasEnd > 12
-        || query.yearstartFut < 2015
-        || !query.variable
-        || !query.scenario
-        || !['positive', 'negative'].includes(query.change)
+        !integers ||
+        query.seasStart > 12 ||
+        query.seasEnd > 12 ||
+        query.yearstartFut < 2015 ||
+        !query.variable ||
+        !query.scenario ||
+        !['positive', 'negative'].includes(query.change)
     ) {
         flashMessage(
             'Enter valid seasonal and period parameters.',
@@ -996,12 +1044,12 @@ function queryParamsClimateProjectionSpi(
     };
 
     if (
-        !query.model
-        || !query.scenario
-        || !['gamma', 'peasron3'].includes(query.distribution)
-        || !Number.isInteger(query.timeScale)
-        || query.timeScale < 2
-        || query.timeScale > 12
+        !query.model ||
+        !query.scenario ||
+        !['gamma', 'peasron3'].includes(query.distribution) ||
+        !Number.isInteger(query.timeScale) ||
+        query.timeScale < 2 ||
+        query.timeScale > 12
     ) {
         flashMessage('Select valid SPI parameters.', 'error');
         return false;
@@ -1099,8 +1147,8 @@ function displayClimateProjectionSeasonalMap(options, map) {
                 );
 
                 if (
-                    $('#support-spatial-average').val()
-                    === 'gridpoint'
+                    $('#support-spatial-average').val() ===
+                    'gridpoint'
                 ) {
                     const items = getDataSpatialAverage(
                         'gridpoint',
@@ -1114,197 +1162,6 @@ function displayClimateProjectionSeasonalMap(options, map) {
                         .trigger('change.select2');
                 }
             }
-        },
-        options,
-        map
-    );
-}
-
-
-///////
-
-function queryParamsHealthWasp(tempRes, prefix = `${tempRes}-wasp-map`) {
-    const query = {
-        dataset: DATA_SET.use,
-        temporalRes: 'monthly',
-        variable: 'rainfall',
-        analysis: 'wasp',
-        timeScale: Number(
-            $(`#${prefix}-timescale`).val()
-        ),
-        startYear: Number(
-            $(`#${prefix}-base-start`).val()
-        ),
-        endYear: Number(
-            $(`#${prefix}-base-end`).val()
-        ),
-        minYear: Number(
-            $(`#${prefix}-base-min`).val()
-        )
-    };
-
-    const valid = (
-        Number.isInteger(query.timeScale) &&
-        query.timeScale >= 1 &&
-        query.timeScale <= 12 &&
-        Number.isInteger(query.startYear) &&
-        query.startYear >= 1 &&
-        query.startYear <= 9998 &&
-        Number.isInteger(query.endYear) &&
-        query.endYear >= query.startYear &&
-        query.endYear <= 9998 &&
-        Number.isInteger(query.minYear) &&
-        query.minYear >= 2 &&
-        query.minYear <= query.endYear - query.startYear + 1
-    );
-
-    if (!valid) {
-        flashMessage(
-            'Enter valid accumulation and calibration parameters.',
-            'error'
-        );
-        return false;
-    }
-
-    return query;
-}
-
-
-function queryParamsHealthWaspMap(tempRes) {
-    const prefix = `${tempRes}-wasp-map`;
-    const control = $(`#${prefix}-control`);
-
-    if (!control.data('waspCalendarReady')) {
-        return false;
-    }
-
-    const query = queryParamsHealthWasp(tempRes, prefix);
-
-    if (!query) {
-        return false;
-    }
-
-    const coverage = control.data('waspCoverage');
-
-    const endingMonth = String(
-        $(`#${tempRes}-map-date-calendar`).val() || ''
-    ).trim();
-
-    if (
-        !/^\d{4}-(0[1-9]|1[0-2])$/.test(endingMonth) ||
-        endingMonth < coverage.start.slice(0, 7) ||
-        endingMonth > coverage.end.slice(0, 7)
-    ) {
-        flashMessage(
-            'Select an ending month within WASP coverage.',
-            'error'
-        );
-        return false;
-    }
-
-    const beginning = new Date(
-        `${endingMonth}-01T00:00:00Z`
-    );
-
-    beginning.setUTCMonth(
-        beginning.getUTCMonth() - query.timeScale + 1
-    );
-
-    query.Date = endingMonth;
-    query.StartDate = beginning.toISOString().slice(0, 7);
-    query.comparisonStartYear = Number(
-        $(`#${prefix}-comparison-start`).val()
-    );
-
-    query.comparisonEndYear = Number(
-        $(`#${prefix}-comparison-end`).val()
-    );
-
-    query.comparisonStartMonth = Number(
-        $(`#${prefix}-comparison-month-calendar`).val()
-    );
-
-    const validBase = (
-        [
-            query.comparisonStartYear,
-            query.comparisonEndYear,
-            query.comparisonStartMonth
-        ].every(Number.isInteger) &&
-        query.comparisonStartYear >= 1 &&
-        query.comparisonEndYear >= query.comparisonStartYear &&
-        query.comparisonEndYear <= 9998 &&
-        query.comparisonStartMonth >= 1 &&
-        query.comparisonStartMonth <= 12
-    );
-
-    if (!validBase) {
-        flashMessage(
-            'Select valid base years and starting month.',
-            'error'
-        );
-        return false;
-    }
-
-    const baseMonth = String(
-        query.comparisonStartMonth
-    ).padStart(2, '0');
-
-    const firstStart = (
-        `${String(query.comparisonStartYear).padStart(4, '0')}-${baseMonth}`
-    );
-
-    const lastStart = (
-        `${String(query.comparisonEndYear).padStart(4, '0')}-${baseMonth}`
-    );
-
-    if (
-        firstStart < coverage.map_start.slice(0, 7) ||
-        lastStart > coverage.map_end.slice(0, 7)
-    ) {
-        flashMessage(
-            'Select base-year windows within rainfall coverage.',
-            'error'
-        );
-        return false;
-    }
-
-    query.colorbar = colorbarGetData();
-
-    if (!query.colorbar) {
-        return false;
-    }
-
-    return query;
-}
-
-
-function displayHealthWaspMap(tempRes, options, map) {
-    const query = queryParamsHealthWaspMap(tempRes);
-
-    if (!query) {
-        return false;
-    }
-
-    return ajaxLeafletMap(
-        createEndpoint(
-            'health_malaria',
-            'health_wasp_map'
-        ),
-        query,
-        (data, settings, targetMap) => {
-            displayRasterImage(
-                data,
-                settings,
-                targetMap
-            );
-
-            const label = $('<div>')
-                .text(data.date)
-                .html();
-
-            targetMap.displayText_date.update(
-                label.replace('; ', '<br>')
-            );
         },
         options,
         map

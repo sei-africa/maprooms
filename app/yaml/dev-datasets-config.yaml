@@ -562,6 +562,12 @@ forecast_data:
             dir: /home/enacts/FORECASTS/SEASONAL_TEMP
             lon: "X"
             lat: "Y"
+    tendays:
+        dir: /home/enacts/FORECASTS/TEN_DAYS
+        dimname:
+            lon: lon
+            lat: lat
+            time: time
 
 climate_projection:
     netcdf_dir: /mnt/d/ASA/Data_test/NEW/CMIP6_CDS_COMBINED

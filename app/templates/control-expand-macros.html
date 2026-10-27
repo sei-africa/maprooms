@@ -1456,14 +1456,6 @@ include_map=false
 {% macro create_expand_charts_seasfcst(tempRes, pageText, expandID) %}
 <div class="container d-flex flex-wrap justify-content-start w-100" id="{{ tempRes }}-{{ expandID }}-control">
     <fieldset class="border border-secondary rounded-3 py-1">
-        <legend class="legend-label">{{ pageText.variables.label }}</legend>
-        <select id="{{ tempRes }}-chart-forecast-variable-{{ expandID }}" class="form-select {{ tempRes }}-{{ expandID }}-select2" style="width: 150px;">
-            {% for key, value in pageText.variables.select.items() %}
-            <option value="{{key}}">{{value}}</option>
-            {% endfor %}
-        </select>
-    </fieldset>
-    <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.forecasts.season.issued }}</legend>
         <select id="{{ tempRes }}-chart-forecast-issued-month-{{ expandID }}" class="form-select {{ tempRes }}-{{ expandID }}-select2 d-inline-block align-middle"></select>
         <select id="{{ tempRes }}-chart-forecast-issued-year-{{ expandID }}" class="form-select {{ tempRes }}-{{ expandID }}-select2 d-inline-block align-middle"></select>
@@ -1471,6 +1463,14 @@ include_map=false
     <fieldset class="border border-secondary rounded-3 py-1">
         <legend class="legend-label">{{ pageText.forecasts.season.target }}</legend>
         <select id="{{ tempRes }}-chart-forecast-target-{{ expandID }}" class="form-select {{ tempRes }}-{{ expandID }}-select2 d-inline-block align-middle"></select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3 py-1">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-chart-forecast-variable-{{ expandID }}" class="form-select {{ tempRes }}-{{ expandID }}-select2" style="width: 150px;">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
     </fieldset>
 </div>
 {% endmacro %}

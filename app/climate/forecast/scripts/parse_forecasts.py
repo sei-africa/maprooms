@@ -1,7 +1,8 @@
 import os
 import calendar
+from app.scripts.util import load_yaml_file
 
-def parse_seasonal_forecast_files(fcst_dir):
+def parse_seasonal_forecast_dirs(fcst_dir):
     full_months = list(calendar.month_name)[1:]
     short_months = list(calendar.month_abbr)[1:]
     year_dirs = [
@@ -26,7 +27,7 @@ def parse_seasonal_forecast_files(fcst_dir):
         ]
         if len(issued_dirs) == 0:
             raise ValueError(
-                f'No issuance directory found, year: {year}'
+                f'No seasonal forecast found, year: {year}'
             )
 
         tmp_issue = []
@@ -77,3 +78,31 @@ def parse_seasonal_forecast_files(fcst_dir):
     }
 
     return out
+
+def parse_tendays_forecast_dirs(fcst_dir):
+    issued_dirs = [
+        d for d in os.listdir(fcst_dir)
+        if os.path.isdir(
+            os.path.join(fcst_dir, d)
+        )
+    ]
+
+    if len(issued_dirs) == 0:
+        raise ValueError(
+            'No 10-days forecast found'
+        )
+    issued_dirs.sort()
+    info_pth = os.path.join(
+        fcst_dir, issued_dirs[-1], 'info.yaml'
+    )
+    info = load_yaml_file(info_pth)
+
+    # disp_key = ['issued_date', 'start_date', 'end_date']
+    # display = {k: info[k] for k in disp_key}
+    info_key = ['spatial_resolution', 'spatial_coverage']
+    info_var = {k: info[k] for k in info_key}
+    info_var['temporal_coverage'] = {
+        'start': issued_dirs[0],
+        'end': issued_dirs[-1]
+    }
+    return {'info': info_var, 'issued': issued_dirs}

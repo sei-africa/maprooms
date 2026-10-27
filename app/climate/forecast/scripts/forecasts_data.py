@@ -1,9 +1,13 @@
 import os
 from app.scripts._global import GLOBAL_CONFIG
-from .parse_forecasts import parse_seasonal_forecast_files
+from app.scripts.util import load_yaml_file
+from .parse_forecasts import (
+    parse_seasonal_forecast_dirs,
+    parse_tendays_forecast_dirs
+)
 from .read_forecasts import _load_dataarray
 
-def get_seasonal_forecast_files(variable):
+def get_seasonal_forecast_info(variable):
     fcst_data = GLOBAL_CONFIG['forecast_data']['seasonal'][variable]
     if not os.path.exists(fcst_data['dir']):
         return {
@@ -11,7 +15,7 @@ def get_seasonal_forecast_files(variable):
             'message': f'No {variable} seasonal forecast found.'
         }
     try:
-        fcst_seas = parse_seasonal_forecast_files(fcst_data['dir'])
+        fcst_seas = parse_seasonal_forecast_dirs(fcst_data['dir'])
         fcst_seas['resolution'] = _get_seasonal_forecast_sp_res(
             fcst_seas['display'], fcst_data
         )
@@ -40,3 +44,26 @@ def _get_seasonal_forecast_sp_res(fcst_pars, fcst_data):
         'lat': abs(float(lat[1] - lat[0]))
     }
 
+def get_tendays_forecast_info():
+    fcst_dir = GLOBAL_CONFIG['forecast_data']['tendays']['dir']
+    try:
+        fcst_10d = parse_tendays_forecast_dirs(fcst_dir)
+        return {'status': 0, 'data': fcst_10d}
+    except Exception as e:
+        return {'status': -1, 'message': str(e)}
+
+def get_tendays_forecast_target(date):
+    fcst_dir = GLOBAL_CONFIG['forecast_data']['tendays']['dir']
+    info_pth = os.path.join(
+        fcst_dir, date, 'info.yaml'
+    )
+    if not os.path.exists(info_pth):
+        msg = 'Ten-days forecast information not found.'
+        return {'status': -1, 'message': msg}
+
+    info = load_yaml_file(info_pth)
+    target = {
+        'start': info['start_date'],
+        'end': info['end_date']
+    }
+    return {'status': 0, 'data': target}

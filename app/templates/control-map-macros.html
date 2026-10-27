@@ -1004,52 +1004,39 @@
 </div>
 {% endmacro %}
 <!--  -->
-
 {% macro create_map_control_spi_proj(tempRes, pageText, prefix=none, include_map=true) %}
-
 {% if prefix is none %}
-    {% set prefix = tempRes ~ '-spi-proj' %}
+{% set prefix = tempRes ~ '-spi-proj' %}
 {% endif %}
-
-<div
-    id="{{ prefix }}-control"
-    class="container {% if not include_map %}d-flex flex-wrap justify-content-start w-100{% endif %}">
-
+<div id="{{ prefix }}-control" class="container {% if not include_map %}d-flex flex-wrap justify-content-start w-100{% endif %}">
     {% for field, options, label in [
-        ('gcm', pageText.GCM, pageText.opt_inputs.GCM.label),
-        ('scenario', pageText.scenarios, pageText.opt_inputs.scenarios.label)
+    ('gcm', pageText.GCM, pageText.opt_inputs.GCM.label),
+    ('scenario', pageText.scenarios, pageText.opt_inputs.scenarios.label)
     ] %}
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">{{ label }}</legend>
-        <select
-            id="{{ prefix }}-{{ field }}"
-            class="form-select {{ prefix }}-select2">
+        <select id="{{ prefix }}-{{ field }}" class="form-select {{ prefix }}-select2">
             {% for key, item in options.items() %}
             <option value="{{ key }}">{{ item.label }}</option>
             {% endfor %}
         </select>
     </fieldset>
     {% endfor %}
-
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.spi_controls.distribution }}
         </legend>
-        <select
-            id="{{ prefix }}-distribution"
-            class="form-select {{ prefix }}-select2">
+        <select id="{{ prefix }}-distribution" class="form-select {{ prefix }}-select2">
             {% for key, label in pageText.spi_distributions.items() %}
             <option value="{{ key }}">{{ label }}</option>
             {% endfor %}
         </select>
     </fieldset>
-
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.opt_inputs.map_month.label
-               if include_map else pageText.spi_controls.length }}
+            if include_map else pageText.spi_controls.length }}
         </legend>
-
         {% if include_map %}
         <div class="container-fluid">
             <div class="row gx-1">
@@ -1060,86 +1047,51 @@
                     {{ pageText.spi_controls.length }}
                 </div>
             </div>
-
             <div class="row gx-1">
-                <div
-                    id="{{ prefix }}-map-date"
-                    class="col-md-9"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    data-bs-title="{{ pageText.spi_controls.start_month }}">
-                    <input
-                        id="{{ prefix }}-map-date-calendar"
-                        type="text"
-                        class="form-control">
+                <div id="{{ prefix }}-map-date" class="col-md-9" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.spi_controls.start_month }}">
+                    <input id="{{ prefix }}-map-date-calendar" type="text" class="form-control">
                 </div>
-
                 <div class="col-md-3">
-                    <select
-                        id="{{ prefix }}-timescale"
-                        class="form-select {{ prefix }}-select2">
+                    <select id="{{ prefix }}-timescale" class="form-select {{ prefix }}-select2">
                     </select>
                 </div>
             </div>
         </div>
-
-        <div
-            id="{{ prefix }}-season-months"
-            class="d-flex justify-content-center">
+        <div id="{{ prefix }}-season-months" class="d-flex justify-content-center">
         </div>
-
         {% else %}
         <div class="d-flex align-items-center gap-2">
-            <select
-                id="{{ prefix }}-timescale"
-                class="form-select {{ prefix }}-select2">
+            <select id="{{ prefix }}-timescale" class="form-select {{ prefix }}-select2">
             </select>
             <span>{{ pageText.spi_controls.months }}</span>
         </div>
         {% endif %}
     </fieldset>
-
     <fieldset class="border border-secondary rounded-3 w-100">
         <legend class="legend-label">
             {{ pageText.spi_controls.plot_period }}
         </legend>
-
         <div class="row p-0 m-0">
             <div class="col-sm-4 d-flex justify-content-end text-end align-items-center pe-1 m-0">
                 {{ pageText.spi_controls.start_year }}
             </div>
             <div class="col-sm-2 p-0 m-0">
-                <input
-                    id="{{ prefix }}-plot-start"
-                    class="form-control text-center px-0"
-                    type="text"
-                    inputmode="numeric"
-                    value="{{ pageText.plot_period.start_year }}">
+                <input id="{{ prefix }}-plot-start" class="form-control text-center px-0" type="text" inputmode="numeric" value="{{ pageText.plot_period.start_year }}">
             </div>
-
             <div class="col-sm-4 d-flex justify-content-end text-end align-items-center pe-1 m-0">
                 {{ pageText.spi_controls.end_year }}
             </div>
             <div class="col-sm-2 p-0 m-0">
-                <input
-                    id="{{ prefix }}-plot-end"
-                    class="form-control text-center px-0"
-                    type="text"
-                    inputmode="numeric"
-                    value="{{ pageText.plot_period.end_year }}">
+                <input id="{{ prefix }}-plot-end" class="form-control text-center px-0" type="text" inputmode="numeric" value="{{ pageText.plot_period.end_year }}">
             </div>
         </div>
     </fieldset>
-
 </div>
 {% endmacro %}
 <!--  -->
-
 {% macro create_map_control_model_proj(tempRes, pageText) %}
 {% set prefix = tempRes ~ '-model-proj' %}
-
 <div class="container" id="{{ prefix }}-map-control">
-
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.variables.label }}
@@ -1150,7 +1102,6 @@
             {% endfor %}
         </select>
     </fieldset>
-
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.opt_inputs.scenarios.label }}
@@ -1161,7 +1112,6 @@
             {% endfor %}
         </select>
     </fieldset>
-
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.opt_inputs.change_signal.label }}
@@ -1172,7 +1122,6 @@
             {% endfor %}
         </select>
     </fieldset>
-
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.opt_season.label }}
@@ -1182,62 +1131,42 @@
                 <label for="{{ prefix }}-start-month">
                     {{ pageText.opt_season.season_map.start }}
                 </label>
-                <select
-                    id="{{ prefix }}-start-month"
-                    class="form-select">
+                <select id="{{ prefix }}-start-month" class="form-select">
                 </select>
             </div>
             <div class="col-6">
                 <label for="{{ prefix }}-end-month">
                     {{ pageText.opt_season.season_map.end }}
                 </label>
-                <select
-                    id="{{ prefix }}-end-month"
-                    class="form-select">
+                <select id="{{ prefix }}-end-month" class="form-select">
                 </select>
             </div>
         </div>
     </fieldset>
-
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.opt_climatological_period.label }}
         </legend>
-
         <div class="mb-2">
             Historical:
             {{ pageText.climatological_period.historical.start_year }}–{{ pageText.climatological_period.historical.end_year }}
         </div>
-
         <label for="{{ prefix }}-future-date-calendar">
             {{ pageText.opt_climatological_period.future_start_year }}
         </label>
-        <input
-            id="{{ prefix }}-future-date-calendar"
-            class="form-control"
-            type="number"
-            min="2015"
-            max="9998">
-
+        <input id="{{ prefix }}-future-date-calendar" class="form-control" type="number" min="2015" max="9998">
         <label for="{{ prefix }}-period-length" class="mt-2">
             {{ pageText.opt_climatological_period.length }}
             ({{ pageText.opt_climatological_period.unit }})
         </label>
-        <input
-            id="{{ prefix }}-period-length"
-            class="form-control"
-            type="number"
-            min="1">
+        <input id="{{ prefix }}-period-length" class="form-control" type="number" min="1">
     </fieldset>
-
 </div>
 {% endmacro %}
-
 <!--  -->
 {% macro create_map_control_seasonal_proj(tempRes, pageText) %}
 <div class="container">
     {% set prefix = tempRes ~ '-seasonal-proj' %}
-
     <!--  -->
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">{{ pageText.opt_inputs.GCM.label }}</legend>
@@ -1247,7 +1176,6 @@
             {% endfor %}
         </select>
     </fieldset>
-
     <!--  -->
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">{{ pageText.opt_inputs.scenarios.label }}</legend>
@@ -1257,7 +1185,6 @@
             {% endfor %}
         </select>
     </fieldset>
-
     <!--  -->
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">{{ pageText.variables.label }}</legend>
@@ -1267,7 +1194,6 @@
             {% endfor %}
         </select>
     </fieldset>
-
     <!--  -->
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">{{ pageText.opt_season.label }}</legend>
@@ -1282,12 +1208,10 @@
             </div>
             <div class="row gx-1">
                 <div class="col-md-6">
-                    <select id="{{ prefix }}-start-month"
-                            class="form-select form-select2-nosearch"></select>
+                    <select id="{{ prefix }}-start-month" class="form-select form-select2-nosearch"></select>
                 </div>
                 <div class="col-md-6">
-                    <select id="{{ prefix }}-end-month"
-                            class="form-select form-select2-nosearch"></select>
+                    <select id="{{ prefix }}-end-month" class="form-select form-select2-nosearch"></select>
                 </div>
             </div>
         </div>
@@ -1306,21 +1230,11 @@
                 </div>
             </div>
             <div class="row gx-1">
-                <div id="{{ prefix }}-historical-date"
-                     data-bs-toggle="tooltip"
-                     data-bs-placement="top"
-                     data-bs-title="{{ pageText.opt_climatological_period.historical_start_year }}"
-                     class="col-md-6">
-                    <input id="{{ prefix }}-historical-date-calendar"
-                           type="text" class="form-control text-center">
+                <div id="{{ prefix }}-historical-date" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.opt_climatological_period.historical_start_year }}" class="col-md-6">
+                    <input id="{{ prefix }}-historical-date-calendar" type="text" class="form-control text-center">
                 </div>
-                <div id="{{ prefix }}-future-date"
-                     data-bs-toggle="tooltip"
-                     data-bs-placement="top"
-                     data-bs-title="{{ pageText.opt_climatological_period.future_start_year }}"
-                     class="col-md-6">
-                    <input id="{{ prefix }}-future-date-calendar"
-                           type="text" class="form-control text-center">
+                <div id="{{ prefix }}-future-date" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ pageText.opt_climatological_period.future_start_year }}" class="col-md-6">
+                    <input id="{{ prefix }}-future-date-calendar" type="text" class="form-control text-center">
                 </div>
             </div>
             <div class="row mt-2">
@@ -1329,17 +1243,13 @@
                     ({{ pageText.opt_climatological_period.unit }})
                 </div>
                 <div class="col-sm-2 ps-0 ms-0">
-                    <input id="{{ prefix }}-period-length"
-                           class="form-control text-center px-0"
-                           type="text"
-                           value="{{ pageText.climatological_period.length }}">
+                    <input id="{{ prefix }}-period-length" class="form-control text-center px-0" type="text" value="{{ pageText.climatological_period.length }}">
                 </div>
             </div>
         </div>
         <div id="{{ prefix }}-period-summary" class="d-flex justify-content-center">
         </div>
     </fieldset>
-
     <!--  -->
     <fieldset id="{{ prefix }}-distribution" class="border border-secondary rounded-3">
         <legend class="legend-label">{{ pageText.distribution_change.label }}</legend>
@@ -1349,24 +1259,17 @@
                     {{ pageText.distribution_change.label_from }}
                 </div>
                 <div class="col-sm-2 p-0 m-0">
-                    <input id="{{ prefix }}-distribution-from"
-                           class="form-control text-center px-0"
-                           type="text"
-                           value="{{ pageText.distribution_change.from }}">
+                    <input id="{{ prefix }}-distribution-from" class="form-control text-center px-0" type="text" value="{{ pageText.distribution_change.from }}">
                 </div>
                 <div class="col-sm-4 d-flex justify-content-end text-end align-items-center pe-1 m-0">
                     {{ pageText.distribution_change.label_to }}
                 </div>
                 <div class="col-sm-2 p-0 m-0">
-                    <input id="{{ prefix }}-distribution-max"
-                           class="form-control text-center px-0"
-                           type="text"
-                           value="{{ pageText.distribution_change.to }}">
+                    <input id="{{ prefix }}-distribution-max" class="form-control text-center px-0" type="text" value="{{ pageText.distribution_change.to }}">
                 </div>
             </div>
         </div>
     </fieldset>
-
 </div>
 {% endmacro %}
 
@@ -1573,6 +1476,17 @@
 <!--  -->
 {% macro create_map_control_seasfcst(tempRes, pageText) %}
 <div class="container">
+    <fieldset class="border border-secondary rounded-3 mt-2">
+        <div class="my-1">
+            <span class="ms-3 fw-bold">{{ pageText.forecasts.season.issued }}</span>
+            <select id="{{ tempRes }}-forecast-issued-month" class="form-select form-select2-nosearch d-inline-block w-25 align-middle"></select>
+            <select id="{{ tempRes }}-forecast-issued-year" class="form-select form-select2-nosearch d-inline-block w-25 align-middle"></select>
+        </div>
+        <div class="mt-2">
+            <span class="ms-3 fw-bold">{{ pageText.forecasts.season.target }}</span>
+            <select id="{{ tempRes }}-forecast-target" class="form-select form-select2-nosearch d-inline-block w-25 align-middle"></select>
+        </div>
+    </fieldset>
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">{{ pageText.variables.label }}</legend>
         <select id="{{ tempRes }}-map-variable" class="form-select form-select2-nosearch">
@@ -1588,15 +1502,6 @@
             <option value="{{key}}">{{value}}</option>
             {% endfor %}
         </select>
-    </fieldset>
-    <fieldset class="border border-secondary rounded-3 mt-2">
-        <span class="ms-3">{{ pageText.forecasts.season.issued }}</span>
-        <select id="{{ tempRes }}-forecast-issued-month" class="form-select form-select2-nosearch d-inline-block w-25 align-middle"></select>
-        <select id="{{ tempRes }}-forecast-issued-year" class="form-select form-select2-nosearch d-inline-block w-25 align-middle"></select>
-    </fieldset>
-    <fieldset class="border border-secondary rounded-3 mt-2">
-        <span class="ms-3">{{ pageText.forecasts.season.target }}</span>
-        <select id="{{ tempRes }}-forecast-target" class="form-select form-select2-nosearch d-inline-block w-25 align-middle"></select>
     </fieldset>
     <fieldset id="{{ tempRes }}-flexible-proba-opt" class="border border-secondary rounded-3">
         <legend class="legend-label">{{ pageText.forecasts.type.select.flexible }}</legend>
@@ -1621,6 +1526,42 @@
             <input id="{{ tempRes }}-flexible-proba-value-2" class="d-none form-control form-control-sm text-center d-inline-block w-auto align-middle" type="text" size="5" value="{{ pageText.forecasts.proba.rainfall.rainfall.value }}">
             <span id="{{ tempRes }}-flexible-proba-unit-2" class="d-none">{{ pageText.forecasts.proba.rainfall.rainfall.units }}</span>
         </div>
+    </fieldset>
+</div>
+{% endmacro %}
+<!--  -->
+{% macro create_map_control_tendaysfcst(tempRes, pageText) %}
+<div class="container">
+    <fieldset class="border border-secondary rounded-3">
+        <div class="my-1">
+            <span class="ms-3 fw-bold">{{ pageText.forecast_period.issued }}</span>
+            <div id="{{ tempRes }}-map-date" class="d-inline-block align-middle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-fallback-placements="[]" data-bs-title="Date">
+                <input id="{{ tempRes }}-map-date-calendar" type="text" class="form-control">
+            </div>
+        </div>
+        <div class="mt-2">
+            <span class="ms-3 fw-bold">{{ pageText.forecast_period.target }}:</span>
+            <span class="mx-1">{{ pageText.forecast_period.start }}</span>
+            <span id="{{ tempRes }}-forecast-target-start" class="fw-bold"></span>
+            <span class="mx-1">{{ pageText.forecast_period.end }}</span>
+            <span id="{{ tempRes }}-forecast-target-end" class="fw-bold"></span>
+        </div>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.variables.label }}</legend>
+        <select id="{{ tempRes }}-map-variable" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.variables.select.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.forecasts.label }}</legend>
+        <select id="{{ tempRes }}-map-parameter" class="form-select form-select2-nosearch">
+            {% for key, value in pageText.forecasts.parameters.rainfall.items() %}
+            <option value="{{key}}">{{value}}</option>
+            {% endfor %}
+        </select>
     </fieldset>
 </div>
 {% endmacro %}
