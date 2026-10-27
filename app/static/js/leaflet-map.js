@@ -1494,7 +1494,20 @@ function colorbarSettings(ckeys_labels, ckeys_title) {
         currentPlottyInstance = L.LeafletGeotiff.plotty({ colorScale: $(this).val() });
         $('#colorbar-preview-preset').attr('src', currentPlottyInstance.colorScaleData);
     });
-    $('#colorbar-color-preset-select').trigger('change');
+    // Custom Plotty scales are loaded asynchronously from /maproom_colors.
+    // Production can return the map response before that smaller request, so
+    // do not instantiate the preview until registration has completed.
+    if (MAPROOM_COLORS_READY !== undefined) {
+        MAPROOM_COLORS_READY.done(() => {
+            $('#colorbar-color-preset-select').trigger('change');
+        });
+    } else {
+        // Defensive fallback for pages that use leaflet-map.js independently.
+        MAPROOM_COLORS_READY = plottyAddColorScales();
+        MAPROOM_COLORS_READY.done(() => {
+            $('#colorbar-color-preset-select').trigger('change');
+        });
+    }
 
     ////
     $('#colorbar-title-user').val(ckeys_title);
