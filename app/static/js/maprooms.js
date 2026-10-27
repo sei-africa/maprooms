@@ -387,54 +387,24 @@ function ajaxLeafletMap(
 }
 
 function ajaxGetSubdivisions() {
-    const cacheName = 'subdiv_be';
-    const sessionCacheKey = 'maprooms.subdivisions.loaded';
-    const navigation = performance.getEntriesByType('navigation')[0];
-    const isBrowserRefresh = navigation !== undefined
-        ? navigation.type === 'reload'
-        : performance.navigation !== undefined &&
-            performance.navigation.type === performance.navigation.TYPE_RELOAD;
-
-    const useSubdivisions = (data) => {
-        SUBDIV_BE = data;
-
+    $.getJSON('/map_subdivisions_data', (json) => {
+        if (json.status !== 0) {
+            flashMessage(json.message, 'error');
+            return false;
+        }
+        ///// maproomDB.clearData('subdiv_be');
+        // maproomDB.saveData('subdiv_be', json.data);
+        SUBDIV_BE = json.data;
+    }).done(() => {
         const k0 = Object.keys(LAYERS.subdivision);
-        if (k0.length > 0 && LAYERS.subdivision[k0[0]].style === undefined) {
+        if (LAYERS.subdivision[k0[0]].style === undefined) {
             addSubdivisionStyles();
         }
 
         if (MAP_BE !== undefined) {
             displaySubdivisionLayers([LAYERS.subdivision_sel[MAP_BE.maproom]]);
         }
-    };
-
-    const loadSubdivisions = () => $.getJSON('/map_subdivisions_data', (json) => {
-        if (json.status !== 0) {
-            flashMessage(json.message, 'error');
-            return false;
-        }
-
-        maproomDB.saveData(cacheName, json.data);
-        sessionStorage.setItem(sessionCacheKey, 'true');
-        useSubdivisions(json.data);
-    }).fail((xhr, status, error) => {
-        displayAjaxError(xhr, status, error);
     });
-
-    // IndexedDB persists across normal page navigation. A session marker stops
-    // old data from a previous tab session being used, while a browser refresh
-    // deliberately fetches a fresh copy as requested.
-    if (!isBrowserRefresh && sessionStorage.getItem(sessionCacheKey) === 'true') {
-        maproomDB.getData(cacheName, (data) => {
-            if (data === null) {
-                loadSubdivisions();
-            } else {
-                useSubdivisions(data);
-            }
-        });
-    } else {
-        loadSubdivisions();
-    }
 }
 
 function ajaxDisplayChart(endpoint, query, callback, container, storename = null) {
