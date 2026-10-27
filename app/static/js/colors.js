@@ -109,7 +109,7 @@ function getColorsPosition(colors) {
 }
 
 function plottyAddColorScales() {
-    $.getJSON('/maproom_colors', (json) => {
+    return $.getJSON('/maproom_colors').then((json) => {
         for (const key in json) {
             plotty.addColorScale(
                 key,
@@ -117,6 +117,10 @@ function plottyAddColorScales() {
                 getColorsPosition(json[key].colors)
             );
         }
+
+        return json;
+    }).fail((xhr, status, error) => {
+        displayAjaxError(xhr, status, error);
     });
 }
 
