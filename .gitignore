@@ -20,6 +20,7 @@ dev-maprooms.service
 
 *__pycache__/
 *.DS_Store
+node_modules/
 
 # Ignore everything in any static/images directory
 app/**/static/images/**
