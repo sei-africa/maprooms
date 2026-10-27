@@ -8,13 +8,6 @@ $(document).ready(async function() {
     //// offcanvas map controls
     await setOffCanvas10DaysFcstMapControl('tendays');
 
-    // try {
-    //     await setOffCanvas10DaysFcstMapControl('tendays');
-    // } catch (error) {
-    //     console.error('Unable to initialize ten-day forecast controls:', error);
-    //     return;
-    // }
-
     ////////////
     // initialize map
     const map_options = {};

@@ -14,8 +14,8 @@ def climate_forecast_10days_data(params):
     check = check_invalid_colors(params['colorbar'])
     if check['status'] == -1: return check
 
-    # print('---------------------------')
-    # print(params)
+    print('---------------------------')
+    print(params)
 
     info = GLOBAL_CONFIG['forecast_data']['tendays']
     fcst_pth = os.path.join(info['dir'], params['issued'])

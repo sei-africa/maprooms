@@ -328,9 +328,27 @@ function setBoxDialog(dialog_id, open_id, callback = null) {
 }
 
 function displayAjaxError(jqXHR, textStatus, errorThrown) {
-    flashMessage(`${textStatus}: ${errorThrown}`, 'error');
-    var win = window.open();
-    $(win.document.body).html(jqXHR.responseText);
+    const status = jqXHR && jqXHR.status ? `HTTP ${jqXHR.status}` : textStatus;
+    const detail = errorThrown || 'The server response was incomplete.';
+    flashMessage(`${status}: ${detail}`, 'error');
+
+    const responseText = jqXHR && jqXHR.responseText;
+    if (!responseText) {
+        console.error('AJAX request failed without a complete response.', {
+            status: status,
+            error: detail
+        });
+        return;
+    }
+
+    const win = window.open('', '_blank');
+    if (win === null) {
+        // Popup blockers commonly reject window.open(). Keep the original
+        // response available in the console instead of raising another error.
+        console.error('AJAX error response:', responseText);
+        return;
+    }
+    $(win.document.body).html(responseText);
 }
 
 function ajaxLeafletMap(
