@@ -594,7 +594,7 @@ function setAnalysisExpandModalProba(tempRes, contID) {
     $(`#plotly-download-${contID}`)
         .off('click.chartTsProba')
         .on('click.chartTsProba', function() {
-            downloadPlotlyImageJPG(`${contChart}-plot`);
+            downloadPlotlyImageJPG(`${contChart}-plot`, contChart);
         });
 }
 
@@ -1548,8 +1548,295 @@ async function setProjectionExpandModalSpi(tempRes, contID) {
         });
 }
 
-//////
+///////
 
+function setHealthWaspExpandedControls(
+    tempRes,
+    subdivisions = SUBDIV_BE
+) {
+    const prefix = `${tempRes}-wasp-chart`;
+    const parent = $(`#${tempRes}-health-wasp-control`);
+    const area = $(`#${prefix}-area`);
+
+    setHealthWaspControls(prefix);
+
+    if (area.data('waspAreasReady')) {
+        return;
+    }
+
+    if (!area.hasClass('select2-hidden-accessible')) {
+        area.select2({
+            dropdownParent: parent,
+            minimumResultsForSearch: 0
+        });
+    }
+
+    if (!subdivisions) {
+        if (area.data('waspAreasLoading')) {
+            return;
+        }
+
+        area.data('waspAreasLoading', true);
+
+        $.getJSON('/map_subdivisions_data')
+            .done(json => {
+                area.data('waspAreasLoading', false);
+
+                if (json.status !== 0 || !json.data) {
+                    flashMessage(
+                        json.message ||
+                            'Unable to load administrative areas.',
+                        'error'
+                    );
+                    return;
+                }
+
+                setHealthWaspExpandedControls(
+                    tempRes,
+                    json.data
+                );
+            })
+            .fail(error => {
+                area.data('waspAreasLoading', false);
+                console.error(error);
+
+                flashMessage(
+                    'Unable to load administrative areas.',
+                    'error'
+                );
+            });
+
+        return;
+    }
+
+    const selected = area.val() || 'country';
+
+    const options = [{
+        id: 'country',
+        text: area.attr('data-country-label') || 'Whole country'
+    }];
+
+    ['region', 'zone'].forEach(key => {
+        const layer = LAYERS.subdivision[key];
+        const source = subdivisions[key];
+
+        if (!layer || !source) {
+            return;
+        }
+
+        const geojson = typeof source === 'string'
+            ? JSON.parse(source)
+            : source;
+
+        const names = [...new Set(
+            geojson.features
+                .map(feature => feature.properties.field)
+                .filter(name =>
+                    name !== null && name !== undefined
+                )
+                .map(String)
+        )].sort((a, b) => a.localeCompare(b));
+
+        options.push({
+            text: typeof layer.name === 'string'
+                ? layer.name
+                : key,
+            children: names.map(name => ({
+                id: JSON.stringify([key, name]),
+                text: name
+            }))
+        });
+    });
+
+    area.empty().select2({
+        data: options,
+        dropdownParent: parent,
+        minimumResultsForSearch: 0
+    });
+
+    area.val(selected);
+
+    if (area.val() === null) {
+        area.val('country');
+    }
+
+    area.trigger('change.select2');
+    area.data('waspAreasReady', true);
+}
+
+function setHealthExpandModalWasp(tempRes, contID) {
+    const source = `${tempRes}-wasp-map`;
+    const prefix = `${tempRes}-wasp-chart`;
+    const container = `container-chart-${contID}`;
+
+    const modal = $(`#modal-expand-${contID}`);
+    const controls = $(`#${tempRes}-health-wasp-control`);
+    const chartControl = $(`#${prefix}-control`);
+
+    let chartReady = false;
+
+    const oldSpinner = modal.data('waspPreparingSpinner');
+
+    if (oldSpinner) {
+        oldSpinner.stop();
+    }
+
+    const preparing = new Spinner(spinnerChartOptions());
+    modal.data('waspPreparingSpinner', preparing);
+
+    controls.off('.healthWaspExpanded');
+    controls.off('.healthWaspCalculation');
+    controls.data('waspBusy', true);
+
+    [
+        'timescale',
+        'base-start',
+        'base-end',
+        'base-min'
+    ].forEach(field => {
+        $(`#${prefix}-${field}`)
+            .val($(`#${source}-${field}`).val())
+            .trigger('change.select2');
+    });
+
+    setHealthWaspExpandedControls(tempRes);
+
+    function draw() {
+        if (
+            !chartReady ||
+            !modal.hasClass('show') ||
+            controls.data('waspBusy') ||
+            !chartControl.data('waspCalendarReady')
+        ) {
+            return;
+        }
+
+        preparing.stop();
+        expand_health_wasp_charts(container, tempRes);
+    }
+
+    function updateDates(copyBaseline = false) {
+        controls.data('waspBusy', true);
+
+        preparing.spin(
+            document.getElementById(container)
+        );
+
+        setHealthWaspDateCalendars(
+            tempRes,
+            prefix,
+            false,
+            ready => {
+                controls.data('waspBusy', false);
+
+                if (!ready) {
+                    preparing.stop();
+                    return;
+                }
+
+                if (copyBaseline) {
+                    [
+                        'comparison-start',
+                        'comparison-end',
+                        'comparison-month-calendar'
+                    ].forEach(field => {
+                        $(`#${prefix}-${field}`)
+                            .val($(`#${source}-${field}`).val())
+                            .trigger('change.select2');
+                    });
+                }
+
+                draw();
+            }
+        );
+    }
+
+    // Base-year and chart-period changes
+    function redraw() {
+        if (
+            !chartReady ||
+            !modal.hasClass('show') ||
+            controls.data('waspBusy')
+        ) {
+            return;
+        }
+
+        maproomDB.getData('ts_health_wasp', data => {
+            if (data) {
+                expand_health_display_wasp(data, container);
+            }
+        });
+    }
+
+    showModalDialog(`modal-expand-${contID}`);
+
+    expandModalCharts(
+        contID,
+        () => {
+            chartReady = true;
+            draw();
+        },
+        tempRes
+    );
+
+    purgePlotlyChartExpandModal(contID);
+    $(`#rangeselector-${contID}`).show();
+    $(`#${container}`).addClass('position-relative');
+
+    modal
+        .off('hidden.bs.modal.healthWaspPreparing')
+        .on('hidden.bs.modal.healthWaspPreparing', () => {
+            preparing.stop();
+        });
+
+    controls.on(
+        'change.healthWaspCalculation',
+        `#${prefix}-timescale`,
+        () => updateDates()
+    );
+
+    controls.on(
+        'change.healthWaspCalculation',
+        [
+            `#${prefix}-base-start`,
+            `#${prefix}-base-end`,
+            `#${prefix}-base-min`
+        ].join(','),
+        draw
+    );
+
+    controls.on(
+        'change.healthWaspExpanded',
+        `#${prefix}-area`,
+        draw
+    );
+
+    controls.on(
+        'change.healthWaspExpanded',
+        [
+            `#${prefix}-comparison-start`,
+            `#${prefix}-comparison-end`,
+            `#${prefix}-comparison-month-calendar`,
+            `#${prefix}-startdate-calendar`,
+            `#${prefix}-enddate-calendar`
+        ].join(','),
+        redraw
+    );
+
+    $(`#plotly-replot-${contID}`)
+        .off('click.healthWaspExpand')
+        .on('click.healthWaspExpand', draw);
+
+    $(`#plotly-download-${contID}`)
+        .off('click.healthWaspExpand')
+        .on('click.healthWaspExpand', () => {
+            downloadPlotlyImageJPG(container);
+        });
+
+    updateDates(true);
+}
+
+///////
 async function setAnalysisExpandModalSeasFcst(tempRes, contID, expandID) {
     const expand_functions = {
         'ter': expand_seasfcst_charts_ter,
@@ -1680,3 +1967,4 @@ function setChartSeasFcstTargets(tempRes, year, month, fcst_obj, expandID) {
         );
     }
 }
+
