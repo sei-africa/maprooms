@@ -192,7 +192,7 @@ function setOffCanvasMapControlDaily(tempRes) {
             setAnalysisMapTypeDaily(tempRes);
         });
 
-    // 
+    //
     $(`#${tempRes}-map-statistics`)
         .off(`change.${tempRes}Statistics`)
         .on(`change.${tempRes}Statistics`, function() {
@@ -646,7 +646,6 @@ function setMonitoringSeasonal(tempRes, variable) {
             setAnalysisSeasonMonths(tempRes, 'rawdata', dispText);
         });
     $(`#${tempRes}-map-date-length`).trigger('change');
-
 }
 
 function setMonitoringCalendar(tempRes, variable, dispDate = null) {
@@ -717,7 +716,6 @@ function setOffCanvasMapControlsDrmExtTemp(tempRes) {
 
         });
     $(`#${tempRes}-map-statistics`).trigger('change');
-
 }
 
 //////////////
@@ -777,7 +775,6 @@ function setOffCanvasMapControlsDrmExtRain(tempRes) {
         });
 
     $(`#${tempRes}-map-statistics`).trigger('change');
-
 }
 
 //////////////
@@ -792,7 +789,6 @@ function setOffCanvasMapControlDrmSpiAnalysis(tempRes) {
     adjustSelect2Height(`${tempRes}-map-date-length`, false);
     refreshSpatialAverage(tempRes, true);
     setMonitoringColorbar('spi_seas');
-
 }
 
 function setOffCanvasMapControlSeasonalProjection(tempRes, prefix = `${tempRes}-seasonal-proj`) {
@@ -822,7 +818,6 @@ function setOffCanvasMapControlSeasonalProjection(tempRes, prefix = `${tempRes}-
         .val(CLIMATOLOGICAL_PERIOD.length);
 }
 
-
 // function setOffCanvasMapControlSpiProjection(tempRes) {
 //     const prefix = `${tempRes}-spi-proj`;
 
@@ -847,8 +842,6 @@ function setProjectionSpiControls(prefix, sourcePrefix = null) {
         $(`#${prefix}-plot-${field}`).val(value);
     });
 }
-
-
 
 function setProjectionSpiMapMonth(prefix, month) {
     const coverage = $(`#${prefix}-gcm`).data('spiCoverage');
@@ -882,7 +875,6 @@ function setProjectionSpiMapMonth(prefix, month) {
 
     return true;
 }
-
 
 async function setProjectionSpiDateCalendars(
     tempRes,
@@ -1031,7 +1023,6 @@ async function setProjectionSpiDateCalendars(
     }
 }
 
-
 async function setOffCanvasMapControlSpiProjection(tempRes) {
     const prefix = `${tempRes}-spi-proj`;
 
@@ -1103,6 +1094,8 @@ function setOffCanvasSeasFcstMapControl(tempRes) {
             setSeasFcstProbaParsVisibility(tempRes, $(this).val());
             const this_stat = $(`#${tempRes}-flexible-proba-thres`).val();
             setSeasFcstProbaThresVisibility(tempRes, this_stat);
+            const this_var = $(`#${tempRes}-map-variable`).val();
+            setSeasFcstColorbar(this_var, $(this).val(), this_stat);
         });
     $(`#${tempRes}-flexible-parameters`).trigger('change');
 
@@ -1110,6 +1103,9 @@ function setOffCanvasSeasFcstMapControl(tempRes) {
         .off('change.seasonalForecast')
         .on('change.seasonalForecast', function() {
             setSeasFcstProbaThresVisibility(tempRes, $(this).val());
+            const this_var = $(`#${tempRes}-map-variable`).val();
+            const this_par = $(`#${tempRes}-flexible-parameters`).val();
+            setSeasFcstColorbar(this_var, this_par, $(this).val());
         });
     $(`#${tempRes}-flexible-proba-thres`).trigger('change');
 
@@ -1138,9 +1134,11 @@ function setOffCanvasSeasFcstMapControl(tempRes) {
             }
 
             const this_par = $(`#${tempRes}-flexible-parameters`).val();
-            setSeasFcstProbaParsVisibility(tempRes, this_par);
-
             const this_stat = $(`#${tempRes}-flexible-proba-thres`).val();
+
+            setSeasFcstProbaParsVisibility(tempRes, this_par);
+            setSeasFcstColorbar(this_val, this_par, this_stat);
+
             $(`#${tempRes}-flexible-proba-value-2`)
                 .val(proba_thres[this_val].value);
             $(`#${tempRes}-flexible-proba-unit-2`)
@@ -1247,5 +1245,118 @@ function setSeasFcstTargets(tempRes, year, month, fcst_obj) {
         target_id.append(
             $('<option>').text(tg).val(tg)
         );
+    }
+}
+
+function setSeasFcstColorbar(variable, parameter, probathres = null) {
+    if (variable === 'rainfall') {
+        if (parameter === 'TotRain') {
+            colorbarSetDefault('precipitation_2');
+        } else if (parameter === 'AnomRain') {
+            colorbarSetDefault('anomalies_4');
+        } else if (parameter === 'probExc') {
+            if (probathres === 'percentile') {
+                colorbarSetDefault('proba_exceed_1');
+            } else {
+                colorbarSetDefault('proba_exceed_2');
+            }
+        } else if (parameter === 'probNoExc') {
+            if (probathres === 'percentile') {
+                colorbarSetDefault('proba_noexceed_1');
+            } else {
+                colorbarSetDefault('proba_noexceed_2');
+            }
+        } else {
+            colorbarSetDefault();
+        }
+    } else if (variable === 'temperature') {
+        colorbarSetDefault();
+    } else {
+        colorbarSetDefault();
+    }
+}
+
+//////////////
+
+async function setOffCanvas10DaysFcstMapControl(tempRes) {
+    async function setTendaysTargetPeriod(date) {
+        const target = await $.getJSON(
+            '/get_tendays_target_forecast', { date: date }
+        );
+        if (target.status !== 0) {
+            flashMessage(target.message, 'error');
+            return false;
+        }
+
+        $(`#${tempRes}-forecast-target-start`)
+            .text(target.data.start);
+        $(`#${tempRes}-forecast-target-end`)
+            .text(target.data.end);
+        return true;
+    }
+
+    $(`#${tempRes}-map-variable`)
+        .off('change.tendaysForecast')
+        .on('change.tendaysForecast', function() {
+            const this_val = $(this).val();
+            const fcst_pars = SEAS_FCST.parameters[this_val];
+            $(`#${tempRes}-map-parameter`).empty();
+            for (const k of SEAS_FCST.order[this_val]) {
+                $(`#${tempRes}-map-parameter`).append(
+                    $('<option>').text(fcst_pars[k]).val(k)
+                );
+            }
+            const this_par = SEAS_FCST.order[this_val][0];
+            $(`#${tempRes}-map-parameter`).val(this_par);
+            set10DaysFcstColorbar(this_val, this_par);
+        });
+    $(`#${tempRes}-map-variable`).trigger('change');
+
+    $(`#${tempRes}-map-parameter`)
+        .off('change.tendaysForecast')
+        .on('change.tendaysForecast', function() {
+            const this_par = $(this).val();
+            const this_var = $(`#${tempRes}-map-variable`).val();
+            set10DaysFcstColorbar(this_var, this_par);
+        });
+    $(`#${tempRes}-map-parameter`).trigger('change');
+
+    const json = await $.getJSON('/get_tendays_forecasts_data');
+    if (json.status !== 0) {
+        flashMessage(json.message, 'error');
+        throw new Error(json.message);
+    }
+
+    const issuedDates = json.data.issued.slice().sort();
+    const latestIssuedDate = issuedDates[issuedDates.length - 1];
+    const targetIsSet = await setTendaysTargetPeriod(latestIssuedDate);
+    if (!targetIsSet) {
+        throw new Error('Unable to set the ten-day forecast target period.');
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+    setTendaysCalendar(
+        `${tempRes}-map-date`,
+        json.data.info.temporal_coverage,
+        issuedDates,
+        function(date) {
+            setTendaysTargetPeriod(date).catch(error => {
+                console.error('Unable to update forecast target period:', error);
+            });
+        }
+    );
+}
+
+function set10DaysFcstColorbar(variable, parameter) {
+    if (variable === 'rainfall') {
+        if (parameter === 'TotRain') {
+            colorbarSetDefault('precipitation_fcst_1', [1, 5, 10, 20, 30, 50, 100, 150]);
+        } else {
+            colorbarSetDefault();
+        }
+    } else if (variable === 'temperature') {
+        colorbarSetDefault();
+    } else {
+        colorbarSetDefault();
     }
 }

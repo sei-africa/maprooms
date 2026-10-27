@@ -836,6 +836,54 @@ function displayClimateSeasFcstMap(time_res, options, map) {
 
 ////////////
 
+function queryParamsClimate10dasyFcstMap(time_res) {
+    let query = new Object();
+    query.temporalRes = time_res;
+    query.dataset = DATA_SET.use;
+    query.map_variable = $(`#${time_res}-map-variable`).val();
+    query.variable = query.map_variable;
+
+    query.issued = $(`#${time_res}-map-date-calendar`).val();
+    query.parameter = $(`#${time_res}-map-parameter`).val();
+
+    const colorbar = colorbarGetData();
+    if (!colorbar) {
+        return false;
+    }
+    query.colorbar = colorbar;
+
+    return query;
+}
+
+function displayClimate10daysFcstMap(time_res, options, map) {
+    const query = queryParamsClimate10dasyFcstMap(time_res);
+    if (!query) {
+        return false;
+    }
+
+    const endpoint = createEndpoint(
+        'climate_forecast',
+        'climate_forecast_10days_map'
+    );
+
+    const request = ajaxLeafletMap(
+        endpoint,
+        query,
+        displayRasterImage,
+        options,
+        map
+    );
+
+    const start = $(`#${time_res}-forecast-target-start`).text();
+    const end = $(`#${time_res}-forecast-target-end`).text();
+    const disp = `Forecast for: ${start} -> ${end}, issued on: ${query.issued}`;
+    map.displayText_date.update(disp);
+
+    return request;
+}
+
+////////////
+
 function queryParamsClimateProjectionSeasonalMap() {
     const prefix = 'seasonal-seasonal-proj';
 
@@ -932,13 +980,13 @@ function queryParamsClimateProjectionAgreementMap() {
     ].every(value => Number.isInteger(value) && value > 0);
 
     if (
-        !integers
-        || query.seasStart > 12
-        || query.seasEnd > 12
-        || query.yearstartFut < 2015
-        || !query.variable
-        || !query.scenario
-        || !['positive', 'negative'].includes(query.change)
+        !integers ||
+        query.seasStart > 12 ||
+        query.seasEnd > 12 ||
+        query.yearstartFut < 2015 ||
+        !query.variable ||
+        !query.scenario ||
+        !['positive', 'negative'].includes(query.change)
     ) {
         flashMessage(
             'Enter valid seasonal and period parameters.',
@@ -996,12 +1044,12 @@ function queryParamsClimateProjectionSpi(
     };
 
     if (
-        !query.model
-        || !query.scenario
-        || !['gamma', 'peasron3'].includes(query.distribution)
-        || !Number.isInteger(query.timeScale)
-        || query.timeScale < 2
-        || query.timeScale > 12
+        !query.model ||
+        !query.scenario ||
+        !['gamma', 'peasron3'].includes(query.distribution) ||
+        !Number.isInteger(query.timeScale) ||
+        query.timeScale < 2 ||
+        query.timeScale > 12
     ) {
         flashMessage('Select valid SPI parameters.', 'error');
         return false;
@@ -1099,8 +1147,8 @@ function displayClimateProjectionSeasonalMap(options, map) {
                 );
 
                 if (
-                    $('#support-spatial-average').val()
-                    === 'gridpoint'
+                    $('#support-spatial-average').val() ===
+                    'gridpoint'
                 ) {
                     const items = getDataSpatialAverage(
                         'gridpoint',
