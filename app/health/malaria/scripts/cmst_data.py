@@ -101,7 +101,7 @@ def _get_cmst_config(params):
         'rainfall',
         'maximum_temperature',
         'minimum_temperature',
-        'relative_humidity',
+        'mean_relative_humidity',
     )
 
     for role in roles:
@@ -156,7 +156,7 @@ def health_cmst_info_data(params):
         'rainfall',
         'maximum_temperature',
         'minimum_temperature',
-        'relative_humidity',
+        'mean_relative_humidity',
     )
 
     variables = {
@@ -279,7 +279,7 @@ def _get_monthly_cmst_variable(params, role):
         data = data.where(data >= 0)
         aggr = 'sum'
 
-    elif role == 'relative_humidity':
+    elif role == 'mean_relative_humidity':
         if units not in {'%', 'percent', 'percentage'}:
             raise ValueError(
                 'Relative humidity in percent is required; '
@@ -393,7 +393,7 @@ def get_cmst_xr_data(params):
     )
 
     humidity = _get_monthly_cmst_variable(
-        params, 'relative_humidity'
+        params, 'mean_relative_humidity'
     )
 
     tmax = regrid_zarr_dataset(rainfall, tmax)

@@ -4737,6 +4737,20 @@ function expand_health_display_wasp(jsonInput, container) {
         }
     ).then(() => {
         setPlotlyThemeColors(container);
+        
+        const chartInfo = CHART_INFOS[container];
+
+        if (chartInfo && json.time.length > 0) {
+            saveChartInfo(
+                container,
+                {
+                    ...chartInfo.query,
+                    startDate: json.time[0].slice(0, 7),
+                    endDate: json.time.at(-1).slice(0, 7)
+                },
+                json
+            );
+        };
         resizePlotlyChart(container);
 
         addRangeselector(
