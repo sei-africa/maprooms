@@ -1167,3 +1167,265 @@ function displayClimateProjectionSeasonalMap(options, map) {
         map
     );
 }
+
+///////
+
+function queryParamsHealthWasp(tempRes, prefix = `${tempRes}-wasp-map`) {
+    const query = {
+        dataset: DATA_SET.use,
+        temporalRes: 'monthly',
+        variable: 'rainfall',
+        analysis: 'wasp',
+        timeScale: Number(
+            $(`#${prefix}-timescale`).val()
+        ),
+        startYear: Number(
+            $(`#${prefix}-base-start`).val()
+        ),
+        endYear: Number(
+            $(`#${prefix}-base-end`).val()
+        ),
+        minYear: Number(
+            $(`#${prefix}-base-min`).val()
+        )
+    };
+
+    const valid = (
+        Number.isInteger(query.timeScale) &&
+        query.timeScale >= 1 &&
+        query.timeScale <= 12 &&
+        Number.isInteger(query.startYear) &&
+        query.startYear >= 1 &&
+        query.startYear <= 9998 &&
+        Number.isInteger(query.endYear) &&
+        query.endYear >= query.startYear &&
+        query.endYear <= 9998 &&
+        Number.isInteger(query.minYear) &&
+        query.minYear >= 2 &&
+        query.minYear <= query.endYear - query.startYear + 1
+    );
+
+    if (!valid) {
+        flashMessage(
+            'Enter valid accumulation and calibration parameters.',
+            'error'
+        );
+        return false;
+    }
+
+    return query;
+}
+
+
+function queryParamsHealthWaspMap(tempRes) {
+    const prefix = `${tempRes}-wasp-map`;
+    const control = $(`#${prefix}-control`);
+
+    if (!control.data('waspCalendarReady')) {
+        return false;
+    }
+
+    const query = queryParamsHealthWasp(tempRes, prefix);
+
+    if (!query) {
+        return false;
+    }
+
+    const coverage = control.data('waspCoverage');
+
+    const endingMonth = String(
+        $(`#${tempRes}-map-date-calendar`).val() || ''
+    ).trim();
+
+    if (
+        !/^\d{4}-(0[1-9]|1[0-2])$/.test(endingMonth) ||
+        endingMonth < coverage.start.slice(0, 7) ||
+        endingMonth > coverage.end.slice(0, 7)
+    ) {
+        flashMessage(
+            'Select an ending month within WASP coverage.',
+            'error'
+        );
+        return false;
+    }
+
+    const beginning = new Date(
+        `${endingMonth}-01T00:00:00Z`
+    );
+
+    beginning.setUTCMonth(
+        beginning.getUTCMonth() - query.timeScale + 1
+    );
+
+    query.Date = endingMonth;
+    query.StartDate = beginning.toISOString().slice(0, 7);
+    query.comparisonStartYear = Number(
+        $(`#${prefix}-comparison-start`).val()
+    );
+
+    query.comparisonEndYear = Number(
+        $(`#${prefix}-comparison-end`).val()
+    );
+
+    query.comparisonStartMonth = Number(
+        $(`#${prefix}-comparison-month-calendar`).val()
+    );
+
+    const validBase = (
+        [
+            query.comparisonStartYear,
+            query.comparisonEndYear,
+            query.comparisonStartMonth
+        ].every(Number.isInteger) &&
+        query.comparisonStartYear >= 1 &&
+        query.comparisonEndYear >= query.comparisonStartYear &&
+        query.comparisonEndYear <= 9998 &&
+        query.comparisonStartMonth >= 1 &&
+        query.comparisonStartMonth <= 12
+    );
+
+    if (!validBase) {
+        flashMessage(
+            'Select valid base years and starting month.',
+            'error'
+        );
+        return false;
+    }
+
+    const baseMonth = String(
+        query.comparisonStartMonth
+    ).padStart(2, '0');
+
+    const firstStart = (
+        `${String(query.comparisonStartYear).padStart(4, '0')}-${baseMonth}`
+    );
+
+    const lastStart = (
+        `${String(query.comparisonEndYear).padStart(4, '0')}-${baseMonth}`
+    );
+
+    if (
+        firstStart < coverage.map_start.slice(0, 7) ||
+        lastStart > coverage.map_end.slice(0, 7)
+    ) {
+        flashMessage(
+            'Select base-year windows within rainfall coverage.',
+            'error'
+        );
+        return false;
+    }
+
+    query.colorbar = colorbarGetData();
+
+    if (!query.colorbar) {
+        return false;
+    }
+
+    return query;
+}
+
+
+function displayHealthWaspMap(tempRes, options, map) {
+    const query = queryParamsHealthWaspMap(tempRes);
+
+    if (!query) {
+        return false;
+    }
+
+    return ajaxLeafletMap(
+        createEndpoint(
+            'health_malaria',
+            'health_wasp_map'
+        ),
+        query,
+        (data, settings, targetMap) => {
+            displayRasterImage(
+                data,
+                settings,
+                targetMap
+            );
+
+            const label = $('<div>')
+                .text(data.date)
+                .html();
+
+            targetMap.displayText_date.update(
+                label.replace('; ', '<br>')
+            );
+        },
+        options,
+        map
+    );
+}
+
+///////
+function queryParamsHealthCmstMap(time_res) {
+    let query = new Object();
+
+    query.temporalRes = time_res;
+    query.dataset = DATA_SET.use;
+    query.variable = $(`#${time_res}-map-variable`).val();
+    query.mapType = $(`#${time_res}-map-type`).val();
+    query.cmstProduct = $(`#${time_res}-map-cmst-product`).val();
+
+    const tstep_id = `${time_res}-map-date`;
+    const bp_id = `${time_res}-base-period`;
+
+    let date = $(`#${tstep_id}-calendar`).val();
+    date = date === '' ? '1' : date;
+
+    query.climDate = parseInt(date, 10);
+
+    query.startYear = parseInt(
+        $(`#${bp_id}-start`).val().trim(), 10
+    );
+
+    query.endYear = parseInt(
+        $(`#${bp_id}-end`).val().trim(), 10
+    );
+
+    query.minYear = parseInt(
+        $(`#${bp_id}-min`).val().trim(), 10
+    );
+
+    const colorbar = colorbarGetData();
+
+    if (!colorbar) {
+        return false;
+    }
+
+    query.colorbar = colorbar;
+
+    return query;
+}
+
+function displayHealthCmstMap(tempRes, options, map) {
+    const query = queryParamsHealthCmstMap(tempRes);
+
+    if (!query) {
+        return false;
+    }
+
+    return ajaxLeafletMap(
+        createEndpoint(
+            'health_malaria',
+            'health_cmst_map'
+        ),
+        query,
+        (data, settings, targetMap) => {
+            displayRasterImage(
+                data,
+                settings,
+                targetMap
+            );
+
+            const label = $('<div>')
+                .text(data.date)
+                .html();
+
+            targetMap.displayText_date.update(label);
+        },
+        options,
+        map
+    );
+}

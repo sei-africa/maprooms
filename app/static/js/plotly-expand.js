@@ -4746,3 +4746,171 @@ function expand_health_display_wasp(jsonInput, container) {
         );
     });
 }
+
+///////
+
+function expand_health_cmst_query(tempRes) {
+    let query = queryParamsSpatialAverage();
+
+    if (!query) {
+        return query;
+    }
+
+    query.chartType = 'one';
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    query.variable = $(`#${tempRes}-map-variable`).val();
+    query.cmstProduct = $(`#${tempRes}-chart-cmst-variable`).val();
+
+    query.startYear = parseInt(
+        $(`#${tempRes}-chart-cmst-bp-start`).val().trim(),
+        10
+    );
+
+    query.endYear = parseInt(
+        $(`#${tempRes}-chart-cmst-bp-end`).val().trim(),
+        10
+    );
+
+    query.minYear = parseInt(
+        $(`#${tempRes}-chart-cmst-bp-min`).val().trim(),
+        10
+    );
+
+    return query;
+}
+
+
+function expand_health_cmst_charts(container_id, tempRes) {
+    const query = expand_health_cmst_query(tempRes);
+
+    if (!query) {
+        return false;
+    }
+
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        createEndpoint(
+            'health_malaria',
+            'health_cmst_series'
+        ),
+        query,
+        expand_health_display_cmst,
+        container_id
+    );
+}
+
+
+function expand_health_display_cmst(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    const theme = $('html').attr('data-bs-theme');
+
+    let xaxis_hoverformat;
+
+    if (json.info.time_res === 'monthly') {
+        xaxis_hoverformat = json.info.var.name + ': ' + '%B';
+    } else {
+        return false;
+    };
+
+    const colors = {
+        AllCondProb: '#E9967A', 
+        PcpnCondProb: '#B0C4DE',
+        TempCondProb: '#EEDD82',
+        RHCondProb: '#20B2AA'  
+    };
+
+    const data = [{
+        x: json.time,
+        y: json.values,
+        name: json.info.var.name,
+        units: json.info.var.units,
+        type: 'bar',
+        marker: {
+            color: colors[json.info.product]
+        },
+        hovertemplate:
+            '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+    }];
+
+    const variableLabel = $(
+        `#${json.info.time_res}-chart-cmst-variable`
+    ).find(`option[value="${json.info.product}"]`).text().trim();
+
+    var layout = {
+        xaxis: {
+            type: 'date',
+            fixedrange: true,
+            tickformat: '%b',
+            dtick: 'M1',
+            ticklabelmode: 'period',
+            ticks: 'outside',
+            ticklen: 8,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            griddash: 'dot',
+            hoverformat: xaxis_hoverformat,
+            showspikes: true,
+            spikemode: 'across',
+            spikecolor: plotly_themecolors[theme].fontcolor,
+            spikethickness: 2,
+            spikedash: 'solid',
+            spikesnap: 'cursor',
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            ticksuffix: '%',
+            ticks: 'outside',
+            ticklen: 8,
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            griddash: 'dot',
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            title: {
+                text: `Occurence of ${variableLabel} [${json.info.var.units}]`,
+            },
+        },
+        showlegend: false,
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme),
+    };
+
+    layout.print_legend = 'cmst';
+    layout = deepMerge(setPlotlyColors(), layout);
+    layout.width = getChartWidth(container);
+    layout.height = getChartHeight(container);
+
+    purgePlotlyChart(container);
+
+    Plotly.newPlot(
+        container,
+        data,
+        deepMerge(expand_layout, layout),
+        plotly_config
+    );
+
+    setPlotlyThemeColors(container);
+    resizePlotlyChart(container);
+}

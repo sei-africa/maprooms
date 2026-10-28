@@ -1465,9 +1465,77 @@
 
 <!--  -->
 {% macro create_map_control_health_cmst(tempRes, pageText) %}
-<div class="container">
+<div class="container" id="{{ tempRes }}-health-cmst-control">
+
+    <select id="{{ tempRes }}-map-variable" hidden>
+        {% for variable in pageText.dataset.variables %}
+        <option value="{{ variable }}">{{ variable }}</option>
+        {% endfor %}
+    </select>
+
+    <input id="{{ tempRes }}-map-type"
+           type="hidden"
+           value="climatology">
+
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">
+            {{ pageText.cmst.labels.map_shows }}
+        </legend>
+
+        <select id="{{ tempRes }}-map-cmst-product"
+                class="form-select form-select2-nosearch">
+            {% for key, label in pageText.cmst_modes.items() %}
+            <option value="{{ key }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+    </fieldset>
+
+    <fieldset id="{{ tempRes }}-cmst-month-control"
+              class="border border-secondary rounded-3">
+        <legend class="legend-label">
+            {{ pageText.cmst.labels.month }}
+        </legend>
+
+        <div id="{{ tempRes }}-map-date"></div>
+    </fieldset>
+
+    <fieldset class="border border-secondary rounded-3">
+        <legend class="legend-label">
+            {{ pageText.base_period_modal.label }}
+        </legend>
+
+        {% for suffix, label, value in [
+            (
+                "start",
+                pageText.base_period_dialog.start_year,
+                pageText.base_period.start_year
+            ),
+            (
+                "end",
+                pageText.base_period_dialog.end_year,
+                pageText.base_period.end_year
+            ),
+            (
+                "min",
+                pageText.base_period_dialog.min_year,
+                pageText.base_period.min_year
+            )
+        ] %}
+        <label for="{{ tempRes }}-base-period-{{ suffix }}"
+               class="form-label mt-2">
+            {{ label }}
+        </label>
+
+        <input id="{{ tempRes }}-base-period-{{ suffix }}"
+               class="form-control text-center"
+               type="number"
+               value="{{ value }}">
+        {% endfor %}
+    </fieldset>
+
 </div>
 {% endmacro %}
+
 <!--  -->
 {% macro create_map_control_health_ndvi(tempRes, pageText) %}
 <div class="container">
