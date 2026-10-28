@@ -1341,7 +1341,10 @@ async function setOffCanvas10DaysFcstMapControl(tempRes) {
         issuedDates,
         function(date) {
             setTendaysTargetPeriod(date).catch(error => {
-                console.error('Unable to update forecast target period:', error);
+                console.error(
+                    'Unable to update forecast target period:',
+                    error
+                );
             });
         }
     );
@@ -1350,414 +1353,34 @@ async function setOffCanvas10DaysFcstMapControl(tempRes) {
 function set10DaysFcstColorbar(variable, parameter) {
     if (variable === 'rainfall') {
         if (parameter === 'TotRain') {
-            colorbarSetDefault('precipitation_fcst_1', [1, 5, 10, 20, 30, 50, 100, 150]);
+            colorbarSetDefault(
+                'precipitation_fcst_1',
+                [1, 5, 10, 20, 30, 50, 100, 150]
+            );
         } else {
             colorbarSetDefault();
         }
     } else if (variable === 'temperature') {
-        colorbarSetDefault();
+        if (
+            ['MeanTemp', 'MinTemp', 'MaxTemp']
+            .includes(parameter)
+        ) {
+            const breaks = {
+                'MeanTemp': [6, 30, 3],
+                'MinTemp': [4, 26, 3],
+                'MaxTemp': [8, 47, 3]
+            }
+
+            const brks = breaks[parameter];
+            const levels = [];
+            for (let i = brks[0]; i < brks[1]; i += brks[2]) {
+                levels.push(i);
+            }
+            colorbarSetDefault('temperature_fcst_1', levels);
+        } else {
+            colorbarSetDefault();
+        }
     } else {
         colorbarSetDefault();
     }
-}
-
-///////
-
-function setHealthWaspControls(prefix) {
-    const parent = $(`#${prefix}-control`);
-
-    $(`.${prefix}-select2`).each(function() {
-        const select = $(this);
-
-        if (!select.hasClass('select2-hidden-accessible')) {
-            select.select2({
-                minimumResultsForSearch: -1,
-                dropdownParent: parent
-            });
-        }
-    });
-
-    const monthHolder = `${prefix}-comparison-month`;
-
-    if (
-        $(`#${monthHolder}`).length &&
-        !$(`#${monthHolder}-calendar`).length
-    ) {
-        setNamesCalendar(
-            monthHolder,
-            'monthly',
-            parent,
-            false,
-            Number(
-                $(`#${monthHolder}`).attr('data-default') || 1
-            )
-        );
-    }
-}
-
-
-function setHealthWaspDateCalendars(
-    tempRes,
-    prefix = `${tempRes}-wasp-map`,
-    resetDates = false,
-    onReady = null
-) {
-    const control = $(`#${prefix}-control`);
-    const token = {};
-
-    control.data('waspCalendarToken', token);
-    control.data('waspCalendarReady', false);
-    control.data('waspCalendarLoading', true);
-
-    const query = queryParamsHealthWasp(tempRes, prefix);
-
-    if (!query) {
-        control.data('waspCalendarLoading', false);
-
-        if (typeof onReady === 'function') {
-            onReady(false);
-        }
-
-        return false;
-    }
-
-    const key = `${query.dataset}:${query.timeScale}`;
-
-    const previousMonth = resetDates ? '' : String(
-        $(`#${tempRes}-map-date-calendar`).val() || ''
-    ).trim();
-
-    const previousStart = resetDates ? '' : String(
-        $(`#${prefix}-startdate-calendar`).val() || ''
-    ).trim();
-
-    const previousEnd = resetDates ? '' : String(
-        $(`#${prefix}-enddate-calendar`).val() || ''
-    ).trim();
-
-    function fail(error) {
-        if (control.data('waspCalendarToken') !== token) {
-            return false;
-        }
-
-        control.data('waspCalendarLoading', false);
-
-        console.error(error);
-        flashMessage(
-            error.message || 'Unable to load WASP dates.',
-            'error'
-        );
-
-        if (typeof onReady === 'function') {
-            onReady(false);
-        }
-
-        return false;
-    }
-
-    function applyCoverage(coverage) {
-        if (control.data('waspCalendarToken') !== token) {
-            return false;
-        }
-
-        try {
-            if (
-                !coverage ||
-                !['start', 'end', 'map_start', 'map_end'].every(
-                    field => typeof coverage[field] === 'string'
-                ) ||
-                !Number.isInteger(coverage.plot_start_year) ||
-                !Number.isInteger(coverage.plot_end_year)
-            ) {
-                throw new Error(
-                    'Unable to read WASP dataset dates.'
-                );
-            }
-
-            control.data('waspCoverage', coverage);
-            setHealthWaspControls(prefix);
-
-            if (prefix === `${tempRes}-wasp-map`) {
-                const first = coverage.start.slice(0, 7);
-                const last = coverage.end.slice(0, 7);
-
-                let month = /^\d{4}-(0[1-9]|1[0-2])$/
-                    .test(previousMonth)
-                    ? previousMonth
-                    : last;
-
-                month = month < first
-                    ? first
-                    : month > last ? last : month;
-
-                setDateCalendar(
-                    `${tempRes}-map-date`,
-                    coverage,
-                    query.dataset,
-                    'monthly',
-                    `${month}-01`,
-                    true,
-                    false,
-                    null,
-                    true
-                );
-
-                $(`#${tempRes}-map-date-calendar`).val(month);
-                $('#input-time-navigation').val(month);
-
-            } else {
-                [
-                    ['start', previousStart, true],
-                    ['end', previousEnd, false]
-                ].forEach(([boundary, previous, isStart]) => {
-                    let year = /^\d{4}$/.test(previous)
-                        ? Number(previous)
-                        : isStart
-                            ? coverage.plot_start_year
-                            : coverage.plot_end_year;
-
-                    year = Math.max(
-                        coverage.plot_start_year,
-                        Math.min(year, coverage.plot_end_year)
-                    );
-
-                    let date = (
-                        `${year}-${isStart ? '01' : '12'}-01`
-                    );
-
-                    date = date < coverage.start
-                        ? coverage.start
-                        : date > coverage.end
-                            ? coverage.end
-                            : date;
-
-                    setDateCalendar(
-                        `${prefix}-${boundary}date`,
-                        coverage,
-                        query.dataset,
-                        'seasonal',
-                        date,
-                        false,
-                        true,
-                        isStart,
-                        true
-                    );
-
-                    $(`#${prefix}-${boundary}date-calendar`)
-                        .val(String(year));
-                });
-            }
-
-            ['comparison-start', 'comparison-end']
-                .forEach(field => {
-                    $(`#${prefix}-${field}`).attr({
-                        min: coverage.plot_start_year,
-                        max: coverage.plot_end_year
-                    });
-                });
-
-            control.data('waspCoverageKey', key);
-            control.data('waspCalendarReady', true);
-            control.data('waspCalendarLoading', false);
-
-        } catch (error) {
-            return fail(error);
-        }
-
-        if (typeof onReady === 'function') {
-            onReady(true);
-        }
-
-        return true;
-    }
-
-    // Reuse coverage already obtained
-    const cached = [
-        control,
-        $(`#${tempRes}-wasp-map-control`),
-        $(`#${tempRes}-wasp-chart-control`)
-    ].find(item =>
-        item.data('waspCoverageKey') === key &&
-        item.data('waspCoverage')
-    );
-
-    if (cached) {
-        return applyCoverage(cached.data('waspCoverage'));
-    }
-
-    return $.ajax({
-        type: 'POST',
-        url: createEndpoint(
-            'health_malaria',
-            'health_wasp_coverage'
-        ),
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify(query),
-
-        success: json => {
-            if (control.data('waspCalendarToken') !== token) {
-                return;
-            }
-
-            if (json.status !== 0) {
-                fail(new Error(
-                    json.message || 'Unable to load WASP dates.'
-                ));
-                return;
-            }
-
-            applyCoverage(json.data);
-        },
-
-        error: (xhr, status, error) => {
-            fail(new Error(
-                xhr.responseJSON?.message ||
-                error ||
-                'Unable to load WASP dates.'
-            ));
-        }
-    });
-}
-
-
-function setOffCanvasMapControlHealthWasp(
-    tempRes,
-    onReady = null
-) {
-    const prefix = `${tempRes}-wasp-map`;
-
-    setHealthWaspControls(prefix);
-
-    setVisibility([], [
-        'div-support-spatial-average',
-        'div-list-spatial-average'
-    ]);
-
-    colorbarSetDefault(
-        'spi_colors',
-        [-3, -2, -1, 0, 1, 2, 3]
-    );
-
-    return setHealthWaspDateCalendars(
-        tempRes,
-        prefix,
-        true,
-        onReady
-    );
-}
-
-
-function setHealthWaspMapDate(tempRes, offset = null) {
-    const control = $(
-        `#${tempRes}-wasp-map-control`
-    );
-
-    if (!control.data('waspCalendarReady')) {
-        return false;
-    }
-
-    const coverage = control.data('waspCoverage');
-    const input = $(`#${tempRes}-map-date-calendar`);
-
-    let month = String(
-        offset === null
-            ? $('#input-time-navigation').val() || ''
-            : input.val() || ''
-    ).trim();
-
-    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
-        flashMessage('Select a valid ending month.', 'error');
-        return false;
-    }
-
-    if (offset !== null) {
-        const [year, number] = month.split('-').map(Number);
-
-        month = new Date(
-            Date.UTC(year, number - 1 + offset, 1)
-        ).toISOString().slice(0, 7);
-    }
-
-    const first = coverage.start.slice(0, 7);
-    const last = coverage.end.slice(0, 7);
-
-    if (offset !== null) {
-        month = month < first ? last :
-            month > last ? first : month;
-
-    } else if (month < first || month > last) {
-        flashMessage(
-            'Select an ending month within WASP coverage.',
-            'error'
-        );
-        return false;
-    }
-
-    input[0].calendar.setValue(`${month}-01`);
-    input.val(month);
-    $('#input-time-navigation').val(month);
-
-    return true;
-}
-
-///////
-
-function setOffCanvasMapControlHealthCmst(tempRes) {
-    setNamesCalendar(
-        `${tempRes}-map-date`,
-        tempRes,
-        $('#map-control-offcanvas-dataselect'),
-        true,
-        1
-    );
-
-    $(`#${tempRes}-map-variable`)
-        .off(`change.${tempRes}CmstVariable`)
-        .on(`change.${tempRes}CmstVariable`, function() {
-            refreshSpatialAverage(tempRes);
-        });
-
-    $(`#${tempRes}-map-cmst-product`)
-        .off(`change.${tempRes}CmstProduct`)
-        .on(`change.${tempRes}CmstProduct`, function() {
-            setHealthCmstProductControls(tempRes);
-        });
-
-    $(`#${tempRes}-map-variable`).trigger('change');
-    $(`#${tempRes}-map-cmst-product`).trigger('change');
-}
-
-
-function setHealthCmstProductControls(tempRes) {
-    const product = $(
-        `#${tempRes}-map-cmst-product`
-    ).val();
-
-    const annual = product === 'Annual_Sum';
-
-    $(`#${tempRes}-cmst-month-control`)
-        .toggle(!annual);
-
-    $('#div-map-time-navigation')
-        .toggleClass('d-none', annual)
-        .toggleClass('d-flex', !annual);
-
-    const breaks = annual
-        ? Array.from(
-            { length: 14 },
-            (_, index) => index - 0.5
-        )
-        : Array.from(
-            { length: 11 },
-            (_, index) => index * 10
-        );
-
-    colorbarSetDefault('viridis', breaks);
-
-    $('#map-colorbar-colors, #map-colorbar-breaks')
-        .trigger('change');
-
-    $('#colorbar-color-preset-select')
-        .trigger('change.select2');
 }
