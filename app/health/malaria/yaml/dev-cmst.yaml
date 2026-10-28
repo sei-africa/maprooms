@@ -19,13 +19,70 @@ description:
         La température, les précipitations et l'humidité relative influencent la durée de développement des moustiques et constituent également des indicateurs du développement du parasite Plasmodium au sein des moustiques vecteurs (Grover-Kopec et al., 2006).
         </p>
 
-# all about daily
+
 dataset:
-    rawdata:
-        dataset: ALL
-    dryday:
-        dataset: ALL
-    climatology:
-        dataset: ALL
-    anomaly:
-        dataset: ALL
+    use: ALL
+
+variables:
+    label:
+        en: Parameter
+        fr: Paramètre
+    select:
+        AllCondProb:
+            en: All suitable climate conditions
+            fr: Toutes les conditions climatiques favorables
+        PcpnCondProb:
+            en: Precipitation condition
+            fr: Condition de précipitations
+        TempCondProb:
+            en: Temperature condition
+            fr: Condition de température
+        RHCondProb:
+            en: Relative humidity condition
+            fr: Condition d’humidité relative
+
+cmst_modes:
+    Annual_Sum:
+        en: Number of Months suitable for Malaria Transmission
+        fr: Nombre de mois favorables à la transmission du paludisme
+    AllCondProb:
+        en: Percent Occurrence of All Three Climate Conditions in Historical Record
+        fr: Pourcentage d’occurrence simultanée des trois conditions climatiques dans les données historiques
+    PcpnCondProb:
+        en: Percent Occurrence of Precipitation Condition in Historical Record
+        fr: Pourcentage d’occurrence de la condition de précipitations dans les données historiques
+    TempCondProb:
+        en: Percent Occurrence of Temperature Condition in Historical Record
+        fr: Pourcentage d’occurrence de la condition de température dans les données historiques
+    RHCondProb:
+        en: Percent Occurrence of Relative Humidity Condition in Historical Record
+        fr: Pourcentage d’occurrence de la condition d’humidité relative dans les données historiques
+cmst:
+    labels:
+        map_shows:
+            en: Map shows
+            fr: Contenu de la carte
+        month:
+            en: Calendar month
+            fr: Mois
+
+cmst_units:
+    months:
+        en: months
+        fr: mois
+
+conditions:
+    AllCondProb:
+        en: Number of Months suitable for Malaria Transmission
+        fr: Nombre de mois favorables à la transmission du paludisme
+    PcpnCondProb:
+        en: Percent Occurrence of Precipitation Condition in Historical Record
+        fr: Pourcentage d’occurrence de la condition de précipitations dans les données historiques
+    TempCondProb:
+        en: Percent Occurrence of Temperature Condition in Historical Record
+        fr: Pourcentage d’occurrence de la condition de température dans les données historiques
+    RHCondProb:
+        en: Percent Occurrence of Relative Humidity Condition in Historical Record
+        fr: Pourcentage d’occurrence de la condition d’humidité relative dans les données historiques
+
+        

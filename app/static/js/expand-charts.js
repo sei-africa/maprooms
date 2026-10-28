@@ -1968,3 +1968,60 @@ function setChartSeasFcstTargets(tempRes, year, month, fcst_obj, expandID) {
     }
 }
 
+///////
+
+function setHealthExpandModalCmst(tempRes, contID) {
+    showModalDialog(`modal-expand-${contID}`);
+
+    expandModalCharts(
+        contID,
+        expand_health_cmst_charts,
+        tempRes,
+        '',
+        undefined,
+        alwaysFloatAxis('yaxis'),
+        makeCaseKeyResolver(
+            `${tempRes}-chart-cmst-variable`
+        ),
+        ['year']
+    );
+
+    purgePlotlyChartExpandModal(contID);
+
+    const contChart = `container-chart-${contID}`;
+
+    $(`#${tempRes}-chart-cmst-variable`)
+        .off('change.chartTsCmst')
+        .on('change.chartTsCmst', function() {
+            expand_health_cmst_charts(
+                contChart,
+                tempRes
+            );
+        });
+
+
+    $(`#plotly-replot-${contID}`)
+        .off('click.chartTsCmst')
+        .on('click.chartTsCmst', function() {
+            expand_health_cmst_charts(
+                contChart,
+                tempRes
+            );
+        });
+
+    $(`#plotly-download-${contID}`)
+        .off('click.chartTsCmst')
+        .on('click.chartTsCmst', function() {
+            downloadPlotlyImageJPG(contChart);
+        });
+
+    $(`#plotly-chart-info-${contID}`)
+        .off('click.chartTsCmst')
+        .on('click.chartTsCmst', function() {
+            openPlotlyChartInfoDialog(
+                `chart-info-expanded-${contID}`,
+                contChart,
+                $(`#modal-expand-${contID}`)
+            );
+        });
+}

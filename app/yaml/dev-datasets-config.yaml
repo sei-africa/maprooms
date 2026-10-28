@@ -7,6 +7,7 @@ datasets:
             minimum_temperature: tmin
             reference_evapotranspiration: et0
             potential_evapotranspiration: pet
+            relative_humidity: rhum
         daily:
             # compute: False
             netcdf:
@@ -64,6 +65,18 @@ datasets:
                     input: daily
                     write_zarr: True
                     dir_zarr: et0_daily
+                rhum: 
+                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/ALL/rhum_daily
+                    format: rhmean_mrg_%Y%m%d_ALL.nc
+                    name: Daily relative humidity
+                    varid: rh
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    rhum: float
+                    units: "%"
+                    missval: -99
+                    compute: False
             zarr_dir: /home/aranaivoson/ENACTS/DATA/ENACTS/ZARR/ALL
             chunks:
                 time: 1000
@@ -119,6 +132,19 @@ datasets:
                     missval: -99
                     compute: True
                     function: sum
+                    input: daily
+                    minfrac: 1
+                rhum:
+                    name: Dekadal relative humidity
+                    varid: rh
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    rhum: float
+                    units: "%"
+                    missval: -99
+                    compute: True
+                    function: mean
                     input: daily
                     minfrac: 1
             zarr_dir: /home/aranaivoson/ENACTS/DATA/ENACTS/ZARR/ALL
@@ -179,6 +205,20 @@ datasets:
                     missval: -99
                     compute: True
                     function: sum
+                    input: daily
+                    minfrac: 1
+
+                rhum:
+                    name: Monthly relative humidity
+                    varid: rh
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    rhum: float
+                    units: "%"
+                    missval: -99
+                    compute: True
+                    function: mean
                     input: daily
                     minfrac: 1
         seasonal:
@@ -550,22 +590,24 @@ soilgrids:
         lon: 50
 
 geom_layers:
-    shp_dir: /home/enacts/SHP
+    shp_dir: /home/aranaivoson/ENACTS/DATA/SHP
 
 forecast_data:
     seasonal:
         rainfall:
-            dir: /home/enacts/FORECASTS/SEASONAL_PRECIP
+            dir: /home/aranaivoson/ENACTS/DATA/FORECASTS/SEASONAL_PRECIP
             lon: "X"
             lat: "Y"
         temperature:
-            dir: /home/enacts/FORECASTS/SEASONAL_TEMP
+            dir: /home/aranaivoson/ENACTS/DATA/FORECASTS/SEASONAL_TEMP
             lon: "X"
             lat: "Y"
 
+
 climate_projection:
     netcdf_dir: /mnt/d/ASA/Data_test/NEW/CMIP6_CDS_COMBINED
-    zarr_dir: /home/aranaivoson/ENACTS/DATA/CMIP6/ZARR
+
+    zarr_dir: /home/aranaivoson/ENACTS/DATA/CMIP6/ZARR_BBOX
 
     chunks:
         time: 365

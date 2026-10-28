@@ -1310,3 +1310,76 @@ function displayHealthWaspMap(tempRes, options, map) {
         map
     );
 }
+
+///////
+function queryParamsHealthCmstMap(time_res) {
+    let query = new Object();
+
+    query.temporalRes = time_res;
+    query.dataset = DATA_SET.use;
+    query.variable = $(`#${time_res}-map-variable`).val();
+    query.mapType = $(`#${time_res}-map-type`).val();
+    query.cmstProduct = $(`#${time_res}-map-cmst-product`).val();
+
+    const tstep_id = `${time_res}-map-date`;
+    const bp_id = `${time_res}-base-period`;
+
+    let date = $(`#${tstep_id}-calendar`).val();
+    date = date === '' ? '1' : date;
+
+    query.climDate = parseInt(date, 10);
+
+    query.startYear = parseInt(
+        $(`#${bp_id}-start`).val().trim(), 10
+    );
+
+    query.endYear = parseInt(
+        $(`#${bp_id}-end`).val().trim(), 10
+    );
+
+    query.minYear = parseInt(
+        $(`#${bp_id}-min`).val().trim(), 10
+    );
+
+    const colorbar = colorbarGetData();
+
+    if (!colorbar) {
+        return false;
+    }
+
+    query.colorbar = colorbar;
+
+    return query;
+}
+
+function displayHealthCmstMap(tempRes, options, map) {
+    const query = queryParamsHealthCmstMap(tempRes);
+
+    if (!query) {
+        return false;
+    }
+
+    return ajaxLeafletMap(
+        createEndpoint(
+            'health_malaria',
+            'health_cmst_map'
+        ),
+        query,
+        (data, settings, targetMap) => {
+            displayRasterImage(
+                data,
+                settings,
+                targetMap
+            );
+
+            const label = $('<div>')
+                .text(data.date)
+                .html();
+
+            targetMap.displayText_date.update(label);
+        },
+        options,
+        map
+    );
+}
+

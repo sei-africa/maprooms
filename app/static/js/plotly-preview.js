@@ -3576,3 +3576,157 @@ function preview_health_display_wasp(json, container) {
     });
 }
 
+///////
+function preview_health_cmst_display_charts(tempRes) {
+    preview_health_cmst_charts(
+        tempRes,
+        'div-chart-cmst'
+    );
+}
+
+
+function preview_health_cmst_query(tempRes) {
+    let query = queryParamsSpatialAverage();
+
+    if (!query) {
+        return query;
+    }
+
+    query.chartType = 'one';
+    query.temporalRes = tempRes;
+    query.dataset = DATA_SET.use;
+    query.variable = $(`#${tempRes}-map-variable`).val();
+    query.cmstProduct = 'AllCondProb';
+    query.startYear = BASE_PERIOD.start_year;
+    query.endYear = BASE_PERIOD.end_year;
+    query.minYear = BASE_PERIOD.min_year;
+
+    return query;
+}
+
+
+function preview_health_cmst_charts(tempRes, contID) {
+    const query = preview_health_cmst_query(tempRes);
+
+    if (!query) {
+        return false;
+    }
+
+    if (checkQueryPointOutside(query, tempRes)) {
+        return false;
+    }
+
+    ajaxDisplayChart(
+        createEndpoint(
+            'health_malaria',
+            'health_cmst_series'
+        ),
+        query,
+        preview_health_display_cmst,
+        contID
+    );
+}
+
+
+function preview_health_display_cmst(json, container) {
+    const divCont = $(`#${container}`);
+    divCont.empty();
+
+    let xaxis_hoverformat;
+
+    if (json.info.time_res === 'monthly') {
+        xaxis_hoverformat = json.info.var.name + ': ' + '%B';
+    } else {
+        return false;
+    };
+
+    const colors = {
+        AllCondProb: '#E9967A',
+        PcpnCondProb: '#B0C4DE',
+        TempCondProb: '#EEDD82',
+        RHCondProb: '#20B2AA'
+    };
+
+    const data = [{
+        x: json.time,
+        y: json.values,
+        name: json.info.var.name,
+        units: json.info.var.units,
+        type: 'bar',
+        marker: {
+            color: colors[json.info.product]
+        },
+        hovertemplate:
+            '%{data.name}: %{y:.1f} %{data.units} <extra></extra>'
+    }];
+
+    const theme = $('html').attr('data-bs-theme');
+
+    var layout = {
+        xaxis: {
+            type: 'date',
+            fixedrange: true,
+            tickformat: '%b',
+            dtick: 'M1',
+            ticklabelmode: 'period',
+            tickangle: -45,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            griddash: 'dot',
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+            hoverformat: xaxis_hoverformat,
+            showspikes: true,
+            spikemode: 'across',
+            spikecolor: plotly_themecolors[theme].fontcolor,
+            spikethickness: 2,
+            spikedash: 'solid',
+            spikesnap: 'cursor',
+        },
+        yaxis: {
+            range: json.yrange,
+            tickvals: json.yticks,
+            ticksuffix: '%',
+            fixedrange: true,
+            showline: true,
+            showgrid: true,
+            gridwidth: 0.5,
+            griddash: 'dot',
+            gridcolor: 'lightgray',
+            minor: {
+                showgrid: true,
+                gridwidth: 0.3,
+                gridcolor: 'lightgray',
+                griddash: 'dot'
+            },
+        },
+        showlegend: false,
+        hovermode: 'x unified',
+        hoverlabel: hoverlabelColors(theme),
+    };
+
+    layout = deepMerge(setPlotlyColors(), layout);
+
+    const config = {
+        displayModeBar: false,
+        responsive: true
+    };
+
+    purgePlotlyChart(container);
+
+    Plotly.newPlot(
+        container,
+        data,
+        deepMerge(preview_layout, layout),
+        config
+    );
+
+    setPlotlyThemeColors(container);
+}
+

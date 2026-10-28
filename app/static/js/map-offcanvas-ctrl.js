@@ -1591,3 +1591,63 @@ function setHealthWaspMapDate(tempRes, offset = null) {
     return true;
 }
 
+///////
+
+function setOffCanvasMapControlHealthCmst(tempRes) {
+    setNamesCalendar(
+        `${tempRes}-map-date`,
+        tempRes,
+        $('#map-control-offcanvas-dataselect'),
+        true,
+        1
+    );
+
+    $(`#${tempRes}-map-variable`)
+        .off(`change.${tempRes}CmstVariable`)
+        .on(`change.${tempRes}CmstVariable`, function() {
+            refreshSpatialAverage(tempRes);
+        });
+
+    $(`#${tempRes}-map-cmst-product`)
+        .off(`change.${tempRes}CmstProduct`)
+        .on(`change.${tempRes}CmstProduct`, function() {
+            setHealthCmstProductControls(tempRes);
+        });
+
+    $(`#${tempRes}-map-variable`).trigger('change');
+    $(`#${tempRes}-map-cmst-product`).trigger('change');
+}
+
+
+function setHealthCmstProductControls(tempRes) {
+    const product = $(
+        `#${tempRes}-map-cmst-product`
+    ).val();
+
+    const annual = product === 'Annual_Sum';
+
+    $(`#${tempRes}-cmst-month-control`)
+        .toggle(!annual);
+
+    $('#div-map-time-navigation')
+        .toggleClass('d-none', annual)
+        .toggleClass('d-flex', !annual);
+
+    const breaks = annual
+        ? Array.from(
+            { length: 14 },
+            (_, index) => index - 0.5
+        )
+        : Array.from(
+            { length: 11 },
+            (_, index) => index * 10
+        );
+
+    colorbarSetDefault('viridis', breaks);
+
+    $('#map-colorbar-colors, #map-colorbar-breaks')
+        .trigger('change');
+
+    $('#colorbar-color-preset-select')
+        .trigger('change.select2');
+}
