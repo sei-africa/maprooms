@@ -192,7 +192,7 @@ function setOffCanvasMapControlDaily(tempRes) {
             setAnalysisMapTypeDaily(tempRes);
         });
 
-    // 
+    //
     $(`#${tempRes}-map-statistics`)
         .off(`change.${tempRes}Statistics`)
         .on(`change.${tempRes}Statistics`, function() {
@@ -646,7 +646,6 @@ function setMonitoringSeasonal(tempRes, variable) {
             setAnalysisSeasonMonths(tempRes, 'rawdata', dispText);
         });
     $(`#${tempRes}-map-date-length`).trigger('change');
-
 }
 
 function setMonitoringCalendar(tempRes, variable, dispDate = null) {
@@ -717,7 +716,6 @@ function setOffCanvasMapControlsDrmExtTemp(tempRes) {
 
         });
     $(`#${tempRes}-map-statistics`).trigger('change');
-
 }
 
 //////////////
@@ -777,7 +775,6 @@ function setOffCanvasMapControlsDrmExtRain(tempRes) {
         });
 
     $(`#${tempRes}-map-statistics`).trigger('change');
-
 }
 
 //////////////
@@ -792,7 +789,6 @@ function setOffCanvasMapControlDrmSpiAnalysis(tempRes) {
     adjustSelect2Height(`${tempRes}-map-date-length`, false);
     refreshSpatialAverage(tempRes, true);
     setMonitoringColorbar('spi_seas');
-
 }
 
 function setOffCanvasMapControlSeasonalProjection(tempRes, prefix = `${tempRes}-seasonal-proj`) {
@@ -822,7 +818,6 @@ function setOffCanvasMapControlSeasonalProjection(tempRes, prefix = `${tempRes}-
         .val(CLIMATOLOGICAL_PERIOD.length);
 }
 
-
 // function setOffCanvasMapControlSpiProjection(tempRes) {
 //     const prefix = `${tempRes}-spi-proj`;
 
@@ -847,8 +842,6 @@ function setProjectionSpiControls(prefix, sourcePrefix = null) {
         $(`#${prefix}-plot-${field}`).val(value);
     });
 }
-
-
 
 function setProjectionSpiMapMonth(prefix, month) {
     const coverage = $(`#${prefix}-gcm`).data('spiCoverage');
@@ -882,7 +875,6 @@ function setProjectionSpiMapMonth(prefix, month) {
 
     return true;
 }
-
 
 async function setProjectionSpiDateCalendars(
     tempRes,
@@ -1031,7 +1023,6 @@ async function setProjectionSpiDateCalendars(
     }
 }
 
-
 async function setOffCanvasMapControlSpiProjection(tempRes) {
     const prefix = `${tempRes}-spi-proj`;
 
@@ -1103,6 +1094,8 @@ function setOffCanvasSeasFcstMapControl(tempRes) {
             setSeasFcstProbaParsVisibility(tempRes, $(this).val());
             const this_stat = $(`#${tempRes}-flexible-proba-thres`).val();
             setSeasFcstProbaThresVisibility(tempRes, this_stat);
+            const this_var = $(`#${tempRes}-map-variable`).val();
+            setSeasFcstColorbar(this_var, $(this).val(), this_stat);
         });
     $(`#${tempRes}-flexible-parameters`).trigger('change');
 
@@ -1110,6 +1103,9 @@ function setOffCanvasSeasFcstMapControl(tempRes) {
         .off('change.seasonalForecast')
         .on('change.seasonalForecast', function() {
             setSeasFcstProbaThresVisibility(tempRes, $(this).val());
+            const this_var = $(`#${tempRes}-map-variable`).val();
+            const this_par = $(`#${tempRes}-flexible-parameters`).val();
+            setSeasFcstColorbar(this_var, this_par, $(this).val());
         });
     $(`#${tempRes}-flexible-proba-thres`).trigger('change');
 
@@ -1138,9 +1134,11 @@ function setOffCanvasSeasFcstMapControl(tempRes) {
             }
 
             const this_par = $(`#${tempRes}-flexible-parameters`).val();
-            setSeasFcstProbaParsVisibility(tempRes, this_par);
-
             const this_stat = $(`#${tempRes}-flexible-proba-thres`).val();
+
+            setSeasFcstProbaParsVisibility(tempRes, this_par);
+            setSeasFcstColorbar(this_val, this_par, this_stat);
+
             $(`#${tempRes}-flexible-proba-value-2`)
                 .val(proba_thres[this_val].value);
             $(`#${tempRes}-flexible-proba-unit-2`)
@@ -1250,345 +1248,117 @@ function setSeasFcstTargets(tempRes, year, month, fcst_obj) {
     }
 }
 
-
-///////
-
-function setHealthWaspControls(prefix) {
-    const parent = $(`#${prefix}-control`);
-
-    $(`.${prefix}-select2`).each(function() {
-        const select = $(this);
-
-        if (!select.hasClass('select2-hidden-accessible')) {
-            select.select2({
-                minimumResultsForSearch: -1,
-                dropdownParent: parent
-            });
+function setSeasFcstColorbar(variable, parameter, probathres = null) {
+    if (variable === 'rainfall') {
+        if (parameter === 'TotRain') {
+            colorbarSetDefault('precipitation_2');
+        } else if (parameter === 'AnomRain') {
+            colorbarSetDefault('anomalies_4');
+        } else if (parameter === 'probExc') {
+            if (probathres === 'percentile') {
+                colorbarSetDefault('proba_exceed_1');
+            } else {
+                colorbarSetDefault('proba_exceed_2');
+            }
+        } else if (parameter === 'probNoExc') {
+            if (probathres === 'percentile') {
+                colorbarSetDefault('proba_noexceed_1');
+            } else {
+                colorbarSetDefault('proba_noexceed_2');
+            }
+        } else {
+            colorbarSetDefault();
         }
-    });
-
-    const monthHolder = `${prefix}-comparison-month`;
-
-    if (
-        $(`#${monthHolder}`).length &&
-        !$(`#${monthHolder}-calendar`).length
-    ) {
-        setNamesCalendar(
-            monthHolder,
-            'monthly',
-            parent,
-            false,
-            Number(
-                $(`#${monthHolder}`).attr('data-default') || 1
-            )
-        );
+    } else if (variable === 'temperature') {
+        colorbarSetDefault();
+    } else {
+        colorbarSetDefault();
     }
 }
 
+//////////////
 
-function setHealthWaspDateCalendars(
-    tempRes,
-    prefix = `${tempRes}-wasp-map`,
-    resetDates = false,
-    onReady = null
-) {
-    const control = $(`#${prefix}-control`);
-    const token = {};
-
-    control.data('waspCalendarToken', token);
-    control.data('waspCalendarReady', false);
-    control.data('waspCalendarLoading', true);
-
-    const query = queryParamsHealthWasp(tempRes, prefix);
-
-    if (!query) {
-        control.data('waspCalendarLoading', false);
-
-        if (typeof onReady === 'function') {
-            onReady(false);
-        }
-
-        return false;
-    }
-
-    const key = `${query.dataset}:${query.timeScale}`;
-
-    const previousMonth = resetDates ? '' : String(
-        $(`#${tempRes}-map-date-calendar`).val() || ''
-    ).trim();
-
-    const previousStart = resetDates ? '' : String(
-        $(`#${prefix}-startdate-calendar`).val() || ''
-    ).trim();
-
-    const previousEnd = resetDates ? '' : String(
-        $(`#${prefix}-enddate-calendar`).val() || ''
-    ).trim();
-
-    function fail(error) {
-        if (control.data('waspCalendarToken') !== token) {
-            return false;
-        }
-
-        control.data('waspCalendarLoading', false);
-
-        console.error(error);
-        flashMessage(
-            error.message || 'Unable to load WASP dates.',
-            'error'
+async function setOffCanvas10DaysFcstMapControl(tempRes) {
+    async function setTendaysTargetPeriod(date) {
+        const target = await $.getJSON(
+            '/get_tendays_target_forecast', { date: date }
         );
-
-        if (typeof onReady === 'function') {
-            onReady(false);
-        }
-
-        return false;
-    }
-
-    function applyCoverage(coverage) {
-        if (control.data('waspCalendarToken') !== token) {
+        if (target.status !== 0) {
+            flashMessage(target.message, 'error');
             return false;
         }
 
-        try {
-            if (
-                !coverage ||
-                !['start', 'end', 'map_start', 'map_end'].every(
-                    field => typeof coverage[field] === 'string'
-                ) ||
-                !Number.isInteger(coverage.plot_start_year) ||
-                !Number.isInteger(coverage.plot_end_year)
-            ) {
-                throw new Error(
-                    'Unable to read WASP dataset dates.'
-                );
-            }
-
-            control.data('waspCoverage', coverage);
-            setHealthWaspControls(prefix);
-
-            if (prefix === `${tempRes}-wasp-map`) {
-                const first = coverage.start.slice(0, 7);
-                const last = coverage.end.slice(0, 7);
-
-                let month = /^\d{4}-(0[1-9]|1[0-2])$/
-                    .test(previousMonth)
-                    ? previousMonth
-                    : last;
-
-                month = month < first
-                    ? first
-                    : month > last ? last : month;
-
-                setDateCalendar(
-                    `${tempRes}-map-date`,
-                    coverage,
-                    query.dataset,
-                    'monthly',
-                    `${month}-01`,
-                    true,
-                    false,
-                    null,
-                    true
-                );
-
-                $(`#${tempRes}-map-date-calendar`).val(month);
-                $('#input-time-navigation').val(month);
-
-            } else {
-                [
-                    ['start', previousStart, true],
-                    ['end', previousEnd, false]
-                ].forEach(([boundary, previous, isStart]) => {
-                    let year = /^\d{4}$/.test(previous)
-                        ? Number(previous)
-                        : isStart
-                            ? coverage.plot_start_year
-                            : coverage.plot_end_year;
-
-                    year = Math.max(
-                        coverage.plot_start_year,
-                        Math.min(year, coverage.plot_end_year)
-                    );
-
-                    let date = (
-                        `${year}-${isStart ? '01' : '12'}-01`
-                    );
-
-                    date = date < coverage.start
-                        ? coverage.start
-                        : date > coverage.end
-                            ? coverage.end
-                            : date;
-
-                    setDateCalendar(
-                        `${prefix}-${boundary}date`,
-                        coverage,
-                        query.dataset,
-                        'seasonal',
-                        date,
-                        false,
-                        true,
-                        isStart,
-                        true
-                    );
-
-                    $(`#${prefix}-${boundary}date-calendar`)
-                        .val(String(year));
-                });
-            }
-
-            ['comparison-start', 'comparison-end']
-                .forEach(field => {
-                    $(`#${prefix}-${field}`).attr({
-                        min: coverage.plot_start_year,
-                        max: coverage.plot_end_year
-                    });
-                });
-
-            control.data('waspCoverageKey', key);
-            control.data('waspCalendarReady', true);
-            control.data('waspCalendarLoading', false);
-
-        } catch (error) {
-            return fail(error);
-        }
-
-        if (typeof onReady === 'function') {
-            onReady(true);
-        }
-
+        $(`#${tempRes}-forecast-target-start`)
+            .text(target.data.start);
+        $(`#${tempRes}-forecast-target-end`)
+            .text(target.data.end);
         return true;
     }
 
-    // Reuse coverage already obtained
-    const cached = [
-        control,
-        $(`#${tempRes}-wasp-map-control`),
-        $(`#${tempRes}-wasp-chart-control`)
-    ].find(item =>
-        item.data('waspCoverageKey') === key &&
-        item.data('waspCoverage')
-    );
+    $(`#${tempRes}-map-variable`)
+        .off('change.tendaysForecast')
+        .on('change.tendaysForecast', function() {
+            const this_val = $(this).val();
+            const fcst_pars = SEAS_FCST.parameters[this_val];
+            $(`#${tempRes}-map-parameter`).empty();
+            for (const k of SEAS_FCST.order[this_val]) {
+                $(`#${tempRes}-map-parameter`).append(
+                    $('<option>').text(fcst_pars[k]).val(k)
+                );
+            }
+            const this_par = SEAS_FCST.order[this_val][0];
+            $(`#${tempRes}-map-parameter`).val(this_par);
+            set10DaysFcstColorbar(this_val, this_par);
+        });
+    $(`#${tempRes}-map-variable`).trigger('change');
 
-    if (cached) {
-        return applyCoverage(cached.data('waspCoverage'));
+    $(`#${tempRes}-map-parameter`)
+        .off('change.tendaysForecast')
+        .on('change.tendaysForecast', function() {
+            const this_par = $(this).val();
+            const this_var = $(`#${tempRes}-map-variable`).val();
+            set10DaysFcstColorbar(this_var, this_par);
+        });
+    $(`#${tempRes}-map-parameter`).trigger('change');
+
+    const json = await $.getJSON('/get_tendays_forecasts_data');
+    if (json.status !== 0) {
+        flashMessage(json.message, 'error');
+        throw new Error(json.message);
     }
 
-    return $.ajax({
-        type: 'POST',
-        url: createEndpoint(
-            'health_malaria',
-            'health_wasp_coverage'
-        ),
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify(query),
+    const issuedDates = json.data.issued.slice().sort();
+    const latestIssuedDate = issuedDates[issuedDates.length - 1];
+    const targetIsSet = await setTendaysTargetPeriod(latestIssuedDate);
+    if (!targetIsSet) {
+        throw new Error('Unable to set the ten-day forecast target period.');
+    }
 
-        success: json => {
-            if (control.data('waspCalendarToken') !== token) {
-                return;
-            }
-
-            if (json.status !== 0) {
-                fail(new Error(
-                    json.message || 'Unable to load WASP dates.'
-                ));
-                return;
-            }
-
-            applyCoverage(json.data);
-        },
-
-        error: (xhr, status, error) => {
-            fail(new Error(
-                xhr.responseJSON?.message ||
-                error ||
-                'Unable to load WASP dates.'
-            ));
+    await new Promise(resolve => setTimeout(resolve, 100));
+    setTendaysCalendar(
+        `${tempRes}-map-date`,
+        json.data.info.temporal_coverage,
+        issuedDates,
+        function(date) {
+            setTendaysTargetPeriod(date).catch(error => {
+                console.error('Unable to update forecast target period:', error);
+            });
         }
-    });
-}
-
-
-function setOffCanvasMapControlHealthWasp(
-    tempRes,
-    onReady = null
-) {
-    const prefix = `${tempRes}-wasp-map`;
-
-    setHealthWaspControls(prefix);
-
-    setVisibility([], [
-        'div-support-spatial-average',
-        'div-list-spatial-average'
-    ]);
-
-    colorbarSetDefault(
-        'spi_colors',
-        [-3, -2, -1, 0, 1, 2, 3]
-    );
-
-    return setHealthWaspDateCalendars(
-        tempRes,
-        prefix,
-        true,
-        onReady
     );
 }
 
-
-function setHealthWaspMapDate(tempRes, offset = null) {
-    const control = $(
-        `#${tempRes}-wasp-map-control`
-    );
-
-    if (!control.data('waspCalendarReady')) {
-        return false;
+function set10DaysFcstColorbar(variable, parameter) {
+    if (variable === 'rainfall') {
+        if (parameter === 'TotRain') {
+            colorbarSetDefault('precipitation_fcst_1', [1, 5, 10, 20, 30, 50, 100, 150]);
+        } else {
+            colorbarSetDefault();
+        }
+    } else if (variable === 'temperature') {
+        colorbarSetDefault();
+    } else {
+        colorbarSetDefault();
     }
-
-    const coverage = control.data('waspCoverage');
-    const input = $(`#${tempRes}-map-date-calendar`);
-
-    let month = String(
-        offset === null
-            ? $('#input-time-navigation').val() || ''
-            : input.val() || ''
-    ).trim();
-
-    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
-        flashMessage('Select a valid ending month.', 'error');
-        return false;
-    }
-
-    if (offset !== null) {
-        const [year, number] = month.split('-').map(Number);
-
-        month = new Date(
-            Date.UTC(year, number - 1 + offset, 1)
-        ).toISOString().slice(0, 7);
-    }
-
-    const first = coverage.start.slice(0, 7);
-    const last = coverage.end.slice(0, 7);
-
-    if (offset !== null) {
-        month = month < first ? last :
-            month > last ? first : month;
-
-    } else if (month < first || month > last) {
-        flashMessage(
-            'Select an ending month within WASP coverage.',
-            'error'
-        );
-        return false;
-    }
-
-    input[0].calendar.setValue(`${month}-01`);
-    input.val(month);
-    $('#input-time-navigation').val(month);
-
-    return true;
 }
 
 ///////

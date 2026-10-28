@@ -226,7 +226,7 @@ COLORS_MAPROOM['anomalies_3'] = {
         '#1d9536',
         '#0e8023',
         '#046b14',
-        '#00570b'
+        '#00570b',
     ],
     'ext': ['#704f46', '#004505'],
 }
@@ -248,4 +248,79 @@ COLORS_MAPROOM['anomalies_4'] = {
         '#40b2b2',
     ],
     'ext': ['#a0522d', '#40b2b2'],
+}
+
+COLORS_MAPROOM['proba_exceed_1'] = {
+    'colors': [
+        '#451515',
+        '#A52A2A',
+        '#FFA500',
+        '#FFFF00',
+        '#FFE4B5',
+        '#32CD32',
+        '#40E0D0',
+        '#0000FF',
+        '#5a09b0',
+    ],
+    'ext': ['#000000', '#800080'],
+}
+
+COLORS_MAPROOM['proba_exceed_2'] = {
+    'colors': [
+        '#5a09b0',
+        '#0000FF',
+        '#87CEFA',
+        '#F0FFFF',
+        '#FFE4B5',
+        '#FFFF00',
+        '#FFA500',
+        '#FF0000',
+        '#CD5C5C',
+    ],
+    'ext': ['#800080', '#6e1a1a'],
+}
+
+COLORS_MAPROOM['proba_noexceed_1'] = {
+    'colors': [
+        '#5a09b0',
+        '#0000FF',
+        '#40E0D0',
+        '#32CD32',
+        '#FFE4B5',
+        '#FFFF00',
+        '#FFA500',
+        '#A52A2A',
+        '#451515',
+    ],
+    'ext': ['#800080', '#000000'],
+}
+
+COLORS_MAPROOM['proba_noexceed_2'] = {
+    'colors': [
+        '#CD5C5C',
+        '#FF0000',
+        '#FFA500',
+        '#FFFF00',
+        '#FFE4B5',
+        '#F0FFFF',
+        '#87CEFA',
+        '#0000FF',
+        '#5a09b0',
+    ],
+    'ext': ['#6e1a1a', '#800080'],
+}
+
+COLORS_MAPROOM['precipitation_fcst_1'] = {
+    'colors': [
+        '#d9d9d9',
+        '#ffa500',
+        '#ffff00',
+        '#caff70',
+        '#a2cd5a',
+        '#7fff00',
+        '#66cd00',
+        '#00ff00',
+        '#228b22',
+    ],
+    'ext': ['#ffffff00', '#166616'],
 }

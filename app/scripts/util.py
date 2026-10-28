@@ -1,14 +1,33 @@
 import os
+import threading
 import yaml
 import json
 import numpy as np
 
+_yaml_cache = {}
+_yaml_cache_lock = threading.RLock()
+
 def load_yaml_file(file_path):
+    """Load YAML, reusing the parsed value until the file changes.
+
+    Page rendering reads the same collection of YAML files on nearly every
+    request.  Checking stat metadata is much cheaper than repeatedly opening
+    and parsing those files, while the mtime/size key still lets admin edits
+    become visible without restarting uWSGI.
+    """
+    stat = os.stat(file_path)
+    signature = (stat.st_mtime_ns, stat.st_size)
+
+    with _yaml_cache_lock:
+        cached = _yaml_cache.get(file_path)
+        if cached is not None and cached[0] == signature:
+            return cached[1]
+
     with open(file_path, 'r', encoding='utf-8') as f:
-        try:
-            conf = yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            print(f'Error {e}')
+        conf = yaml.safe_load(f)
+
+    with _yaml_cache_lock:
+        _yaml_cache[file_path] = (signature, conf)
 
     return conf
 

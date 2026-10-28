@@ -7,10 +7,17 @@ from flask import (
 from flask import current_app as app
 import json
 
-from .scripts.forecasts_data import get_seasonal_forecast_files
+from .scripts.forecasts_data import (
+    get_seasonal_forecast_info,
+    get_tendays_forecast_info,
+    get_tendays_forecast_target
+)
 from .scripts.forecasts_seas import (
     climate_forecast_seas_data,
     climate_forecast_seas_df
+)
+from .scripts.forecasts_10days import (
+    climate_forecast_10days_data,
 )
 
 climate_forecast = Blueprint(
@@ -38,7 +45,26 @@ def get_seasonal_forecasts_data():
     variable = request.args.get('variable')
     try:
         return json.dumps(
-            get_seasonal_forecast_files(variable)
+            get_seasonal_forecast_info(variable)
+        )
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_forecast.route('/get_tendays_forecasts_data')
+def get_tendays_forecasts_data():
+    try:
+        return json.dumps(
+            get_tendays_forecast_info()
+        )
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_forecast.route('/get_tendays_target_forecast')
+def get_tendays_target_forecast():
+    date = request.args.get('date')
+    try:
+        return json.dumps(
+            get_tendays_forecast_target(date)
         )
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})
@@ -58,5 +84,14 @@ def climate_forecast_seas_proba():
     try:
         proba_data = climate_forecast_seas_df(params)
         return json.dumps(proba_data)
+    except Exception as e:
+        return json.dumps({'status': -1, 'message': str(e)})
+
+@climate_forecast.route('/climate_forecast_10days_map', methods=['POST'])
+def climate_forecast_10days_map():
+    params = request.get_json()
+    try:
+        map_data = climate_forecast_10days_data(params)
+        return json.dumps(map_data)
     except Exception as e:
         return json.dumps({'status': -1, 'message': str(e)})

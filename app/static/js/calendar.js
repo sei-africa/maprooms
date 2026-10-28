@@ -82,7 +82,8 @@ function setDateCalendar(
     mapNavigation = true,
     dispYear = false,
     isStart = null,
-    ensoData = false
+    ensoData = false,
+    onCloseCallback = null
 ) {
     let temp_cov;
     if (ensoData) {
@@ -105,6 +106,10 @@ function setDateCalendar(
         .appendTo(divCont);
 
     if (tempRes === 'weekly') {
+        cl_type = 'default';
+        cl_format = 'YYYY-MM-DD';
+        cl_slice = 10;
+    } else if (tempRes === 'tendays') {
         cl_type = 'default';
         cl_format = 'YYYY-MM-DD';
         cl_slice = 10;
@@ -209,6 +214,10 @@ function setDateCalendar(
                 $('#input-time-navigation')
                     .val(this_date.slice(0, cl_slice));
             }
+
+            if (onCloseCallback) {
+                onCloseCallback(this_date);
+            }
         }
     });
 
@@ -225,6 +234,97 @@ function setDateCalendar(
         $('#input-time-navigation')
             .val(dispDate.slice(0, cl_slice));
     }
+
+    const theme = localStorage.getItem('theme');
+    const color = theme_styles[theme].hover;
+    changeHoverColorTheme(`#${calendarID}`, color);
+}
+
+function setTendaysCalendar(
+    divContainerID,
+    tempCov,
+    issuedDates,
+    onCloseCallback = null
+) {
+    let divCont = $(`#${divContainerID}`);
+    divCont.empty();
+    const calendarID = `${divContainerID}-calendar`;
+    $('<input>', {
+            type: 'text',
+            id: calendarID
+        })
+        .addClass('form-control')
+        .appendTo(divCont);
+
+    //
+    const tStart = tempCov.start.slice(0, 10);
+    const tEnd = tempCov.end.slice(0, 10);
+    const tooltipText = `Start: ${tStart} - End: ${tEnd}`;
+
+    let tooltipInstance = bootstrap.Tooltip.getInstance(divCont[0]);
+    if (tooltipInstance) {
+        tooltipInstance._config.title = tooltipText;
+        tooltipInstance.setContent();
+    }
+
+    const months = getListOfMonthsCalendar();
+    const availableDates = issuedDates
+        .map(date => String(date).slice(0, 10))
+        .sort();
+    const enabledDates = new Set(availableDates);
+    const latestDate = availableDates[availableDates.length - 1];
+
+    const inputDateID = document.getElementById(calendarID);
+    let calendar;
+
+    function updateAvailableDates() {
+        if (!calendar) {
+            return;
+        }
+
+        const year = calendar.date[0];
+        const month = String(calendar.date[1]).padStart(2, '0');
+        const calendarElement = inputDateID.nextElementSibling;
+
+        calendarElement.querySelectorAll('.jcalendar-set-day').forEach(cell => {
+            if (!cell.textContent) {
+                return;
+            }
+
+            const day = cell.textContent.padStart(2, '0');
+            const date = `${year}-${month}-${day}`;
+            cell.classList.toggle(
+                'jcalendar-disabled', !enabledDates.has(date)
+            );
+        });
+    }
+
+    calendar = jSuites.calendar(inputDateID, {
+        type: 'default',
+        value: latestDate || tempCov.end,
+        fullscreen: false,
+        readonly: true,
+        format: 'YYYY-MM-DD',
+        months: months.short,
+        monthsFull: months.long,
+        validRange: [tempCov.start, tempCov.end],
+        onopen: function() {
+            $('.jcalendar-controls').hide();
+            $('.jcalendar-update').hide();
+            jcalendarTheme();
+            jcalendarHover();
+            updateAvailableDates();
+        },
+        onupdate: function() {
+            jcalendarHover();
+            updateAvailableDates();
+        },
+        onclose: function(el) {
+            if (onCloseCallback) {
+                onCloseCallback($(el).val());
+            }
+        }
+    });
 
     const theme = localStorage.getItem('theme');
     const color = theme_styles[theme].hover;
@@ -410,6 +510,12 @@ function getTempCoverageCalendar(dataset, tempres, variable) {
 
     const temp_coverage = info_var['temporal_coverage'];
     if (tempres === 'daily') {
+        start = temp_coverage.start;
+        end = temp_coverage.end;
+    } else if (tempres === 'weekly') {
+        start = temp_coverage.start;
+        end = temp_coverage.end;
+    } else if (tempres === 'tendays') {
         start = temp_coverage.start;
         end = temp_coverage.end;
     } else if (tempres === 'dekadal') {

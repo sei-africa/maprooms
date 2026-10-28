@@ -1,3 +1,5 @@
+var MAPROOM_COLORS_READY;
+
 $(document).ready(function() {
     const path = '/static/images/';
     $('link[rel="shortcut icon"]').attr('href', path + MTO_INIT.iconImage);
@@ -33,7 +35,7 @@ $(document).ready(function() {
     saveSpatialAverageSelect2();
 
     // add new colorscales to plotty
-    plottyAddColorScales();
+    MAPROOM_COLORS_READY = plottyAddColorScales();
 
     // change plotly language
     setPlotlyLanguage();
@@ -326,9 +328,27 @@ function setBoxDialog(dialog_id, open_id, callback = null) {
 }
 
 function displayAjaxError(jqXHR, textStatus, errorThrown) {
-    flashMessage(`${textStatus}: ${errorThrown}`, 'error');
-    var win = window.open();
-    $(win.document.body).html(jqXHR.responseText);
+    const status = jqXHR && jqXHR.status ? `HTTP ${jqXHR.status}` : textStatus;
+    const detail = errorThrown || 'The server response was incomplete.';
+    flashMessage(`${status}: ${detail}`, 'error');
+
+    const responseText = jqXHR && jqXHR.responseText;
+    if (!responseText) {
+        console.error('AJAX request failed without a complete response.', {
+            status: status,
+            error: detail
+        });
+        return;
+    }
+
+    const win = window.open('', '_blank');
+    if (win === null) {
+        // Popup blockers commonly reject window.open(). Keep the original
+        // response available in the console instead of raising another error.
+        console.error('AJAX error response:', responseText);
+        return;
+    }
+    $(win.document.body).html(responseText);
 }
 
 function ajaxLeafletMap(
@@ -387,24 +407,54 @@ function ajaxLeafletMap(
 }
 
 function ajaxGetSubdivisions() {
-    $.getJSON('/map_subdivisions_data', (json) => {
-        if (json.status !== 0) {
-            flashMessage(json.message, 'error');
-            return false;
-        }
-        ///// maproomDB.clearData('subdiv_be');
-        // maproomDB.saveData('subdiv_be', json.data);
-        SUBDIV_BE = json.data;
-    }).done(() => {
+    const cacheName = 'subdiv_be';
+    const sessionCacheKey = 'maprooms.subdivisions.loaded';
+    const navigation = performance.getEntriesByType('navigation')[0];
+    const isBrowserRefresh = navigation !== undefined ?
+        navigation.type === 'reload' :
+        performance.navigation !== undefined &&
+        performance.navigation.type === performance.navigation.TYPE_RELOAD;
+
+    const useSubdivisions = (data) => {
+        SUBDIV_BE = data;
+
         const k0 = Object.keys(LAYERS.subdivision);
-        if (LAYERS.subdivision[k0[0]].style === undefined) {
+        if (k0.length > 0 && LAYERS.subdivision[k0[0]].style === undefined) {
             addSubdivisionStyles();
         }
 
         if (MAP_BE !== undefined) {
             displaySubdivisionLayers([LAYERS.subdivision_sel[MAP_BE.maproom]]);
         }
+    };
+
+    const loadSubdivisions = () => $.getJSON('/map_subdivisions_data', (json) => {
+        if (json.status !== 0) {
+            flashMessage(json.message, 'error');
+            return false;
+        }
+
+        maproomDB.saveData(cacheName, json.data);
+        sessionStorage.setItem(sessionCacheKey, 'true');
+        useSubdivisions(json.data);
+    }).fail((xhr, status, error) => {
+        displayAjaxError(xhr, status, error);
     });
+
+    // IndexedDB persists across normal page navigation. A session marker stops
+    // old data from a previous tab session being used, while a browser refresh
+    // deliberately fetches a fresh copy as requested.
+    if (!isBrowserRefresh && sessionStorage.getItem(sessionCacheKey) === 'true') {
+        maproomDB.getData(cacheName, (data) => {
+            if (data === null) {
+                loadSubdivisions();
+            } else {
+                useSubdivisions(data);
+            }
+        });
+    } else {
+        loadSubdivisions();
+    }
 }
 
 function ajaxDisplayChart(endpoint, query, callback, container, storename = null) {
