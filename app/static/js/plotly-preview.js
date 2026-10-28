@@ -3557,6 +3557,7 @@ function preview_health_display_wasp(json, container) {
         bargap: 0.05
     };
 
+
     layout = deepMerge(setPlotlyColors(), layout);
     layout = deepMerge(preview_layout, layout);
     layout.margin.l = 40;
@@ -3573,6 +3574,20 @@ function preview_health_display_wasp(json, container) {
         }
     ).then(() => {
         setPlotlyThemeColors(container);
+
+        const chartInfo = CHART_INFOS[container];
+
+        if (chartInfo && json.time.length > 0) {
+            saveChartInfo(
+                container,
+                {
+                    ...chartInfo.query,
+                    startDate: json.time[0].slice(0, 7),
+                    endDate: json.time.at(-1).slice(0, 7)
+                },
+                json
+            );
+        }
     });
 }
 

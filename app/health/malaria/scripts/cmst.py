@@ -12,7 +12,7 @@ from app.scripts.maproom_items import (
     parse_config_yaml_file,
 )
 
-CMST_HUMIDITY_SOURCE = 'relative_humidity'
+CMST_HUMIDITY_SOURCE = 'mean_relative_humidity'
 
 # CMST_PRODUCTS = {
 #     'Annual_Sum': 'Number of suitable months',
