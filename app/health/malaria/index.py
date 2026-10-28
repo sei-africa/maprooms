@@ -22,6 +22,15 @@ from app.scripts._cache import (
     hash_pamars_clim,
 )
 
+from .scripts.cmst_data import (
+    health_cmst_info_data,
+    hash_params_cmst,
+)
+from .scripts.cmst_sp import health_cmst_sp_data
+from .scripts.cmst_ts import health_cmst_ts_data
+
+from .scripts.cmst import get_cmst_text
+
 
 health_malaria = Blueprint(
     "health_malaria",
@@ -142,4 +151,77 @@ def health_wasp_series():
             "message": str(exc),
         }
 
-        
+
+## For CMST
+@health_malaria.route(
+    '/health_cmst_info',
+    methods=['POST'],
+)
+def health_cmst_info():
+    params = request.get_json()
+
+    try:
+        return json.dumps(
+            health_cmst_info_data(params)
+        )
+
+    except Exception as e:
+        return json.dumps({
+            'status': -1,
+            'message': str(e),
+        })
+
+
+@health_malaria.route(
+    '/health_cmst_map',
+    methods=['POST'],
+)
+def health_cmst_map():
+    params = request.get_json()
+
+    try:
+        with wasp_render_lock:
+            map_data = health_cmst_sp_data(params)
+
+        return json.dumps(map_data)
+
+    except Exception as e:
+        return json.dumps({
+            'status': -1,
+            'message': str(e),
+        })
+
+
+
+@health_malaria.route(
+    '/health_cmst_series',
+    methods=['POST'],
+)
+def health_cmst_series():
+    params = request.get_json()
+
+    try:
+        result = json.loads(
+            cache_data_functions(
+                health_cmst_ts_data,
+                hash_params_cmst,
+                params,
+            )
+        )
+
+        if result['status'] == 0:
+            info = result['data']['info']
+            text = get_cmst_text()
+
+            info['var']['name'] = (
+                text['cmst_modes'][info['product']]
+            )
+
+        return json.dumps(result)
+
+    except Exception as e:
+        return json.dumps({
+            'status': -1,
+            'message': str(e),
+        })
+
