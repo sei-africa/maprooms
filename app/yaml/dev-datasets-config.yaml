@@ -1,4 +1,3 @@
-
 datasets:
     ALL:
         variables:
@@ -7,12 +6,13 @@ datasets:
             minimum_temperature: tmin
             reference_evapotranspiration: et0
             potential_evapotranspiration: pet
-            relative_humidity: rhum
+            mean_relative_humidity: rhmean
+            maximum_relative_humidity: rhmax
+            minimum_relative_humidity: rhmin
         daily:
-            # compute: False
             netcdf:
                 precip: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/ALL/rr_daily
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ALL/rr_daily
                     format: chirps-v2_%Y%m%d.nc
                     name: Daily rainfall
                     varid: precip
@@ -24,7 +24,7 @@ datasets:
                     missval: -99
                     compute: False
                 tmax: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/ALL/tmax_daily
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ALL/tmax_daily
                     format: era5_%Y%m%d.nc
                     name: Daily maximum temperature
                     varid: tmax
@@ -36,7 +36,7 @@ datasets:
                     missval: -99
                     compute: False
                 tmin: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/ALL/tmin_daily
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ALL/tmin_daily
                     format: era5_%Y%m%d.nc
                     name: Daily minimum temperature
                     varid: tmin
@@ -65,28 +65,27 @@ datasets:
                     input: daily
                     write_zarr: True
                     dir_zarr: et0_daily
-                rhum: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/ALL/rhum_daily
+                rhmean: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ALL/daily_rhmean
                     format: rhmean_mrg_%Y%m%d_ALL.nc
-                    name: Daily relative humidity
+                    name: Daily mean relative humidity
                     varid: rh
                     lon: Lon
                     lat: Lat
                     time: Time
-                    rhum: float
-                    units: "%"
+                    prec: float
+                    units: '%'
                     missval: -99
                     compute: False
-            zarr_dir: /home/aranaivoson/ENACTS/DATA/ENACTS/ZARR/ALL
+            zarr_dir: /data/maprooms/DATA/ENACTS/ZARR/ALL
             chunks:
                 time: 1000
                 lat: 50
                 lon: 50
         dekadal:
-            # compute: False
             netcdf:
                 precip: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/ALL/rr_dekadal
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ALL/rr_dekadal
                     format: chirps-v3_%Y%m%d.nc
                     name: Dekadal rainfall
                     varid: precip
@@ -98,7 +97,7 @@ datasets:
                     missval: -99
                     compute: False
                 tmax: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/ALL/tmax_dekadal
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ALL/tmax_dekadal
                     format: tmax_%Y%m%d.nc
                     name: Dekadal maximum temperature
                     varid: tmax
@@ -110,7 +109,7 @@ datasets:
                     missval: -99
                     compute: False
                 tmin: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/ALL/tmin_dekadal
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ALL/tmin_dekadal
                     format: tmin_%Y%m%d.nc
                     name: Dekadal minimum temperature
                     varid: tmin
@@ -134,26 +133,24 @@ datasets:
                     function: sum
                     input: daily
                     minfrac: 1
-                rhum:
-                    name: Dekadal relative humidity
+                rhmean: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ALL/dekadal_rhmean
+                    format: rhmean_mrg_%Y%m%d_ALL.nc
+                    name: Dekadal mean relative humidity
                     varid: rh
                     lon: Lon
                     lat: Lat
                     time: Time
-                    rhum: float
-                    units: "%"
+                    prec: float
+                    units: '%'
                     missval: -99
-                    compute: True
-                    function: mean
-                    input: daily
-                    minfrac: 1
-            zarr_dir: /home/aranaivoson/ENACTS/DATA/ENACTS/ZARR/ALL
+                    compute: False
+            zarr_dir: /data/maprooms/DATA/ENACTS/ZARR/ALL
             chunks:
                 time: 1000
                 lat: 50
                 lon: 50
         monthly:
-            # compute: True
             netcdf:
                 precip: 
                     name: Monthly rainfall
@@ -207,22 +204,20 @@ datasets:
                     function: sum
                     input: daily
                     minfrac: 1
-
-                rhum:
-                    name: Monthly relative humidity
-                    varid: rh
+                rhmean: 
+                    name: Monthly mean relative humidity
+                    varid: rhmean
                     lon: Lon
                     lat: Lat
                     time: Time
-                    rhum: float
-                    units: "%"
+                    prec: float
+                    units: '%'
                     missval: -99
                     compute: True
                     function: mean
-                    input: daily
+                    input: dekadal
                     minfrac: 1
         seasonal:
-            # compute: True
             netcdf:
                 precip: 
                     name: Seasonal rainfall
@@ -264,7 +259,6 @@ datasets:
                     input: dekadal
                     minfrac: 1
         annual:
-            # compute: True
             netcdf:
                 precip: 
                     name: Annual rainfall
@@ -305,17 +299,18 @@ datasets:
                     function: mean
                     input: dekadal
                     minfrac: 1
+
     MON:
         variables:
             rainfall: precip
             maximum_temperature: tmax
             minimum_temperature: tmin
+            mean_relative_humidity: rhmean
             reference_evapotranspiration: et0
         daily:
-            # compute: False
             netcdf:
                 precip: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/MON/rr_daily
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/MON/rr_daily
                     format: chirps-v2_%Y%m%d.nc
                     name: Daily rainfall
                     varid: precip
@@ -327,7 +322,7 @@ datasets:
                     missval: -99
                     compute: False
                 tmax: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/MON/tmax_daily
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/MON/tmax_daily
                     format: era5_%Y%m%d.nc
                     name: Daily maximum temperature
                     varid: tmax
@@ -339,7 +334,7 @@ datasets:
                     missval: -99
                     compute: False
                 tmin: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/MON/tmin_daily
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/MON/tmin_daily
                     format: era5_%Y%m%d.nc
                     name: Daily minimum temperature
                     varid: tmin
@@ -368,16 +363,27 @@ datasets:
                     input: daily
                     write_zarr: True
                     dir_zarr: et0_daily
-            zarr_dir: /home/aranaivoson/ENACTS/DATA/ENACTS/ZARR/MON
+                rhmean: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/MON/daily_rhmean
+                    format: rhmean_mrg_%Y%m%d_MON.nc
+                    name: Daily mean relative humidity
+                    varid: rh
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: '%'
+                    missval: -99
+                    compute: False
+            zarr_dir: /data/maprooms/DATA/ENACTS/ZARR/MON
             chunks:
                 time: 1000
                 lat: 50
                 lon: 50
         dekadal:
-            # compute: False
             netcdf:
                 precip: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/MON/rr_dekadal
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/MON/rr_dekadal
                     format: chirps-v3_%Y%m%d.nc
                     name: Dekadal rainfall
                     varid: precip
@@ -389,7 +395,7 @@ datasets:
                     missval: -99
                     compute: False
                 tmax: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/MON/tmax_dekadal
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/MON/tmax_dekadal
                     format: tmax_%Y%m%d.nc
                     name: Dekadal maximum temperature
                     varid: tmax
@@ -401,7 +407,7 @@ datasets:
                     missval: -99
                     compute: False
                 tmin: 
-                    dir: /home/aranaivoson/ENACTS/DATA/ENACTS/NETCDF/MON/tmin_dekadal
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/MON/tmin_dekadal
                     format: tmin_%Y%m%d.nc
                     name: Dekadal minimum temperature
                     varid: tmin
@@ -425,13 +431,24 @@ datasets:
                     function: sum
                     input: daily
                     minfrac: 1
-            zarr_dir: /home/aranaivoson/ENACTS/DATA/ENACTS/ZARR/MON
+                rhmean: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/MON/dekadal_rhmean
+                    format: rhmean_mrg_%Y%m%d_MON.nc
+                    name: Dekadal mean relative humidity
+                    varid: rh
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: '%'
+                    missval: -99
+                    compute: False
+            zarr_dir: /data/maprooms/DATA/ENACTS/ZARR/MON
             chunks:
                 time: 1000
                 lat: 50
                 lon: 50
         monthly:
-            # compute: True
             netcdf:
                 precip: 
                     name: Monthly rainfall
@@ -485,8 +502,20 @@ datasets:
                     function: sum
                     input: daily
                     minfrac: 1
+                rhmean: 
+                    name: Monthly mean relative humidity
+                    varid: rhmean
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: '%'
+                    missval: -99
+                    compute: True
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
         seasonal:
-            # compute: True
             netcdf:
                 precip: 
                     name: Seasonal rainfall
@@ -528,7 +557,6 @@ datasets:
                     input: dekadal
                     minfrac: 1
         annual:
-            # compute: True
             netcdf:
                 precip: 
                     name: Annual rainfall
@@ -569,8 +597,307 @@ datasets:
                     function: mean
                     input: dekadal
                     minfrac: 1
+
+    ADJ:
+        variables:
+            rainfall: precip
+            maximum_temperature: tmax
+            minimum_temperature: tmin
+            mean_relative_humidity: rhmean
+            reference_evapotranspiration: et0
+        daily:
+            netcdf:
+                precip: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ADJ/daily_precip
+                    format: precip_adj_%Y%m%d.nc
+                    name: Daily rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    compute: False
+                tmax: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ADJ/daily_tmax
+                    format: tmax_adj_%Y%m%d.nc
+                    name: Daily maximum temperature
+                    varid: temp
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: False
+                tmin: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ADJ/daily_tmin
+                    format: tmin_adj_%Y%m%d.nc
+                    name: Daily minimum temperature
+                    varid: temp
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: False
+                rhmean: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ADJ/daily_rhmean
+                    format: rh_adj_%Y%m%d.nc
+                    name: Daily mean relative humidity
+                    varid: rhmean
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: '%'
+                    missval: -99
+                    compute: False
+                et0: 
+                    name: Daily reference evapotranspiration 
+                    varid: et0
+                    lon: lon
+                    lat: lat
+                    time: time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    compute: True
+                    data_type: et0
+                    function: et0_hargreaves_modified
+                    input_data: [tmax, tmin, precip]
+                    # input_data: [tmax, tmin]
+                    # function: et0_hargreaves_fao
+                    input: daily
+                    write_zarr: True
+                    dir_zarr: et0_daily
+            zarr_dir: /data/maprooms/DATA/ENACTS/ZARR/ADJ
+            chunks:
+                time: 1000
+                lat: 50
+                lon: 50
+        dekadal:
+            netcdf:
+                precip: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ADJ/dekadal_precip
+                    format: precip_adj_%Y%m%d.nc
+                    name: Dekadal rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    compute: False
+                tmax: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ADJ/dekadal_tmax
+                    format: tmax_adj_%Y%m%d.nc
+                    name: Dekadal maximum temperature
+                    varid: temp
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: False
+                tmin: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ADJ/dekadal_tmin
+                    format: tmin_adj_%Y%m%d.nc
+                    name: Dekadal minimum temperature
+                    varid: temp
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: False
+                rhmean: 
+                    dir: /data/maprooms/DATA/ENACTS/NETCDF/ADJ/dekadal_rhmean
+                    format: rh_adj_%Y%m%d.nc
+                    name: Dekadal mean relative humidity
+                    varid: rhmean
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: '%'
+                    missval: -99
+                    compute: False
+                et0:
+                    name: Dekadal reference evapotranspiration
+                    varid: et0
+                    lon: lon
+                    lat: lat
+                    time: time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    compute: True
+                    function: sum
+                    input: daily
+                    minfrac: 1
+            zarr_dir: /data/maprooms/DATA/ENACTS/ZARR/ADJ
+            chunks:
+                time: 1000
+                lat: 50
+                lon: 50
+        monthly:
+            netcdf:
+                precip: 
+                    name: Monthly rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    compute: True
+                    function: sum
+                    input: dekadal
+                    minfrac: 1
+                tmax: 
+                    name: Monthly maximum temperature
+                    varid: tmax
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: True
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+                tmin: 
+                    name: Monthly minimum temperature
+                    varid: tmin
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: True
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+                rhmean: 
+                    name: Monthly mean relative humidity
+                    varid: rhmean
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: '%'
+                    missval: -99
+                    compute: True
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+                et0:
+                    name: Monthly reference evapotranspiration
+                    varid: et0
+                    lon: lon
+                    lat: lat
+                    time: time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    compute: True
+                    function: sum
+                    input: daily
+                    minfrac: 1
+        seasonal:
+            netcdf:
+                precip: 
+                    name: Seasonal rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    compute: True
+                    function: sum
+                    input: dekadal
+                    minfrac: 1
+                tmax: 
+                    name: Seasonal maximum temperature
+                    varid: tmax
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: True
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+                tmin: 
+                    name: Seasonal minimum temperature
+                    varid: tmin
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: True
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+        annual:
+            netcdf:
+                precip: 
+                    name: Annual rainfall
+                    varid: precip
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: mm
+                    missval: -99
+                    compute: True
+                    function: sum
+                    input: dekadal
+                    minfrac: 1
+                tmax: 
+                    name: Annual maximum temperature
+                    varid: tmax
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: True
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+                tmin: 
+                    name: Annual minimum temperature
+                    varid: tmin
+                    lon: Lon
+                    lat: Lat
+                    time: Time
+                    prec: float
+                    units: °C
+                    missval: -99
+                    compute: True
+                    function: mean
+                    input: dekadal
+                    minfrac: 1
+
 climatology:
-    zarr_dir: /home/aranaivoson/ENACTS/DATA/ENACTS/ZARR/CLIM
+    zarr_dir: /data/maprooms/DATA/ENACTS/ZARR/CLIM
 
 soilgrids:
     base_url: "https://files.isric.org/public/gyga/GYGA_Results"
@@ -583,27 +910,27 @@ soilgrids:
             name: tawc_agg_30cm
             file: "gyga_af_agg_30cm_tawcpf23mm__m_1km.tif"
             long_name: Absolute total available water capacity (mm), aggregated over the top 30 cm
-    files_dir: /home/aranaivoson/ENACTS/DATA/SOILGRIDS/FILES
-    zarr_dir: /home/aranaivoson/ENACTS/DATA/SOILGRIDS/ZARR
+    files_dir: /data/maprooms/DATA/SOILGRIDS/FILES
+    zarr_dir: /data/maprooms/DATA/SOILGRIDS/ZARR
     chunks:
         lat: 50
         lon: 50
 
 geom_layers:
-    shp_dir: /home/aranaivoson/ENACTS/DATA/SHP
+    shp_dir: /data/maprooms/DATA/SHP
 
 forecast_data:
     seasonal:
         rainfall:
-            dir: /home/aranaivoson/ENACTS/DATA/FORECASTS/SEASONAL_PRECIP
+            dir: /data/maprooms/DATA/FORECASTS/SEASONAL_PRECIP
             lon: "X"
             lat: "Y"
         temperature:
-            dir: /home/aranaivoson/ENACTS/DATA/FORECASTS/SEASONAL_TEMP
+            dir: /data/maprooms/DATA/FORECASTS/SEASONAL_TEMP
             lon: "X"
             lat: "Y"
     tendays:
-        dir: /home/enacts/FORECASTS/TEN_DAYS
+        dir: /data/maprooms/DATA/FORECASTS/TEN_DAYS
         dimname:
             lon: lon
             lat: lat
@@ -611,9 +938,9 @@ forecast_data:
 
 
 climate_projection:
-    netcdf_dir: /mnt/d/ASA/Data_test/NEW/CMIP6_CDS_COMBINED
+    netcdf_dir: /data/maprooms/DATA/CMIP6_CDS_COMBINED
 
-    zarr_dir: /home/aranaivoson/ENACTS/DATA/CMIP6/ZARR_BBOX
+    zarr_dir: /data/maprooms/DATA/CMIP6/ZARR_BBOX
 
     chunks:
         time: 365
