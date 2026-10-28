@@ -324,3 +324,22 @@ COLORS_MAPROOM['precipitation_fcst_1'] = {
     ],
     'ext': ['#ffffff00', '#166616'],
 }
+
+COLORS_MAPROOM['temperature_fcst_1'] = {
+    'colors': [
+        '#1503fb',
+        '#2f50e8',
+        '#2d7bf2',
+        '#11a1ff',
+        '#28bff9',
+        '#95d1ef',
+        '#ffffc8',
+        '#ffe646',
+        '#ffba0e',
+        '#ff8700',
+        '#ff3d00',
+        '#ef0000',
+        '#cf1313',
+    ],
+    'ext': ['#801fef', '#ffb1b1'],
+}

@@ -1341,7 +1341,10 @@ async function setOffCanvas10DaysFcstMapControl(tempRes) {
         issuedDates,
         function(date) {
             setTendaysTargetPeriod(date).catch(error => {
-                console.error('Unable to update forecast target period:', error);
+                console.error(
+                    'Unable to update forecast target period:',
+                    error
+                );
             });
         }
     );
@@ -1350,12 +1353,33 @@ async function setOffCanvas10DaysFcstMapControl(tempRes) {
 function set10DaysFcstColorbar(variable, parameter) {
     if (variable === 'rainfall') {
         if (parameter === 'TotRain') {
-            colorbarSetDefault('precipitation_fcst_1', [1, 5, 10, 20, 30, 50, 100, 150]);
+            colorbarSetDefault(
+                'precipitation_fcst_1',
+                [1, 5, 10, 20, 30, 50, 100, 150]
+            );
         } else {
             colorbarSetDefault();
         }
     } else if (variable === 'temperature') {
-        colorbarSetDefault();
+        if (
+            ['MeanTemp', 'MinTemp', 'MaxTemp']
+            .includes(parameter)
+        ) {
+            const breaks = {
+                'MeanTemp': [6, 30, 3],
+                'MinTemp': [4, 26, 3],
+                'MaxTemp': [8, 47, 3]
+            }
+
+            const brks = breaks[parameter];
+            const levels = [];
+            for (let i = brks[0]; i < brks[1]; i += brks[2]) {
+                levels.push(i);
+            }
+            colorbarSetDefault('temperature_fcst_1', levels);
+        } else {
+            colorbarSetDefault();
+        }
     } else {
         colorbarSetDefault();
     }
