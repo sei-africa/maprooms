@@ -1505,13 +1505,13 @@ function setHealthWaspDateCalendars(
                 const last = coverage.end.slice(0, 7);
 
                 let month = /^\d{4}-(0[1-9]|1[0-2])$/
-                    .test(previousMonth)
-                    ? previousMonth
-                    : last;
+                    .test(previousMonth) ?
+                    previousMonth :
+                    last;
 
-                month = month < first
-                    ? first
-                    : month > last ? last : month;
+                month = month < first ?
+                    first :
+                    month > last ? last : month;
 
                 setDateCalendar(
                     `${tempRes}-map-date`,
@@ -1533,11 +1533,11 @@ function setHealthWaspDateCalendars(
                     ['start', previousStart, true],
                     ['end', previousEnd, false]
                 ].forEach(([boundary, previous, isStart]) => {
-                    let year = /^\d{4}$/.test(previous)
-                        ? Number(previous)
-                        : isStart
-                            ? coverage.plot_start_year
-                            : coverage.plot_end_year;
+                    let year = /^\d{4}$/.test(previous) ?
+                        Number(previous) :
+                        isStart ?
+                        coverage.plot_start_year :
+                        coverage.plot_end_year;
 
                     year = Math.max(
                         coverage.plot_start_year,
@@ -1548,11 +1548,11 @@ function setHealthWaspDateCalendars(
                         `${year}-${isStart ? '01' : '12'}-01`
                     );
 
-                    date = date < coverage.start
-                        ? coverage.start
-                        : date > coverage.end
-                            ? coverage.end
-                            : date;
+                    date = date < coverage.start ?
+                        coverage.start :
+                        date > coverage.end ?
+                        coverage.end :
+                        date;
 
                     setDateCalendar(
                         `${prefix}-${boundary}date`,
@@ -1572,12 +1572,12 @@ function setHealthWaspDateCalendars(
             }
 
             ['comparison-start', 'comparison-end']
-                .forEach(field => {
-                    $(`#${prefix}-${field}`).attr({
-                        min: coverage.plot_start_year,
-                        max: coverage.plot_end_year
-                    });
+            .forEach(field => {
+                $(`#${prefix}-${field}`).attr({
+                    min: coverage.plot_start_year,
+                    max: coverage.plot_end_year
                 });
+            });
 
             control.data('waspCoverageKey', key);
             control.data('waspCalendarReady', true);
@@ -1608,6 +1608,7 @@ function setHealthWaspDateCalendars(
         return applyCoverage(cached.data('waspCoverage'));
     }
 
+    /* beautify preserve:start */
     return $.ajax({
         type: 'POST',
         url: createEndpoint(
@@ -1632,7 +1633,6 @@ function setHealthWaspDateCalendars(
 
             applyCoverage(json.data);
         },
-
         error: (xhr, status, error) => {
             fail(new Error(
                 xhr.responseJSON?.message ||
@@ -1641,6 +1641,7 @@ function setHealthWaspDateCalendars(
             ));
         }
     });
+    /* beautify preserve:end */
 }
 
 
@@ -1684,9 +1685,9 @@ function setHealthWaspMapDate(tempRes, offset = null) {
     const input = $(`#${tempRes}-map-date-calendar`);
 
     let month = String(
-        offset === null
-            ? $('#input-time-navigation').val() || ''
-            : input.val() || ''
+        offset === null ?
+        $('#input-time-navigation').val() || '' :
+        input.val() || ''
     ).trim();
 
     if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) {
@@ -1766,22 +1767,14 @@ function setHealthCmstProductControls(tempRes) {
         .toggleClass('d-none', annual)
         .toggleClass('d-flex', !annual);
 
-    const breaks = annual
-        ? Array.from(
-            { length: 14 },
+    const breaks = annual ?
+        Array.from({ length: 14 },
             (_, index) => index - 0.5
-        )
-        : Array.from(
-            { length: 11 },
+        ) :
+        Array.from({ length: 11 },
             (_, index) => index * 10
         );
+    const colors = annual ? 'cmst_colors' : 'viridis';
 
-    colorbarSetDefault('viridis', breaks);
-
-    $('#map-colorbar-colors, #map-colorbar-breaks')
-        .trigger('change');
-
-    $('#colorbar-color-preset-select')
-        .trigger('change.select2');
+    colorbarSetDefault(colors, breaks);
 }
-

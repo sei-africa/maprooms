@@ -343,3 +343,22 @@ COLORS_MAPROOM['temperature_fcst_1'] = {
     ],
     'ext': ['#801fef', '#ffb1b1'],
 }
+
+COLORS_MAPROOM['cmst_colors'] = {
+    'colors': [
+        '#ffffff',
+        '#4682B4',
+        '#000080',
+        '#14713D',
+        '#2E8B57',
+        '#3CB371',
+        '#8FBC8F',
+        '#FFFF00',
+        '#FFD700',
+        '#DAA520',
+        '#F4A460',
+        '#D2691E',
+        '#B22222',
+    ],
+    'ext': ['#ffffff00', '#5c0f0f'],
+}

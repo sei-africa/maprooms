@@ -19,9 +19,13 @@ description:
         La température, les précipitations et l'humidité relative influencent la durée de développement des moustiques et constituent également des indicateurs du développement du parasite Plasmodium au sein des moustiques vecteurs (Grover-Kopec et al., 2006).
         </p>
 
-
 dataset:
     use: ALL
+    variables:
+        AllCondProb: [precip, tmin, tmax, rhmean]
+        PcpnCondProb: [precip]
+        TempCondProb: [tmin, tmax]
+        RHCondProb: [rhmean]
 
 variables:
     label:
@@ -84,5 +88,3 @@ conditions:
     RHCondProb:
         en: Percent Occurrence of Relative Humidity Condition in Historical Record
         fr: Pourcentage d’occurrence de la condition d’humidité relative dans les données historiques
-
-        

@@ -1272,270 +1272,166 @@
     </fieldset>
 </div>
 {% endmacro %}
-
 <!--  -->
-
 {% macro create_map_control_health_wasp(tempRes, pageText, prefix=none, include_map=true) %}
 {% set prefix = prefix or tempRes ~ '-wasp-map' %}
 {% set labels = pageText.wasp.labels %}
 {% set calibration = pageText.wasp.calibration %}
 {% set comparison = pageText.wasp.comparison %}
-
 <div class="container" id="{{ prefix }}-control">
-
-   {# {% if include_map %} #}
+    {# {% if include_map %} #}
     <select id="{{ tempRes }}-map-variable" hidden>
         <option value="rainfall" selected>Rainfall</option>
     </select>
-   {# {% endif %}  #}
-
+    {# {% endif %} #}
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ labels.accumulation }}
         </legend>
-
-        <select id="{{ prefix }}-timescale"
-                class="form-select {{ prefix }}-select2"
-                style="width: 50%;">
+        <select id="{{ prefix }}-timescale" class="form-select {{ prefix }}-select2" style="width: 50%;">
             {% for length in pageText.wasp.scales %}
-            <option value="{{ length }}"
-                    {% if length == pageText.wasp.default_scale %}
-                    selected
-                    {% endif %}>
+            <option value="{{ length }}" {% if length==pageText.wasp.default_scale %} selected {% endif %}>
                 {{ length }} {{ labels.months }}
             </option>
             {% endfor %}
         </select>
     </fieldset>
-   <div class="d-flex flex-wrap align-items-start gap-2 w-100">
-        <fieldset class="border border-secondary rounded-3 py-1"
-                  style="width: 26rem; max-width: 100%; min-width: 0;">
-
+    <div class="d-flex flex-wrap align-items-start gap-2 w-100">
+        <fieldset class="border border-secondary rounded-3 py-1" style="width: 26rem; max-width: 100%; min-width: 0;">
             <legend class="legend-label">
                 {{ labels.comparison_baseline }}
             </legend>
-
             <div class="row g-2 align-items-end">
-
                 <div class="col-auto">
-                    <label for="{{ prefix }}-comparison-start"
-                           class="d-block small mb-1">
+                    <label for="{{ prefix }}-comparison-start" class="d-block small mb-1">
                         {{ labels.start_year }}
                     </label>
-
-                    <input id="{{ prefix }}-comparison-start"
-                           type="number"
-                           step="1"
-                           class="form-control text-center"
-                           value="{{ comparison.start_year }}"
-                           style="width: 6em;">
+                    <input id="{{ prefix }}-comparison-start" type="number" step="1" class="form-control text-center" value="{{ comparison.start_year }}" style="width: 6em;">
                 </div>
-
                 <div class="col-auto">
-                    <label for="{{ prefix }}-comparison-end"
-                           class="d-block small mb-1">
+                    <label for="{{ prefix }}-comparison-end" class="d-block small mb-1">
                         {{ labels.end_year }}
                     </label>
-
-                    <input id="{{ prefix }}-comparison-end"
-                           type="number"
-                           step="1"
-                           class="form-control text-center"
-                           value="{{ comparison.end_year }}"
-                           style="width: 6em;">
+                    <input id="{{ prefix }}-comparison-end" type="number" step="1" class="form-control text-center" value="{{ comparison.end_year }}" style="width: 6em;">
                 </div>
-
-                <div class="col-auto"
-                     style="width: 11em; max-width: 100%;">
-
-                    <label for="{{ prefix }}-comparison-month-calendar"
-                           class="d-block small mb-1">
+                <div class="col-auto" style="width: 11em; max-width: 100%;">
+                    <label for="{{ prefix }}-comparison-month-calendar" class="d-block small mb-1">
                         {{ labels.comparison_start_month }}
                     </label>
-
-                    <div id="{{ prefix }}-comparison-month"
-                         data-default="{{ comparison.start_month }}"
-                         style="width: 100%;">
+                    <div id="{{ prefix }}-comparison-month" data-default="{{ comparison.start_month }}" style="width: 100%;">
                     </div>
                 </div>
-
             </div>
         </fieldset>
-
-       {# <fieldset class="border border-secondary rounded-3 py-1"
-                  style="width: 16rem; max-width: 100%; min-width: 0;">
-
+        {# <fieldset class="border border-secondary rounded-3 py-1" style="width: 16rem; max-width: 100%; min-width: 0;">
             <legend class="legend-label">
                 {{ labels.chart_period }}
             </legend>
-
             <div class="row g-2 align-items-end">
-
                 <div class="col-auto">
-                    <label for="{{ prefix }}-startdate-calendar"
-                           class="d-block small mb-1">
+                    <label for="{{ prefix }}-startdate-calendar" class="d-block small mb-1">
                         {{ labels.start_year }}
                     </label>
-
-                    <div id="{{ prefix }}-startdate"
-                         data-bs-toggle="tooltip"
-                         data-bs-placement="top"
-                         data-bs-title="{{ labels.start_year }}"
-                         style="width: 6em;">
+                    <div id="{{ prefix }}-startdate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ labels.start_year }}" style="width: 6em;">
                     </div>
                 </div>
-
                 <div class="col-auto">
-                    <label for="{{ prefix }}-enddate-calendar"
-                           class="d-block small mb-1">
+                    <label for="{{ prefix }}-enddate-calendar" class="d-block small mb-1">
                         {{ labels.end_year }}
                     </label>
-
-                    <div id="{{ prefix }}-enddate"
-                         data-bs-toggle="tooltip"
-                         data-bs-placement="top"
-                         data-bs-title="{{ labels.end_year }}"
-                         style="width: 6em;">
+                    <div id="{{ prefix }}-enddate" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ labels.end_year }}" style="width: 6em;">
                     </div>
                 </div>
-
             </div>
         </fieldset> #}
-
     </div>
-
     {% if include_map %}
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ labels.ending_month }}
         </legend>
-
-        <div id="{{ tempRes }}-map-date"
-             data-bs-toggle="tooltip"
-             data-bs-placement="top"
-             data-bs-title="{{ labels.ending_month }}">
+        <div id="{{ tempRes }}-map-date" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ labels.ending_month }}">
         </div>
     </fieldset>
     {% endif %}
-
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ labels.calibration }}
         </legend>
-
         <div class="row gx-1">
             <div class="col-md-4">
                 <label for="{{ prefix }}-base-start">
                     {{ labels.start_year }}
                 </label>
-
-                <input id="{{ prefix }}-base-start"
-                       type="number"
-                       class="form-control text-center"
-                       value="{{ calibration.start_year }}">
+                <input id="{{ prefix }}-base-start" type="number" class="form-control text-center" value="{{ calibration.start_year }}">
             </div>
-
             <div class="col-6">
                 <label for="{{ prefix }}-base-end">
                     {{ labels.end_year }}
                 </label>
-
-                <input id="{{ prefix }}-base-end"
-                       type="number"
-                       class="form-control text-center"
-                       value="{{ calibration.end_year }}">
+                <input id="{{ prefix }}-base-end" type="number" class="form-control text-center" value="{{ calibration.end_year }}">
             </div>
-
             <div class="col-12">
                 <label for="{{ prefix }}-base-min">
                     {{ labels.minimum_years }}
                 </label>
-
-                <input id="{{ prefix }}-base-min"
-                       type="number"
-                       class="form-control text-center"
-                       value="{{ calibration.minimum_years }}">
+                <input id="{{ prefix }}-base-min" type="number" class="form-control text-center" value="{{ calibration.minimum_years }}">
             </div>
         </div>
     </fieldset>
-
 </div>
 {% endmacro %}
-
-
 <!--  -->
 {% macro create_map_control_health_cmst(tempRes, pageText) %}
 <div class="container" id="{{ tempRes }}-health-cmst-control">
-
     <select id="{{ tempRes }}-map-variable" hidden>
         {% for variable in pageText.dataset.variables %}
         <option value="{{ variable }}">{{ variable }}</option>
         {% endfor %}
     </select>
-
-    <input id="{{ tempRes }}-map-type"
-           type="hidden"
-           value="climatology">
-
+    <input id="{{ tempRes }}-map-type" type="hidden" value="climatology">
     <fieldset class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.cmst.labels.map_shows }}
         </legend>
-
-        <select id="{{ tempRes }}-map-cmst-product"
-                class="form-select form-select2-nosearch">
+        <select id="{{ tempRes }}-map-cmst-product" class="form-select form-select2-nosearch">
             {% for key, label in pageText.cmst_modes.items() %}
             <option value="{{ key }}">{{ label }}</option>
             {% endfor %}
         </select>
     </fieldset>
-
-    <fieldset id="{{ tempRes }}-cmst-month-control"
-              class="border border-secondary rounded-3">
+    <fieldset id="{{ tempRes }}-cmst-month-control" class="border border-secondary rounded-3">
         <legend class="legend-label">
             {{ pageText.cmst.labels.month }}
         </legend>
-
         <div id="{{ tempRes }}-map-date"></div>
     </fieldset>
-
-    <fieldset class="border border-secondary rounded-3">
-        <legend class="legend-label">
-            {{ pageText.base_period_modal.label }}
-        </legend>
-
-        {% for suffix, label, value in [
-            (
-                "start",
-                pageText.base_period_dialog.start_year,
-                pageText.base_period.start_year
-            ),
-            (
-                "end",
-                pageText.base_period_dialog.end_year,
-                pageText.base_period.end_year
-            ),
-            (
-                "min",
-                pageText.base_period_dialog.min_year,
-                pageText.base_period.min_year
-            )
-        ] %}
-        <label for="{{ tempRes }}-base-period-{{ suffix }}"
-               class="form-label mt-2">
-            {{ label }}
-        </label>
-
-        <input id="{{ tempRes }}-base-period-{{ suffix }}"
-               class="form-control text-center"
-               type="number"
-               value="{{ value }}">
-        {% endfor %}
-    </fieldset>
-
+    <fieldset id="div-{{ tstepID }}-climato-years" class="border border-secondary rounded-3">
+        <legend class="legend-label">{{ pageText.base_period_modal.label }}</legend>
+        <div class="row gx-1">
+            <div class="col-md-3 d-flex justify-content-end align-items-center text-end">
+                {{ pageText.base_period_dialog.start_year }}
+            </div>
+            <div class="col-md-3">
+                <input id="{{ tempRes }}-base-period-start" class="form-control text-center" type="number" value="{{ pageText.base_period.start_year }}">
+            </div>
+            <div class="col-md-3 d-flex justify-content-end align-items-center  text-end">
+                {{ pageText.base_period_dialog.end_year }}
+            </div>
+            <div class="col-md-3">
+                <input id="{{ tempRes }}-base-period-end" class="form-control text-center" type="number" value="{{ pageText.base_period.end_year }}">
+            </div>
+        </div>
+        <div class="row gx-1 mt-1">
+            <div class="col-md-9 d-flex text-nowrap justify-content-end align-items-center text-end">
+                {{ pageText.base_period_dialog.min_year }}
+            </div>
+            <div class="col-md-3">
+                <input id="{{ tempRes }}-base-period-min" class="form-control text-center" type="number" value="{{ pageText.base_period.min_year }}">
+            </div>
+        </div>
 </div>
 {% endmacro %}
-
 <!--  -->
 {% macro create_map_control_health_ndvi(tempRes, pageText) %}
 <div class="container">
