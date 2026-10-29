@@ -1390,7 +1390,7 @@ function set10DaysFcstColorbar(variable, parameter) {
                 -6, -4.5, -3.5, -2.5, -1.5, -0.5,
                 0.5, 1.5, 2.5, 3.5, 4.5, 6
             ];
-            colorbarSetDefault('anomalies_2', levels);
+            colorbarSetDefault('anomalies_1r', levels);
         } else {
             colorbarSetDefault();
         }
