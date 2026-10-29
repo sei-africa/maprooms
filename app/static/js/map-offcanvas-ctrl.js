@@ -1295,23 +1295,6 @@ async function setOffCanvas10DaysFcstMapControl(tempRes) {
         return true;
     }
 
-    $(`#${tempRes}-map-variable`)
-        .off('change.tendaysForecast')
-        .on('change.tendaysForecast', function() {
-            const this_val = $(this).val();
-            const fcst_pars = SEAS_FCST.parameters[this_val];
-            $(`#${tempRes}-map-parameter`).empty();
-            for (const k of SEAS_FCST.order[this_val]) {
-                $(`#${tempRes}-map-parameter`).append(
-                    $('<option>').text(fcst_pars[k]).val(k)
-                );
-            }
-            const this_par = SEAS_FCST.order[this_val][0];
-            $(`#${tempRes}-map-parameter`).val(this_par);
-            set10DaysFcstColorbar(this_val, this_par);
-        });
-    $(`#${tempRes}-map-variable`).trigger('change');
-
     $(`#${tempRes}-map-parameter`)
         .off('change.tendaysForecast')
         .on('change.tendaysForecast', function() {
@@ -1319,7 +1302,24 @@ async function setOffCanvas10DaysFcstMapControl(tempRes) {
             const this_var = $(`#${tempRes}-map-variable`).val();
             set10DaysFcstColorbar(this_var, this_par);
         });
-    $(`#${tempRes}-map-parameter`).trigger('change');
+
+    $(`#${tempRes}-map-variable`)
+        .off('change.tendaysForecast')
+        .on('change.tendaysForecast', function() {
+            const this_val = $(this).val();
+            const fcst_pars = SEAS_FCST.parameters[this_val];
+            const parameterSelect = $(`#${tempRes}-map-parameter`);
+            parameterSelect.empty();
+            for (const k of SEAS_FCST.order[this_val]) {
+                parameterSelect.append(
+                    $('<option>').text(fcst_pars[k]).val(k)
+                );
+            }
+            parameterSelect
+                .val(SEAS_FCST.order[this_val][0])
+                .trigger('change');
+        });
+    $(`#${tempRes}-map-variable`).trigger('change');
 
     const json = await $.getJSON('/get_tendays_forecasts_data');
     if (json.status !== 0) {
@@ -1357,6 +1357,14 @@ function set10DaysFcstColorbar(variable, parameter) {
                 'precipitation_fcst_1',
                 [1, 5, 10, 20, 30, 50, 100, 150]
             );
+        } else if (parameter === 'AnomRain') {
+            const levels = [
+                -300, -200, -150, -100, -50, -20, -10,
+                10, 20, 50, 100, 200, 300
+            ];
+            colorbarSetDefault('anomalies_4', levels);
+        } else if (parameter === 'HeavyRain') {
+            colorbarSetDefault();
         } else {
             colorbarSetDefault();
         }
@@ -1369,7 +1377,7 @@ function set10DaysFcstColorbar(variable, parameter) {
                 'MeanTemp': [6, 30, 3],
                 'MinTemp': [4, 26, 3],
                 'MaxTemp': [8, 47, 3]
-            }
+            };
 
             const brks = breaks[parameter];
             const levels = [];
@@ -1377,6 +1385,12 @@ function set10DaysFcstColorbar(variable, parameter) {
                 levels.push(i);
             }
             colorbarSetDefault('temperature_fcst_1', levels);
+        } else if (parameter === 'AnomTemp') {
+            const levels = [
+                -6, -4.5, -3.5, -2.5, -1.5, -0.5,
+                0.5, 1.5, 2.5, 3.5, 4.5, 6
+            ];
+            colorbarSetDefault('anomalies_2', levels);
         } else {
             colorbarSetDefault();
         }

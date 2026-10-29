@@ -11,6 +11,23 @@ from ._colors import COLORS_MAPROOM
 
 plt.switch_backend('Agg')
 
+_WEB_MERCATOR_MAX_LAT = 85.0511287798066
+
+
+def _web_mercator_y(latitude):
+    """Return dimensionless Web-Mercator Y for latitude in degrees."""
+    latitude = np.clip(
+        np.asarray(latitude, dtype=float),
+        -_WEB_MERCATOR_MAX_LAT,
+        _WEB_MERCATOR_MAX_LAT
+    )
+    radians = np.deg2rad(latitude)
+    return np.log(np.tan(np.pi / 4 + radians / 2))
+
+
+def _latitude_from_web_mercator_y(y):
+    return np.rad2deg(2 * np.arctan(np.exp(y)) - np.pi / 2)
+
 def render_image_png(
     plt,
     transparent=True,
@@ -50,7 +67,10 @@ def create_imagePng(
     color_name='rainbow',
     colors_ext=None
 ):
-    lon, lat = np.meshgrid(data['lon'], data['lat'])
+    # Leaflet lays image rows out linearly in Web-Mercator Y. Rendering the
+    # PNG with the same Y coordinate prevents north/south displacement when
+    # the raster covers a much larger latitude range than the visible data.
+    lon, lat = np.meshgrid(data['lon'], _web_mercator_y(data['lat']))
     data = np.squeeze(data['data'])
 
     if hasattr(data, 'mask'):
@@ -132,8 +152,8 @@ def create_imagePng(
     #           [bbox[2].item(), bbox[1].item()]]
     x_min, x_max = ax.get_xlim()
     y_min, y_max = ax.get_ylim()
-    bounds = [[y_max.item(), x_min.item()],
-              [y_min.item(), x_max.item()]]
+    bounds = [[_latitude_from_web_mercator_y(y_max).item(), x_min.item()],
+              [_latitude_from_web_mercator_y(y_min).item(), x_max.item()]]
     ax.axis('off')
 
     img_png = render_image_png(plt)
@@ -222,7 +242,7 @@ def terciles_imagePng(data, breaks=None, colors=None):
         norm = mcolors.BoundaryNorm(breaks, cmap.N, clip=True)
         ax.pcolormesh(
             data['lon'],
-            data['lat'],
+            _web_mercator_y(data['lat']),
             field,
             cmap=cmap,
             norm=norm,
@@ -232,8 +252,8 @@ def terciles_imagePng(data, breaks=None, colors=None):
 
     x_min, x_max = ax.get_xlim()
     y_min, y_max = ax.get_ylim()
-    bounds = [[y_max.item(), x_min.item()],
-              [y_min.item(), x_max.item()]]
+    bounds = [[_latitude_from_web_mercator_y(y_max).item(), x_min.item()],
+              [_latitude_from_web_mercator_y(y_min).item(), x_max.item()]]
     ax.axis('off')
 
     img_png = render_image_png(plt)
@@ -291,7 +311,7 @@ def extremes_imagePng(data, categories, labels, colors=None):
         cmap = mcolors.ListedColormap(colors[name])
         ax.pcolormesh(
             data['lon'],
-            data['lat'],
+            _web_mercator_y(data['lat']),
             mask,
             shading='nearest',
             cmap=cmap,
@@ -303,8 +323,8 @@ def extremes_imagePng(data, categories, labels, colors=None):
 
     x_min, x_max = ax.get_xlim()
     y_min, y_max = ax.get_ylim()
-    bounds = [[y_max.item(), x_min.item()],
-              [y_min.item(), x_max.item()]]
+    bounds = [[_latitude_from_web_mercator_y(y_max).item(), x_min.item()],
+              [_latitude_from_web_mercator_y(y_min).item(), x_max.item()]]
     ax.axis('off')
 
     img_png = render_image_png(plt)
