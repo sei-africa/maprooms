@@ -4,7 +4,10 @@ import xarray as xr
 from app.scripts._global import GLOBAL_CONFIG
 
 from app.scripts.colorbar import check_invalid_colors
-from app.scripts.imagepng import create_imagePng
+from app.scripts.imagepng import (
+    create_imagePng,
+    extremes_imagePng
+)
 from app.misc.scripts.blank_data import (
     blank_numpy_dict,
     blank_xarray_dataarray
@@ -20,13 +23,57 @@ def climate_forecast_10days_data(params):
     if params['variable'] == 'rainfall':
         if params['parameter'] == 'TotRain':
             return create_forecast_10days_data(params)
+        elif params['parameter'] == 'HeavyRain':
+            return create_forecast_10days_extrem(params)
+        elif params['parameter'] == 'AnomRain':
+            return {'status': -1, 'message': 'Not implemented yet'}
         else:
-            return {'status': -1, 'message': 'test'}
+            return {'status': -1, 'message': f'Unknown parameter: {params["parameter"]}'}
     elif params['variable'] == 'temperature':
         if params['parameter'] in ['MeanTemp', 'MinTemp', 'MaxTemp']:
             return create_forecast_10days_data(params)
+        elif params['parameter'] == 'AnomTemp':
+            return {'status': -1, 'message': 'Not implemented yet'}
+        else:
+            return {'status': -1, 'message': f'Unknown parameter: {params["parameter"]}'}
     else:
         return {'status': -1, 'message': f'Unknown variable: {params["variable"]}'}
+
+def create_forecast_10days_extrem(params):
+    info = GLOBAL_CONFIG['forecast_data']['tendays']
+    fcst_pth = os.path.join(info['dir'], params['issued'])
+    fcst_file = os.path.join(fcst_pth, 'PrecExtreme.nc')
+    if not os.path.exists(fcst_file):
+        msg = 'No file PrecExtreme.nc found'
+        return {'status': -1, 'message': msg}
+
+    ds = xr.open_dataset(fcst_file)
+    data = {
+        'lon': ds[info['dimname']['lon']].values,
+        'lat': ds[info['dimname']['lat']].values
+    }
+    categories = ('f90', 'f95', 'f99')
+    for name in categories:
+        data[name] = ds[name].load().values
+
+    dims = {'lon': 'lon', 'lat': 'lat', 'data': 'f90'}
+    data = blank_numpy_dict(data, dims=dims, buffer=True)
+    data['f95'][np.isnan(data['f90'])] = np.nan
+    data['f99'][np.isnan(data['f90'])] = np.nan
+
+    colors = {
+        'f90': '#afeeee',
+        'f95': '#1874cd',
+        'f99': '#00008b',
+    }
+    labels = {
+        'f90': 'Heavy Rainfall',
+        'f95': 'Very Heavy Rainfall',
+        'f99': 'Extremely Heavy Rainfall'
+    }
+
+    map_png = extremes_imagePng(data, categories, labels, colors)
+    return {'status': 0, 'data': map_png}
 
 def create_forecast_10days_data(params):
     fcst_obj = {

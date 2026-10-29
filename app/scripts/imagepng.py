@@ -274,3 +274,73 @@ def terciles_imagePng(data, breaks=None, colors=None):
     ckeys['raster'] = True
 
     return {'data': img_out, 'ckeys': ckeys}
+
+def extremes_imagePng(data, categories, labels, colors=None):
+    if colors is None:
+        c_list = ['#afeeee', '#1874cd', '#00008b']
+        colors = {n: c for n, c in zip(categories, c_list)}
+
+    ###### map
+    fig = plt.figure()
+    ax = plt.axes([0, 0, 1, 1])
+
+    for name in categories:
+        mask = np.ma.masked_invalid(
+            np.where(np.isfinite(data[name]), 1.0, np.nan)
+        )
+        cmap = mcolors.ListedColormap(colors[name])
+        ax.pcolormesh(
+            data['lon'],
+            data['lat'],
+            mask,
+            shading='nearest',
+            cmap=cmap,
+            vmin=0,
+            vmax=1,
+            rasterized=True,
+            zorder=1
+        )
+
+    x_min, x_max = ax.get_xlim()
+    y_min, y_max = ax.get_ylim()
+    bounds = [[y_max.item(), x_min.item()],
+              [y_min.item(), x_max.item()]]
+    ax.axis('off')
+
+    img_png = render_image_png(plt)
+    img_out = {'png': img_png, 'bounds': bounds}
+
+    ##### colorbar
+    ckeys = {}
+    fig = plt.figure(figsize=(10.24, 1.15), dpi=200, facecolor='white')
+
+    positions = [0.020, 0.350, 0.680]
+    legend_items = [
+        (pos, colors[cat], labels[cat])
+        for pos, cat in zip(positions, categories)
+    ]
+
+    for left, color, label in legend_items:
+        fig.add_artist(
+            Rectangle(
+                (left, 0.55),
+                0.300,
+                0.32,
+                transform=fig.transFigure,
+                facecolor=color,
+                edgecolor='none',
+            )
+        )
+        fig.text(
+            left + 0.150,
+            0.30,
+            label,
+            ha='center',
+            va='center',
+            fontsize=18,
+        )
+
+    ckeys['png'] = render_image_png(plt)
+    ckeys['raster'] = True
+
+    return {'data': img_out, 'ckeys': ckeys}
