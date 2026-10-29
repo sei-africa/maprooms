@@ -1771,8 +1771,8 @@ function setHealthCmstProductControls(tempRes) {
         Array.from({ length: 14 },
             (_, index) => index - 0.5
         ) :
-        Array.from({ length: 11 },
-            (_, index) => index * 10
+        Array.from({ length: 9 },
+            (_, index) => (index + 1) * 10
         );
     const colors = annual ? 'cmst_colors' : 'viridis';
 
