@@ -30,6 +30,8 @@ esriAccessToken: ''
 dislpaySEILogo: True
 
 ## Funding
+displayFundOrg: False
+fundingLogo: default-wbg_logo.svg
 fundingOrg:
   en: Funded by the World Bank
   fr: Finacé par la Banque Modiale
