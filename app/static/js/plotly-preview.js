@@ -2633,7 +2633,10 @@ function preview_projection_display_pdf(json, container) {
 
     var layout = {
         xaxis: {
-            range: json.xrange,
+            // range: json.xrange,
+            range: json.info.var.type === 'rainfall'
+                ? [Math.max(0, json.xrange[0]), json.xrange[1]]
+                : json.xrange,
             tickvals: previewTicks,
             tickmode: 'array',
             tickangle: 0,

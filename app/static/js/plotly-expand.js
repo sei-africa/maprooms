@@ -4154,7 +4154,10 @@ function expand_projection_display_distribution(json, container) {
                 text: `${json.info.season} — ${json.info.var.name} ` +
                     `(${json.info.var.units})`
             },
-            range: json.xrange,
+            // range: json.xrange,
+            range: !isCDF && json.info.var.type === 'rainfall'
+                ? [Math.max(0, json.xrange[0]), json.xrange[1]]
+                : json.xrange,
             tickmode: 'array',
             tickvals: json.xticks,
             tickformat: isTemperature ? '.1f' : ',.0f',
