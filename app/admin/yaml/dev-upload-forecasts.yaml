@@ -19,6 +19,14 @@ required_files:
 optional_files:
     en: Optional files
     fr: Fichiers facultatifs
+example_files:
+    en: Example filenames
+    fr: Exemples de noms de fichiers
+
+seasonal_source:
+    en: Seasonal forecast source
+    fr: Source de prévision saisonnière
+
 seasonal_variable:
     label:
         en: Seasonal forecast variable
@@ -29,24 +37,149 @@ seasonal_variable:
     temperature:
         en: Upload seasonal temperature forecast
         fr: Importer les prévisions saisonnières de température
+
+monthly_source:
+    en: Monthly forecast source
+    fr: Source de prévision mensuelle
+
+monthly_variable:
+    label:
+        en: Monthly forecast variable
+        fr: Variable de prévision mensuelle
+    rainfall:
+        en: Upload monthly rainfall forecast
+        fr: Importer les prévisions mensuelles de précipitations
+    temperature:
+        en: Upload monthly temperature forecast
+        fr: Importer les prévisions mensuelles de température
+
 forecasts:
     seasonal:
         title:
             en: Upload seasonal forecast
             fr: Importer les prévisions saisonnières
-        description:
-            en: Select all four required files. Optional hindcast and skill files may also be included. The forecast year must contain exactly four digits.
-            fr: Sélectionnez les quatre fichiers obligatoires. Les fichiers facultatifs de rétrospective et de scores peuvent aussi être inclus. L'année doit comporter exactement quatre chiffres.
-        required_files:
-            - MME_deterministic_forecast_YYYY.nc
-            - MME_forecast_prediction_error_variance_YYYY.nc
-            - MME_probabilistic_forecast_YYYY.nc
-            - obs.nc
-        optional_files:
-            - MME_deterministic_hindcasts.nc
-            - MME_hindcast_prediction_error_variance.nc
-            - MME_probabilistic_hindcasts.nc
-            - MME_skill_scores.nc
+        source:
+            pycpt:
+                label:
+                    en: PyCPT (Python Climate Predictability Tool)
+                    fr: PyCPT (Python Climate Predictability Tool)
+                description:
+                    en: Select all four required files. Optional hindcast and skill files may also be included. The forecast year must contain exactly four digits.
+                    fr: Sélectionnez les quatre fichiers obligatoires. Les fichiers facultatifs de rétrospective et de scores peuvent aussi être inclus. L'année doit comporter exactement quatre chiffres.
+                required_files:
+                    - MME_deterministic_forecast_YYYY.nc
+                    - MME_forecast_prediction_error_variance_YYYY.nc
+                    - MME_probabilistic_forecast_YYYY.nc
+                    - obs.nc
+                optional_files:
+                    - MME_deterministic_hindcasts.nc
+                    - MME_hindcast_prediction_error_variance.nc
+                    - MME_probabilistic_hindcasts.nc
+                    - MME_skill_scores.nc
+                examples:
+                    rainfall:
+                        - MME_deterministic_forecast_2026.nc
+                        - MME_forecast_prediction_error_variance_2026.nc
+                        - MME_probabilistic_forecast_2026.nc
+                        - obs.nc
+                        - MME_deterministic_hindcasts.nc
+                        - MME_hindcast_prediction_error_variance.nc
+                        - MME_probabilistic_hindcasts.nc
+                        - MME_skill_scores.nc
+                    temperature:
+                        - MME_deterministic_forecast_2026.nc
+                        - MME_forecast_prediction_error_variance_2026.nc
+                        - MME_probabilistic_forecast_2026.nc
+                        - obs.nc
+                        - MME_deterministic_hindcasts.nc
+                        - MME_hindcast_prediction_error_variance.nc
+                        - MME_probabilistic_hindcasts.nc
+                        - MME_skill_scores.nc
+            wass2s:
+                label:
+                    en: WASS2S (West-African and Sahel Seasonal to Sub-seasonal)
+                    fr: WASS2S (West-African and Sahel Seasonal to Sub-seasonal)
+                description:
+                    en: Select all three required files. The forecast season target must contain all the months for the season with 3 letters for each month and an upper case for the first letter. The forecast year must contain exactly four digits.
+                    fr: test wass2s
+                required_files:
+                    - Forecast_Det_<VAR><MON1MON2...MONn>_YYYY.nc
+                    - Forecast_Prob_<VAR><MON1MON2...MONn>_YYYY.nc
+                    - <VAR>_predictand.nc
+                optional_files: []
+                examples:
+                    rainfall:
+                        - Forecast_Det_PRCPSepOctNov_2026.nc
+                        - Forecast_Prob_PRCPSepOctNov_2026.nc
+                        - PRCP_predictand.nc
+                    temperature:
+                        - Forecast_Det_TEMPSepOctNov_2026.nc
+                        - Forecast_Prob_TEMPSepOctNov_2026.nc
+                        - TEMP_predictand.nc
+
+    monthly:
+        title:
+            en: Upload monthly forecast
+            fr: Importer les prévisions mensuelles
+        source:
+            pycpt:
+                label:
+                    en: PyCPT (Python Climate Predictability Tool)
+                    fr: PyCPT (Python Climate Predictability Tool)
+                description:
+                    en: Select all four required files. Optional hindcast and skill files may also be included. The forecast year must contain exactly four digits.
+                    fr: Sélectionnez les quatre fichiers obligatoires. Les fichiers facultatifs de rétrospective et de scores peuvent aussi être inclus. L'année doit comporter exactement quatre chiffres.
+                required_files:
+                    - MME_deterministic_forecast_YYYY.nc
+                    - MME_forecast_prediction_error_variance_YYYY.nc
+                    - MME_probabilistic_forecast_YYYY.nc
+                    - obs.nc
+                optional_files:
+                    - MME_deterministic_hindcasts.nc
+                    - MME_hindcast_prediction_error_variance.nc
+                    - MME_probabilistic_hindcasts.nc
+                    - MME_skill_scores.nc
+                examples:
+                    rainfall:
+                        - MME_deterministic_forecast_2026.nc
+                        - MME_forecast_prediction_error_variance_2026.nc
+                        - MME_probabilistic_forecast_2026.nc
+                        - obs.nc
+                        - MME_deterministic_hindcasts.nc
+                        - MME_hindcast_prediction_error_variance.nc
+                        - MME_probabilistic_hindcasts.nc
+                        - MME_skill_scores.nc
+                    temperature:
+                        - MME_deterministic_forecast_2026.nc
+                        - MME_forecast_prediction_error_variance_2026.nc
+                        - MME_probabilistic_forecast_2026.nc
+                        - obs.nc
+                        - MME_deterministic_hindcasts.nc
+                        - MME_hindcast_prediction_error_variance.nc
+                        - MME_probabilistic_hindcasts.nc
+                        - MME_skill_scores.nc
+            wass2s:
+                label:
+                    en: WASS2S (West-African and Sahel Seasonal to Sub-seasonal)
+                    fr: WASS2S (West-African and Sahel Seasonal to Sub-seasonal)
+                description:
+                    en: Select all three required files. The forecast tagert month (<MON>) must have 3 letters and the first letter must be upper case. The forecast year must contain exactly four digits.
+                    fr: Select all three required files. The forecast tagert month (<MON>) must have 3 letters and the first letter must be upper case. The forecast year must contain exactly four digits.
+                required_files:
+                    - Forecast_Det_<VAR><MON>_YYYY.nc
+                    - Forecast_Prob_<VAR><MON>_YYYY.nc
+                    - <VAR>_predictand.nc
+                optional_files: []
+                examples:
+                    rainfall:
+                        - Forecast_Det_PRCPSep_2026.nc
+                        - Forecast_Prob_PRCPSep_2026.nc
+                        - PRCP_predictand.nc
+                    temperature:
+                        - Forecast_Det_TEMPSep_2026.nc
+                        - Forecast_Prob_TEMPSep_2026.nc
+                        - TEMP_predictand.nc
+
     tendays:
         title:
             en: Upload 10-days forecast
@@ -64,15 +197,7 @@ forecasts:
             - PrecDailyYrsPercentile.nc
             - PrecHourly.nc
             - TavgHourly.nc
-    monthly:
-        title:
-            en: Upload monthly forecast
-            fr: Importer les prévisions mensuelles
-        description:
-            en: The monthly forecast file specification has not been defined yet.
-            fr: La spécification des fichiers de prévision mensuelle n'a pas encore été définie.
-        required_files: []
-        optional_files: []
+
 messages:
     no_files:
         en: Select the required files before uploading.
