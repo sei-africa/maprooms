@@ -17,12 +17,39 @@
         </div>
         <div class="col-md-9" id="col_right">
             <h3 id="forecast-upload-title" class="mb-4"></h3>
-            <div class="mb-3" id="seasonal-variable-container">
-                <label class="form-label" for="seasonal-variable">{{ pageCtrl.seasonal_variable.label }}</label>
-                <select class="form-select w-50" id="seasonal-variable">
-                    <option value="rainfall">{{ pageCtrl.seasonal_variable.rainfall }}</option>
-                    <option value="temperature">{{ pageCtrl.seasonal_variable.temperature }}</option>
-                </select>
+            <div class="forecast-options" id="seasonal-options">
+                <div class="mb-3">
+                    <label class="form-label" for="seasonal-source">{{ pageCtrl.seasonal_source }}</label>
+                    <select class="form-select w-50 forecast-source" id="seasonal-source">
+                        {% for source, source_config in pageCtrl.forecasts.seasonal.source.items() %}
+                        <option value="{{ source }}">{{ source_config.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="seasonal-variable">{{ pageCtrl.seasonal_variable.label }}</label>
+                    <select class="form-select w-50 forecast-variable" id="seasonal-variable">
+                        <option value="rainfall">{{ pageCtrl.seasonal_variable.rainfall }}</option>
+                        <option value="temperature">{{ pageCtrl.seasonal_variable.temperature }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="forecast-options" id="monthly-options">
+                <div class="mb-3">
+                    <label class="form-label" for="monthly-source">{{ pageCtrl.monthly_source }}</label>
+                    <select class="form-select w-50 forecast-source" id="monthly-source">
+                        {% for source, source_config in pageCtrl.forecasts.monthly.source.items() %}
+                        <option value="{{ source }}">{{ source_config.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="monthly-variable">{{ pageCtrl.monthly_variable.label }}</label>
+                    <select class="form-select w-50 forecast-variable" id="monthly-variable">
+                        <option value="rainfall">{{ pageCtrl.monthly_variable.rainfall }}</option>
+                        <option value="temperature">{{ pageCtrl.monthly_variable.temperature }}</option>
+                    </select>
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="forecast-files">{{ pageCtrl.choose_files }}</label>
@@ -33,6 +60,7 @@
             </div>
             <div id="chosen-files" class="mt-4 border rounded p-3" aria-live="polite"></div>
             <div id="forecast-description" class="user-inputs-info mt-4 border rounded p-3"></div>
+            <div id="forecast-examples" class="user-inputs-info mt-3 border rounded p-3" style="display: none;"></div>
         </div>
     </div>
 </div>
